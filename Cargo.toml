@@ -6,3 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+starknet = { git = "https://github.com/Th0rgal/starknet-rs.git", branch = "feat/starknet-id" }
+axum = "0.6.17"
+toml = "0.5.10"
+serde = { version = "1.0.152", features = ["derive"] }
+serde_json = "1.0.96"
+tokio = { version = "1.26.0", features = ["macros", "rt-multi-thread"] }
+tower-http = { version = "0.4.0", features = ["cors"] }
+mongodb = "2.4.0"
+futures = "0.3.28"

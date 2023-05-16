@@ -1,0 +1,14 @@
+[server]
+port = 8080
+
+[database]
+name = "starkship_server"
+connection_string = "xxxxxx"
+
+[nft_contract]
+address = "0xXXXXXXXXXXXX"
+private_key = "1"
+
+[variables]
+app_link = "https://starknet.quest"
+is_testnet = false
