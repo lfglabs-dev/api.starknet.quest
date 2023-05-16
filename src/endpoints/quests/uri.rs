@@ -1,7 +1,7 @@
-use crate::config::Config;
+use crate::models::AppState;
 use crate::utils::get_error;
 use axum::{
-    extract::{Extension, Query},
+    extract::{Query, State},
     http::StatusCode,
     response::{IntoResponse, Response},
     Json,
@@ -25,9 +25,9 @@ pub struct Attribute {
 
 #[derive(Serialize)]
 pub enum Value {
-    String(String),
+    //String(String),
     Number(i32),
-    Array(Vec<String>),
+    //Array(Vec<String>),
 }
 
 #[derive(Deserialize)]
@@ -36,7 +36,7 @@ pub struct LevelQuery {
 }
 
 pub async fn handler(
-    Extension(state): Extension<Arc<Config>>,
+    State(state): State<Arc<AppState>>,
     Query(level_query): Query<LevelQuery>,
 ) -> Response {
     let level = level_query
@@ -55,7 +55,7 @@ pub async fn handler(
         Some(level_int) if level_int > 0 && level_int <= 3 => {
             let image_link = format!(
                 "{}/starkfighter/level{}.webp",
-                state.variables.app_link, level_int
+                state.conf.variables.app_link, level_int
             );
             let response = TokenURI {
                 name: format!("StarkFighter {} Arcade", get_level(level_int)),

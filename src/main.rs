@@ -42,7 +42,8 @@ async fn main() {
     let cors = CorsLayer::new().allow_headers(Any).allow_origin(Any);
     let app = Router::new()
         .route("/", get(root))
-        .route("/quests/uri", post(endpoints::quests::uri::handler))
+        .route("/quests/uri", get(endpoints::quests::uri::handler))
+        .route("/get_quest", get(endpoints::get_quest::handler))
         .with_state(shared_state)
         .layer(cors);
 
