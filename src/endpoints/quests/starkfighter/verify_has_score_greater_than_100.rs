@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    endpoints::quests::starkfighter::models::{CompletedTasks, QueryError, ScoreResponse},
+    endpoints::quests::starkfighter::models::{CompletedTaskDocument, QueryError, ScoreResponse},
     models::AppState,
 };
 use axum::{
@@ -41,8 +41,9 @@ pub async fn handler(
                 match resp.json::<ScoreResponse>().await {
                     Ok(player_score) => {
                         if player_score.score > 100.into() {
-                            let completed_tasks_collection =
-                                state.db.collection::<CompletedTasks>("completed_tasks");
+                            let completed_tasks_collection = state
+                                .db
+                                .collection::<CompletedTaskDocument>("completed_tasks");
                             let filter = doc! { "address": addr, "task_id": task_id };
                             let update =
                                 doc! { "$setOnInsert": { "address": addr, "task_id": task_id } };

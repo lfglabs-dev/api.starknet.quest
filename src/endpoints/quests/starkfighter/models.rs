@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize)]
-pub struct CompletedTasks {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CompletedTaskDocument {
     address: String,
     task_id: u32,
 }
