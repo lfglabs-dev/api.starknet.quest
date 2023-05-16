@@ -156,7 +156,7 @@ pub async fn handler(
                                     Ok((token_id, sig)) => {
                                         rewards.push(Reward {
                                             task_id: task_id as u32,
-                                            nft_contract: "YOUR_NFT_CONTRACT_HERE".to_string(),
+                                            nft_contract: state.conf.nft_contract.address.clone(),
                                             token_id: token_id.to_string(),
                                             sig: (sig.r, sig.s),
                                         });
