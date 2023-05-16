@@ -87,3 +87,5 @@ rust-project.json
 # Ignore all local history of files
 .history
 .ionide
+
+rustfmt.toml

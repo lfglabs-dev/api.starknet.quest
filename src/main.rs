@@ -58,6 +58,10 @@ async fn main() {
             "/quests/starkfighter/verify_has_score_greater_than_100",
             get(endpoints::quests::starkfighter::verify_has_score_greater_than_100::handler),
         )
+        .route(
+            "/quests/starknetid/verify_has_domain",
+            get(endpoints::quests::starknetid::verify_has_domain::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 

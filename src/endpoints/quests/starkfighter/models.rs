@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+#[derive(Deserialize)]
 pub struct CompletedTasks {
     address: String,
     task_id: u32,
