@@ -44,6 +44,8 @@ async fn main() {
         .route("/", get(root))
         .route("/quests/uri", get(endpoints::quests::uri::handler))
         .route("/get_quest", get(endpoints::get_quest::handler))
+        .route("/get_quests", get(endpoints::get_quests::handler))
+        .route("/get_tasks", get(endpoints::get_tasks::handler))
         .with_state(shared_state)
         .layer(cors);
 

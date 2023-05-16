@@ -4,7 +4,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
-use mongodb::{bson::doc, options::ClientOptions, Client, Collection};
+use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -33,16 +33,6 @@ pub struct QueryError {
     error: String,
 }
 
-async fn connect_to_database(state: Arc<AppState>) -> Collection<QuestDocument> {
-    let client_options = ClientOptions::parse(&state.conf.database.connection_string)
-        .await
-        .unwrap();
-    let client = Client::with_options(client_options).unwrap();
-    let database = client.database(&state.conf.database.name);
-    let collection = database.collection::<QuestDocument>("quests");
-    collection
-}
-
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {
     id: u32,
@@ -52,7 +42,7 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
-    let collection = connect_to_database(state.clone()).await;
+    let collection = state.db.collection::<QuestDocument>("quests");
     match collection.find_one(doc! {"id": query.id}, None).await {
         Ok(Some(quest)) => {
             let response = QuestDocument {
