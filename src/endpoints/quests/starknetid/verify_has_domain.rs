@@ -1,17 +1,14 @@
 use std::sync::Arc;
 
-use crate::{
-    endpoints::quests::starkfighter::models::{CompletedTasks, QueryError},
-    models::AppState,
-};
+use crate::models::AppState;
 use axum::{
     extract::{Query, State},
-    http::{StatusCode},
+    http::StatusCode,
     response::IntoResponse,
     Json,
 };
 use mongodb::{bson::doc, options::UpdateOptions};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 use starknet::{
     core::types::{BlockId, CallFunction, FieldElement},
@@ -23,6 +20,18 @@ use std::str::FromStr;
 #[derive(Deserialize)]
 pub struct StarknetIdQuery {
     addr: String,
+}
+
+#[derive(Deserialize)]
+pub struct CompletedTasks {
+    address: String,
+    task_id: u32,
+}
+
+#[derive(Serialize)]
+pub struct QueryError {
+    pub error: String,
+    pub res: bool,
 }
 
 pub async fn handler(
@@ -48,13 +57,14 @@ pub async fn handler(
 
     match call_result {
         Ok(result) => {
-            let domain_len = i64::from_str_radix(&FieldElement::to_string(&result.result[0]) , 16).unwrap();
+            let domain_len =
+                i64::from_str_radix(&FieldElement::to_string(&result.result[0]), 16).unwrap();
 
             if domain_len > 0 {
-                let completed_tasks_collection = state.db.collection::<CompletedTasks>("completed_tasks");
+                let completed_tasks_collection =
+                    state.db.collection::<CompletedTasks>("completed_tasks");
                 let filter = doc! { "address": addr, "task_id": task_id };
-                let update =
-                    doc! { "$setOnInsert": { "address": addr, "task_id": task_id } };
+                let update = doc! { "$setOnInsert": { "address": addr, "task_id": task_id } };
                 let options = UpdateOptions::builder().upsert(true).build();
 
                 let result = completed_tasks_collection
