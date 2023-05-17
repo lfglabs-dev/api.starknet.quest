@@ -2,10 +2,10 @@ version: '3'
 
 services:
 
-  quest-server:
-    container_name: quest-server
+  quest_server:
+    container_name: quest_server
     build: .
-    command: ./target/release/quest-server
+    command: ./target/release/quest_server
     restart: always
     ports:
       - 8080:8080

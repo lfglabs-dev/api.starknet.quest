@@ -15,7 +15,7 @@ use tower_http::cors::{Any, CorsLayer};
 
 #[tokio::main]
 async fn main() {
-    println!("quest-server: starting v{}", env!("CARGO_PKG_VERSION"));
+    println!("quest_server: starting v{}", env!("CARGO_PKG_VERSION"));
     let conf = config::load();
     let client_options = ClientOptions::parse(&conf.database.connection_string)
         .await
@@ -80,6 +80,6 @@ async fn main() {
 async fn root() -> (StatusCode, String) {
     (
         StatusCode::ACCEPTED,
-        format!("quest-server v{}", env!("CARGO_PKG_VERSION")),
+        format!("quest_server v{}", env!("CARGO_PKG_VERSION")),
     )
 }
