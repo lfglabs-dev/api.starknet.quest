@@ -1,11 +1,10 @@
-version: '3'
+version: "3"
 
 services:
-
-  game-server:
-    container_name: game-server
+  quest-server:
+    container_name: quest-server
     build: .
-    command: ./target/release/game-server
+    command: ./target/release/quest-server
     restart: always
     ports:
       - 8080:8080
@@ -19,8 +18,8 @@ services:
     volumes:
       - ssl_data:/etc/resty-auto-ssl
     environment:
-      ALLOWED_DOMAINS: 'server.starknet.quest'
-      SITES: 'server.starknet.quest=game-server:8080'
+      ALLOWED_DOMAINS: "api.starknet.quest"
+      SITES: "api.starknet.quest=quest-server:8080"
 
 volumes:
   ssl_data:
