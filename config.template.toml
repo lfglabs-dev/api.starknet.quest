@@ -9,6 +9,9 @@ connection_string = "xxxxxx"
 address = "0xXXXXXXXXXXXX"
 private_key = "1"
 
+[naming_contract]
+address = "0xXXXXXXXXXXXX"
+
 [variables]
 app_link = "https://starknet.quest"
 is_testnet = false

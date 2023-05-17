@@ -43,6 +43,10 @@ async fn main() {
     let app = Router::new()
         .route("/", get(root))
         .route("/quests/uri", get(endpoints::quests::uri::handler))
+        .route(
+            "/quests/contract_uri",
+            get(endpoints::quests::contract_uri::handler),
+        )
         .route("/get_quest", get(endpoints::get_quest::handler))
         .route("/get_quests", get(endpoints::get_quests::handler))
         .route("/get_tasks", get(endpoints::get_tasks::handler))
