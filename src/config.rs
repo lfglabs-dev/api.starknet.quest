@@ -12,12 +12,10 @@ macro_rules! pub_struct {
     }
 }
 
-pub_struct!(Server {
-    port: u16,
-});
+pub_struct!(Server { port: u16, });
 
 pub_struct!(Database {
-    name : String,
+    name: String,
     connection_string: String,
 });
 
@@ -31,11 +29,14 @@ pub_struct!(Variables {
     is_testnet: bool,
 });
 
+pub_struct!(NamingContract { address: String, });
+
 pub_struct!(Config {
-    server : Server,
+    server: Server,
     database: Database,
     nft_contract: NftContract,
     variables: Variables,
+    naming_contract: NamingContract,
 });
 
 pub fn load() -> Config {
