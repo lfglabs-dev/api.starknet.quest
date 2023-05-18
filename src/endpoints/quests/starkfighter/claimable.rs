@@ -88,7 +88,7 @@ async fn get_nft(
         }
     };
 
-    let token_id = nft_level + 100 * (rand::random::<u32>() % (2u32.pow(32)));
+    let token_id = nft_level + 100 * (rand::random::<u32>() % (2u32.pow(16)));
     let hashed = pedersen_hash(
         &pedersen_hash(
             &pedersen_hash(
