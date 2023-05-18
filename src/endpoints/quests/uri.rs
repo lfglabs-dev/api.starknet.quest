@@ -20,14 +20,7 @@ pub struct TokenURI {
 #[derive(Serialize)]
 pub struct Attribute {
     trait_type: String,
-    value: Value,
-}
-
-#[derive(Serialize)]
-pub enum Value {
-    //String(String),
-    Number(i32),
-    //Array(Vec<String>),
+    value: u32,
 }
 
 #[derive(Deserialize)]
@@ -41,9 +34,9 @@ pub async fn handler(
 ) -> Response {
     let level = level_query
         .level
-        .and_then(|level_str| level_str.parse::<i32>().ok());
+        .and_then(|level_str| level_str.parse::<u32>().ok());
 
-    fn get_level(level_int: i32) -> &'static str {
+    fn get_level(level_int: u32) -> &'static str {
         match level_int {
             2 => "Silver",
             3 => "Gold",
@@ -63,7 +56,7 @@ pub async fn handler(
                 image: image_link,
                 attributes: Some(vec![Attribute {
                     trait_type: "level".into(),
-                    value: Value::Number(level_int),
+                    value: level_int,
                 }]),
             };
             (StatusCode::OK, Json(response)).into_response()
