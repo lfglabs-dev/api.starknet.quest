@@ -46,8 +46,8 @@ pub struct TwitterRequestProps {
 }
 
 #[derive(Deserialize)]
-pub struct GetTasksQuery {
-    address: FieldElement,
+pub struct ClaimableQuery {
+    addr: FieldElement,
 }
 
 #[derive(Serialize)]
@@ -106,7 +106,7 @@ async fn get_nft(
 const QUEST_ID: u32 = 123;
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    Query(query): Query<GetTasksQuery>,
+    Query(query): Query<ClaimableQuery>,
 ) -> impl IntoResponse {
     let collection = state
         .db
@@ -114,7 +114,7 @@ pub async fn handler(
     let pipeline = vec![
         doc! {
             "$match": {
-                "address": &query.address.to_string(),
+                "address": &query.addr.to_string(),
             },
         },
         doc! {
@@ -152,7 +152,7 @@ pub async fn handler(
                     Ok(document) => {
                         if let Ok(task_id) = document.get_i32("task_id") {
                             if task_id != 1 {
-                                match get_nft(&query.address, task_id as u32, &signer).await {
+                                match get_nft(&query.addr, task_id as u32, &signer).await {
                                     Ok((token_id, sig)) => {
                                         rewards.push(Reward {
                                             task_id: task_id as u32,
