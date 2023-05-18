@@ -51,6 +51,10 @@ async fn main() {
         .route("/get_quests", get(endpoints::get_quests::handler))
         .route("/get_tasks", get(endpoints::get_tasks::handler))
         .route(
+            "/quests/starkfighter/claimable",
+            get(endpoints::quests::starkfighter::claimable::handler),
+        )
+        .route(
             "/quests/starkfighter/verify_has_played",
             get(endpoints::quests::starkfighter::verify_has_played::handler),
         )

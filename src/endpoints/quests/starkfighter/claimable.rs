@@ -171,11 +171,11 @@ pub async fn handler(
             }
 
             if rewards.is_empty() {
-                get_error("No completed tasks found for this user".into())
+                get_error("No rewards found for this user".into())
             } else {
                 (StatusCode::OK, Json(RewardResponse { rewards })).into_response()
             }
         }
-        Err(_) => get_error("Error querying completed tasks".into()),
+        Err(_) => get_error("Error querying rewards".into()),
     }
 }
