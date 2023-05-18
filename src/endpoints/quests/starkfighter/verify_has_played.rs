@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
+    config,
     endpoints::quests::starkfighter::models::{CompletedTaskDocument, QueryError, ScoreResponse},
     models::AppState,
 };
@@ -29,7 +30,10 @@ pub async fn handler(
     });
 
     let response = client
-        .post("https://muscledserver.starkfighter.xyz/fetch_user_score")
+        .post(format!(
+            "{}fetch_user_score",
+            state.conf.quests.starkfighter_server
+        ))
         .header(CONTENT_TYPE, "application/json")
         .body(body.to_string())
         .send()
