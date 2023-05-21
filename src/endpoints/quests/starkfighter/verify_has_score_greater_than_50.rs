@@ -29,7 +29,7 @@ pub async fn handler(
     });
 
     let response = client
-        .post("https://muscledserver.starkfighter.xyz/fetch_user_score")
+        .post("https://server.starkfighter.xyz/fetch_user_score")
         .header(CONTENT_TYPE, "application/json")
         .body(body.to_string())
         .send()
