@@ -12,6 +12,9 @@ private_key = "1"
 [naming_contract]
 address = "0xXXXXXXXXXXXX"
 
+[quests]
+starkfighter_server = "https://server.starkfighter.xyz/"
+
 [variables]
 app_link = "https://starknet.quest"
 is_testnet = false
