@@ -31,12 +31,17 @@ pub_struct!(Variables {
 
 pub_struct!(NamingContract { address: String, });
 
+pub_struct!(Quests {
+    starkfighter_server: String,
+});
+
 pub_struct!(Config {
     server: Server,
     database: Database,
     nft_contract: NftContract,
     variables: Variables,
     naming_contract: NamingContract,
+    quests: Quests,
 });
 
 pub fn load() -> Config {
