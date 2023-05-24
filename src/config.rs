@@ -11,7 +11,7 @@ macro_rules! pub_struct {
         }
     }
 }
-
+#[rustfmt::skip]
 pub_struct!(Server { port: u16, });
 
 pub_struct!(Database {
@@ -29,7 +29,11 @@ pub_struct!(Variables {
     is_testnet: bool,
 });
 
-pub_struct!(NamingContract { address: String, });
+pub_struct!(StarknetIdContracts {
+    naming_contract: String,
+    verifier_contract: String,
+    identity_contract: String,
+});
 
 pub_struct!(Quests {
     starkfighter_server: String,
@@ -40,7 +44,7 @@ pub_struct!(Config {
     database: Database,
     nft_contract: NftContract,
     variables: Variables,
-    naming_contract: NamingContract,
+    starknetid_contracts: StarknetIdContracts,
     quests: Quests,
 });
 
