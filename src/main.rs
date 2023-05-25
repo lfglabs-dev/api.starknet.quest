@@ -75,12 +75,8 @@ async fn main() {
             get(endpoints::quests::starknetid::verify_has_root_domain::handler),
         )
         .route(
-            "/quests/starknetid/verify_twitter",
-            get(endpoints::quests::starknetid::verify_twitter::handler),
-        )
-        .route(
-            "/quests/starknetid/verify_discord",
-            get(endpoints::quests::starknetid::verify_discord::handler),
+            "/quests/starknetid/verify_socials",
+            get(endpoints::quests::starknetid::verify_socials::handler),
         )
         .with_state(shared_state)
         .layer(cors);
