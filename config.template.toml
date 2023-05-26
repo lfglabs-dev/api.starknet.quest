@@ -9,8 +9,10 @@ connection_string = "xxxxxx"
 address = "0xXXXXXXXXXXXX"
 private_key = "1"
 
-[naming_contract]
-address = "0xXXXXXXXXXXXX"
+[starknetid_contracts]
+naming_contract = "0xXXXXXXXXXXXX"
+verifier_contract = "0xXXXXXXXXXXXX"
+identity_contract = "0xXXXXXXXXXXXX"
 
 [quests]
 starkfighter_server = "https://server.starkfighter.xyz/"
