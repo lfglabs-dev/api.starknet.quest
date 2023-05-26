@@ -1,4 +1,5 @@
 use mongodb::Database;
+use serde::{Deserialize, Serialize};
 
 use crate::config::Config;
 
@@ -6,3 +7,23 @@ pub struct AppState {
     pub conf: Config,
     pub db: Database,
 }
+
+pub_struct!(Debug, Serialize, Deserialize; NFTItem {
+    img: String,
+    level: u32,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
+    id: u32,
+    name: String,
+    desc: String,
+    issuer: String,
+    category: String,
+    rewards_endpoint: String,
+    logo: String,
+    rewards_img: String,
+    rewards_title: String,
+    rewards_nfts: Vec<NFTItem>,
+    img_card: String,
+    title_card: String,
+});

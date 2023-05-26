@@ -51,11 +51,6 @@ pub struct ClaimableQuery {
 }
 
 #[derive(Serialize)]
-pub struct QueryError {
-    error: String,
-}
-
-#[derive(Serialize)]
 pub struct Reward {
     task_id: u32,
     nft_contract: String,
