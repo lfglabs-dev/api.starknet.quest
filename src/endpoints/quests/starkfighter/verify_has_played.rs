@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use crate::{
-    config,
-    endpoints::quests::starkfighter::models::{CompletedTaskDocument, QueryError, ScoreResponse},
+    endpoints::quests::starkfighter::models::{CompletedTaskDocument, ScoreResponse},
     models::AppState,
+    utils::get_error,
 };
 use axum::{
     extract::{Query, State},
@@ -58,37 +58,15 @@ pub async fn handler(
 
                         match result {
                             Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
-                            Err(e) => {
-                                let error = QueryError {
-                                    error: format!("{}", e),
-                                    res: false,
-                                };
-                                (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
-                            }
+                            Err(e) => get_error(format!("{}", e)),
                         }
                     }
-                    Err(e) => {
-                        let error = QueryError {
-                            error: format!("{}", e),
-                            res: false,
-                        };
-                        (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
-                    }
+                    Err(e) => get_error(format!("{}", e)),
                 }
             } else {
-                let error = QueryError {
-                    error: String::from("You have not played"),
-                    res: false,
-                };
-                (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
+                get_error("You have not played".to_string())
             }
         }
-        Err(e) => {
-            let error = QueryError {
-                error: format!("{}", e),
-                res: false,
-            };
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
-        }
+        Err(e) => get_error(format!("{}", e)),
     }
 }

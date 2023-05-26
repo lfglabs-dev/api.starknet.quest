@@ -1,12 +1,9 @@
+#[macro_use]
+mod utils;
 mod config;
 mod endpoints;
 mod models;
-mod utils;
-use axum::{
-    http::StatusCode,
-    routing::{get, post},
-    Router,
-};
+use axum::{http::StatusCode, routing::get, Router};
 use mongodb::{bson::doc, options::ClientOptions, Client};
 use std::net::SocketAddr;
 use std::sync::Arc;

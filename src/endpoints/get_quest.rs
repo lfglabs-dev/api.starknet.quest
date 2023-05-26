@@ -1,37 +1,15 @@
-use crate::models::AppState;
+use crate::{
+    models::{AppState, QuestDocument},
+    utils::get_error,
+};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use mongodb::bson::doc;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use std::sync::Arc;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct NFTItem {
-    img: String,
-    level: u32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct QuestDocument {
-    id: u32,
-    name: String,
-    desc: String,
-    issuer: String,
-    category: String,
-    rewards_endpoint: String,
-    logo: String,
-    rewards_img: String,
-    rewards_title: String,
-    rewards_nfts: Vec<NFTItem>,
-}
-
-#[derive(Serialize)]
-pub struct QueryError {
-    error: String,
-}
 
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {
@@ -56,20 +34,12 @@ pub async fn handler(
                 rewards_img: quest.rewards_img,
                 rewards_title: quest.rewards_title,
                 rewards_nfts: quest.rewards_nfts,
+                img_card: quest.img_card,
+                title_card: quest.title_card,
             };
             (StatusCode::OK, Json(response)).into_response()
         }
-        Ok(None) => {
-            let error = QueryError {
-                error: String::from("Quest not found"),
-            };
-            (StatusCode::NOT_FOUND, Json(error)).into_response()
-        }
-        Err(_) => {
-            let error = QueryError {
-                error: String::from("Error querying quest"),
-            };
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
-        }
+        Ok(None) => get_error("Quest not found".to_string()),
+        Err(_) => get_error("Error querying quest".to_string()),
     }
 }

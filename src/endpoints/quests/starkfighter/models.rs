@@ -16,9 +16,3 @@ pub struct ScoreResponse {
 pub struct StarkfighterQuery {
     pub addr: String,
 }
-
-#[derive(Serialize)]
-pub struct QueryError {
-    pub error: String,
-    pub res: bool,
-}
