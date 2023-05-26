@@ -27,3 +27,8 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     img_card: String,
     title_card: String,
 });
+
+pub_struct!(Deserialize; CompletedTasks {
+    address: String,
+    task_id: u32,
+});

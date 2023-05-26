@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use crate::models::AppState;
+use crate::{
+    models::{AppState, CompletedTasks},
+    utils::get_error,
+};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -8,7 +11,7 @@ use axum::{
     Json,
 };
 use mongodb::{bson::doc, options::UpdateOptions};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_json::json;
 use starknet::{
     core::types::{BlockId, CallFunction, FieldElement},
@@ -20,19 +23,6 @@ use std::str::FromStr;
 #[derive(Deserialize)]
 pub struct StarknetIdQuery {
     addr: String,
-}
-
-#[allow(dead_code)]
-#[derive(Deserialize)]
-pub struct CompletedTasks {
-    address: String,
-    task_id: u32,
-}
-
-#[derive(Serialize)]
-pub struct QueryError {
-    pub error: String,
-    pub res: bool,
 }
 
 pub async fn handler(
@@ -76,28 +66,12 @@ pub async fn handler(
 
                 match result {
                     Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
-                    Err(e) => {
-                        let error = QueryError {
-                            error: format!("{}", e),
-                            res: false,
-                        };
-                        (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
-                    }
+                    Err(e) => get_error(format!("{}", e)),
                 }
             } else {
-                let error = QueryError {
-                    error: String::from("You don't own a stark domain"),
-                    res: false,
-                };
-                (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
+                get_error("You don't own a stark domain".to_string())
             }
         }
-        Err(e) => {
-            let error = QueryError {
-                error: format!("{}", e),
-                res: false,
-            };
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
-        }
+        Err(e) => get_error(format!("{}", e)),
     }
 }

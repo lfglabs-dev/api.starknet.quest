@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::models::AppState;
+use crate::models::{AppState, CompletedTasks};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -20,12 +20,6 @@ use std::str::FromStr;
 #[derive(Deserialize)]
 pub struct StarknetIdQuery {
     addr: String,
-}
-
-#[derive(Deserialize)]
-pub struct CompletedTasks {
-    address: String,
-    task_id: u32,
 }
 
 #[derive(Serialize)]
