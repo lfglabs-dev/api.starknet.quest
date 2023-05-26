@@ -1,4 +1,4 @@
-use crate::models::AppState;
+use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -19,11 +19,6 @@ pub struct UserTask {
     verify_endpoint: String,
     desc: String,
     completed: bool,
-}
-
-#[derive(Serialize)]
-pub struct QueryError {
-    error: String,
 }
 
 #[derive(Deserialize)]
@@ -82,20 +77,12 @@ pub async fn handler(
                 }
             }
             if tasks.is_empty() {
-                let error = QueryError {
-                    error: String::from("No tasks found for this quest_id"),
-                };
-                (StatusCode::OK, Json(error)).into_response()
+                get_error("No tasks found for this quest_id".to_string())
             } else {
                 tasks.sort_by(|a, b| a.id.cmp(&b.id));
                 (StatusCode::OK, Json(tasks)).into_response()
             }
         }
-        Err(_) => {
-            let error = QueryError {
-                error: String::from("Error querying tasks"),
-            };
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
-        }
+        Err(_) => get_error("Error querying tasks".to_string()),
     }
 }

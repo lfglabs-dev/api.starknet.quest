@@ -22,6 +22,7 @@ pub struct StarknetIdQuery {
     addr: String,
 }
 
+#[allow(dead_code)]
 #[derive(Deserialize)]
 pub struct CompletedTasks {
     address: String,

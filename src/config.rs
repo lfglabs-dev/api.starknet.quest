@@ -3,39 +3,30 @@ use starknet::core::types::FieldElement;
 use std::env;
 use std::fs;
 
-macro_rules! pub_struct {
-    ($name:ident {$($field:ident: $t:ty,)*}) => {
-        #[derive(Clone, Deserialize)]
-        pub struct $name {
-            $(pub $field: $t),*
-        }
-    }
-}
+pub_struct!(Clone, Deserialize; Server { port: u16 });
 
-pub_struct!(Server { port: u16, });
-
-pub_struct!(Database {
+pub_struct!(Clone, Deserialize; Database {
     name: String,
     connection_string: String,
 });
 
-pub_struct!(NftContract {
+pub_struct!(Clone, Deserialize; NftContract {
     address: String,
     private_key: FieldElement,
 });
 
-pub_struct!(Variables {
+pub_struct!(Clone, Deserialize;  Variables {
     app_link: String,
     is_testnet: bool,
 });
 
-pub_struct!(NamingContract { address: String, });
+pub_struct!(Clone, Deserialize;  NamingContract { address: String });
 
-pub_struct!(Quests {
+pub_struct!(Clone, Deserialize;  Quests {
     starkfighter_server: String,
 });
 
-pub_struct!(Config {
+pub_struct!(Clone, Deserialize;  Config {
     server: Server,
     database: Database,
     nft_contract: NftContract,
