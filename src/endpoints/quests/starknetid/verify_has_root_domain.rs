@@ -22,7 +22,6 @@ pub struct StarknetIdQuery {
     addr: String,
 }
 
-#[allow(dead_code)]
 #[derive(Deserialize)]
 pub struct CompletedTasks {
     address: String,
@@ -39,7 +38,7 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<StarknetIdQuery>,
 ) -> impl IntoResponse {
-    let task_id = 1;
+    let task_id = 5;
     let addr = &query.addr;
 
     // get starkname from address
@@ -63,7 +62,7 @@ pub async fn handler(
             let domain_len =
                 i64::from_str_radix(&FieldElement::to_string(&result.result[0]), 16).unwrap();
 
-            if domain_len > 0 {
+            if domain_len == 1 {
                 let completed_tasks_collection =
                     state.db.collection::<CompletedTasks>("completed_tasks");
                 let filter = doc! { "address": addr, "task_id": task_id };
@@ -86,7 +85,7 @@ pub async fn handler(
                 }
             } else {
                 let error = QueryError {
-                    error: String::from("You don't own a stark domain"),
+                    error: String::from("You don't own a .stark root domain"),
                     res: false,
                 };
                 (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()

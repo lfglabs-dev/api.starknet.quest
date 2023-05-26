@@ -3,7 +3,17 @@ use starknet::core::types::FieldElement;
 use std::env;
 use std::fs;
 
+macro_rules! pub_struct {
+    ($name:ident {$($field:ident: $t:ty,)*}) => {
+        #[derive(Clone, Deserialize)]
+        pub struct $name {
+            $(pub $field: $t),*
+        }
+    }
+}
+
 pub_struct!(Clone, Deserialize; Server { port: u16 });
+
 
 pub_struct!(Clone, Deserialize; Database {
     name: String,
@@ -20,6 +30,13 @@ pub_struct!(Clone, Deserialize;  Variables {
     is_testnet: bool,
 });
 
+
+pub_struct!(Clone, Deserialize; StarknetIdContracts {
+    naming_contract: String,
+    verifier_contract: String,
+    identity_contract: String,
+});
+
 pub_struct!(Clone, Deserialize;  NamingContract { address: String });
 
 pub_struct!(Clone, Deserialize;  Quests {
@@ -31,7 +48,7 @@ pub_struct!(Clone, Deserialize;  Config {
     database: Database,
     nft_contract: NftContract,
     variables: Variables,
-    naming_contract: NamingContract,
+    starknetid_contracts: StarknetIdContracts,
     quests: Quests,
 });
 
