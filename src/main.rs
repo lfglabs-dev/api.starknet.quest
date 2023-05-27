@@ -5,6 +5,7 @@ mod endpoints;
 mod models;
 use axum::{http::StatusCode, routing::get, Router};
 use mongodb::{bson::doc, options::ClientOptions, Client};
+use starknet::providers::SequencerGatewayProvider;
 use std::net::SocketAddr;
 use std::sync::Arc;
 
@@ -20,6 +21,11 @@ async fn main() {
 
     let shared_state = Arc::new(models::AppState {
         conf: conf.clone(),
+        provider: if conf.variables.is_testnet {
+            SequencerGatewayProvider::starknet_alpha_goerli()
+        } else {
+            SequencerGatewayProvider::starknet_alpha_mainnet()
+        },
         db: Client::with_options(client_options)
             .unwrap()
             .database(&conf.database.name),

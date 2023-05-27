@@ -13,7 +13,7 @@ use serde_json::json;
 use starknet::{
     core::types::{BlockId, CallFunction, FieldElement},
     macros::{felt, selector, short_string},
-    providers::{Provider, SequencerGatewayProvider},
+    providers::Provider,
 };
 use std::str::FromStr;
 
@@ -36,8 +36,8 @@ pub async fn handler(
     let addr = &query.addr;
 
     // get starkname from address
-    let provider = SequencerGatewayProvider::starknet_alpha_mainnet();
-    let call_result = provider
+    let call_result = state
+        .provider
         .call_contract(
             CallFunction {
                 contract_address: FieldElement::from_str(
@@ -54,7 +54,8 @@ pub async fn handler(
     match call_result {
         Ok(result) => {
             // get starknet id from domain
-            let id_call_result = provider
+            let id_call_result = state
+                .provider
                 .call_contract(
                     CallFunction {
                         contract_address: FieldElement::from_str(
@@ -71,7 +72,8 @@ pub async fn handler(
             match id_call_result {
                 Ok(starknet_id) => {
                     // get twitter verifier data
-                    let twitter_verifier_res = provider
+                    let twitter_verifier_res = state
+                        .provider
                         .call_contract(
                             CallFunction {
                                 contract_address: FieldElement::from_str(
@@ -94,7 +96,8 @@ pub async fn handler(
 
                     match twitter_verifier_res {
                         Ok(twitter_verifier_data) => {
-                            let discord_verifier_res = provider
+                            let discord_verifier_res = state
+                                .provider
                                 .call_contract(
                                     CallFunction {
                                         contract_address: FieldElement::from_str(

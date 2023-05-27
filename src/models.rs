@@ -1,10 +1,12 @@
 use mongodb::Database;
 use serde::{Deserialize, Serialize};
+use starknet::providers::SequencerGatewayProvider;
 
 use crate::config::Config;
 
 pub struct AppState {
     pub conf: Config,
+    pub provider: SequencerGatewayProvider,
     pub db: Database,
 }
 
