@@ -1,6 +1,7 @@
-use std::sync::Arc;
-
-use crate::models::{AppState, CompletedTasks};
+use crate::{
+    models::{AppState, CompletedTasks},
+    utils::get_error,
+};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -8,198 +9,115 @@ use axum::{
     Json,
 };
 use mongodb::{bson::doc, options::UpdateOptions};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_json::json;
 use starknet::{
-    core::types::{BlockId, CallFunction, FieldElement},
+    core::types::{BlockId, CallContractResult, CallFunction, FieldElement},
     macros::{felt, selector, short_string},
     providers::Provider,
 };
 use std::str::FromStr;
+use std::sync::Arc;
 
 #[derive(Deserialize)]
 pub struct StarknetIdQuery {
     addr: String,
 }
 
-#[derive(Serialize)]
-pub struct QueryError {
-    pub error: String,
-    pub res: bool,
-}
-
-pub async fn handler(
-    State(state): State<Arc<AppState>>,
-    Query(query): Query<StarknetIdQuery>,
-) -> impl IntoResponse {
-    let task_id = 6;
-    let addr = &query.addr;
-
-    // get starkname from address
-    let call_result = state
+async fn call_contract_helper(
+    state: &AppState,
+    contract: &str,
+    entry_point: FieldElement,
+    calldata: Vec<FieldElement>,
+) -> Result<CallContractResult, String> {
+    let result = state
         .provider
         .call_contract(
             CallFunction {
-                contract_address: FieldElement::from_str(
-                    &state.conf.starknetid_contracts.naming_contract,
-                )
-                .unwrap(),
-                entry_point_selector: selector!("address_to_domain"),
-                calldata: vec![FieldElement::from_str(addr).unwrap()],
+                contract_address: FieldElement::from_str(contract).unwrap(),
+                entry_point_selector: entry_point,
+                calldata,
             },
             BlockId::Latest,
         )
         .await;
 
-    match call_result {
-        Ok(result) => {
-            // get starknet id from domain
-            let id_call_result = state
-                .provider
-                .call_contract(
-                    CallFunction {
-                        contract_address: FieldElement::from_str(
-                            &state.conf.starknetid_contracts.naming_contract,
-                        )
-                        .unwrap(),
-                        entry_point_selector: selector!("domain_to_token_id"),
-                        calldata: result.result,
-                    },
-                    BlockId::Latest,
-                )
-                .await;
+    result.map_err(|e| format!("{}", e))
+}
+pub async fn handler(
+    State(state): State<Arc<AppState>>,
+    Query(query): Query<StarknetIdQuery>,
+) -> impl IntoResponse {
+    async fn inner(
+        state: Arc<AppState>,
+        query: StarknetIdQuery,
+    ) -> Result<(StatusCode, Json<serde_json::Value>), String> {
+        let task_id = 6;
+        let addr = &query.addr;
 
-            match id_call_result {
-                Ok(starknet_id) => {
-                    // get twitter verifier data
-                    let twitter_verifier_res = state
-                        .provider
-                        .call_contract(
-                            CallFunction {
-                                contract_address: FieldElement::from_str(
-                                    &state.conf.starknetid_contracts.identity_contract,
-                                )
-                                .unwrap(),
-                                entry_point_selector: selector!("get_verifier_data"),
-                                calldata: vec![
-                                    starknet_id.result[0],
-                                    short_string!("twitter"),
-                                    FieldElement::from_str(
-                                        &state.conf.starknetid_contracts.verifier_contract,
-                                    )
-                                    .unwrap(),
-                                ],
-                            },
-                            BlockId::Latest,
-                        )
-                        .await;
+        let domain_res = call_contract_helper(
+            &state,
+            &state.conf.starknetid_contracts.naming_contract,
+            selector!("address_to_domain"),
+            vec![FieldElement::from_str(addr).unwrap()],
+        )
+        .await?;
 
-                    match twitter_verifier_res {
-                        Ok(twitter_verifier_data) => {
-                            let discord_verifier_res = state
-                                .provider
-                                .call_contract(
-                                    CallFunction {
-                                        contract_address: FieldElement::from_str(
-                                            &state.conf.starknetid_contracts.identity_contract,
-                                        )
-                                        .unwrap(),
-                                        entry_point_selector: selector!("get_verifier_data"),
-                                        calldata: vec![
-                                            starknet_id.result[0],
-                                            short_string!("twitter"),
-                                            FieldElement::from_str(
-                                                &state.conf.starknetid_contracts.verifier_contract,
-                                            )
-                                            .unwrap(),
-                                        ],
-                                    },
-                                    BlockId::Latest,
-                                )
-                                .await;
-                            // get discord verifier data
-                            match discord_verifier_res {
-                                Ok(discord_verifier_data) => {
-                                    if twitter_verifier_data.result[0] != felt!("0")
-                                        && discord_verifier_data.result[0] != felt!("0")
-                                    {
-                                        let completed_tasks_collection = state
-                                            .db
-                                            .collection::<CompletedTasks>("completed_tasks");
-                                        let filter = doc! { "address": addr, "task_id": task_id };
-                                        let update = doc! { "$setOnInsert": { "address": addr, "task_id": task_id } };
-                                        let options = UpdateOptions::builder().upsert(true).build();
+        let id_res = call_contract_helper(
+            &state,
+            &state.conf.starknetid_contracts.naming_contract,
+            selector!("domain_to_token_id"),
+            domain_res.result,
+        )
+        .await?;
 
-                                        let result = completed_tasks_collection
-                                            .update_one(filter, update, options)
-                                            .await;
+        let twitter_verifier_data = call_contract_helper(
+            &state,
+            &state.conf.starknetid_contracts.identity_contract,
+            selector!("get_verifier_data"),
+            vec![
+                id_res.result[0],
+                short_string!("twitter"),
+                FieldElement::from_str(&state.conf.starknetid_contracts.verifier_contract).unwrap(),
+            ],
+        )
+        .await?;
 
-                                        match result {
-                                            Ok(_) => (StatusCode::OK, Json(json!({"res": true})))
-                                                .into_response(),
-                                            Err(e) => {
-                                                let error = QueryError {
-                                                    error: format!("{}", e),
-                                                    res: false,
-                                                };
-                                                (StatusCode::INTERNAL_SERVER_ERROR, Json(error))
-                                                    .into_response()
-                                            }
-                                        }
-                                    } else if twitter_verifier_data.result[0] == felt!("0") {
-                                        let error = QueryError {
-                                            error: String::from(
-                                                "You have not verified your Twitter account",
-                                            ),
-                                            res: false,
-                                        };
-                                        (StatusCode::INTERNAL_SERVER_ERROR, Json(error))
-                                            .into_response()
-                                    } else {
-                                        let error = QueryError {
-                                            error: String::from(
-                                                "You have not verified your Discord account",
-                                            ),
-                                            res: false,
-                                        };
-                                        (StatusCode::INTERNAL_SERVER_ERROR, Json(error))
-                                            .into_response()
-                                    }
-                                }
-                                Err(e) => {
-                                    let error = QueryError {
-                                        error: format!("{}", e),
-                                        res: false,
-                                    };
-                                    (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            println!("error: {}", e);
-                            let error = QueryError {
-                                error: format!("{}", e),
-                                res: false,
-                            };
-                            (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
-                        }
-                    }
-                }
-                Err(e) => {
-                    let error = QueryError {
-                        error: format!("{}", e),
-                        res: false,
-                    };
-                    (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
-                }
-            }
+        let discord_verifier_data = call_contract_helper(
+            &state,
+            &state.conf.starknetid_contracts.identity_contract,
+            selector!("get_verifier_data"),
+            vec![
+                id_res.result[0],
+                short_string!("discord"),
+                FieldElement::from_str(&state.conf.starknetid_contracts.verifier_contract).unwrap(),
+            ],
+        )
+        .await?;
+
+        if twitter_verifier_data.result[0] != felt!("0")
+            && discord_verifier_data.result[0] != felt!("0")
+        {
+            let completed_tasks_collection =
+                state.db.collection::<CompletedTasks>("completed_tasks");
+            let filter = doc! { "address": addr, "task_id": task_id };
+            let update = doc! { "$setOnInsert": { "address": addr, "task_id": task_id } };
+            let options = UpdateOptions::builder().upsert(true).build();
+
+            let _ = completed_tasks_collection
+                .update_one(filter, update, options)
+                .await
+                .map_err(|e| format!("{}", e))?;
+            Ok((StatusCode::OK, Json(json!({"res": true}))))
+        } else if twitter_verifier_data.result[0] == felt!("0") {
+            Err("You have not verified your Twitter account".to_string())
+        } else {
+            Err("You have not verified your Discord account".to_string())
         }
-        Err(e) => {
-            let error = QueryError {
-                error: format!("{}", e),
-                res: false,
-            };
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
-        }
+    }
+
+    match inner(state, query).await {
+        Ok(val) => val.into_response(),
+        Err(err) => get_error(err),
     }
 }
