@@ -61,6 +61,21 @@ pub async fn handler(
             };
             (StatusCode::OK, Json(response)).into_response()
         }
+
+        Some(4) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "StarknetID Totem".into(),
+                description: "A starknet.quest NFT won for creating a StarknetID profile.".into(),
+                image: format!(
+                    "{}/starkfighter/starknetid/nf2.webp",
+                    state.conf.variables.app_link
+                ),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }
