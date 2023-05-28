@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use crate::models::{AppState, CompletedTasks};
+use crate::{
+    models::{AppState, CompletedTasks, VerifyQuery},
+    utils::get_error,
+};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -8,7 +11,6 @@ use axum::{
     Json,
 };
 use mongodb::{bson::doc, options::UpdateOptions};
-use serde::{Deserialize, Serialize};
 use serde_json::json;
 use starknet::{
     core::types::{BlockId, CallFunction, FieldElement},
@@ -17,20 +19,9 @@ use starknet::{
 };
 use std::str::FromStr;
 
-#[derive(Deserialize)]
-pub struct StarknetIdQuery {
-    addr: String,
-}
-
-#[derive(Serialize)]
-pub struct QueryError {
-    pub error: String,
-    pub res: bool,
-}
-
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    Query(query): Query<StarknetIdQuery>,
+    Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
     let task_id = 5;
     let addr = &query.addr;
@@ -45,7 +36,7 @@ pub async fn handler(
                 )
                 .unwrap(),
                 entry_point_selector: selector!("address_to_domain"),
-                calldata: vec![FieldElement::from_str(addr).unwrap()],
+                calldata: vec![*addr],
             },
             BlockId::Latest,
         )
@@ -59,8 +50,9 @@ pub async fn handler(
             if domain_len == 1 {
                 let completed_tasks_collection =
                     state.db.collection::<CompletedTasks>("completed_tasks");
-                let filter = doc! { "address": addr, "task_id": task_id };
-                let update = doc! { "$setOnInsert": { "address": addr, "task_id": task_id } };
+                let filter = doc! { "address": addr.to_string(), "task_id": task_id };
+                let update =
+                    doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id } };
                 let options = UpdateOptions::builder().upsert(true).build();
 
                 let result = completed_tasks_collection
@@ -69,28 +61,12 @@ pub async fn handler(
 
                 match result {
                     Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
-                    Err(e) => {
-                        let error = QueryError {
-                            error: format!("{}", e),
-                            res: false,
-                        };
-                        (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
-                    }
+                    Err(e) => get_error(format!("{}", e)),
                 }
             } else {
-                let error = QueryError {
-                    error: String::from("You don't own a .stark root domain"),
-                    res: false,
-                };
-                (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
+                get_error("You don't own a .stark root domain".to_string())
             }
         }
-        Err(e) => {
-            let error = QueryError {
-                error: format!("{}", e),
-                res: false,
-            };
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response()
-        }
+        Err(e) => get_error(format!("{}", e)),
     }
 }

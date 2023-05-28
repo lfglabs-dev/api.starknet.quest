@@ -1,4 +1,8 @@
-use crate::{models::AppState, utils::get_error};
+use crate::models::RewardResponse;
+use crate::{
+    models::{AppState, CompletedTaskDocument, Reward},
+    utils::get_error,
+};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -30,12 +34,6 @@ pub struct UserTask {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct CompletedTaskDocument {
-    task_id: u32,
-    address: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub struct RequestProps {
     address: String,
 }
@@ -48,19 +46,6 @@ pub struct TwitterRequestProps {
 #[derive(Deserialize)]
 pub struct ClaimableQuery {
     addr: FieldElement,
-}
-
-#[derive(Serialize)]
-pub struct Reward {
-    task_id: u32,
-    nft_contract: String,
-    token_id: String,
-    sig: (FieldElement, FieldElement), // Assume that the Signature is serialized as a String
-}
-
-#[derive(Serialize)]
-pub struct RewardResponse {
-    rewards: Vec<Reward>,
 }
 
 async fn get_nft(
