@@ -1,5 +1,5 @@
 use crate::models::{AppState, CompletedTaskDocument, Reward, RewardResponse};
-use crate::utils::get_error;
+use crate::utils::{get_error, get_nft};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -7,14 +7,11 @@ use axum::{
     Json,
 };
 use futures::StreamExt;
-use mongodb::bson::{doc, Bson};
+use mongodb::bson::doc;
 use serde::Deserialize;
 use starknet::{
-    core::{
-        crypto::{pedersen_hash, Signature},
-        types::FieldElement,
-    },
-    signers::{LocalWallet, Signer, SigningKey},
+    core::types::FieldElement,
+    signers::{LocalWallet, SigningKey},
 };
 use std::sync::Arc;
 
@@ -81,7 +78,7 @@ pub async fn handler(
 
             let mut rewards = vec![];
             for task_id in TASK_IDS {
-                match get_nft(&query.addr, NFT_LEVEL, &signer).await {
+                match get_nft(QUEST_ID, &query.addr, NFT_LEVEL, &signer).await {
                     Ok((token_id, sig)) => {
                         rewards.push(Reward {
                             task_id: *task_id,
@@ -102,24 +99,4 @@ pub async fn handler(
         }
         Err(_) => get_error("Error querying rewards".into()),
     }
-}
-
-async fn get_nft(
-    addr: &FieldElement,
-    nft_level: u32,
-    signer: &LocalWallet,
-) -> Result<(u32, Signature), Box<dyn std::error::Error + Send + Sync>> {
-    let token_id = nft_level + 100 * (rand::random::<u32>() % (2u32.pow(16)));
-    let hashed = pedersen_hash(
-        &pedersen_hash(
-            &pedersen_hash(
-                &pedersen_hash(&FieldElement::from(token_id), &FieldElement::ZERO),
-                &FieldElement::from(QUEST_ID),
-            ),
-            &FieldElement::from(nft_level),
-        ),
-        addr,
-    );
-    let sig = signer.sign_hash(&hashed).await?;
-    Ok((token_id, sig))
 }
