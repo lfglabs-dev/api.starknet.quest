@@ -51,7 +51,7 @@ pub async fn handler(
         state: Arc<AppState>,
         query: VerifyQuery,
     ) -> Result<(StatusCode, Json<serde_json::Value>), String> {
-        let task_id = 6;
+        let task_id = 7;
         let addr = &query.addr;
 
         let domain_res = call_contract_helper(
