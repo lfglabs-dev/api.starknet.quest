@@ -77,19 +77,17 @@ pub async fn handler(
             ));
 
             let mut rewards = vec![];
-            for task_id in TASK_IDS {
-                match get_nft(QUEST_ID, &query.addr, NFT_LEVEL, &signer).await {
-                    Ok((token_id, sig)) => {
-                        rewards.push(Reward {
-                            task_id: *task_id,
-                            nft_contract: state.conf.nft_contract.address.clone(),
-                            token_id: token_id.to_string(),
-                            sig: (sig.r, sig.s),
-                        });
-                    }
-                    Err(_) => continue,
-                }
-            }
+
+            let  Ok((token_id, sig)) = get_nft(QUEST_ID, &query.addr, NFT_LEVEL, &signer).await else {
+                return get_error("Signature failed".into());
+               };
+
+            rewards.push(Reward {
+                task_id: TASK_IDS[0],
+                nft_contract: state.conf.nft_contract.address.clone(),
+                token_id: token_id.to_string(),
+                sig: (sig.r, sig.s),
+            });
 
             if rewards.is_empty() {
                 get_error("No rewards found for this user".into())
