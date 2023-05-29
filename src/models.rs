@@ -28,6 +28,7 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     rewards_nfts: Vec<NFTItem>,
     img_card: String,
     title_card: String,
+    finished: bool,
 });
 
 pub_struct!(Deserialize; CompletedTasks {
