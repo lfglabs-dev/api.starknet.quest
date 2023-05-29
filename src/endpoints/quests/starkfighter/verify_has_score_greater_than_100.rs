@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use crate::{
-    endpoints::quests::starkfighter::models::{CompletedTaskDocument, ScoreResponse},
-    models::AppState,
+    endpoints::quests::starkfighter::models::ScoreResponse,
+    models::{AppState, CompletedTaskDocument, VerifyQuery},
     utils::get_error,
 };
 use axum::{
@@ -15,11 +15,9 @@ use mongodb::{bson::doc, options::UpdateOptions};
 use reqwest::Client as HttpClient;
 use serde_json::json;
 
-use super::models::StarkfighterQuery;
-
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    Query(query): Query<StarkfighterQuery>,
+    Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
     let task_id = 4;
     let addr = &query.addr;
@@ -48,9 +46,8 @@ pub async fn handler(
                             let completed_tasks_collection = state
                                 .db
                                 .collection::<CompletedTaskDocument>("completed_tasks");
-                            let filter = doc! { "address": addr, "task_id": task_id };
-                            let update =
-                                doc! { "$setOnInsert": { "address": addr, "task_id": task_id } };
+                            let filter = doc! { "address": addr.to_string(), "task_id": task_id };
+                            let update = doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id } };
                             let options = UpdateOptions::builder().upsert(true).build();
 
                             let result = completed_tasks_collection

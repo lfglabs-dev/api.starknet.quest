@@ -70,8 +70,16 @@ async fn main() {
             get(endpoints::quests::starkfighter::verify_has_score_greater_than_100::handler),
         )
         .route(
+            "/quests/starknetid/claimable",
+            get(endpoints::quests::starknetid::claimable::handler),
+        )
+        .route(
             "/quests/starknetid/verify_has_domain",
             get(endpoints::quests::starknetid::verify_has_domain::handler),
+        )
+        .route(
+            "/quests/starknetid/verify_twitter_follow",
+            get(endpoints::quests::starknetid::verify_twitter_follow::handler),
         )
         .route(
             "/quests/starknetid/verify_has_root_domain",

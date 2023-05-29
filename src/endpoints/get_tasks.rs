@@ -7,6 +7,7 @@ use axum::{
 use futures::stream::StreamExt;
 use mongodb::bson::{doc, from_document, Document};
 use serde::{Deserialize, Serialize};
+use starknet::core::types::FieldElement;
 use std::sync::Arc;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -24,7 +25,7 @@ pub struct UserTask {
 #[derive(Deserialize)]
 pub struct GetTasksQuery {
     quest_id: u32,
-    addr: String,
+    addr: FieldElement,
 }
 
 pub async fn handler(
@@ -41,7 +42,7 @@ pub async fn handler(
                     {
                         "$match": {
                             "$expr": { "$eq": [ "$task_id", "$$task_id" ] },
-                            "address": query.addr,
+                            "address": query.addr.to_string(),
                         },
                     },
                 ],

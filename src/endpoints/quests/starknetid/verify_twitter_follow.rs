@@ -38,6 +38,11 @@ async fn call_contract_helper(
 
     result.map_err(|e| format!("{}", e))
 }
+
+async fn check_if_user_follows_starknet_quest(_twitter_id: &str) -> bool {
+    true
+}
+
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
@@ -46,7 +51,7 @@ pub async fn handler(
         state: Arc<AppState>,
         query: VerifyQuery,
     ) -> Result<(StatusCode, Json<serde_json::Value>), String> {
-        let task_id = 6;
+        let task_id = 7;
         let addr = &query.addr;
 
         let domain_res = call_contract_helper(
@@ -77,21 +82,13 @@ pub async fn handler(
         )
         .await?;
 
-        let discord_verifier_data = call_contract_helper(
-            &state,
-            &state.conf.starknetid_contracts.identity_contract,
-            selector!("get_verifier_data"),
-            vec![
-                id_res.result[0],
-                short_string!("discord"),
-                FieldElement::from_str(&state.conf.starknetid_contracts.verifier_contract).unwrap(),
-            ],
-        )
-        .await?;
+        let Some(twitter_felt) =  twitter_verifier_data.result.first() else {
+           return Err("Unable to read twitter id".to_string())
+        };
+        let follows_starknet_quest =
+            check_if_user_follows_starknet_quest(&twitter_felt.to_string()).await;
 
-        if twitter_verifier_data.result[0] != felt!("0")
-            && discord_verifier_data.result[0] != felt!("0")
-        {
+        if twitter_verifier_data.result[0] != felt!("0") && follows_starknet_quest {
             let completed_tasks_collection =
                 state.db.collection::<CompletedTasks>("completed_tasks");
             let filter = doc! { "address": addr.to_string(), "task_id": task_id };
@@ -106,8 +103,10 @@ pub async fn handler(
             Ok((StatusCode::OK, Json(json!({"res": true}))))
         } else if twitter_verifier_data.result[0] == felt!("0") {
             Err("You have not verified your Twitter account".to_string())
+        } else if !follows_starknet_quest {
+            Err("You are not following @starknet_quest on Twitter".to_string())
         } else {
-            Err("You have not verified your Discord account".to_string())
+            Err("Unknown error".to_string())
         }
     }
 
