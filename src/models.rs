@@ -43,7 +43,7 @@ pub struct CompletedTaskDocument {
 }
 
 pub_struct!(Serialize; Reward {
-    task_id: u32,
+    nft_type: u32,
     nft_contract: String,
     token_id: String,
     sig: (FieldElement, FieldElement),

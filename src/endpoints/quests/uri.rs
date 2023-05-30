@@ -24,39 +24,40 @@ pub struct Attribute {
 }
 
 #[derive(Deserialize)]
-pub struct LevelQuery {
-    level: Option<String>,
+pub struct UriQuery {
+    nft_type: Option<String>,
 }
 
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    Query(level_query): Query<LevelQuery>,
+    Query(query): Query<UriQuery>,
 ) -> Response {
-    let level = level_query
-        .level
-        .and_then(|level_str| level_str.parse::<u32>().ok());
+    let nft_type = query
+        .nft_type
+        .and_then(|nft_type_str| nft_type_str.parse::<u32>().ok());
 
-    fn get_level(level_int: u32) -> &'static str {
-        match level_int {
+    fn get_arcade_level(nft_type_int: u32) -> &'static str {
+        match nft_type_int {
+            1 => "Bronze,",
             2 => "Silver",
             3 => "Gold",
-            _ => "Bronze",
+            _ => "Error",
         }
     }
 
-    match level {
-        Some(level_int) if level_int > 0 && level_int <= 3 => {
+    match nft_type {
+        Some(nft_type_int) if nft_type_int > 0 && nft_type_int <= 3 => {
             let image_link = format!(
-                "{}/starkfighter/level{}.webp",
-                state.conf.variables.app_link, level_int
+                "{}/starkfighter/nft_type{}.webp",
+                state.conf.variables.app_link, nft_type_int
             );
             let response = TokenURI {
-                name: format!("StarkFighter {} Arcade", get_level(level_int)),
+                name: format!("StarkFighter {} Arcade", get_arcade_level(nft_type_int)),
                 description: "A starknet.quest NFT won during the Starkfighter event.".into(),
                 image: image_link,
                 attributes: Some(vec![Attribute {
-                    trait_type: "level".into(),
-                    value: level_int,
+                    trait_type: "nft_type".into(),
+                    value: nft_type_int,
                 }]),
             };
             (StatusCode::OK, Json(response)).into_response()
@@ -76,6 +77,6 @@ pub async fn handler(
         )
             .into_response(),
 
-        _ => get_error("Error, this level is not correct".into()),
+        _ => get_error("Error, this nft_type is not correct".into()),
     }
 }

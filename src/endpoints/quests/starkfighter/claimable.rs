@@ -94,13 +94,12 @@ pub async fn handler(
                 match result {
                     Ok(document) => {
                         if let Ok(task_id) = document.get_i32("task_id") {
+                            let nft_type = task_id as u32 - 1;
                             if task_id != 1 && task_id <= 4 {
-                                match get_nft(QUEST_ID, &query.addr, task_id as u32 - 1, &signer)
-                                    .await
-                                {
+                                match get_nft(QUEST_ID, &query.addr, nft_type, &signer).await {
                                     Ok((token_id, sig)) => {
                                         rewards.push(Reward {
-                                            task_id: task_id as u32,
+                                            nft_type,
                                             nft_contract: state.conf.nft_contract.address.clone(),
                                             token_id: token_id.to_string(),
                                             sig: (sig.r, sig.s),

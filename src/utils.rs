@@ -23,17 +23,17 @@ macro_rules! pub_struct {
 pub async fn get_nft(
     quest_id: u32,
     addr: &FieldElement,
-    nft_level: u32,
+    nft_type: u32,
     signer: &LocalWallet,
 ) -> Result<(u32, Signature), Box<dyn std::error::Error + Send + Sync>> {
-    let token_id = nft_level + 100 * (rand::random::<u32>() % (2u32.pow(16)));
+    let token_id = nft_type + 100 * (rand::random::<u32>() % (2u32.pow(16)));
     let hashed = pedersen_hash(
         &pedersen_hash(
             &pedersen_hash(
                 &pedersen_hash(&FieldElement::from(token_id), &FieldElement::ZERO),
                 &FieldElement::from(quest_id),
             ),
-            &FieldElement::from(nft_level),
+            &FieldElement::from(nft_type),
         ),
         addr,
     );
