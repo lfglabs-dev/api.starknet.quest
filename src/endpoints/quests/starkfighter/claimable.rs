@@ -95,8 +95,14 @@ pub async fn handler(
                     Ok(document) => {
                         if let Ok(task_id) = document.get_i32("task_id") {
                             if task_id != 1 && task_id <= 4 {
-                                match get_nft(QUEST_ID, &query.addr, task_id as u32 - 1, &signer)
-                                    .await
+                                match get_nft(
+                                    QUEST_ID,
+                                    task_id as u32,
+                                    &query.addr,
+                                    task_id as u32 - 1,
+                                    &signer,
+                                )
+                                .await
                                 {
                                     Ok((token_id, sig)) => {
                                         rewards.push(Reward {

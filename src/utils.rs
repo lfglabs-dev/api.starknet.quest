@@ -22,6 +22,7 @@ macro_rules! pub_struct {
 
 pub async fn get_nft(
     quest_id: u32,
+    task_id: u32,
     addr: &FieldElement,
     nft_level: u32,
     signer: &LocalWallet,
@@ -33,7 +34,7 @@ pub async fn get_nft(
                 &pedersen_hash(&FieldElement::from(token_id), &FieldElement::ZERO),
                 &FieldElement::from(quest_id),
             ),
-            &FieldElement::from(nft_level),
+            &FieldElement::from(task_id),
         ),
         addr,
     );
