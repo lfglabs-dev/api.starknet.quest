@@ -56,7 +56,7 @@ pub async fn handler(
                 description: "A starknet.quest NFT won during the Starkfighter event.".into(),
                 image: image_link,
                 attributes: Some(vec![Attribute {
-                    trait_type: "nft_type".into(),
+                    trait_type: "level".into(),
                     value: nft_type_int,
                 }]),
             };
