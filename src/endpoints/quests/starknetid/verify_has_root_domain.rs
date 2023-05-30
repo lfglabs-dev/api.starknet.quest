@@ -64,7 +64,7 @@ pub async fn handler(
                     Err(e) => get_error(format!("{}", e)),
                 }
             } else {
-                get_error("You don't own a .stark root domain".to_string())
+                get_error("Subdomains like .vip.stark are not eligible".to_string())
             }
         }
         Err(e) => get_error(format!("{}", e)),
