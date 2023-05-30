@@ -17,6 +17,7 @@ use std::sync::Arc;
 
 const QUEST_ID: u32 = 1;
 const TASK_IDS: &[u32] = &[5, 6, 7];
+const LAST_TASK: u32 = TASK_IDS[2];
 const NFT_LEVEL: u32 = 4;
 
 #[derive(Deserialize)]
@@ -78,12 +79,12 @@ pub async fn handler(
 
             let mut rewards = vec![];
 
-            let  Ok((token_id, sig)) = get_nft(QUEST_ID, &query.addr, NFT_LEVEL, &signer).await else {
+            let  Ok((token_id, sig)) = get_nft(QUEST_ID, LAST_TASK, &query.addr, NFT_LEVEL, &signer).await else {
                 return get_error("Signature failed".into());
                };
 
             rewards.push(Reward {
-                task_id: TASK_IDS[0],
+                task_id: LAST_TASK,
                 nft_contract: state.conf.nft_contract.address.clone(),
                 token_id: token_id.to_string(),
                 sig: (sig.r, sig.s),
