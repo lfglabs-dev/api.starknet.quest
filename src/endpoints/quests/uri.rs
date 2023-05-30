@@ -65,10 +65,10 @@ pub async fn handler(
         Some(4) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "StarknetID Totem".into(),
+                name: "Starknet ID Tribe Totem".into(),
                 description: "A Starknet Quest NFT won for creating a StarknetID profile.".into(),
                 image: format!(
-                    "{}/starkfighter/starknetid/nf2.webp",
+                    "{}/starknetid/nft1.webp",
                     state.conf.variables.app_link
                 ),
                 attributes: None,
