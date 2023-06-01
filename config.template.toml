@@ -20,3 +20,4 @@ starkfighter_server = "https://server.starkfighter.xyz/"
 [variables]
 app_link = "https://starknet.quest"
 is_testnet = false
+proxy = "xxxxx"

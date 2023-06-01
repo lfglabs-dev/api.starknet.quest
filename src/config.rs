@@ -18,6 +18,7 @@ pub_struct!(Clone, Deserialize; NftContract {
 pub_struct!(Clone, Deserialize;  Variables {
     app_link: String,
     is_testnet: bool,
+    proxy: Option<String>
 });
 
 pub_struct!(Clone, Deserialize; StarknetIdContracts {

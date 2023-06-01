@@ -5,6 +5,7 @@ mod endpoints;
 mod models;
 use axum::{http::StatusCode, routing::get, Router};
 use mongodb::{bson::doc, options::ClientOptions, Client};
+use reqwest::{Proxy, Url};
 use starknet::providers::SequencerGatewayProvider;
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -19,12 +20,27 @@ async fn main() {
         .await
         .unwrap();
 
+    let client = match &conf.variables.proxy {
+        Some(proxy_url) => reqwest::Client::builder().proxy(Proxy::http(proxy_url).unwrap()),
+        None => reqwest::Client::builder(),
+    }
+    .build()
+    .unwrap();
+
     let shared_state = Arc::new(models::AppState {
         conf: conf.clone(),
         provider: if conf.variables.is_testnet {
-            SequencerGatewayProvider::starknet_alpha_goerli()
+            SequencerGatewayProvider::new_with_client(
+                Url::parse("https://alpha4.starknet.io/gateway").unwrap(),
+                Url::parse("https://alpha4.starknet.io/feeder_gateway").unwrap(),
+                client,
+            )
         } else {
-            SequencerGatewayProvider::starknet_alpha_mainnet()
+            SequencerGatewayProvider::new_with_client(
+                Url::parse("https://alpha-mainnet.starknet.io/gateway").unwrap(),
+                Url::parse("https://alpha-mainnet.starknet.io/feeder_gateway").unwrap(),
+                client,
+            )
         },
         db: Client::with_options(client_options)
             .unwrap()
