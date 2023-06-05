@@ -26,8 +26,8 @@ pub async fn get_nft(
     addr: &FieldElement,
     nft_level: u32,
     signer: &LocalWallet,
-) -> Result<(u32, Signature), Box<dyn std::error::Error + Send + Sync>> {
-    let token_id = nft_level + 100 * (rand::random::<u32>() % (2u32.pow(16)));
+) -> Result<(u64, Signature), Box<dyn std::error::Error + Send + Sync>> {
+    let token_id = nft_level as u64 + 100 * (rand::random::<u64>() % (2u64.pow(32)));
     let hashed = pedersen_hash(
         &pedersen_hash(
             &pedersen_hash(
