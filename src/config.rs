@@ -29,9 +29,18 @@ pub_struct!(Clone, Deserialize; StarknetIdContracts {
 
 pub_struct!(Clone, Deserialize;  NamingContract { address: String });
 
-pub_struct!(Clone, Deserialize;  Quests {
-    starkfighter_server: String,
+pub_struct!(Clone, Deserialize;  Jediswap {
     utils_contract: FieldElement,
+    pairs : Vec<FieldElement>,
+});
+
+pub_struct!(Clone, Deserialize;  Starkfighter {
+    server: String,
+});
+
+pub_struct!(Clone, Deserialize;  Quests {
+    starkfighter: Starkfighter,
+    jediswap: Jediswap,
 });
 
 pub_struct!(Clone, Deserialize;  Config {

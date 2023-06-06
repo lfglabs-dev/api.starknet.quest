@@ -15,8 +15,12 @@ verifier_contract = "0xXXXXXXXXXXXX"
 identity_contract = "0xXXXXXXXXXXXX"
 
 [quests]
-starkfighter_server = "https://server.starkfighter.xyz/"
+[quests.starkfighter]
+server = "https://server.starkfighter.xyz/"
+[quests.jediswap]
 utils_contract = "0xXXXXXXXXXXXX"
+pairs = ["0xXXXXXXXXXXXX"]
+
 
 [variables]
 app_link = "https://starknet.quest"

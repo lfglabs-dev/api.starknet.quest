@@ -30,7 +30,7 @@ pub async fn handler(
     let response = client
         .post(format!(
             "{}fetch_user_score",
-            state.conf.quests.starkfighter_server
+            state.conf.quests.starkfighter.server
         ))
         .header(CONTENT_TYPE, "application/json")
         .body(body.to_string())

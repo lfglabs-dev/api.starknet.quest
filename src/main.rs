@@ -110,8 +110,8 @@ async fn main() {
             get(endpoints::quests::jediswap::verify_has_root_domain::handler),
         )
         .route(
-            "/quests/jediswap/add_liquidity",
-            get(endpoints::quests::jediswap::add_liquidity::handler),
+            "/quests/jediswap/verify_added_liquidity",
+            get(endpoints::quests::jediswap::verify_added_liquidity::handler),
         )
         .with_state(shared_state)
         .layer(cors);

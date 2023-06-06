@@ -1,7 +1,10 @@
+use crate::models::{AppState, CompletedTasks};
+use async_trait::async_trait;
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
+use mongodb::{bson::doc, options::UpdateOptions, results::UpdateResult, Collection};
 use starknet::signers::Signer;
 use starknet::{
     core::{
@@ -10,6 +13,8 @@ use starknet::{
     },
     signers::LocalWallet,
 };
+use std::result::Result;
+
 #[macro_export]
 macro_rules! pub_struct {
     ($($derive:path),*; $name:ident {$($field:ident: $t:ty),* $(,)?}) => {
@@ -44,4 +49,33 @@ pub async fn get_nft(
 
 pub fn get_error(error: String) -> Response {
     (StatusCode::INTERNAL_SERVER_ERROR, error).into_response()
+}
+
+#[async_trait]
+pub trait CompletedTasksTrait {
+    async fn upsert_completed_task(
+        &self,
+        addr: FieldElement,
+        task_id: u32,
+    ) -> Result<UpdateResult, mongodb::error::Error>;
+}
+
+#[async_trait]
+impl CompletedTasksTrait for AppState {
+    async fn upsert_completed_task(
+        &self,
+        addr: FieldElement,
+        task_id: u32,
+    ) -> Result<UpdateResult, mongodb::error::Error> {
+        let completed_tasks_collection: Collection<CompletedTasks> =
+            self.db.collection("completed_tasks");
+        let filter = doc! { "address": addr.to_string(), "task_id": task_id };
+        let update = doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id } };
+        let options = UpdateOptions::builder().upsert(true).build();
+
+        let result = completed_tasks_collection
+            .update_one(filter, update, options)
+            .await;
+        result
+    }
 }
