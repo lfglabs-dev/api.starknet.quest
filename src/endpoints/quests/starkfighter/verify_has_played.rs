@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use crate::{
     endpoints::quests::starkfighter::models::ScoreResponse,
-    models::{AppState, CompletedTaskDocument, VerifyQuery},
-    utils::get_error,
+    models::{AppState, VerifyQuery},
+    utils::{get_error, CompletedTasksTrait},
 };
 use axum::{
     extract::{Query, State},
@@ -11,7 +11,6 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use mongodb::{bson::doc, options::UpdateOptions};
 use reqwest::Client as HttpClient;
 use serde_json::json;
 
@@ -42,18 +41,7 @@ pub async fn handler(
             if resp.status().is_success() {
                 match resp.json::<ScoreResponse>().await {
                     Ok(_player_score) => {
-                        let completed_tasks_collection = state
-                            .db
-                            .collection::<CompletedTaskDocument>("completed_tasks");
-                        let filter = doc! { "address": addr.to_string(), "task_id": task_id };
-                        let update = doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id } };
-                        let options = UpdateOptions::builder().upsert(true).build();
-
-                        let result = completed_tasks_collection
-                            .update_one(filter, update, options)
-                            .await;
-
-                        match result {
+                        match state.upsert_completed_task(query.addr, task_id).await {
                             Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
                             Err(e) => get_error(format!("{}", e)),
                         }

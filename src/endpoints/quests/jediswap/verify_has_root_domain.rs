@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use crate::{
-    models::{AppState, CompletedTasks, VerifyQuery},
-    utils::get_error,
+    models::{AppState, VerifyQuery},
+    utils::{get_error, CompletedTasksTrait},
 };
 use axum::{
     extract::{Query, State},
@@ -10,7 +10,6 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use mongodb::{bson::doc, options::UpdateOptions};
 use serde_json::json;
 use starknet::{
     core::types::{BlockId, CallFunction, FieldElement},
@@ -44,18 +43,7 @@ pub async fn handler(
                 i64::from_str_radix(&FieldElement::to_string(&result.result[0]), 16).unwrap();
 
             if domain_len == 1 {
-                let completed_tasks_collection =
-                    state.db.collection::<CompletedTasks>("completed_tasks");
-                let filter = doc! { "address": addr.to_string(), "task_id": task_id };
-                let update =
-                    doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id } };
-                let options = UpdateOptions::builder().upsert(true).build();
-
-                let result = completed_tasks_collection
-                    .update_one(filter, update, options)
-                    .await;
-
-                match result {
+                match state.upsert_completed_task(query.addr, task_id).await {
                     Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
                     Err(e) => get_error(format!("{}", e)),
                 }

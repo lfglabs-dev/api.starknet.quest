@@ -1,6 +1,6 @@
 use crate::{
-    models::{AppState, CompletedTasks, VerifyQuery},
-    utils::get_error,
+    models::{AppState, VerifyQuery},
+    utils::{get_error, CompletedTasksTrait},
 };
 use axum::{
     extract::{Query, State},
@@ -8,7 +8,6 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use mongodb::{bson::doc, options::UpdateOptions};
 use serde_json::json;
 use starknet::{
     core::types::{BlockId, CallContractResult, CallFunction, FieldElement},
@@ -91,18 +90,10 @@ pub async fn handler(
         if twitter_verifier_data.result[0] != felt!("0")
             && discord_verifier_data.result[0] != felt!("0")
         {
-            let completed_tasks_collection =
-                state.db.collection::<CompletedTasks>("completed_tasks");
-            let filter = doc! { "address": addr.to_string(), "task_id": task_id };
-            let update =
-                doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id } };
-            let options = UpdateOptions::builder().upsert(true).build();
-
-            let _ = completed_tasks_collection
-                .update_one(filter, update, options)
-                .await
-                .map_err(|e| format!("{}", e))?;
-            Ok((StatusCode::OK, Json(json!({"res": true}))))
+            match state.upsert_completed_task(query.addr, task_id).await {
+                Ok(_) => Ok((StatusCode::OK, Json(json!({"res": true})))),
+                Err(e) => Err(e.to_string()),
+            }
         } else if twitter_verifier_data.result[0] == felt!("0") {
             Err("You have not verified your Twitter account".to_string())
         } else {
