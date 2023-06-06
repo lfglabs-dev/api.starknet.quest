@@ -105,6 +105,10 @@ async fn main() {
             "/quests/starknetid/verify_socials",
             get(endpoints::quests::starknetid::verify_socials::handler),
         )
+        .route(
+            "/quests/jediswap/verify_has_root_domain",
+            get(endpoints::quests::starknetid::verify_has_root_domain::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 
