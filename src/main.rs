@@ -107,7 +107,11 @@ async fn main() {
         )
         .route(
             "/quests/jediswap/verify_has_root_domain",
-            get(endpoints::quests::starknetid::verify_has_root_domain::handler),
+            get(endpoints::quests::jediswap::verify_has_root_domain::handler),
+        )
+        .route(
+            "/quests/jediswap/add_liquidity",
+            get(endpoints::quests::jediswap::add_liquidity::handler),
         )
         .with_state(shared_state)
         .layer(cors);

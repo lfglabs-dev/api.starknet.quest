@@ -15,12 +15,11 @@ use starknet::{
     macros::{felt, selector, short_string},
     providers::Provider,
 };
-use std::str::FromStr;
 use std::sync::Arc;
 
 async fn call_contract_helper(
     state: &AppState,
-    contract: &str,
+    contract: FieldElement,
     entry_point: FieldElement,
     calldata: Vec<FieldElement>,
 ) -> Result<CallContractResult, String> {
@@ -28,7 +27,7 @@ async fn call_contract_helper(
         .provider
         .call_contract(
             CallFunction {
-                contract_address: FieldElement::from_str(contract).unwrap(),
+                contract_address: contract,
                 entry_point_selector: entry_point,
                 calldata,
             },
@@ -51,7 +50,7 @@ pub async fn handler(
 
         let domain_res = call_contract_helper(
             &state,
-            &state.conf.starknetid_contracts.naming_contract,
+            state.conf.starknetid_contracts.naming_contract,
             selector!("address_to_domain"),
             vec![*addr],
         )
@@ -59,7 +58,7 @@ pub async fn handler(
 
         let id_res = call_contract_helper(
             &state,
-            &state.conf.starknetid_contracts.naming_contract,
+            state.conf.starknetid_contracts.naming_contract,
             selector!("domain_to_token_id"),
             domain_res.result,
         )
@@ -67,24 +66,24 @@ pub async fn handler(
 
         let twitter_verifier_data = call_contract_helper(
             &state,
-            &state.conf.starknetid_contracts.identity_contract,
+            state.conf.starknetid_contracts.identity_contract,
             selector!("get_verifier_data"),
             vec![
                 id_res.result[0],
                 short_string!("twitter"),
-                FieldElement::from_str(&state.conf.starknetid_contracts.verifier_contract).unwrap(),
+                state.conf.starknetid_contracts.verifier_contract,
             ],
         )
         .await?;
 
         let discord_verifier_data = call_contract_helper(
             &state,
-            &state.conf.starknetid_contracts.identity_contract,
+            state.conf.starknetid_contracts.identity_contract,
             selector!("get_verifier_data"),
             vec![
                 id_res.result[0],
                 short_string!("discord"),
-                FieldElement::from_str(&state.conf.starknetid_contracts.verifier_contract).unwrap(),
+                state.conf.starknetid_contracts.verifier_contract,
             ],
         )
         .await?;

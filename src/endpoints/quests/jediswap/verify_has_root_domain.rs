@@ -17,7 +17,6 @@ use starknet::{
     macros::selector,
     providers::Provider,
 };
-use std::str::FromStr;
 
 pub async fn handler(
     State(state): State<Arc<AppState>>,
@@ -31,10 +30,7 @@ pub async fn handler(
         .provider
         .call_contract(
             CallFunction {
-                contract_address: FieldElement::from_str(
-                    &state.conf.starknetid_contracts.naming_contract,
-                )
-                .unwrap(),
+                contract_address: state.conf.starknetid_contracts.naming_contract,
                 entry_point_selector: selector!("address_to_domain"),
                 calldata: vec![*addr],
             },

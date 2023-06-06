@@ -37,10 +37,7 @@ pub async fn handler(
         .provider
         .call_contract(
             CallFunction {
-                contract_address: FieldElement::from_str(
-                    &state.conf.starknetid_contracts.naming_contract,
-                )
-                .unwrap(),
+                contract_address: state.conf.starknetid_contracts.naming_contract,
                 entry_point_selector: selector!("address_to_domain"),
                 calldata: vec![FieldElement::from_str(addr).unwrap()],
             },
