@@ -20,6 +20,7 @@ pub struct UserTask {
     verify_endpoint: String,
     desc: String,
     completed: bool,
+    verify_endpoint_type: String,
 }
 
 #[derive(Deserialize)]
