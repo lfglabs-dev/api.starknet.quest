@@ -105,11 +105,19 @@ async fn main() {
             "/quests/starknetid/verify_socials",
             get(endpoints::quests::starknetid::verify_socials::handler),
         )
+        .route(
+            "/quests/jediswap/twitter_fw_callback",
+            get(endpoints::quests::jediswap::twitter_fw_callback::handler),
+        )
+        .route(
+            "/quests/jediswap/twitter_rt_callback",
+            get(endpoints::quests::jediswap::twitter_rt_callback::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], conf.server.port));
-    println!("server: listening on http://0.0.0.0:{}", conf.server.port);
+    println!("server: listening on http://127.0.0.1:{}", conf.server.port);
     axum::Server::bind(&addr)
         .serve(app.into_make_service_with_connect_info::<SocketAddr>())
         .await
