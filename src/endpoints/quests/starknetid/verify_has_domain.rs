@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use crate::{
-    models::{AppState, CompletedTasks},
-    utils::get_error,
+    models::AppState,
+    utils::{get_error, CompletedTasksTrait},
 };
 use axum::{
     extract::{Query, State},
@@ -10,7 +10,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use mongodb::{bson::doc, options::UpdateOptions};
+use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
 use starknet::{
@@ -18,11 +18,10 @@ use starknet::{
     macros::selector,
     providers::Provider,
 };
-use std::str::FromStr;
 
 #[derive(Deserialize)]
 pub struct StarknetIdQuery {
-    addr: String,
+    addr: FieldElement,
 }
 
 pub async fn handler(
@@ -37,12 +36,9 @@ pub async fn handler(
         .provider
         .call_contract(
             CallFunction {
-                contract_address: FieldElement::from_str(
-                    &state.conf.starknetid_contracts.naming_contract,
-                )
-                .unwrap(),
+                contract_address: state.conf.starknetid_contracts.naming_contract,
                 entry_point_selector: selector!("address_to_domain"),
-                calldata: vec![FieldElement::from_str(addr).unwrap()],
+                calldata: vec![*addr],
             },
             BlockId::Latest,
         )
@@ -54,17 +50,7 @@ pub async fn handler(
                 i64::from_str_radix(&FieldElement::to_string(&result.result[0]), 16).unwrap();
 
             if domain_len > 0 {
-                let completed_tasks_collection =
-                    state.db.collection::<CompletedTasks>("completed_tasks");
-                let filter = doc! { "address": addr, "task_id": task_id };
-                let update = doc! { "$setOnInsert": { "address": addr, "task_id": task_id } };
-                let options = UpdateOptions::builder().upsert(true).build();
-
-                let result = completed_tasks_collection
-                    .update_one(filter, update, options)
-                    .await;
-
-                match result {
+                match state.upsert_completed_task(query.addr, task_id).await {
                     Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
                     Err(e) => get_error(format!("{}", e)),
                 }
