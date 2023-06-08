@@ -21,6 +21,9 @@ server = "https://server.starkfighter.xyz/"
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
 
+[twitter]
+oauth2_clientid = "xxxxxx"
+oauth2_secret = "xxxxxx"
 
 [variables]
 app_link = "https://starknet.quest"
