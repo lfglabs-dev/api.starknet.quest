@@ -1,23 +1,22 @@
 use std::sync::Arc;
 
-use crate::{
-    models::{AppState, CompletedTasks},
-    utils::get_error,
-};
+use crate::utils::CompletedTasksTrait;
+use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
     response::IntoResponse,
     Json,
 };
-use mongodb::{bson::doc, options::UpdateOptions};
+use mongodb::bson::doc;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use serde::Deserialize;
 use serde_json::json;
+use starknet::core::types::FieldElement;
 
 #[derive(Deserialize)]
 pub struct TwitterOAuthCallbackQuery {
-    addr: String,
+    addr: FieldElement,
     code: String,
 }
 
@@ -26,7 +25,7 @@ pub async fn handler(
     Query(query): Query<TwitterOAuthCallbackQuery>,
 ) -> impl IntoResponse {
     let task_id = 10;
-    let addr = &query.addr;
+    let addr_str = FieldElement::to_string(&query.addr);
     let authorization_code = &query.code;
     let jediswap_id = "1470315931142393857";
 
@@ -39,7 +38,7 @@ pub async fn handler(
             "redirect_uri",
             &format!(
                 "http://127.0.0.1:8090/quests/jediswap/twitter_fw_callback?addr={}",
-                addr
+                addr_str
             ),
         ),
         ("code_verifier", &"NWIZBo0InJN7lmY_c".to_string()),
@@ -118,17 +117,7 @@ pub async fn handler(
     };
 
     if following_ids.contains(&jediswap_id.to_string()) {
-        // todo : update with latests changes on testnet branch
-        let completed_tasks_collection = state.db.collection::<CompletedTasks>("completed_tasks");
-        let filter = doc! { "address": addr, "task_id": task_id };
-        let update = doc! { "$setOnInsert": { "address": addr, "task_id": task_id } };
-        let options = UpdateOptions::builder().upsert(true).build();
-
-        let result = completed_tasks_collection
-            .update_one(filter, update, options)
-            .await;
-
-        match result {
+        match state.upsert_completed_task(query.addr, task_id).await {
             Ok(_) => (StatusCode::OK, Json(json!({"res": "task completed!"}))).into_response(),
             Err(e) => get_error(format!("{}", e)),
         }
