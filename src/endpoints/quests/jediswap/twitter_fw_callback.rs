@@ -38,7 +38,7 @@ pub async fn handler(
             "redirect_uri",
             &format!(
                 "{}/quests/jediswap/twitter_fw_callback?addr={}",
-                state.conf.variables.app_link, addr_str
+                state.conf.variables.api_link, addr_str
             ),
         ),
         ("code_verifier", &"NWIZBo0InJN7lmY_c".to_string()),
