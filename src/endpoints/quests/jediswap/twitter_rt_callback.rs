@@ -11,7 +11,7 @@ use axum::{
 use mongodb::bson::doc;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use serde::Deserialize;
-use serde_json::{json, to_string};
+use serde_json::json;
 use starknet::core::types::FieldElement;
 
 #[derive(Deserialize)]
@@ -37,7 +37,7 @@ pub async fn handler(
         (
             "redirect_uri",
             &format!(
-                "http://127.0.0.1:8090/quests/jediswap/twitter_fw_callback?addr={}",
+                "http://127.0.0.1:8090/quests/jediswap/twitter_rt_callback?addr={}",
                 addr_str
             ),
         ),
@@ -135,7 +135,7 @@ async fn exchange_authorization_code(
         Some(s) => Ok(s.to_string()),
         None => Err(Box::new(std::io::Error::new(
             std::io::ErrorKind::Other,
-            "Failed to get 'access_token' from JSON response",
+            format!("Failed to get 'access_token' from JSON response: {}", json),
         ))),
     }
 }
