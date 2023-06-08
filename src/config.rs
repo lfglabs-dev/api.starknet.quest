@@ -43,6 +43,11 @@ pub_struct!(Clone, Deserialize;  Quests {
     jediswap: Jediswap,
 });
 
+pub_struct!(Clone, Deserialize;  Twitter {
+    oauth2_clientid: String,
+    oauth2_secret: String,
+});
+
 pub_struct!(Clone, Deserialize;  Config {
     server: Server,
     database: Database,
@@ -50,6 +55,7 @@ pub_struct!(Clone, Deserialize;  Config {
     variables: Variables,
     starknetid_contracts: StarknetIdContracts,
     quests: Quests,
+    twitter: Twitter,
 });
 
 pub fn load() -> Config {
