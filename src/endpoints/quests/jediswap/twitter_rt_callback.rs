@@ -11,7 +11,7 @@ use axum::{
 use mongodb::bson::doc;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use serde::Deserialize;
-use serde_json::json;
+use serde_json::{json, to_string};
 use starknet::core::types::FieldElement;
 
 #[derive(Deserialize)]
