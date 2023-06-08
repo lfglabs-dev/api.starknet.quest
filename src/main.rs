@@ -106,6 +106,14 @@ async fn main() {
             get(endpoints::quests::starknetid::verify_socials::handler),
         )
         .route(
+            "/quests/jediswap/verify_has_root_domain",
+            get(endpoints::quests::jediswap::verify_has_root_domain::handler),
+        )
+        .route(
+            "/quests/jediswap/verify_added_liquidity",
+            get(endpoints::quests::jediswap::verify_added_liquidity::handler),
+        )
+        .route(
             "/quests/jediswap/twitter_fw_callback",
             get(endpoints::quests::jediswap::twitter_fw_callback::handler),
         )

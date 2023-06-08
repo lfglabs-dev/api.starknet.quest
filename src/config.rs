@@ -22,15 +22,25 @@ pub_struct!(Clone, Deserialize;  Variables {
 });
 
 pub_struct!(Clone, Deserialize; StarknetIdContracts {
-    naming_contract: String,
-    verifier_contract: String,
-    identity_contract: String,
+    naming_contract: FieldElement,
+    verifier_contract: FieldElement,
+    identity_contract: FieldElement,
 });
 
 pub_struct!(Clone, Deserialize;  NamingContract { address: String });
 
+pub_struct!(Clone, Deserialize;  Jediswap {
+    utils_contract: FieldElement,
+    pairs : Vec<FieldElement>,
+});
+
+pub_struct!(Clone, Deserialize;  Starkfighter {
+    server: String,
+});
+
 pub_struct!(Clone, Deserialize;  Quests {
-    starkfighter_server: String,
+    starkfighter: Starkfighter,
+    jediswap: Jediswap,
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {
