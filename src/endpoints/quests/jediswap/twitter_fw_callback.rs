@@ -29,6 +29,10 @@ pub async fn handler(
     let addr_str = FieldElement::to_string(&query.addr);
     let authorization_code = &query.code;
     let jediswap_id = "1470315931142393857";
+    let error_redirect_uri = format!(
+        "{}/quest/2?task_id={}&res=false",
+        state.conf.variables.app_link, task_id
+    );
 
     // Exchange the authorization code for an access token
     let params = [
@@ -48,12 +52,10 @@ pub async fn handler(
     let access_token = match exchange_authorization_code(params).await {
         Ok(token) => token,
         Err(e) => {
-            let redirect_uri = format!(
-                "{}/quest/2?task_id={}&res=false",
-                state.conf.variables.app_link, task_id
+            return get_error_redirect(
+                error_redirect_uri,
+                format!("Failed to exchange authorization code: {}", e),
             );
-            let err_msg = format!("Failed to exchange authorization code: {}", e);
-            return get_error_redirect(redirect_uri, err_msg);
         }
     };
 
@@ -72,36 +74,28 @@ pub async fn handler(
             match json_result {
                 Ok(json) => json,
                 Err(e) => {
-                    let redirect_uri = format!(
-                        "{}/quest/2?task_id={}&res=false",
-                        state.conf.variables.app_link, task_id
+                    return get_error_redirect(
+                        error_redirect_uri,
+                        format!(
+                            "Failed to get JSON response while fetching user info: {}",
+                            e
+                        ),
                     );
-                    let err_msg = format!(
-                        "Failed to get JSON response while fetching user info: {}",
-                        e
-                    );
-                    return get_error_redirect(redirect_uri, err_msg);
                 }
             }
         }
         Err(e) => {
-            let redirect_uri = format!(
-                "{}/quest/2?task_id={}&res=false",
-                state.conf.variables.app_link, task_id
+            return get_error_redirect(
+                error_redirect_uri,
+                format!("Failed to send request to get user info: {}", e),
             );
-            let err_msg = format!("Failed to send request to get user info: {}", e);
-            return get_error_redirect(redirect_uri, err_msg);
         }
     };
     let id = match response["data"]["id"].as_str() {
         Some(s) => s,
         None => {
-            let redirect_uri = format!(
-                "{}/quest/2?task_id={}&res=false",
-                state.conf.variables.app_link, task_id
-            );
             return get_error_redirect(
-                redirect_uri,
+                error_redirect_uri,
                 "Failed to get 'id' from response data".to_string(),
             );
         }
@@ -135,25 +129,21 @@ pub async fn handler(
                 match json_result {
                     Ok(json) => json,
                     Err(e) => {
-                        let redirect_uri = format!(
-                            "{}/quest/2?task_id={}&res=false",
-                            state.conf.variables.app_link, task_id
+                        return get_error_redirect(
+                            error_redirect_uri,
+                            format!(
+                                "Failed to get JSON response while fetching following: {}",
+                                e
+                            ),
                         );
-                        let err_msg = format!(
-                            "Failed to get JSON response while fetching following: {}",
-                            e
-                        );
-                        return get_error_redirect(redirect_uri, err_msg);
                     }
                 }
             }
             Err(e) => {
-                let redirect_uri = format!(
-                    "{}/quest/2?task_id={}&res=false",
-                    state.conf.variables.app_link, task_id
+                return get_error_redirect(
+                    error_redirect_uri,
+                    format!("Failed to send request to fetch user following: {}", e),
                 );
-                let err_msg = format!("Failed to send request to fetch user following: {}", e);
-                return get_error_redirect(redirect_uri, err_msg);
             }
         };
 
@@ -184,22 +174,13 @@ pub async fn handler(
                 );
                 success_redirect(redirect_uri)
             }
-            Err(e) => {
-                let redirect_uri = format!(
-                    "{}/quest/2?task_id={}&res=false",
-                    state.conf.variables.app_link, task_id
-                );
-                let err_msg = format!("{}", e);
-                get_error_redirect(redirect_uri, err_msg)
-            }
+            Err(e) => get_error_redirect(error_redirect_uri, format!("{}", e)),
         }
     } else {
-        let redirect_uri = format!(
-            "{}/quest/2?task_id={}&res=false",
-            state.conf.variables.app_link, task_id
-        );
-        let err_msg = "You're not following Jediswap Twitter account".to_string();
-        get_error_redirect(redirect_uri, err_msg)
+        get_error_redirect(
+            error_redirect_uri,
+            "You're not following Jediswap Twitter account".to_string(),
+        )
     }
 }
 
