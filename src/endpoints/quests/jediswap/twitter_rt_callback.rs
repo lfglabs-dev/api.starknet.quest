@@ -1,17 +1,17 @@
 use std::sync::Arc;
 
 use crate::utils::CompletedTasksTrait;
-use crate::{models::AppState, utils::get_error};
+use crate::{
+    models::AppState,
+    utils::{get_error_redirect, success_redirect},
+};
 use axum::{
     extract::{Query, State},
-    http::StatusCode,
     response::IntoResponse,
-    Json,
 };
 use mongodb::bson::doc;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use serde::Deserialize;
-use serde_json::{json, to_string};
 use starknet::core::types::FieldElement;
 
 #[derive(Deserialize)]
@@ -24,10 +24,13 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<TwitterOAuthCallbackQuery>,
 ) -> impl IntoResponse {
-    let task_id = 10;
+    let task_id = 11;
     let addr_str = FieldElement::to_string(&query.addr);
     let authorization_code = &query.code;
-    let tweet_id = "1664902703254843392";
+    let error_redirect_uri = format!(
+        "{}/quest/2?task_id={}&res=false",
+        state.conf.variables.app_link, task_id
+    );
 
     // Exchange the authorization code for an access token
     let params = [
@@ -46,7 +49,12 @@ pub async fn handler(
     ];
     let access_token = match exchange_authorization_code(params).await {
         Ok(token) => token,
-        Err(e) => return get_error(format!("Failed to exchange authorization code: {}", e)),
+        Err(e) => {
+            return get_error_redirect(
+                error_redirect_uri,
+                format!("Failed to exchange authorization code: {}", e),
+            )
+        }
     };
 
     // Get user information
@@ -64,22 +72,38 @@ pub async fn handler(
             match json_result {
                 Ok(json) => json,
                 Err(e) => {
-                    return get_error(format!(
-                        "Failed to get JSON response while fetching user info: {}",
-                        e
-                    ))
+                    return get_error_redirect(
+                        error_redirect_uri,
+                        format!(
+                            "Failed to get JSON response while fetching user info: {}",
+                            e
+                        ),
+                    );
                 }
             }
         }
-        Err(e) => return get_error(format!("Failed to send request to get user info: {}", e)),
+        Err(e) => {
+            return get_error_redirect(
+                error_redirect_uri,
+                format!("Failed to send request to get user info: {}", e),
+            )
+        }
     };
     let id = match response["data"]["id"].as_str() {
         Some(s) => s,
-        None => return get_error("Failed to get 'id' from response data".to_string()),
+        None => {
+            return get_error_redirect(
+                error_redirect_uri,
+                "Failed to get 'id' from response data".to_string(),
+            )
+        }
     };
 
     // Check if user has retweeted tweet
-    let url_retweeted = format!("https://api.twitter.com/2/tweets/{}/retweeted_by", tweet_id);
+    let url_retweeted = format!(
+        "https://api.twitter.com/2/tweets/{}/retweeted_by",
+        state.conf.quests.jediswap.tweet_id
+    );
     let mut headers = HeaderMap::new();
     headers.insert(
         AUTHORIZATION,
@@ -93,14 +117,19 @@ pub async fn handler(
             match json_result {
                 Ok(json) => json,
                 Err(e) => {
-                    return get_error(format!(
-                        "Failed to get JSON response while fetching tweet info: {}",
-                        e
-                    ))
+                    return get_error_redirect(
+                        error_redirect_uri,
+                        format!("Failed to send request to get user info: {}", e),
+                    )
                 }
             }
         }
-        Err(e) => return get_error(format!("Failed to send request to fetch tweet info: {}", e)),
+        Err(e) => {
+            return get_error_redirect(
+                error_redirect_uri,
+                format!("Failed to send request to fetch tweet info: {}", e),
+            )
+        }
     };
 
     let reteweeted_ids = match response["data"].as_array() {
@@ -113,11 +142,17 @@ pub async fn handler(
 
     if reteweeted_ids.contains(&id.to_string()) {
         match state.upsert_completed_task(query.addr, task_id).await {
-            Ok(_) => (StatusCode::OK, Json(json!({"res": "task completed!"}))).into_response(),
-            Err(e) => get_error(format!("{}", e)),
+            Ok(_) => success_redirect(format!(
+                "{}/quest/2?task_id={}&res=true",
+                state.conf.variables.app_link, task_id
+            )),
+            Err(e) => get_error_redirect(error_redirect_uri, format!("{}", e)),
         }
     } else {
-        get_error("You have not retweeted the Quest thread yet.'".to_string())
+        get_error_redirect(
+            error_redirect_uri,
+            "You have not retweeted the Quest thread yet.'".to_string(),
+        )
     }
 }
 

@@ -1,18 +1,19 @@
 use std::sync::Arc;
 
 use crate::utils::CompletedTasksTrait;
-use crate::{models::AppState, utils::get_error};
+use crate::{
+    models::AppState,
+    utils::{get_error_redirect, success_redirect},
+};
 use axum::{
     extract::{Query, State},
-    http::StatusCode,
     response::IntoResponse,
-    Json,
 };
 use mongodb::bson::doc;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use serde::Deserialize;
-use serde_json::json;
 use starknet::core::types::FieldElement;
+use std::str::FromStr;
 
 #[derive(Deserialize)]
 pub struct TwitterOAuthCallbackQuery {
@@ -28,6 +29,10 @@ pub async fn handler(
     let addr_str = FieldElement::to_string(&query.addr);
     let authorization_code = &query.code;
     let jediswap_id = "1470315931142393857";
+    let error_redirect_uri = format!(
+        "{}/quest/2?task_id={}&res=false",
+        state.conf.variables.app_link, task_id
+    );
 
     // Exchange the authorization code for an access token
     let params = [
@@ -46,7 +51,12 @@ pub async fn handler(
     ];
     let access_token = match exchange_authorization_code(params).await {
         Ok(token) => token,
-        Err(e) => return get_error(format!("Failed to exchange authorization code: {}", e)),
+        Err(e) => {
+            return get_error_redirect(
+                error_redirect_uri,
+                format!("Failed to exchange authorization code: {}", e),
+            );
+        }
     };
 
     // Get user information
@@ -64,65 +74,113 @@ pub async fn handler(
             match json_result {
                 Ok(json) => json,
                 Err(e) => {
-                    return get_error(format!(
-                        "Failed to get JSON response while fetching user info: {}",
-                        e
-                    ))
+                    return get_error_redirect(
+                        error_redirect_uri,
+                        format!(
+                            "Failed to get JSON response while fetching user info: {}",
+                            e
+                        ),
+                    );
                 }
             }
         }
-        Err(e) => return get_error(format!("Failed to send request to get user info: {}", e)),
+        Err(e) => {
+            return get_error_redirect(
+                error_redirect_uri,
+                format!("Failed to send request to get user info: {}", e),
+            );
+        }
     };
     let id = match response["data"]["id"].as_str() {
         Some(s) => s,
-        None => return get_error("Failed to get 'id' from response data".to_string()),
+        None => {
+            return get_error_redirect(
+                error_redirect_uri,
+                "Failed to get 'id' from response data".to_string(),
+            );
+        }
     };
 
     // Check if user is following JediSwap
-    let url_follower = format!("https://api.twitter.com/2/users/{}/following", id);
+    let url_follower_base = format!("https://api.twitter.com/2/users/{}/following", id);
     let mut headers = HeaderMap::new();
     headers.insert(
         AUTHORIZATION,
         HeaderValue::from_str(&format!("Bearer {}", access_token)).unwrap(),
     );
     let client = reqwest::Client::new();
-    let response_result = client.get(url_follower).headers(headers).send().await;
-    let response = match response_result {
-        Ok(response) => {
-            let json_result = response.json::<serde_json::Value>().await;
-            match json_result {
-                Ok(json) => json,
-                Err(e) => {
-                    return get_error(format!(
-                        "Failed to get JSON response while fetching following: {}",
-                        e
-                    ))
+
+    let mut following_ids = Vec::new();
+    let mut next_token = None;
+    loop {
+        let url_follower = match &next_token {
+            Some(token) => format!("{}?pagination_token={}", url_follower_base, token),
+            None => url_follower_base.clone(),
+        };
+
+        let response_result = client
+            .get(&url_follower)
+            .headers(headers.clone())
+            .send()
+            .await;
+        let response = match response_result {
+            Ok(response) => {
+                let json_result = response.json::<serde_json::Value>().await;
+                match json_result {
+                    Ok(json) => json,
+                    Err(e) => {
+                        return get_error_redirect(
+                            error_redirect_uri,
+                            format!(
+                                "Failed to get JSON response while fetching following: {}",
+                                e
+                            ),
+                        );
+                    }
                 }
             }
-        }
-        Err(e) => {
-            return get_error(format!(
-                "Failed to send request to fetch user following: {}",
-                e
-            ))
-        }
-    };
+            Err(e) => {
+                return get_error_redirect(
+                    error_redirect_uri,
+                    format!("Failed to send request to fetch user following: {}", e),
+                );
+            }
+        };
 
-    let following_ids = match response["data"].as_array() {
-        Some(array) => array
+        let ids: Vec<String> = response["data"]
+            .as_array()
+            .unwrap_or(&Vec::new())
             .iter()
             .map(|user| user["id"].as_str().unwrap().to_string())
-            .collect::<Vec<String>>(),
-        None => Vec::new(),
-    };
+            .collect();
+
+        following_ids.extend(ids);
+
+        next_token = response["meta"]["next_token"]
+            .as_str()
+            .map(|s| s.to_string());
+
+        if next_token.is_none() || following_ids.contains(&jediswap_id.to_string()) {
+            break;
+        }
+    }
 
     if following_ids.contains(&jediswap_id.to_string()) {
         match state.upsert_completed_task(query.addr, task_id).await {
-            Ok(_) => (StatusCode::OK, Json(json!({"res": "task completed!"}))).into_response(),
-            Err(e) => get_error(format!("{}", e)),
+            Ok(_) => {
+                let redirect_uri = format!(
+                    "{}/quest/2?task_id={}&res=true",
+                    state.conf.variables.app_link, task_id
+                );
+                success_redirect(redirect_uri)
+            }
+            Err(e) => get_error_redirect(error_redirect_uri, format!("{}", e)),
         }
     } else {
-        get_error("You're not following Jediswap Twitter account'".to_string())
+        get_error_redirect(
+            error_redirect_uri,
+            "You're not following Jediswap Twitter account".to_string(),
+        )
     }
 }
 
