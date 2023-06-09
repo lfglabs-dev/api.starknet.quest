@@ -13,7 +13,6 @@ use mongodb::bson::doc;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use serde::Deserialize;
 use starknet::core::types::FieldElement;
-use std::str::FromStr;
 
 #[derive(Deserialize)]
 pub struct TwitterOAuthCallbackQuery {
