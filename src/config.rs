@@ -33,6 +33,7 @@ pub_struct!(Clone, Deserialize;  NamingContract { address: String });
 pub_struct!(Clone, Deserialize;  Jediswap {
     utils_contract: FieldElement,
     pairs : Vec<FieldElement>,
+    tweet_id: String,
 });
 
 pub_struct!(Clone, Deserialize;  Starkfighter {
