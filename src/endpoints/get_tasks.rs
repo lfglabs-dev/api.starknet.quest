@@ -18,9 +18,10 @@ pub struct UserTask {
     href: String,
     cta: String,
     verify_endpoint: String,
+    verify_endpoint_type: String,
+    verify_redirect: Option<String>,
     desc: String,
     completed: bool,
-    verify_endpoint_type: String,
 }
 
 #[derive(Deserialize)]
@@ -59,9 +60,10 @@ pub async fn handler(
                 "href": 1,
                 "cta": 1,
                 "verify_endpoint": 1,
+                "verify_redirect" : 1,
+                "verify_endpoint_type": 1,
                 "desc": 1,
                 "completed": { "$gt": [ { "$size": "$completed" }, 0 ] },
-                "verify_endpoint_type": 1,
             }
         },
     ];
