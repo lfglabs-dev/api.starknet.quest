@@ -67,10 +67,18 @@ pub async fn handler(
             Json(TokenURI {
                 name: "Starknet ID Tribe Totem".into(),
                 description: "A Starknet Quest NFT won for creating a StarknetID profile.".into(),
-                image: format!(
-                    "{}/starknetid/nft1.webp",
-                    state.conf.variables.app_link
-                ),
+                image: format!("{}/starknetid/nft1.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
+        Some(5) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "JediSwap Light Saber".into(),
+                description: "A JediSwap NFT won for interacting with the protocol.".into(),
+                image: format!("{}/jediswap/padawan.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
         )
