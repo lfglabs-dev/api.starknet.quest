@@ -50,6 +50,11 @@ pub_struct!(Clone, Deserialize;  Twitter {
     oauth2_secret: String,
 });
 
+pub_struct!(Clone, Deserialize;  Discord {
+    oauth2_clientid: String,
+    oauth2_secret: String,
+});
+
 pub_struct!(Clone, Deserialize;  Config {
     server: Server,
     database: Database,
@@ -58,6 +63,7 @@ pub_struct!(Clone, Deserialize;  Config {
     starknetid_contracts: StarknetIdContracts,
     quests: Quests,
     twitter: Twitter,
+    discord: Discord,
 });
 
 pub fn load() -> Config {

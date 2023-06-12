@@ -133,6 +133,10 @@ async fn main() {
             "/quests/avnu/verify_twitter_rt",
             get(endpoints::quests::avnu::verify_twitter_rt::handler),
         )
+        .route(
+            "/quests/avnu/discord_fw_callback",
+            get(endpoints::quests::avnu::discord_fw_callback::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 
