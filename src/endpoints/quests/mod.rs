@@ -1,3 +1,4 @@
+pub mod avnu;
 pub mod contract_uri;
 pub mod jediswap;
 pub mod starkfighter;
