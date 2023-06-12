@@ -29,6 +29,7 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     img_card: String,
     title_card: String,
     finished: bool,
+    task_ids: Vec<u32>,
 });
 
 pub_struct!(Deserialize; CompletedTasks {
