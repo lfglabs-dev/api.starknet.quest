@@ -125,6 +125,22 @@ async fn main() {
             "/quests/jediswap/claimable",
             get(endpoints::quests::jediswap::claimable::handler),
         )
+        .route(
+            "/quests/zklend/verify_has_root_domain",
+            get(endpoints::quests::zklend::verify_has_root_domain::handler),
+        )
+        .route(
+            "/quests/zklend/verify_borrow",
+            get(endpoints::quests::zklend::verify_borrow::handler),
+        )
+        .route(
+            "/quests/zklend/twitter_fw_callback",
+            get(endpoints::quests::zklend::twitter_fw_callback::handler),
+        )
+        .route(
+            "/quests/zklend/verify_twitter_rt",
+            get(endpoints::quests::zklend::verify_twitter_rt::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 
