@@ -36,6 +36,10 @@ pub_struct!(Clone, Deserialize;  Jediswap {
     tweet_id: String,
 });
 
+pub_struct!(Clone, Deserialize;  StarknetId {
+    account_id: String,
+});
+
 pub_struct!(Clone, Deserialize;  Starkfighter {
     server: String,
 });
@@ -43,6 +47,7 @@ pub_struct!(Clone, Deserialize;  Starkfighter {
 pub_struct!(Clone, Deserialize;  Quests {
     starkfighter: Starkfighter,
     jediswap: Jediswap,
+    starknetid: StarknetId
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {

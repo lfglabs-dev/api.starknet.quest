@@ -125,6 +125,22 @@ async fn main() {
             "/quests/jediswap/claimable",
             get(endpoints::quests::jediswap::claimable::handler),
         )
+        .route(
+            "/quests/twitter_tribe/verify_has_domain",
+            get(endpoints::quests::twitter_tribe::verify_has_domain::handler),
+        )
+        .route(
+            "/quests/twitter_tribe/twitter_fw_callback",
+            get(endpoints::quests::twitter_tribe::twitter_fw_callback::handler),
+        )
+        .route(
+            "/quests/twitter_tribe/twitter_name_callback",
+            get(endpoints::quests::twitter_tribe::twitter_name_callback::handler),
+        )
+        .route(
+            "/quests/twitter_tribe/verify_twitter_rt",
+            get(endpoints::quests::twitter_tribe::verify_twitter_rt::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 
