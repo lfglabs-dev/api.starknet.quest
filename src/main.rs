@@ -125,6 +125,18 @@ async fn main() {
             "/quests/jediswap/claimable",
             get(endpoints::quests::jediswap::claimable::handler),
         )
+        .route(
+            "/quests/sithswap/verify_has_root_domain",
+            get(endpoints::quests::sithswap::verify_has_root_domain::handler),
+        )
+        .route(
+            "/quests/sithswap/twitter_fw_callback",
+            get(endpoints::quests::sithswap::twitter_fw_callback::handler),
+        )
+        .route(
+            "/quests/sithswap/verify_twitter_rt",
+            get(endpoints::quests::sithswap::verify_twitter_rt::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 
