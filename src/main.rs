@@ -125,6 +125,18 @@ async fn main() {
             "/quests/jediswap/claimable",
             get(endpoints::quests::jediswap::claimable::handler),
         )
+        .route(
+            "/quests/tribe/verify_has_domain",
+            get(endpoints::quests::tribe::verify_has_domain::handler),
+        )
+        .route(
+            "/quests/tribe/verify_has_root_domain",
+            get(endpoints::quests::tribe::verify_has_root_domain::handler),
+        )
+        .route(
+            "/quests/tribe/verify_three_years_expiry",
+            get(endpoints::quests::tribe::verify_three_years_expiry::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 

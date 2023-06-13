@@ -28,7 +28,7 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<StarknetIdQuery>,
 ) -> impl IntoResponse {
-    let task_id = 1;
+    let task_id = 16;
     let addr = &query.addr;
 
     // get starkname from address
