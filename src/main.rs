@@ -137,6 +137,10 @@ async fn main() {
             "/quests/sithswap/verify_twitter_rt",
             get(endpoints::quests::sithswap::verify_twitter_rt::handler),
         )
+        .route(
+            "/quests/sithswap/verify_added_liquidity",
+            get(endpoints::quests::sithswap::verify_added_liquidity::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 
