@@ -110,6 +110,22 @@ async fn main() {
             get(endpoints::quests::jediswap::claimable::handler),
         )
         .route(
+            "/quests/twitter_tribe/verify_has_domain",
+            get(endpoints::quests::twitter_tribe::verify_has_domain::handler),
+        )
+        .route(
+            "/quests/twitter_tribe/twitter_fw_callback",
+            get(endpoints::quests::twitter_tribe::twitter_fw_callback::handler),
+        )
+        .route(
+            "/quests/twitter_tribe/twitter_name_callback",
+            get(endpoints::quests::twitter_tribe::twitter_name_callback::handler),
+        )
+        .route(
+            "/quests/twitter_tribe/verify_twitter_rt",
+            get(endpoints::quests::twitter_tribe::verify_twitter_rt::handler),
+        )
+        .route(
             "/quests/zklend/verify_has_root_domain",
             get(endpoints::quests::zklend::verify_has_root_domain::handler),
         )
