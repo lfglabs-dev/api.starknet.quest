@@ -5,3 +5,4 @@ pub mod sithswap;
 pub mod starkfighter;
 pub mod starknetid;
 pub mod uri;
+pub mod zklend;
