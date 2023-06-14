@@ -49,8 +49,7 @@ pub async fn handler(
 
     match call_result {
         Ok(result) => {
-            let domain_len =
-                i64::from_str_radix(&FieldElement::to_string(&result.result[0]), 16).unwrap();
+            let domain_len: u64 = result.result[0].try_into().unwrap();
             if domain_len == 1 {
                 // check expiry date
                 let expiry_result = state
