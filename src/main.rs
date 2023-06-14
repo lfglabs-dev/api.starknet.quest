@@ -110,6 +110,18 @@ async fn main() {
             get(endpoints::quests::jediswap::claimable::handler),
         )
         .route(
+            "/quests/tribe/verify_has_domain",
+            get(endpoints::quests::tribe::verify_has_domain::handler),
+        )
+        .route(
+            "/quests/tribe/verify_has_root_domain",
+            get(endpoints::quests::tribe::verify_has_root_domain::handler),
+        )
+        .route(
+            "/quests/tribe/verify_three_years_expiry",
+            get(endpoints::quests::tribe::verify_three_years_expiry::handler),
+         )
+        .route(
             "/quests/twitter_tribe/verify_has_domain",
             get(endpoints::quests::twitter_tribe::verify_has_domain::handler),
         )
