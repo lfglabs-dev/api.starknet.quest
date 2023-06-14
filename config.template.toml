@@ -27,6 +27,8 @@ account_id = "1558813489048829959"
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
 tweet_id = "123"
+[quests.zklend]
+contract = "0x04c0a5193d58f74fbace4b74dcf65481e734ed1714121bdc571da345540efa05"
 
 [twitter]
 oauth2_clientid = "xxxxxx"
