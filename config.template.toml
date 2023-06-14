@@ -21,8 +21,16 @@ server = "https://server.starkfighter.xyz/"
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
 tweet_id = "123"
+[quests.sithswap]
+utils_contract = "0xXXXXXXXXXXXX"
+pairs = ["0xXXXXXXXXXXXX"]
+tweet_id = "123"
 
 [twitter]
+oauth2_clientid = "xxxxxx"
+oauth2_secret = "xxxxxx"
+
+[discord]
 oauth2_clientid = "xxxxxx"
 oauth2_secret = "xxxxxx"
 
