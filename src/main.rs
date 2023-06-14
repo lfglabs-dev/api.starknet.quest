@@ -69,22 +69,6 @@ async fn main() {
         .route("/get_quest", get(endpoints::get_quest::handler))
         .route("/get_quests", get(endpoints::get_quests::handler))
         .route("/get_tasks", get(endpoints::get_tasks::handler))
-        // .route(
-        //     "/quests/starkfighter/claimable",
-        //     get(endpoints::quests::starkfighter::claimable::handler),
-        // )
-        // .route(
-        //     "/quests/starkfighter/verify_has_played",
-        //     get(endpoints::quests::starkfighter::verify_has_played::handler),
-        // )
-        // .route(
-        //     "/quests/starkfighter/verify_has_score_greater_than_50",
-        //     get(endpoints::quests::starkfighter::verify_has_score_greater_than_50::handler),
-        // )
-        // .route(
-        //     "/quests/starkfighter/verify_has_score_greater_than_100",
-        //     get(endpoints::quests::starkfighter::verify_has_score_greater_than_100::handler),
-        // )
         .route(
             "/quests/starknetid/claimable",
             get(endpoints::quests::starknetid::claimable::handler),
@@ -124,6 +108,22 @@ async fn main() {
         .route(
             "/quests/jediswap/claimable",
             get(endpoints::quests::jediswap::claimable::handler),
+        )
+        .route(
+            "/quests/sithswap/verify_has_root_domain",
+            get(endpoints::quests::sithswap::verify_has_root_domain::handler),
+        )
+        .route(
+            "/quests/sithswap/twitter_fw_callback",
+            get(endpoints::quests::sithswap::twitter_fw_callback::handler),
+        )
+        .route(
+            "/quests/sithswap/verify_twitter_rt",
+            get(endpoints::quests::sithswap::verify_twitter_rt::handler),
+        )
+        .route(
+            "/quests/sithswap/verify_added_liquidity",
+            get(endpoints::quests::sithswap::verify_added_liquidity::handler),
         )
         .route(
             "/quests/avnu/twitter_fw_callback",
