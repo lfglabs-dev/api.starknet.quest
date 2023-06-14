@@ -36,6 +36,10 @@ pub_struct!(Clone, Deserialize;  Jediswap {
     tweet_id: String,
 });
 
+pub_struct!(Clone, Deserialize;  StarknetId {
+    account_id: String,
+});
+
 pub_struct!(Clone, Deserialize;  Sithswap {
     utils_contract: FieldElement,
     pairs : Vec<FieldElement>,
@@ -49,7 +53,8 @@ pub_struct!(Clone, Deserialize;  Starkfighter {
 pub_struct!(Clone, Deserialize;  Quests {
     starkfighter: Starkfighter,
     jediswap: Jediswap,
-    sithswap: Sithswap
+    starknetid: StarknetId,
+    sithswap: Sithswap,
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {
