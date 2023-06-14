@@ -46,10 +46,15 @@ pub_struct!(Clone, Deserialize;  Starkfighter {
     server: String,
 });
 
+pub_struct!(Clone, Deserialize;  Zklend {
+    contract: FieldElement,
+});
+
 pub_struct!(Clone, Deserialize;  Quests {
     starkfighter: Starkfighter,
     jediswap: Jediswap,
-    sithswap: Sithswap
+    sithswap: Sithswap,
+    zklend: Zklend,
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {
