@@ -40,6 +40,12 @@ pub_struct!(Clone, Deserialize;  StarknetId {
     account_id: String,
 });
 
+pub_struct!(Clone, Deserialize;  Sithswap {
+    utils_contract: FieldElement,
+    pairs : Vec<FieldElement>,
+    tweet_id: String,
+});
+
 pub_struct!(Clone, Deserialize;  Starkfighter {
     server: String,
 });
@@ -47,10 +53,16 @@ pub_struct!(Clone, Deserialize;  Starkfighter {
 pub_struct!(Clone, Deserialize;  Quests {
     starkfighter: Starkfighter,
     jediswap: Jediswap,
-    starknetid: StarknetId
+    starknetid: StarknetId,
+    sithswap: Sithswap,
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {
+    oauth2_clientid: String,
+    oauth2_secret: String,
+});
+
+pub_struct!(Clone, Deserialize;  Discord {
     oauth2_clientid: String,
     oauth2_secret: String,
 });
@@ -63,6 +75,7 @@ pub_struct!(Clone, Deserialize;  Config {
     starknetid_contracts: StarknetIdContracts,
     quests: Quests,
     twitter: Twitter,
+    discord: Discord,
 });
 
 pub fn load() -> Config {
