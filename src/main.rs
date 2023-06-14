@@ -125,6 +125,18 @@ async fn main() {
             "/quests/jediswap/claimable",
             get(endpoints::quests::jediswap::claimable::handler),
         )
+        .route(
+            "/quests/avnu/twitter_fw_callback",
+            get(endpoints::quests::avnu::twitter_fw_callback::handler),
+        )
+        .route(
+            "/quests/avnu/verify_twitter_rt",
+            get(endpoints::quests::avnu::verify_twitter_rt::handler),
+        )
+        .route(
+            "/quests/avnu/discord_fw_callback",
+            get(endpoints::quests::avnu::discord_fw_callback::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 

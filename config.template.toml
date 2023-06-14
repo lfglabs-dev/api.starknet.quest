@@ -26,6 +26,10 @@ tweet_id = "123"
 oauth2_clientid = "xxxxxx"
 oauth2_secret = "xxxxxx"
 
+[discord]
+oauth2_clientid = "xxxxxx"
+oauth2_secret = "xxxxxx"
+
 [variables]
 app_link = "https://starknet.quest"
 api_link = "https://api.starknet.quest"
