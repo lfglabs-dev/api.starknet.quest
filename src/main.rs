@@ -79,7 +79,7 @@ async fn main() {
         )
         .route(
             "/quests/starknetid/verify_twitter_follow",
-            get(endpoints::quests::starknetid::verify_twitter_follow::handler),
+            get(endpoints::quests::starknetid::verify_twitter_fw::handler),
         )
         .route(
             "/quests/starknetid/verify_has_root_domain",
@@ -98,8 +98,8 @@ async fn main() {
             get(endpoints::quests::jediswap::verify_added_liquidity::handler),
         )
         .route(
-            "/quests/jediswap/twitter_fw_callback",
-            get(endpoints::quests::jediswap::twitter_fw_callback::handler),
+            "/quests/jediswap/verify_twitter_fw",
+            get(endpoints::quests::jediswap::verify_twitter_fw::handler),
         )
         .route(
             "/quests/jediswap/verify_twitter_rt",
@@ -146,8 +146,8 @@ async fn main() {
             get(endpoints::quests::zklend::verify_borrow::handler),
         )
         .route(
-            "/quests/zklend/twitter_fw_callback",
-            get(endpoints::quests::zklend::twitter_fw_callback::handler),
+            "/quests/zklend/verify_twitter_fw",
+            get(endpoints::quests::zklend::verify_twitter_fw::handler),
         )
         .route(
             "/quests/zklend/verify_twitter_rt",
@@ -158,8 +158,8 @@ async fn main() {
             get(endpoints::quests::sithswap::verify_has_root_domain::handler),
         )
         .route(
-            "/quests/sithswap/twitter_fw_callback",
-            get(endpoints::quests::sithswap::twitter_fw_callback::handler),
+            "/quests/sithswap/verify_twitter_fw",
+            get(endpoints::quests::sithswap::verify_twitter_fw::handler),
         )
         .route(
             "/quests/sithswap/verify_twitter_rt",
@@ -170,8 +170,8 @@ async fn main() {
             get(endpoints::quests::sithswap::verify_added_liquidity::handler),
         )
         .route(
-            "/quests/avnu/twitter_fw_callback",
-            get(endpoints::quests::avnu::twitter_fw_callback::handler),
+            "/quests/avnu/verify_twitter_fw",
+            get(endpoints::quests::avnu::verify_twitter_fw::handler),
         )
         .route(
             "/quests/avnu/verify_twitter_rt",
