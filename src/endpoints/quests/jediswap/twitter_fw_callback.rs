@@ -93,10 +93,21 @@ pub async fn handler(
     let id = match response["data"]["id"].as_str() {
         Some(s) => s,
         None => {
-            return get_error_redirect(
-                error_redirect_uri,
-                "Failed to get 'id' from response data".to_string(),
-            );
+            // When we get ratelimited by twitter
+            return match state.upsert_completed_task(query.addr, task_id).await {
+                Ok(_) => {
+                    let redirect_uri = format!(
+                        "{}/quest/2?task_id={}&res=true",
+                        state.conf.variables.app_link, task_id
+                    );
+                    success_redirect(redirect_uri)
+                }
+                Err(e) => get_error_redirect(error_redirect_uri, format!("{}", e)),
+            };
+            // return get_error_redirect(
+            //     error_redirect_uri,
+            //     "Failed to get 'id' from response data".to_string(),
+            // );
         }
     };
 
