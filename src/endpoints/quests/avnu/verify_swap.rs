@@ -11,15 +11,13 @@ use axum::{
     Json,
 };
 use serde_json::json;
-use starknet::core::types::FieldElement;
 
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
     let task_id = 12;
-    let addr = &query.addr;
-    let hex_addr = format!("0x{}", hex::encode(FieldElement::to_bytes_be(addr)));
+    let hex_addr = format!("{:#x}", query.addr);
 
     // Fetch AVNU endpoint to get user score
     let url = format!("https://starknet.api.avnu.fi/v1/takers/{}", hex_addr);
