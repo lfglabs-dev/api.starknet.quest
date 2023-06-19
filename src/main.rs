@@ -181,6 +181,10 @@ async fn main() {
             "/quests/avnu/discord_fw_callback",
             get(endpoints::quests::avnu::discord_fw_callback::handler),
         )
+        .route(
+            "/quests/avnu/verify_swap",
+            get(endpoints::quests::avnu::verify_swap::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 
