@@ -120,7 +120,7 @@ async fn main() {
         .route(
             "/quests/tribe/verify_three_years_expiry",
             get(endpoints::quests::tribe::verify_three_years_expiry::handler),
-         )
+        )
         .route(
             "/quests/twitter_tribe/verify_has_domain",
             get(endpoints::quests::twitter_tribe::verify_has_domain::handler),
@@ -180,6 +180,10 @@ async fn main() {
         .route(
             "/quests/avnu/discord_fw_callback",
             get(endpoints::quests::avnu::discord_fw_callback::handler),
+        )
+        .route(
+            "/quests/avnu/verify_swap",
+            get(endpoints::quests::avnu::verify_swap::handler),
         )
         .with_state(shared_state)
         .layer(cors);
