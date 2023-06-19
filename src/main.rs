@@ -130,8 +130,8 @@ async fn main() {
             get(endpoints::quests::twitter_tribe::verify_twitter_fw::handler),
         )
         .route(
-            "/quests/twitter_tribe/twitter_name_callback",
-            get(endpoints::quests::twitter_tribe::twitter_name_callback::handler),
+            "/quests/twitter_tribe/verify_twitter_name",
+            get(endpoints::quests::twitter_tribe::verify_twitter_name::handler),
         )
         .route(
             "/quests/twitter_tribe/verify_twitter_rt",
