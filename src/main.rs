@@ -120,18 +120,18 @@ async fn main() {
         .route(
             "/quests/tribe/verify_three_years_expiry",
             get(endpoints::quests::tribe::verify_three_years_expiry::handler),
-         )
+        )
         .route(
             "/quests/twitter_tribe/verify_has_domain",
             get(endpoints::quests::twitter_tribe::verify_has_domain::handler),
         )
         .route(
-            "/quests/twitter_tribe/twitter_fw_callback",
-            get(endpoints::quests::twitter_tribe::twitter_fw_callback::handler),
+            "/quests/twitter_tribe/verify_twitter_fw",
+            get(endpoints::quests::twitter_tribe::verify_twitter_fw::handler),
         )
         .route(
-            "/quests/twitter_tribe/twitter_name_callback",
-            get(endpoints::quests::twitter_tribe::twitter_name_callback::handler),
+            "/quests/twitter_tribe/verify_twitter_name",
+            get(endpoints::quests::twitter_tribe::verify_twitter_name::handler),
         )
         .route(
             "/quests/twitter_tribe/verify_twitter_rt",
