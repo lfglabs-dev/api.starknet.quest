@@ -154,6 +154,10 @@ async fn main() {
             get(endpoints::quests::zklend::verify_twitter_rt::handler),
         )
         .route(
+            "/quests/zklend/claimable",
+            get(endpoints::quests::zklend::claimable::handler),
+        )
+        .route(
             "/quests/sithswap/verify_has_root_domain",
             get(endpoints::quests::sithswap::verify_has_root_domain::handler),
         )
