@@ -185,6 +185,10 @@ async fn main() {
             "/quests/avnu/verify_swap",
             get(endpoints::quests::avnu::verify_swap::handler),
         )
+        .route(
+            "/quests/avnu/claimable",
+            get(endpoints::quests::avnu::claimable::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 
