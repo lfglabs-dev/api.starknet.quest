@@ -87,7 +87,7 @@ pub async fn handler(
         Some(6) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "AVNU astronaut".into(),
+                name: "AVNU Astronaut".into(),
                 description: "An AVNU NFT won for interacting with the protocol.".into(),
                 image: format!("{}/avnu/astronaut.webp", state.conf.variables.app_link),
                 attributes: None,
@@ -98,7 +98,7 @@ pub async fn handler(
         Some(7) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "Sithswap helmet".into(),
+                name: "Sithswap Helmet".into(),
                 description: "A Sithswap NFT won for interacting with the protocol.".into(),
                 image: format!(
                     "{}/sithswap/sith_helmet.webp",
@@ -115,6 +115,18 @@ pub async fn handler(
                 name: "Zklend Artemis".into(),
                 description: "A Zklend NFT won for interacting with the protocol.".into(),
                 image: format!("{}/zklend/artemis.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
+        Some(9) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Starknet ID Tribe Shield".into(),
+                description: "A Starknet Quest NFT won for showing allegiance to the Stark Tribe."
+                    .into(),
+                image: format!("{}/starknetid/shield.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
         )
