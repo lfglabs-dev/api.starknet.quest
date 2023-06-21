@@ -71,7 +71,7 @@ pub async fn handler(
                             .duration_since(UNIX_EPOCH)
                             .expect("Time went backwards")
                             .as_secs() as u32;
-                        if expiry_timestamp >= current_timestamp + 86400 * 365 * 3 {
+                        if expiry_timestamp >= current_timestamp + 86400 * 365 * 2.5 {
                             match state.upsert_completed_task(query.addr, task_id).await {
                                 Ok(_) => {
                                     (StatusCode::OK, Json(json!({"res": true}))).into_response()
