@@ -122,6 +122,10 @@ async fn main() {
             get(endpoints::quests::tribe::verify_three_years_expiry::handler),
         )
         .route(
+            "/quests/tribe/claimable",
+            get(endpoints::quests::tribe::claimable::handler),
+        )
+        .route(
             "/quests/twitter_tribe/verify_has_domain",
             get(endpoints::quests::twitter_tribe::verify_has_domain::handler),
         )

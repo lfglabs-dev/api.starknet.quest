@@ -38,6 +38,9 @@ pub async fn handler(
 
     fn get_level(level_int: u32) -> &'static str {
         match level_int {
+            12 => "Chef",
+            11 => "Officer",
+            10 => "Soldier",
             2 => "Silver",
             3 => "Gold",
             _ => "Bronze",
@@ -131,6 +134,24 @@ pub async fn handler(
             }),
         )
             .into_response(),
+
+        Some(level_int) if level_int > 9 && level_int <= 12 => {
+            let image_link = format!(
+                "{}/starknetid/necklace{}.webp",
+                state.conf.variables.app_link,
+                level_int - 9
+            );
+            let response = TokenURI {
+                name: format!("Starknet ID {} Necklace", get_level(level_int)),
+                description: "A Starknet Quest NFT won during a Starknet ID quest.".into(),
+                image: image_link,
+                attributes: Some(vec![Attribute {
+                    trait_type: "level".into(),
+                    value: level_int,
+                }]),
+            };
+            (StatusCode::OK, Json(response)).into_response()
+        }
 
         _ => get_error("Error, this level is not correct".into()),
     }
