@@ -170,6 +170,10 @@ async fn main() {
             get(endpoints::quests::sithswap::verify_added_liquidity::handler),
         )
         .route(
+            "/quests/sithswap/claimable",
+            get(endpoints::quests::sithswap::claimable::handler),
+        )
+        .route(
             "/quests/avnu/verify_twitter_fw",
             get(endpoints::quests::avnu::verify_twitter_fw::handler),
         )
