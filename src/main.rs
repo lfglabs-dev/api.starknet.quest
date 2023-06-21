@@ -122,6 +122,10 @@ async fn main() {
             get(endpoints::quests::tribe::verify_three_years_expiry::handler),
         )
         .route(
+            "/quests/tribe/claimable",
+            get(endpoints::quests::tribe::claimable::handler),
+        )
+        .route(
             "/quests/twitter_tribe/verify_has_domain",
             get(endpoints::quests::twitter_tribe::verify_has_domain::handler),
         )
@@ -136,6 +140,10 @@ async fn main() {
         .route(
             "/quests/twitter_tribe/verify_twitter_rt",
             get(endpoints::quests::twitter_tribe::verify_twitter_rt::handler),
+        )
+        .route(
+            "/quests/twitter_tribe/claimable",
+            get(endpoints::quests::twitter_tribe::claimable::handler),
         )
         .route(
             "/quests/zklend/verify_has_root_domain",
@@ -154,6 +162,10 @@ async fn main() {
             get(endpoints::quests::zklend::verify_twitter_rt::handler),
         )
         .route(
+            "/quests/zklend/claimable",
+            get(endpoints::quests::zklend::claimable::handler),
+        )
+        .route(
             "/quests/sithswap/verify_has_root_domain",
             get(endpoints::quests::sithswap::verify_has_root_domain::handler),
         )
@@ -170,6 +182,10 @@ async fn main() {
             get(endpoints::quests::sithswap::verify_added_liquidity::handler),
         )
         .route(
+            "/quests/sithswap/claimable",
+            get(endpoints::quests::sithswap::claimable::handler),
+        )
+        .route(
             "/quests/avnu/verify_twitter_fw",
             get(endpoints::quests::avnu::verify_twitter_fw::handler),
         )
@@ -184,6 +200,10 @@ async fn main() {
         .route(
             "/quests/avnu/verify_swap",
             get(endpoints::quests::avnu::verify_swap::handler),
+        )
+        .route(
+            "/quests/avnu/claimable",
+            get(endpoints::quests::avnu::claimable::handler),
         )
         .with_state(shared_state)
         .layer(cors);
