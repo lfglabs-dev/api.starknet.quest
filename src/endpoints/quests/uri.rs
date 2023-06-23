@@ -126,7 +126,7 @@ pub async fn handler(
         Some(9) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "Starknet ID Tribe Shield".into(),
+                name: "Stark Tribe Shield".into(),
                 description: "A Starknet Quest NFT won for showing allegiance to the Stark Tribe."
                     .into(),
                 image: format!("{}/starknetid/shield.webp", state.conf.variables.app_link),
