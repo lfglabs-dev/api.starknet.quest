@@ -23,6 +23,7 @@ pub struct TwitterOAuthCallbackQuery {
 #[derive(Deserialize)]
 pub struct Guild {
     id: String,
+    #[allow(dead_code)]
     name: String,
 }
 
