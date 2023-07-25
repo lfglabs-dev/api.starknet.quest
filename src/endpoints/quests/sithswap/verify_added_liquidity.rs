@@ -23,15 +23,15 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let task_id = 20;
     let addr = &query.addr;
-    let mut calldata = vec![addr.clone(), state.conf.quests.jediswap.pairs.len().into()];
-    calldata.append(&mut state.conf.quests.jediswap.pairs.clone());
+    let mut calldata = vec![addr.clone(), state.conf.quests.sithswap.pairs.len().into()];
+    calldata.append(&mut state.conf.quests.sithswap.pairs.clone());
 
     // get starkname from address
     let call_result = state
         .provider
         .call_contract(
             CallFunction {
-                contract_address: state.conf.quests.jediswap.utils_contract,
+                contract_address: state.conf.quests.sithswap.utils_contract,
                 entry_point_selector: selector!("sum_balances"),
                 calldata,
             },
