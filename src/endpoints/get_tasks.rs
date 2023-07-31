@@ -52,6 +52,16 @@ pub async fn handler(
             }
         },
         doc! {
+            "$lookup": {
+                "from": "quests",
+                "localField": "quest_id",
+                "foreignField": "id",
+                "as": "quest"
+            }
+        },
+        doc! { "$unwind": "$quest" },
+        doc! { "$match": { "quest.disabled": false } },
+        doc! {
             "$project": {
                 "_id": 0,
                 "id": 1,

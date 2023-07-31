@@ -20,7 +20,13 @@ pub struct NFTItem {
 
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let collection = state.db.collection::<QuestDocument>("quests");
-    match collection.find(None, None).await {
+    let filter = doc! {
+        "$and": [
+            {"disabled": false},
+            {"hidden": false}
+        ]
+    };
+    match collection.find(Some(filter), None).await {
         Ok(cursor) => {
             let quests: Vec<QuestDocument> = cursor.try_collect().await.unwrap_or_else(|_| vec![]);
             if quests.is_empty() {
@@ -29,6 +35,6 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                 (StatusCode::OK, Json(quests)).into_response()
             }
         }
-        Err(_) => get_error("Error querying quest".to_string()),
+        Err(_) => get_error("Error querying quests".to_string()),
     }
 }

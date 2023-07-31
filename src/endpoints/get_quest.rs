@@ -21,7 +21,10 @@ pub async fn handler(
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestDocument>("quests");
-    match collection.find_one(doc! {"id": query.id}, None).await {
+    match collection
+        .find_one(doc! {"id": query.id, "disabled" : false}, None)
+        .await
+    {
         Ok(Some(quest)) => (StatusCode::OK, Json(quest)).into_response(),
         Ok(None) => get_error("Quest not found".to_string()),
         Err(_) => get_error("Error querying quest".to_string()),
