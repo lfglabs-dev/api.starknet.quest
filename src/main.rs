@@ -90,26 +90,6 @@ async fn main() {
             get(endpoints::quests::starknetid::verify_socials::handler),
         )
         .route(
-            "/quests/jediswap/verify_has_root_domain",
-            get(endpoints::quests::jediswap::verify_has_root_domain::handler),
-        )
-        .route(
-            "/quests/jediswap/verify_added_liquidity",
-            get(endpoints::quests::jediswap::verify_added_liquidity::handler),
-        )
-        .route(
-            "/quests/jediswap/verify_twitter_fw",
-            get(endpoints::quests::jediswap::verify_twitter_fw::handler),
-        )
-        .route(
-            "/quests/jediswap/verify_twitter_rt",
-            get(endpoints::quests::jediswap::verify_twitter_rt::handler),
-        )
-        .route(
-            "/quests/jediswap/claimable",
-            get(endpoints::quests::jediswap::claimable::handler),
-        )
-        .route(
             "/quests/tribe/verify_has_domain",
             get(endpoints::quests::tribe::verify_has_domain::handler),
         )
@@ -124,46 +104,6 @@ async fn main() {
         .route(
             "/quests/tribe/claimable",
             get(endpoints::quests::tribe::claimable::handler),
-        )
-        .route(
-            "/quests/twitter_tribe/verify_has_domain",
-            get(endpoints::quests::twitter_tribe::verify_has_domain::handler),
-        )
-        .route(
-            "/quests/twitter_tribe/verify_twitter_fw",
-            get(endpoints::quests::twitter_tribe::verify_twitter_fw::handler),
-        )
-        .route(
-            "/quests/twitter_tribe/verify_twitter_name",
-            get(endpoints::quests::twitter_tribe::verify_twitter_name::handler),
-        )
-        .route(
-            "/quests/twitter_tribe/verify_twitter_rt",
-            get(endpoints::quests::twitter_tribe::verify_twitter_rt::handler),
-        )
-        .route(
-            "/quests/twitter_tribe/claimable",
-            get(endpoints::quests::twitter_tribe::claimable::handler),
-        )
-        .route(
-            "/quests/zklend/verify_has_root_domain",
-            get(endpoints::quests::zklend::verify_has_root_domain::handler),
-        )
-        .route(
-            "/quests/zklend/verify_borrow",
-            get(endpoints::quests::zklend::verify_borrow::handler),
-        )
-        .route(
-            "/quests/zklend/verify_twitter_fw",
-            get(endpoints::quests::zklend::verify_twitter_fw::handler),
-        )
-        .route(
-            "/quests/zklend/verify_twitter_rt",
-            get(endpoints::quests::zklend::verify_twitter_rt::handler),
-        )
-        .route(
-            "/quests/zklend/claimable",
-            get(endpoints::quests::zklend::claimable::handler),
         )
         .route(
             "/quests/sithswap/verify_has_root_domain",
@@ -184,26 +124,6 @@ async fn main() {
         .route(
             "/quests/sithswap/claimable",
             get(endpoints::quests::sithswap::claimable::handler),
-        )
-        .route(
-            "/quests/avnu/verify_twitter_fw",
-            get(endpoints::quests::avnu::verify_twitter_fw::handler),
-        )
-        .route(
-            "/quests/avnu/verify_twitter_rt",
-            get(endpoints::quests::avnu::verify_twitter_rt::handler),
-        )
-        .route(
-            "/quests/avnu/discord_fw_callback",
-            get(endpoints::quests::avnu::discord_fw_callback::handler),
-        )
-        .route(
-            "/quests/avnu/verify_swap",
-            get(endpoints::quests::avnu::verify_swap::handler),
-        )
-        .route(
-            "/quests/avnu/claimable",
-            get(endpoints::quests::avnu::claimable::handler),
         )
         .with_state(shared_state)
         .layer(cors);
