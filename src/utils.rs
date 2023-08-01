@@ -1,8 +1,7 @@
 use crate::models::{AppState, CompletedTasks};
 use async_trait::async_trait;
-use axum::body::Body;
 use axum::{
-    http::{Response as HttpResponse, StatusCode, Uri},
+    http::StatusCode,
     response::{IntoResponse, Response},
 };
 use mongodb::{bson::doc, options::UpdateOptions, results::UpdateResult, Collection};
@@ -15,7 +14,6 @@ use starknet::{
     signers::LocalWallet,
 };
 use std::result::Result;
-use std::str::FromStr;
 
 #[macro_export]
 macro_rules! pub_struct {
