@@ -1,5 +1,6 @@
 #[macro_use]
 mod utils;
+mod common;
 mod config;
 mod endpoints;
 mod models;
