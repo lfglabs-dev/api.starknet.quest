@@ -1,8 +1,7 @@
 use crate::models::{AppState, CompletedTasks};
 use async_trait::async_trait;
-use axum::body::Body;
 use axum::{
-    http::{Response as HttpResponse, StatusCode, Uri},
+    http::StatusCode,
     response::{IntoResponse, Response},
 };
 use mongodb::{bson::doc, options::UpdateOptions, results::UpdateResult, Collection};
@@ -15,7 +14,6 @@ use starknet::{
     signers::LocalWallet,
 };
 use std::result::Result;
-use std::str::FromStr;
 
 #[macro_export]
 macro_rules! pub_struct {
@@ -51,46 +49,6 @@ pub async fn get_nft(
 
 pub fn get_error(error: String) -> Response {
     (StatusCode::INTERNAL_SERVER_ERROR, error).into_response()
-}
-
-pub fn get_error_redirect(redirect_uri: String, error: String) -> Response {
-    let err_msg_encoded =
-        percent_encoding::utf8_percent_encode(&error, percent_encoding::NON_ALPHANUMERIC)
-            .to_string();
-    let redirect_url = format!("{}&error_msg={}", redirect_uri, err_msg_encoded);
-    let uri = match Uri::from_str(&redirect_url) {
-        Ok(uri) => uri,
-        Err(_) => return get_error("Failed to create URI from redirect URL".to_string()),
-    };
-
-    let response = match HttpResponse::builder()
-        .status(StatusCode::SEE_OTHER)
-        .header("Location", uri.to_string())
-        .body(Body::from("Redirecting..."))
-    {
-        Ok(response) => response,
-        Err(_) => return get_error("Failed to create HTTP response".to_string()),
-    };
-
-    response.into_response()
-}
-
-pub fn success_redirect(redirect_uri: String) -> Response {
-    let uri = match Uri::from_str(&redirect_uri) {
-        Ok(uri) => uri,
-        Err(_) => return get_error("Failed to create URI from redirect URL".to_string()),
-    };
-
-    let response = match HttpResponse::builder()
-        .status(StatusCode::SEE_OTHER)
-        .header("Location", uri.to_string())
-        .body(Body::from("Redirecting..."))
-    {
-        Ok(response) => response,
-        Err(_) => return get_error("Failed to create HTTP response".to_string()),
-    };
-
-    response.into_response()
 }
 
 #[async_trait]
