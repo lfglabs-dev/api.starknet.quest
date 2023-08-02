@@ -126,6 +126,26 @@ async fn main() {
             "/quests/sithswap/claimable",
             get(endpoints::quests::sithswap::claimable::handler),
         )
+        .route(
+            "/quests/orbiter/verify_has_root_domain",
+            get(endpoints::quests::orbiter::verify_has_root_domain::handler),
+        )
+        .route(
+            "/quests/orbiter/verify_twitter_fw",
+            get(endpoints::quests::orbiter::verify_twitter_fw::handler),
+        )
+        .route(
+            "/quests/orbiter/verify_twitter_rt",
+            get(endpoints::quests::orbiter::verify_twitter_rt::handler),
+        )
+        .route(
+            "/quests/orbiter/verify_has_bridged",
+            get(endpoints::quests::orbiter::verify_has_bridged::handler),
+        )
+        .route(
+            "/quests/orbiter/claimable",
+            get(endpoints::quests::orbiter::claimable::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 

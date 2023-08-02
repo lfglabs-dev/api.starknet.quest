@@ -13,6 +13,7 @@ use starknet::{
     },
     signers::LocalWallet,
 };
+use std::fmt::Write;
 use std::result::Result;
 
 #[macro_export]
@@ -78,4 +79,14 @@ impl CompletedTasksTrait for AppState {
             .await;
         result
     }
+}
+
+pub fn to_hex(felt: FieldElement) -> String {
+    let bytes = felt.to_bytes_be();
+    let mut result = String::with_capacity(bytes.len() * 2 + 2);
+    result.push_str("0x");
+    for byte in bytes {
+        write!(&mut result, "{:02x}", byte).unwrap();
+    }
+    result
 }

@@ -153,6 +153,17 @@ pub async fn handler(
             (StatusCode::OK, Json(response)).into_response()
         }
 
+        Some(10) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "StarkOrb".into(),
+                description: "An Orbiter NFT won for interacting with the protocol.".into(),
+                image: format!("{}/orbiter/orb.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }
