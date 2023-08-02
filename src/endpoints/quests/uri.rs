@@ -158,7 +158,7 @@ pub async fn handler(
             Json(TokenURI {
                 name: "StarkOrb".into(),
                 description: "An Orbiter NFT won for interacting with the protocol.".into(),
-                image: format!("{}/orbiter/orb.webp", state.conf.variables.app_link),
+                image: format!("{}/orbiter/orbiter.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
         )
