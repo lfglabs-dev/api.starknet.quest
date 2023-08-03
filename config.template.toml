@@ -41,3 +41,30 @@ app_link = "https://starknet.quest"
 api_link = "https://api.starknet.quest"
 is_testnet = false
 proxy = "xxxxx"
+
+[quizzes]
+
+[quizzes.example]
+name = "Example Quiz"
+short_desc = "Test your knowledge with our example quiz."
+
+[[quizzes.example.questions]]
+type = "text_choice"
+layout = "default"
+question = "What is 2+2?"
+options = ["1", "2", "3", "4"]
+correct_answer = 4
+
+[[quizzes.example.questions]]
+type = "image_choice"
+layout = "default"
+question = "Which image represents the number 2?"
+options = ["/example/one.webp", "/example/two.webp", "/example/three.webp", "/example/four.webp"]
+correct_answer = 2
+
+[[quizzes.example.questions]]
+type = "ordering"
+layout = "default"
+question = "Arrange these numbers in ascending order:"
+options = ["3", "1", "2", "4"]
+correct_order = [2, 3, 1, 4]
