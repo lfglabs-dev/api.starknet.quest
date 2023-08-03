@@ -135,6 +135,10 @@ async fn main() {
             get(endpoints::quests::orbiter::verify_twitter_fw::handler),
         )
         .route(
+            "/quests/orbiter/verify_twitter_fw_sq",
+            get(endpoints::quests::orbiter::verify_twitter_fw_sq::handler),
+        )
+        .route(
             "/quests/orbiter/verify_twitter_rt",
             get(endpoints::quests::orbiter::verify_twitter_rt::handler),
         )
