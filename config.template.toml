@@ -15,18 +15,9 @@ verifier_contract = "0xXXXXXXXXXXXX"
 identity_contract = "0xXXXXXXXXXXXX"
 
 [quests]
-[quests.starkfighter]
-server = "https://server.starkfighter.xyz/"
-[quests.jediswap]
-utils_contract = "0xXXXXXXXXXXXX"
-pairs = ["0xXXXXXXXXXXXX"]
-[quests.starknetid]
-account_id = "1558813489048829959"
 [quests.sithswap]
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
-[quests.zklend]
-contract = "0x04c0a5193d58f74fbace4b74dcf65481e734ed1714121bdc571da345540efa05"
 
 [twitter]
 oauth2_clientid = "xxxxxx"
@@ -49,21 +40,21 @@ name = "Example Quiz"
 short_desc = "Test your knowledge with our example quiz."
 
 [[quizzes.example.questions]]
-type = "text_choice"
+kind = "text_choice"
 layout = "default"
 question = "What is 2+2?"
 options = ["1", "2", "3", "4"]
 correct_answer = 4
 
 [[quizzes.example.questions]]
-type = "image_choice"
+kind = "image_choice"
 layout = "default"
 question = "Which image represents the number 2?"
 options = ["/example/one.webp", "/example/two.webp", "/example/three.webp", "/example/four.webp"]
 correct_answer = 2
 
 [[quizzes.example.questions]]
-type = "ordering"
+kind = "ordering"
 layout = "default"
 question = "Arrange these numbers in ascending order:"
 options = ["3", "1", "2", "4"]
