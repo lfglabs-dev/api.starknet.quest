@@ -1,5 +1,7 @@
-use serde::{self, Deserialize, Deserializer};
+use serde::Serializer;
+use serde::{self, Deserialize, Deserializer, Serialize};
 use starknet::core::types::FieldElement;
+use std::collections::HashMap;
 use std::env;
 use std::fs;
 
@@ -86,12 +88,8 @@ pub_struct!(Clone, Deserialize; QuizQuestion {
 
 pub_struct!(Clone, Deserialize; Quiz {
     name: String,
-    short_desc: String,
+    desc: String,
     questions: Vec<QuizQuestion>,
-});
-
-pub_struct!(Clone, Deserialize; Quizzes {
-    example: Quiz,
 });
 
 pub_struct!(Clone, Deserialize;  Config {
@@ -103,7 +101,7 @@ pub_struct!(Clone, Deserialize;  Config {
     quests: Quests,
     twitter: Twitter,
     discord: Discord,
-    quizzes: Quizzes,
+    quizzes: HashMap<String, Quiz>,
 });
 
 pub fn load() -> Config {

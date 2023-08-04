@@ -37,7 +37,8 @@ proxy = "xxxxx"
 
 [quizzes.example]
 name = "Example Quiz"
-short_desc = "Test your knowledge with our example quiz."
+desc = "Test your knowledge with our example quiz."
+intro = "Welcome to this example quiz. Let's get started."
 
 [[quizzes.example.questions]]
 kind = "text_choice"
@@ -50,7 +51,12 @@ correct_answer = 4
 kind = "image_choice"
 layout = "default"
 question = "Which image represents the number 2?"
-options = ["/example/one.webp", "/example/two.webp", "/example/three.webp", "/example/four.webp"]
+options = [
+    "/example/one.webp",
+    "/example/two.webp",
+    "/example/three.webp",
+    "/example/four.webp",
+]
 correct_answer = 2
 
 [[quizzes.example.questions]]
