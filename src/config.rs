@@ -1,5 +1,4 @@
-use serde::Serializer;
-use serde::{self, Deserialize, Deserializer, Serialize};
+use serde::{self, Deserialize, Deserializer};
 use starknet::core::types::FieldElement;
 use std::collections::HashMap;
 use std::env;
@@ -82,7 +81,7 @@ pub_struct!(Clone, Deserialize; QuizQuestion {
     layout: String,
     question: String,
     options: Vec<String>,
-    correct_answer: Option<usize>,
+    correct_answers: Option<Vec<usize>>,
     correct_order: Option<Vec<usize>>,
 });
 

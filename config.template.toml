@@ -45,7 +45,7 @@ kind = "text_choice"
 layout = "default"
 question = "What is 2+2?"
 options = ["1", "2", "3", "4"]
-correct_answer = 4
+correct_answer = [3]
 
 [[quizzes.example.questions]]
 kind = "image_choice"
@@ -57,7 +57,7 @@ options = [
     "/example/three.webp",
     "/example/four.webp",
 ]
-correct_answer = 2
+correct_answers = [1]
 
 [[quizzes.example.questions]]
 kind = "ordering"
