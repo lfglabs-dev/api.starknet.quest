@@ -1,5 +1,6 @@
-use serde::Deserialize;
+use serde::{self, Deserialize, Deserializer};
 use starknet::core::types::FieldElement;
+use std::collections::HashMap;
 use std::env;
 use std::fs;
 
@@ -30,11 +31,6 @@ pub_struct!(Clone, Deserialize; StarknetIdContracts {
 
 pub_struct!(Clone, Deserialize;  NamingContract { address: String });
 
-pub_struct!(Clone, Deserialize;  Jediswap {
-    utils_contract: FieldElement,
-    pairs : Vec<FieldElement>,
-});
-
 pub_struct!(Clone, Deserialize;  StarknetId {
     account_id: String,
 });
@@ -44,19 +40,7 @@ pub_struct!(Clone, Deserialize;  Sithswap {
     pairs : Vec<FieldElement>,
 });
 
-pub_struct!(Clone, Deserialize;  Starkfighter {
-    server: String,
-});
-
-pub_struct!(Clone, Deserialize;  Zklend {
-    contract: FieldElement,
-});
-
 pub_struct!(Clone, Deserialize;  Quests {
-    starkfighter: Starkfighter,
-    jediswap: Jediswap,
-    zklend: Zklend,
-    starknetid: StarknetId,
     sithswap: Sithswap,
 });
 
@@ -70,6 +54,43 @@ pub_struct!(Clone, Deserialize;  Discord {
     oauth2_secret: String,
 });
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum QuizQuestionType {
+    TextChoice,
+    ImageChoice,
+    Ordering,
+}
+
+impl<'de> Deserialize<'de> for QuizQuestionType {
+    fn deserialize<D>(deserializer: D) -> Result<QuizQuestionType, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        match s.to_lowercase().as_str() {
+            "text_choice" => Ok(QuizQuestionType::TextChoice),
+            "image_choice" => Ok(QuizQuestionType::ImageChoice),
+            "ordering" => Ok(QuizQuestionType::Ordering),
+            _ => Err(serde::de::Error::custom("Unexpected type")),
+        }
+    }
+}
+
+pub_struct!(Clone, Deserialize; QuizQuestion {
+    kind: QuizQuestionType,
+    layout: String,
+    question: String,
+    options: Vec<String>,
+    correct_answers: Option<Vec<usize>>,
+    correct_order: Option<Vec<usize>>,
+});
+
+pub_struct!(Clone, Deserialize; Quiz {
+    name: String,
+    desc: String,
+    questions: Vec<QuizQuestion>,
+});
+
 pub_struct!(Clone, Deserialize;  Config {
     server: Server,
     database: Database,
@@ -79,6 +100,7 @@ pub_struct!(Clone, Deserialize;  Config {
     quests: Quests,
     twitter: Twitter,
     discord: Discord,
+    quizzes: HashMap<String, Quiz>,
 });
 
 pub fn load() -> Config {
