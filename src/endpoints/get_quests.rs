@@ -7,8 +7,9 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
+use chrono::Utc;
 use futures::TryStreamExt;
-use mongodb::bson::doc;
+use mongodb::bson::{self, doc};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -20,11 +21,30 @@ pub struct NFTItem {
 
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let collection = state.db.collection::<QuestDocument>("quests");
+    let current_timestamp = bson::DateTime::from_millis(Utc::now().timestamp_millis());
     let filter = doc! {
         "$and": [
-            {"disabled": false},
-            {"hidden": false}
-        ]
+        {
+            "$or": [
+                {
+                    "expiry": {
+                        "$exists": false
+                    }
+                },
+                {
+                    "expiry": {
+                        "$gt": current_timestamp
+                    }
+                }
+            ]
+        },
+        {
+            "disabled": false
+        },
+        {
+            "hidden": false
+        }
+    ]
     };
     match collection.find(Some(filter), None).await {
         Ok(cursor) => {

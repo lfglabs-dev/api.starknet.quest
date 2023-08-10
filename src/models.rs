@@ -1,4 +1,4 @@
-use mongodb::Database;
+use mongodb::{bson, Database};
 use serde::{Deserialize, Serialize};
 use starknet::{core::types::FieldElement, providers::SequencerGatewayProvider};
 
@@ -30,6 +30,7 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     title_card: String,
     hidden: bool,
     disabled: bool,
+    expiry: Option<bson::DateTime>,
 });
 
 pub_struct!(Deserialize; CompletedTasks {
