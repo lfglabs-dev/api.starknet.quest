@@ -22,6 +22,7 @@ pub struct UserTask {
     verify_redirect: Option<String>,
     desc: String,
     completed: bool,
+    quiz_name: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -74,6 +75,7 @@ pub async fn handler(
                 "verify_endpoint_type": 1,
                 "desc": 1,
                 "completed": { "$gt": [ { "$size": "$completed" }, 0 ] },
+                "quiz_name": 1,
             }
         },
     ];
