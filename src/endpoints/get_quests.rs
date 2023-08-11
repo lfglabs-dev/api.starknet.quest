@@ -8,8 +8,10 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use chrono::Utc;
+use futures::StreamExt;
 use futures::TryStreamExt;
-use mongodb::bson::{self, doc};
+use mongodb::bson;
+use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -48,7 +50,19 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     };
     match collection.find(Some(filter), None).await {
         Ok(cursor) => {
-            let quests: Vec<QuestDocument> = cursor.try_collect().await.unwrap_or_else(|_| vec![]);
+            let quests: Vec<QuestDocument> = cursor
+                .map(|result| {
+                    result.map(|mut quest: QuestDocument| {
+                        if let Some(expiry) = &quest.expiry {
+                            let timestamp = expiry.timestamp_millis().to_string();
+                            quest.expiry_timestamp = Some(timestamp);
+                        }
+                        quest
+                    })
+                })
+                .try_collect()
+                .await
+                .unwrap_or_else(|_| vec![]);
             if quests.is_empty() {
                 get_error("No quests found".to_string())
             } else {
