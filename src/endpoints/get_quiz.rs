@@ -23,6 +23,7 @@ pub_struct!(Clone, Serialize; QuizQuestionResp {
     layout: String,
     question: String,
     options: Vec<String>,
+    image_for_layout: Option<String>
 });
 
 #[derive(Clone, Serialize)]
@@ -52,6 +53,7 @@ pub async fn handler(
                     layout: question.layout.clone(),
                     question: question.question.clone(),
                     options: question.options.clone(),
+                    image_for_layout: question.image_for_layout.clone(),
                 })
                 .collect();
             let quiz_response = QuizResponse {
