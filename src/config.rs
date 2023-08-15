@@ -83,6 +83,7 @@ pub_struct!(Clone, Deserialize; QuizQuestion {
     options: Vec<String>,
     correct_answers: Option<Vec<usize>>,
     correct_order: Option<Vec<usize>>,
+    image_for_layout: Option<String>,
 });
 
 pub_struct!(Clone, Deserialize; Quiz {
