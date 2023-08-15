@@ -18,6 +18,7 @@ struct UserTaskStatus {
 }
 
 #[derive(Debug, serde::Deserialize)]
+#[allow(non_snake_case)]
 struct Data {
     userTaskStatus: UserTaskStatus,
 }

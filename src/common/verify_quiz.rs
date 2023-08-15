@@ -3,6 +3,7 @@ use starknet::core::types::FieldElement;
 
 // addr is currently unused, this could become the case if we generate
 // a deterministic permutation of answers in the future. Seems non necessary for now
+#[allow(dead_code)]
 pub fn verify_quiz(
     config: &Config,
     _addr: FieldElement,
