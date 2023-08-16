@@ -4,7 +4,11 @@ mod common;
 mod config;
 mod endpoints;
 mod models;
-use axum::{http::StatusCode, routing::get, Router};
+use axum::{
+    http::StatusCode,
+    routing::{get, post},
+    Router,
+};
 use mongodb::{bson::doc, options::ClientOptions, Client};
 use reqwest::{Proxy, Url};
 use starknet::providers::SequencerGatewayProvider;
@@ -150,6 +154,10 @@ async fn main() {
         .route(
             "/quests/orbiter/claimable",
             get(endpoints::quests::orbiter::claimable::handler),
+        )
+        .route(
+            "/quests/example/verify_quiz",
+            post(endpoints::quests::example::verify_quiz::handler),
         )
         .with_state(shared_state)
         .layer(cors);

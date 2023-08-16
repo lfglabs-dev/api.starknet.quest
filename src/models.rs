@@ -59,3 +59,9 @@ pub_struct!(Serialize; RewardResponse {
 pub_struct!(Deserialize; VerifyQuery {
      addr: FieldElement,
 });
+
+pub_struct!(Deserialize; VerifyQuizQuery {
+    addr: FieldElement,
+    quiz_name: String,
+    user_answers_list: Vec<Vec<String>>,
+});
