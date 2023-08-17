@@ -45,7 +45,7 @@ kind = "text_choice"
 layout = "default"
 question = "What is 2+2?"
 options = ["1", "2", "3", "4"]
-correct_answer = [3]
+correct_answers = [3]
 
 [[quizzes.example.questions]]
 kind = "image_choice"
@@ -71,5 +71,5 @@ kind = "text_choice"
 layout = "illustrated_left"
 question = "Which number is represented on the image?"
 options = ["1", "2"]
-correct_answer = [0]
+correct_answers = [0]
 image_for_layout = "/example/one.webp"
