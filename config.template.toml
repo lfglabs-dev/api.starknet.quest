@@ -64,12 +64,12 @@ kind = "ordering"
 layout = "default"
 question = "Arrange these numbers in ascending order:"
 options = ["3", "1", "2", "4"]
-correct_order = [2, 3, 1, 4]
+correct_order = [1, 2, 0, 3]
 
 [[quizzes.example.questions]]
 kind = "text_choice"
 layout = "illustrated_left"
 question = "Which number is represented on the image?"
 options = ["1", "2"]
-correct_answer = [1]
+correct_answer = [0]
 image_for_layout = "/example/one.webp"
