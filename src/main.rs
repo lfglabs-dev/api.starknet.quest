@@ -159,6 +159,14 @@ async fn main() {
             "/quests/example/verify_quiz",
             post(endpoints::quests::example::verify_quiz::handler),
         )
+        .route(
+            "/achievements/verify_default",
+            get(endpoints::achievements::verify_default::handler),
+        )
+        .route(
+            "/achievements/fetch",
+            get(endpoints::achievements::fetch::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 
