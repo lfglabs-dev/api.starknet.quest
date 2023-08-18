@@ -1,4 +1,7 @@
-use crate::models::{AppState, CompletedTasks};
+use crate::{
+    endpoints::achievements,
+    models::{AchievementDocument, AppState, CompletedTasks},
+};
 use async_trait::async_trait;
 use axum::{
     http::StatusCode,
@@ -89,4 +92,51 @@ pub fn to_hex(felt: FieldElement) -> String {
         write!(&mut result, "{:02x}", byte).unwrap();
     }
     result
+}
+
+#[async_trait]
+pub trait AchievementsTrait {
+    async fn upsert_completed_achievement(
+        &self,
+        addr: FieldElement,
+        achievement_id: u32,
+    ) -> Result<UpdateResult, mongodb::error::Error>;
+
+    async fn get_achievement(
+        &self,
+        achievement_id: u32,
+    ) -> Result<Option<AchievementDocument>, mongodb::error::Error>;
+}
+
+#[async_trait]
+impl AchievementsTrait for AppState {
+    async fn upsert_completed_achievement(
+        &self,
+        addr: FieldElement,
+        achievement_id: u32,
+    ) -> Result<UpdateResult, mongodb::error::Error> {
+        let achieved_collection: Collection<CompletedTasks> = self.db.collection("achieved");
+        let filter = doc! { "addr": addr.to_string(), "achievement_id": achievement_id };
+        let update =
+            doc! { "$setOnInsert": { "addr": addr.to_string(), "achievement_id": achievement_id } };
+        let options = UpdateOptions::builder().upsert(true).build();
+
+        let result = achieved_collection
+            .update_one(filter, update, options)
+            .await;
+        result
+    }
+
+    async fn get_achievement(
+        &self,
+        achievement_id: u32,
+    ) -> Result<Option<AchievementDocument>, mongodb::error::Error> {
+        let achievements_collection: Collection<AchievementDocument> =
+            self.db.collection("achievements");
+        let query = doc! {
+            "id": achievement_id
+        };
+        let result = achievements_collection.find_one(query, None).await;
+        result
+    }
 }

@@ -65,3 +65,52 @@ pub_struct!(Deserialize; VerifyQuizQuery {
     quiz_name: String,
     user_answers_list: Vec<Vec<String>>,
 });
+
+pub_struct!(Deserialize; AchievementQuery {
+    addr: FieldElement,
+});
+
+pub_struct!(Deserialize; VerifyAchievementQuery {
+    addr: FieldElement,
+    id: u32,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; AchievedDocument {
+    addr: String,
+    achievement_id: u32,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; AchievementDocument {
+    id: u32,
+    category_id: u32,
+    name: String,
+    img_url: String,
+    short_desc: String,
+    todo_title: String,
+    todo_desc: String,
+    done_title: String,
+    done_desc: String,
+    verify_type: String,
+    verify_endpoint: String,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; AchievementCategoryDocument {
+    id: u32,
+    name: String,
+    desc: String,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; UserAchievements {
+    category_name: String,
+    category_desc: String,
+    achievements: Vec<UserAchievement>,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; UserAchievement {
+    name: String,
+    short_desc: String,
+    title: String,
+    desc: String,
+    completed: bool,
+    verify_type: String,
+});
