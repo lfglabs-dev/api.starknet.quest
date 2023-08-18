@@ -18,9 +18,6 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<AchievementQuery>,
 ) -> impl IntoResponse {
-    if query.addr == FieldElement::ZERO {
-        return get_error("Please connect your wallet first".to_string());
-    }
     let addr = FieldElement::to_string(&query.addr);
     let achievement_categories = state
         .db
