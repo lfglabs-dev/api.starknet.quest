@@ -56,6 +56,7 @@ pub async fn handler(
             "category_desc": "$desc",
             "category_img_url": "$img_url",
             "achievements": {
+              "id": "$achievement.id",
               "name": "$achievement.name",
               "short_desc": "$achievement.short_desc",
               "title": {

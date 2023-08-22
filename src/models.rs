@@ -110,6 +110,7 @@ pub_struct!(Debug, Serialize, Deserialize; UserAchievements {
 });
 
 pub_struct!(Debug, Serialize, Deserialize; UserAchievement {
+    id: u32,
     name: String,
     short_desc: String,
     title: String,
