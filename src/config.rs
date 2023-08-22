@@ -92,6 +92,23 @@ pub_struct!(Clone, Deserialize; Quiz {
     questions: Vec<QuizQuestion>,
 });
 
+pub_struct!(Clone, Deserialize;  Starkscan {
+    api_key: String,
+});
+
+pub_struct!(Clone, Deserialize;  Braavos {
+    contract: FieldElement,
+});
+
+pub_struct!(Clone, Deserialize;  Argent {
+    contract: FieldElement,
+});
+
+pub_struct!(Clone, Deserialize;  Achievements {
+    braavos: Braavos,
+    argent: Argent,
+});
+
 pub_struct!(Clone, Deserialize;  Config {
     server: Server,
     database: Database,
@@ -102,6 +119,8 @@ pub_struct!(Clone, Deserialize;  Config {
     twitter: Twitter,
     discord: Discord,
     quizzes: HashMap<String, Quiz>,
+    starkscan: Starkscan,
+    achievements: Achievements,
 });
 
 pub fn load() -> Config {

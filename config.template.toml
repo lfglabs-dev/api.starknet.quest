@@ -73,3 +73,13 @@ question = "Which number is represented on the image?"
 options = ["1", "2"]
 correct_answers = [0]
 image_for_layout = "/example/one.webp"
+
+[starkscan]
+api_key = "xxxxxx"
+
+
+[achievements]
+[achievements.braavos]
+contract = "0x00057c4b510d66eb1188a7173f31cccee47b9736d40185da8144377b896d5ff3"
+[achievements.argent]
+contract = "0x01b22f7a9d18754c994ae0ee9adb4628d414232e3ebd748c386ac286f86c3066"
