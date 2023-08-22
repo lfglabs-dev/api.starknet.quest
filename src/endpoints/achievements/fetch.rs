@@ -54,6 +54,7 @@ pub async fn handler(
             "_id": 0,
             "category_name": "$name",
             "category_desc": "$desc",
+            "category_img_url": "$img_url",
             "achievements": {
               "name": "$achievement.name",
               "short_desc": "$achievement.short_desc",
@@ -78,7 +79,7 @@ pub async fn handler(
         },
         doc! {
           "$group": {
-            "_id": { "category_name": "$category_name", "category_desc": "$category_desc" },
+            "_id": { "category_name": "$category_name", "category_desc": "$category_desc", "category_img_url": "$category_img_url" },
             "achievements": { "$push": "$achievements" }
           }
         },
@@ -86,6 +87,7 @@ pub async fn handler(
           "$project": {
             "category_name": "$_id.category_name",
             "category_desc": "$_id.category_desc",
+            "category_img_url": "$_id.category_img_url",
             "achievements": 1,
             "_id": 0
           }

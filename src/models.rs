@@ -1,5 +1,6 @@
 use mongodb::{bson, Database};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use starknet::{core::types::FieldElement, providers::SequencerGatewayProvider};
 
 use crate::config::Config;
@@ -98,11 +99,13 @@ pub_struct!(Debug, Serialize, Deserialize; AchievementCategoryDocument {
     id: u32,
     name: String,
     desc: String,
+    img_url: String,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; UserAchievements {
     category_name: String,
     category_desc: String,
+    category_img_url: String,
     achievements: Vec<UserAchievement>,
 });
 
@@ -113,4 +116,34 @@ pub_struct!(Debug, Serialize, Deserialize; UserAchievement {
     desc: String,
     completed: bool,
     verify_type: String,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; NftBalance {
+    contract_address: String,
+    token_id: String,
+    owner_address: String,
+    balance: String,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; Nft {
+    nft_id: String,
+    contract_address: String,
+    token_id: String,
+    name: Option<String>,
+    description: Option<String>,
+    external_url: Option<String>,
+    attributes: Option<Value>,
+    image_url: Option<String>,
+    image_small_url: Option<String>,
+    image_medium_url: Option<String>,
+    animation_url: Option<String>,
+    minted_by_address: String,
+    minted_at_transaction_hash: String,
+    minted_at_timestamp: i64,
+    balance: Option<NftBalance>,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; StarkscanQuery {
+    next_url: Option<String>,
+    data: Vec<Nft>,
 });
