@@ -74,7 +74,8 @@ pub async fn handler(
                 ]
               },
               "completed": { "$ne": [{ "$size": "$achieved" }, 0] },
-              "verify_type": "$achievement.verify_type"
+              "verify_type": "$achievement.verify_type",
+              "img_url": "$achievement.img_url"
             }
           }
         },

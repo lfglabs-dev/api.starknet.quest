@@ -117,6 +117,7 @@ pub_struct!(Debug, Serialize, Deserialize; UserAchievement {
     desc: String,
     completed: bool,
     verify_type: String,
+    img_url: String,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; NftBalance {
