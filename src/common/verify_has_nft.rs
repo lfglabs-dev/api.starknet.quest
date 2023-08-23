@@ -1,4 +1,8 @@
-use crate::{config::Config, models::StarkscanQuery, utils::to_hex};
+use crate::{
+    config::Config,
+    models::{Nft, StarkscanQuery},
+    utils::to_hex,
+};
 use starknet::core::types::FieldElement;
 
 pub async fn execute_has_nft(
@@ -6,6 +10,7 @@ pub async fn execute_has_nft(
     addr: FieldElement,
     contract: FieldElement,
     limit: u32,
+    is_whitelisted: fn(&Nft) -> bool,
 ) -> bool {
     let url = format!(
         "https://api.starkscan.co/api/v0/nfts?contract_address={}&owner_address={}",
@@ -25,11 +30,11 @@ pub async fn execute_has_nft(
                 Ok(text) => {
                     match serde_json::from_str::<StarkscanQuery>(&text) {
                         Ok(res) => {
-                            // Remove duplicates
+                            // Remove duplicates & check is whitelisted
                             let nft_data = res.data;
                             let mut unique_nfts: Vec<String> = Vec::new();
                             for nft in nft_data {
-                                if nft.name.is_some() {
+                                if nft.name.is_some() && is_whitelisted(&nft) {
                                     let name = nft.name.unwrap();
                                     if !unique_nfts.contains(&name) {
                                         unique_nfts.push(name);
