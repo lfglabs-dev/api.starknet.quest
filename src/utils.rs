@@ -1,7 +1,4 @@
-use crate::{
-    endpoints::achievements,
-    models::{AchievementDocument, AppState, CompletedTasks},
-};
+use crate::models::{AchievementDocument, AppState, CompletedTasks};
 use async_trait::async_trait;
 use axum::{
     http::StatusCode,
