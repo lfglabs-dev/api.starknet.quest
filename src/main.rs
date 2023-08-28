@@ -167,6 +167,10 @@ async fn main() {
             "/achievements/fetch",
             get(endpoints::achievements::fetch::handler),
         )
+        .route(
+            "/achievements/fetch_buildings",
+            get(endpoints::achievements::fetch_buildings::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 
