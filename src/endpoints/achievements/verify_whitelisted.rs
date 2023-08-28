@@ -14,19 +14,6 @@ pub fn is_braavos_whitelisted(nft: &Nft) -> bool {
     false
 }
 
-pub fn is_argent_whitelisted(nft: &Nft) -> bool {
-    let whitelist = vec![
-        "Xplorer — Argent",
-        "Xplorer — Starkfighter",
-        "Xplorer — Jediswap",
-        "Xplorer — Mintsquare",
-        "Xplorer — Layerswap",
-        "Xplorer — Briq",
-        "Xplorer — AVNU",
-        "Xplorer — Dappland",
-    ];
-    if let Some(name) = nft.name.as_ref() {
-        return whitelist.contains(&name.as_str());
-    }
-    false
+pub fn is_argent_whitelisted(_nft: &Nft) -> bool {
+    true
 }
