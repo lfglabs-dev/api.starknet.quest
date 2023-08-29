@@ -159,4 +159,5 @@ pub_struct!(Debug, Deserialize, Serialize; BuildingDocument {
     name: String,
     description: String,
     entity: String,
+    level: u32,
 });
