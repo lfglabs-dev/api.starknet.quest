@@ -149,3 +149,15 @@ pub_struct!(Debug, Serialize, Deserialize; StarkscanQuery {
     next_url: Option<String>,
     data: Vec<Nft>,
 });
+
+pub_struct!(Deserialize; BuildingQuery {
+    ids: String,
+});
+
+pub_struct!(Debug, Deserialize, Serialize; BuildingDocument {
+    id: u32,
+    name: String,
+    description: String,
+    entity: String,
+    level: u32,
+});
