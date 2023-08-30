@@ -11,7 +11,7 @@ pub async fn execute_has_nft(
     contract: FieldElement,
     limit: u32,
     is_whitelisted: fn(&Nft) -> bool,
-) -> bool {
+) -> Result<bool, String> {
     let url = format!(
         "https://api.starkscan.co/api/v0/nfts?contract_address={}&owner_address={}",
         to_hex(contract),
@@ -28,6 +28,7 @@ pub async fn execute_has_nft(
         Ok(response) => {
             match response.text().await {
                 Ok(text) => {
+                    println!("text: {:?}", text);
                     match serde_json::from_str::<StarkscanQuery>(&text) {
                         Ok(res) => {
                             // Remove duplicates & check is whitelisted
@@ -41,26 +42,20 @@ pub async fn execute_has_nft(
                                     }
                                 }
                             }
-                            unique_nfts.len() >= limit as usize
+                            Ok(unique_nfts.len() >= limit as usize)
                         }
-                        Err(e) => {
-                            println!("Failed to deserialize result from Starkscan API: {}", e);
-                            false
-                        }
+                        Err(e) => Err(format!(
+                            "Failed to deserialize result from Starkscan API: {}",
+                            e
+                        )),
                     }
                 }
-                Err(e) => {
-                    println!(
-                        "Failed to get JSON response while fetching user NFT data: {}",
-                        e
-                    );
-                    false
-                }
+                Err(e) => Err(format!(
+                    "Failed to get JSON response while fetching user NFT data: {}",
+                    e
+                )),
             }
         }
-        Err(e) => {
-            println!("Failed to fetch user NFTs from API: {}", e);
-            false
-        }
+        Err(e) => Err(format!("Failed to fetch user NFTs from API: {}", e)),
     }
 }

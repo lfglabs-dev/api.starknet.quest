@@ -56,18 +56,22 @@ pub async fn handler(
         Ok(Some(_)) => (StatusCode::OK, Json(json!({"achieved": true}))).into_response(),
         Ok(None) => match get_args(state.conf.clone(), achievement_id) {
             Ok((contract, limit, is_whitelisted)) => {
-                let is_achieved =
-                    execute_has_nft(&state.conf, addr, contract, limit, is_whitelisted).await;
-                if is_achieved {
-                    match state
-                        .upsert_completed_achievement(addr, achievement_id)
-                        .await
-                    {
-                        Ok(_) => (StatusCode::OK, Json(json!({"achieved": true}))).into_response(),
-                        Err(e) => get_error(format!("{}", e)),
+                match execute_has_nft(&state.conf, addr, contract, limit, is_whitelisted).await {
+                    Ok(is_achieved) => {
+                        if is_achieved {
+                            match state
+                                .upsert_completed_achievement(addr, achievement_id)
+                                .await
+                            {
+                                Ok(_) => (StatusCode::OK, Json(json!({"achieved": true})))
+                                    .into_response(),
+                                Err(e) => get_error(format!("{}", e)),
+                            }
+                        } else {
+                            (StatusCode::OK, Json(json!({"achieved": false}))).into_response()
+                        }
                     }
-                } else {
-                    (StatusCode::OK, Json(json!({"achieved": false}))).into_response()
+                    Err(e) => get_error(e),
                 }
             }
             Err(e) => get_error(e),
