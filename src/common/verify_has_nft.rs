@@ -28,7 +28,6 @@ pub async fn execute_has_nft(
         Ok(response) => {
             match response.text().await {
                 Ok(text) => {
-                    println!("text: {:?}", text);
                     match serde_json::from_str::<StarkscanQuery>(&text) {
                         Ok(res) => {
                             // Remove duplicates & check is whitelisted
