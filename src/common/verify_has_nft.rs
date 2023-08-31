@@ -44,8 +44,8 @@ pub async fn execute_has_nft(
                             Ok(unique_nfts.len() >= limit as usize)
                         }
                         Err(e) => Err(format!(
-                            "Failed to deserialize result from Starkscan API: {}",
-                            e
+                            "Failed to deserialize result from Starkscan API: {} for response: {}",
+                            e, text
                         )),
                     }
                 }
