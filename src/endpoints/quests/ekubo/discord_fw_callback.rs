@@ -32,8 +32,8 @@ pub async fn handler(
     Query(query): Query<TwitterOAuthCallbackQuery>,
 ) -> impl IntoResponse {
     let quest_id = 9;
-    let task_id = 38;
-    let guild_id = "1119209474851356716";
+    let task_id = 39;
+    let guild_id = "1119209474369003600";
     let authorization_code = &query.code;
     let error_redirect_uri = format!(
         "{}/quest/{}?task_id={}&res=false",
@@ -48,7 +48,7 @@ pub async fn handler(
         (
             "redirect_uri",
             &format!(
-                "{}/quests/avnu/discord_fw_callback",
+                "{}/quests/ekubo/discord_fw_callback",
                 state.conf.variables.api_link
             ),
         ),
@@ -112,7 +112,7 @@ pub async fn handler(
 
     get_error_redirect(
         error_redirect_uri,
-        "You're not part of AVNU's Discord server".to_string(),
+        "You're not part of Ekubo's Discord server".to_string(),
     )
 }
 
