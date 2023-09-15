@@ -40,8 +40,14 @@ pub_struct!(Clone, Deserialize;  Sithswap {
     pairs : Vec<FieldElement>,
 });
 
+pub_struct!(Clone, Deserialize;  Ekubo {
+    utils_contract: FieldElement,
+    pairs : Vec<FieldElement>,
+});
+
 pub_struct!(Clone, Deserialize;  Quests {
     sithswap: Sithswap,
+    ekubo: Ekubo,
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {

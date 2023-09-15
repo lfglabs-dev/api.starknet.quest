@@ -18,6 +18,9 @@ identity_contract = "0xXXXXXXXXXXXX"
 [quests.sithswap]
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
+[quests.ekubo]
+utils_contract = "0xXXXXXXXXXXXX"
+pairs = ["0xXXXXXXXXXXXX"]
 
 [twitter]
 oauth2_clientid = "xxxxxx"
@@ -33,47 +36,6 @@ api_link = "https://api.starknet.quest"
 is_testnet = false
 proxy = "xxxxx"
 
-[quizzes]
-
-[quizzes.example]
-name = "Example Quiz"
-desc = "Test your knowledge with our example quiz."
-intro = "Welcome to this example quiz. Let's get started."
-
-[[quizzes.example.questions]]
-kind = "text_choice"
-layout = "default"
-question = "What is 2+2?"
-options = ["1", "2", "3", "4"]
-correct_answers = [3]
-
-[[quizzes.example.questions]]
-kind = "image_choice"
-layout = "default"
-question = "Which image represents the number 2?"
-options = [
-    "/example/one.webp",
-    "/example/two.webp",
-    "/example/three.webp",
-    "/example/four.webp",
-]
-correct_answers = [1]
-
-[[quizzes.example.questions]]
-kind = "ordering"
-layout = "default"
-question = "Arrange these numbers in ascending order:"
-options = ["3", "1", "2", "4"]
-correct_order = [1, 2, 0, 3]
-
-[[quizzes.example.questions]]
-kind = "text_choice"
-layout = "illustrated_left"
-question = "Which number is represented on the image?"
-options = ["1", "2"]
-correct_answers = [0]
-image_for_layout = "/example/one.webp"
-
 [starkscan]
 api_key = "xxxxxx"
 
@@ -82,3 +44,38 @@ api_key = "xxxxxx"
 contract = "0x00057c4b510d66eb1188a7173f31cccee47b9736d40185da8144377b896d5ff3"
 [achievements.argent]
 contract = "0x01b22f7a9d18754c994ae0ee9adb4628d414232e3ebd748c386ac286f86c3066"
+
+[quizzes]
+
+[quizzes.ekubo]
+name = "Ekubo Quiz"
+desc = "Test your knowledge with our example quiz."
+intro = "Welcome to this example quiz. Let's get started."
+
+[[quizzes.ekubo.questions]]
+kind = "text_choice"
+layout = "default"
+question = "Where is Ekubo building its platform?"
+options = [[****]]
+correct_answers = [*]
+
+[[quizzes.ekubo.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What are the key features of the Ekubo Protocol?"
+options = [****]
+correct_answers = [*]
+
+[[quizzes.ekubo.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What benefit does concentrated liquidity provide to swappers?"
+options = [****]
+correct_answers = [*]
+
+[[quizzes.ekubo.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What additional action can market makers perform on Ekubo?"
+options = [****]
+correct_answers = [*]

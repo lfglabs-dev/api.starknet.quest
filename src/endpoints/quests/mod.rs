@@ -1,4 +1,5 @@
 pub mod contract_uri;
+pub mod ekubo;
 pub mod orbiter;
 pub mod sithswap;
 pub mod starknetid;

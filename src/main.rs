@@ -152,6 +152,22 @@ async fn main() {
             get(endpoints::quests::orbiter::claimable::handler),
         )
         .route(
+            "/quests/ekubo/claimable",
+            get(endpoints::quests::ekubo::claimable::handler),
+        )
+        .route(
+            "/quests/ekubo/discord_fw_callback",
+            get(endpoints::quests::ekubo::discord_fw_callback::handler),
+        )
+        .route(
+            "/quests/ekubo/verify_quiz",
+            get(endpoints::quests::ekubo::verify_quiz::handler),
+        )
+        .route(
+            "/quests/ekubo/verify_added_liquidity",
+            get(endpoints::quests::ekubo::verify_added_liquidity::handler),
+        )
+        .route(
             "/achievements/verify_default",
             get(endpoints::achievements::verify_default::handler),
         )
