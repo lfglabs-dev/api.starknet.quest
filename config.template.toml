@@ -18,6 +18,11 @@ identity_contract = "0xXXXXXXXXXXXX"
 [quests.sithswap]
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
+[quests.jediswap]
+utils_contract = "0xXXXXXXXXXXXX"
+pairs = ["0xXXXXXXXXXXXX"]
+[quests.zklend]
+contract = "0xXXXXXXXXXXXX"
 [quests.ekubo]
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]

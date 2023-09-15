@@ -40,6 +40,15 @@ pub_struct!(Clone, Deserialize;  Sithswap {
     pairs : Vec<FieldElement>,
 });
 
+pub_struct!(Clone, Deserialize;  Zklend {
+    contract: FieldElement,
+});
+
+pub_struct!(Clone, Deserialize;  Jediswap {
+    utils_contract: FieldElement,
+    pairs : Vec<FieldElement>,
+});
+
 pub_struct!(Clone, Deserialize;  Ekubo {
     utils_contract: FieldElement,
     pairs : Vec<FieldElement>,
@@ -47,6 +56,8 @@ pub_struct!(Clone, Deserialize;  Ekubo {
 
 pub_struct!(Clone, Deserialize;  Quests {
     sithswap: Sithswap,
+    zklend: Zklend,
+    jediswap: Jediswap,
     ekubo: Ekubo,
 });
 
