@@ -13,6 +13,7 @@ use futures::TryStreamExt;
 use mongodb::bson;
 use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::sync::Arc;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -48,9 +49,10 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
         }
     ]
     };
+
     match collection.find(Some(filter), None).await {
         Ok(cursor) => {
-            let quests: Vec<QuestDocument> = cursor
+            let quests_temp: Vec<QuestDocument> = cursor
                 .map(|result| {
                     result.map(|mut quest: QuestDocument| {
                         if let Some(expiry) = &quest.expiry {
@@ -63,10 +65,21 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                 .try_collect()
                 .await
                 .unwrap_or_else(|_| vec![]);
-            if quests.is_empty() {
+            let mut res: HashMap<String, Vec<QuestDocument>> = HashMap::new();
+            for quest in quests_temp {
+                let category = quest.category.clone();
+                if res.contains_key(&category) {
+                    let quests = res.get_mut(&category).unwrap();
+                    quests.push(quest);
+                } else {
+                    res.insert(category, vec![quest]);
+                }
+            }
+
+            if res.is_empty() {
                 get_error("No quests found".to_string())
             } else {
-                (StatusCode::OK, Json(quests)).into_response()
+                (StatusCode::OK, Json(res)).into_response()
             }
         }
         Err(_) => get_error("Error querying quests".to_string()),
