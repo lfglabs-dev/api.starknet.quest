@@ -24,8 +24,7 @@ pairs = ["0xXXXXXXXXXXXX"]
 [quests.zklend]
 contract = "0xXXXXXXXXXXXX"
 [quests.ekubo]
-utils_contract = "0xXXXXXXXXXXXX"
-pairs = ["0xXXXXXXXXXXXX"]
+contract = "0xXXXXXXXXXXXX"
 
 [twitter]
 oauth2_clientid = "xxxxxx"

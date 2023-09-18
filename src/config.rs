@@ -50,8 +50,7 @@ pub_struct!(Clone, Deserialize;  Jediswap {
 });
 
 pub_struct!(Clone, Deserialize;  Ekubo {
-    utils_contract: FieldElement,
-    pairs : Vec<FieldElement>,
+    contract: FieldElement,
 });
 
 pub_struct!(Clone, Deserialize;  Quests {
