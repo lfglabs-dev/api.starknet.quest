@@ -164,6 +164,17 @@ pub async fn handler(
         )
             .into_response(),
 
+        Some(14) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Ekubo".into(),
+                description: "An Ekubo NFT won for interacting with the protocol.".into(),
+                image: format!("{}/ekubo/concentration.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }

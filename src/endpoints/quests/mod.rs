@@ -1,5 +1,6 @@
 pub mod avnu;
 pub mod contract_uri;
+pub mod ekubo;
 pub mod jediswap;
 pub mod orbiter;
 pub mod sithswap;

@@ -4,7 +4,11 @@ mod common;
 mod config;
 mod endpoints;
 mod models;
-use axum::{http::StatusCode, routing::get, Router};
+use axum::{
+    http::StatusCode,
+    routing::{get, post},
+    Router,
+};
 use mongodb::{bson::doc, options::ClientOptions, Client};
 use reqwest::{Proxy, Url};
 use starknet::providers::SequencerGatewayProvider;
@@ -214,6 +218,22 @@ async fn main() {
         .route(
             "/quests/orbiter/claimable",
             get(endpoints::quests::orbiter::claimable::handler),
+        )
+        .route(
+            "/quests/ekubo/claimable",
+            get(endpoints::quests::ekubo::claimable::handler),
+        )
+        .route(
+            "/quests/ekubo/discord_fw_callback",
+            get(endpoints::quests::ekubo::discord_fw_callback::handler),
+        )
+        .route(
+            "/quests/ekubo/verify_quiz",
+            post(endpoints::quests::ekubo::verify_quiz::handler),
+        )
+        .route(
+            "/quests/ekubo/verify_added_liquidity",
+            get(endpoints::quests::ekubo::verify_added_liquidity::handler),
         )
         .route(
             "/achievements/verify_default",
