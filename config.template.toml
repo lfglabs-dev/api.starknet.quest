@@ -53,33 +53,36 @@ contract = "0x01b22f7a9d18754c994ae0ee9adb4628d414232e3ebd748c386ac286f86c3066"
 
 [quizzes.ekubo]
 name = "Ekubo Quiz"
-desc = "Test your knowledge with our example quiz."
-intro = "Welcome to this example quiz. Let's get started."
+desc = "Challenge your knowledge of Ekubo with our quiz for a chance to secure an exclusive NFT as your reward."
+intro = "Welcome to the Ekubo quiz. Let's begin. We hope you're as concentrated as the concentrated liquidity that Ekubo provides. Good Luck!"
 
 [[quizzes.ekubo.questions]]
 kind = "text_choice"
 layout = "default"
 question = "Where is Ekubo building its platform?"
-options = [[****]]
+options = ["BSC", "Solana", "Starknet", "Ethereum"]
 correct_answers = [*]
 
 [[quizzes.ekubo.questions]]
 kind = "text_choice"
 layout = "default"
 question = "What are the key features of the Ekubo Protocol?"
-options = [****]
+options = [
+    "Decentralization and security", 
+    "Concentrated liquidity, a singleton architecture, and extensions", 
+    "High transaction fees", 
+    "Limited liquidity options"
+]
 correct_answers = [*]
 
 [[quizzes.ekubo.questions]]
 kind = "text_choice"
 layout = "default"
-question = "What benefit does concentrated liquidity provide to swappers?"
-options = [****]
-correct_answers = [*]
-
-[[quizzes.ekubo.questions]]
-kind = "text_choice"
-layout = "default"
-question = "What additional action can market makers perform on Ekubo?"
-options = [****]
+question = "What is concentrated liquidity?"
+options = [
+    "It limits liquidity provider choices", 
+    "It increases transaction fees", 
+    "It offers better pricing due to leverage within a price range", 
+    "It restricts liquidity providers from earning yield"
+]
 correct_answers = [*]
