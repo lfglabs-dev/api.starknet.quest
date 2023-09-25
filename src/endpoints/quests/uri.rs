@@ -175,6 +175,28 @@ pub async fn handler(
         )
             .into_response(),
 
+        Some(15) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Carmine".into(),
+                description: "A Carmine NFT won for interacting with the protocol.".into(),
+                image: format!("{}/carmine/specialist.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
+        Some(16) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Morphine".into(),
+                description: "A Morphine NFT won for interacting with the protocol.".into(),
+                image: format!("{}/morphine/yielder.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }

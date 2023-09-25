@@ -112,17 +112,14 @@ pub_struct!(Clone, Deserialize;  Starkscan {
     api_key: String,
 });
 
-pub_struct!(Clone, Deserialize;  Braavos {
-    contract: FieldElement,
-});
-
-pub_struct!(Clone, Deserialize;  Argent {
+pub_struct!(Clone, Deserialize;  Achievement {
     contract: FieldElement,
 });
 
 pub_struct!(Clone, Deserialize;  Achievements {
-    braavos: Braavos,
-    argent: Argent,
+    braavos: Achievement,
+    argent: Achievement,
+    carbonable: Achievement,
 });
 
 pub_struct!(Clone, Deserialize;  Config {

@@ -106,6 +106,7 @@ pub_struct!(Debug, Serialize, Deserialize; UserAchievements {
     category_name: String,
     category_desc: String,
     category_img_url: String,
+    category_type: String,
     achievements: Vec<UserAchievement>,
 });
 
