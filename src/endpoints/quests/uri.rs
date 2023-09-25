@@ -197,6 +197,17 @@ pub async fn handler(
         )
             .into_response(),
 
+        Some(17) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "MySwap".into(),
+                description: "A MySwap NFT won for interacting with the protocol.".into(),
+                image: format!("{}/myswap/LP.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }

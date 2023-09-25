@@ -4,6 +4,7 @@ pub mod contract_uri;
 pub mod ekubo;
 pub mod jediswap;
 pub mod morphine;
+pub mod myswap;
 pub mod orbiter;
 pub mod sithswap;
 pub mod starknetid;

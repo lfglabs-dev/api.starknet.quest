@@ -256,6 +256,18 @@ async fn main() {
             get(endpoints::quests::morphine::claimable::handler),
         )
         .route(
+            "/quests/myswap/verify_added_liquidity",
+            get(endpoints::quests::myswap::verify_added_liquidity::handler),
+        )
+        .route(
+            "/quests/myswap/discord_fw_callback",
+            get(endpoints::quests::myswap::discord_fw_callback::handler),
+        )
+        .route(
+            "/quests/myswap/claimable",
+            get(endpoints::quests::myswap::claimable::handler),
+        )
+        .route(
             "/achievements/verify_default",
             get(endpoints::achievements::verify_default::handler),
         )

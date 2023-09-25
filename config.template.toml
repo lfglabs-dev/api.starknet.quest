@@ -25,6 +25,8 @@ pairs = ["0xXXXXXXXXXXXX"]
 contract = "0xXXXXXXXXXXXX"
 [quests.ekubo]
 contract = "0xXXXXXXXXXXXX"
+[quests.myswap]
+contract = "0xXXXXXXXXXXXX"
 
 [twitter]
 oauth2_clientid = "xxxxxx"
