@@ -25,6 +25,8 @@ pairs = ["0xXXXXXXXXXXXX"]
 contract = "0xXXXXXXXXXXXX"
 [quests.ekubo]
 contract = "0xXXXXXXXXXXXX"
+[quests.myswap]
+contract = "0xXXXXXXXXXXXX"
 
 [twitter]
 oauth2_clientid = "xxxxxx"
@@ -48,6 +50,8 @@ api_key = "xxxxxx"
 contract = "0x00057c4b510d66eb1188a7173f31cccee47b9736d40185da8144377b896d5ff3"
 [achievements.argent]
 contract = "0x01b22f7a9d18754c994ae0ee9adb4628d414232e3ebd748c386ac286f86c3066"
+[achievements.carbonable]
+contract = "0x0541b5dd5fae206ceccaf4eeb0642e4c04d456c5bc296eab047c9414bdad4f09"
 
 [quizzes]
 
@@ -84,5 +88,87 @@ options = [
     "It increases transaction fees", 
     "It offers better pricing due to leverage within a price range", 
     "It restricts liquidity providers from earning yield"
+]
+correct_answers = [*]
+
+[quizzes.morphine]
+name = "Morphine Quiz"
+desc = "Test your Morphine knowledge in our quiz for a chance to win an exclusive NFT as your reward."
+intro = "Welcome to the Morphine quiz! Are you familiar with DeFi on Morphine? Let's explore it together. Good luck!"
+
+[[quizzes.morphine.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How do Morphine vaults earn extra yield?"
+options = [
+    "Liquidity mining", 
+    "Interest auto-compounding", 
+    "Intelligent liquidity management", 
+    "Debt reallocation"
+]
+correct_answers = [*]
+
+[[quizzes.morphine.questions]]
+kind = "text_choice"
+layout = "default"
+question = "Which yield is the best to target on morphine?"
+options = [
+    "Yield with high TVL and low fees", 
+    "Yield with high TVL and high fees", 
+    "Yield with low TVL and low fees", 
+    "Yield with low TVL and high fees"
+]
+correct_answers = [*]
+
+[[quizzes.morphine.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the value of Morphine?"
+options = [
+    "Comparing all yields to find best yield", 
+    "Providing lending interest", 
+    "Swapping assets", 
+    "Bridging funds"
+]
+correct_answers = [*]
+
+[quizzes.carmine]
+name = "Carmine Quiz"
+desc = "Test your knowledge of Carmine Options in our quiz, and you could win an exclusive NFT as your prize."
+intro = "Welcome to the Carmine Options quiz. Are you an options expert? Let's discover together. Best of luck!"
+
+[[quizzes.carmine.questions]]
+kind = "text_choice"
+layout = "default"
+question = "Which financial product does Carmine offer?"
+options = [
+    "Options", 
+    "FX", 
+    "Forwards", 
+    "Ethereum"
+]
+correct_answers = [*]
+
+[[quizzes.carmine.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What are call options?"
+options = [
+    "A type of smart contract to execute trades", 
+    "A financial contract that gives the holder the right to buy a specific stock at a specified price within a certain time frame", 
+    "A method for making efficient trading", 
+    "A derivative to settle in the present time"
+]
+correct_answers = [*]
+
+[[quizzes.carmine.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the role of liquidity providers in Carmine Option liquidity pools?"
+options = [
+    "Liquidity providers facilitate options trades", 
+    "Liquidity providers update volatility mechanisms", 
+    "Liquidity providers assume the counter-position to users' options trades", 
+    "Liquidity providers enforce exposure limits"
 ]
 correct_answers = [*]

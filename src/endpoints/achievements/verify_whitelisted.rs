@@ -17,3 +17,7 @@ pub fn is_braavos_whitelisted(nft: &Nft) -> bool {
 pub fn is_argent_whitelisted(_nft: &Nft) -> bool {
     true
 }
+
+pub fn is_carbonable_whitelisted(_nft: &Nft) -> bool {
+    true
+}
