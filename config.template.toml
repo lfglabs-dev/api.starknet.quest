@@ -135,7 +135,7 @@ correct_answers = [*]
 [quizzes.carmine]
 name = "Carmine Quiz"
 desc = "Test your knowledge of Carmine Options in our quiz, and you could win an exclusive NFT as your prize."
-intro = "Welcome to the Carmine Options quiz. Are you an options expert? Let's discover together. Best of luck!”
+intro = "Welcome to the Carmine Options quiz. Are you an options expert? Let's discover together. Best of luck!"
 
 [[quizzes.carmine.questions]]
 kind = "text_choice"
