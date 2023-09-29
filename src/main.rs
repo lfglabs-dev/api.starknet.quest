@@ -140,10 +140,6 @@ async fn main() {
             get(endpoints::quests::zklend::claimable::handler),
         )
         .route(
-            "/quests/avnu/verify_twitter_fw",
-            get(endpoints::quests::avnu::verify_twitter_fw::handler),
-        )
-        .route(
             "/quests/avnu/verify_twitter_rt",
             get(endpoints::quests::avnu::verify_twitter_rt::handler),
         )
