@@ -57,7 +57,7 @@ contract = "0x0541b5dd5fae206ceccaf4eeb0642e4c04d456c5bc296eab047c9414bdad4f09"
 
 [quizzes.ekubo]
 name = "Ekubo Quiz"
-desc = "Challenge your knowledge of Ekubo with our quiz for a chance to secure an exclusive NFT as your reward."
+desc = "A quiz to test your knowledge about Ekubo and Concentrated liquidity"
 intro = "Welcome to the Ekubo quiz. Let's begin. We hope you're as concentrated as the concentrated liquidity that Ekubo provides. Good Luck!"
 
 [[quizzes.ekubo.questions]]
@@ -82,7 +82,7 @@ correct_answers = [*]
 [[quizzes.ekubo.questions]]
 kind = "text_choice"
 layout = "default"
-question = "What is concentrated liquidity?"
+question = "What benefits come with concentrated liquidity?"
 options = [
     "It limits liquidity provider choices", 
     "It increases transaction fees", 
