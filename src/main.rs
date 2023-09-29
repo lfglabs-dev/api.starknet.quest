@@ -100,10 +100,6 @@ async fn main() {
             get(endpoints::quests::starknetid::verify_socials::handler),
         )
         .route(
-            "/quests/jediswap/verify_has_root_domain",
-            get(endpoints::quests::jediswap::verify_has_root_domain::handler),
-        )
-        .route(
             "/quests/jediswap/verify_added_liquidity",
             get(endpoints::quests::jediswap::verify_added_liquidity::handler),
         )
@@ -120,10 +116,6 @@ async fn main() {
             get(endpoints::quests::jediswap::claimable::handler),
         )
         .route(
-            "/quests/zklend/verify_has_root_domain",
-            get(endpoints::quests::zklend::verify_has_root_domain::handler),
-        )
-        .route(
             "/quests/zklend/verify_borrow",
             get(endpoints::quests::zklend::verify_borrow::handler),
         )
@@ -138,10 +130,6 @@ async fn main() {
         .route(
             "/quests/zklend/claimable",
             get(endpoints::quests::zklend::claimable::handler),
-        )
-        .route(
-            "/quests/avnu/verify_twitter_fw",
-            get(endpoints::quests::avnu::verify_twitter_fw::handler),
         )
         .route(
             "/quests/avnu/verify_twitter_rt",
@@ -174,10 +162,6 @@ async fn main() {
         .route(
             "/quests/tribe/claimable",
             get(endpoints::quests::tribe::claimable::handler),
-        )
-        .route(
-            "/quests/sithswap/verify_has_root_domain",
-            get(endpoints::quests::sithswap::verify_has_root_domain::handler),
         )
         .route(
             "/quests/sithswap/verify_twitter_fw",
