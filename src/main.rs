@@ -278,7 +278,7 @@ async fn main() {
         .with_state(shared_state)
         .layer(cors);
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], conf.server.port));
+    let addr = SocketAddr::from(([0, 0, 0, 0], conf.server.port));
     println!("server: listening on http://0.0.0.0:{}", conf.server.port);
     axum::Server::bind(&addr)
         .serve(app.into_make_service_with_connect_info::<SocketAddr>())
