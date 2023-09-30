@@ -23,7 +23,6 @@ pub async fn handler(
     Query(query): Query<GetCompletedQuestsQuery>,
 ) -> impl IntoResponse {
     let address = query.addr.to_string();
-    println!("address: {}", address);
     let pipeline = vec![
         doc! {
             "$match": doc! {
