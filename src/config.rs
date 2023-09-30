@@ -35,29 +35,21 @@ pub_struct!(Clone, Deserialize;  StarknetId {
     account_id: String,
 });
 
-pub_struct!(Clone, Deserialize;  Sithswap {
+pub_struct!(Clone, Deserialize;  Pairs {
     utils_contract: FieldElement,
     pairs : Vec<FieldElement>,
 });
 
-pub_struct!(Clone, Deserialize;  Zklend {
-    contract: FieldElement,
-});
-
-pub_struct!(Clone, Deserialize;  Jediswap {
-    utils_contract: FieldElement,
-    pairs : Vec<FieldElement>,
-});
-
-pub_struct!(Clone, Deserialize;  Ekubo {
+pub_struct!(Clone, Deserialize;  Contract {
     contract: FieldElement,
 });
 
 pub_struct!(Clone, Deserialize;  Quests {
-    sithswap: Sithswap,
-    zklend: Zklend,
-    jediswap: Jediswap,
-    ekubo: Ekubo,
+    sithswap: Pairs,
+    zklend: Contract,
+    jediswap: Pairs,
+    ekubo: Contract,
+    myswap: Contract,
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {
@@ -112,17 +104,14 @@ pub_struct!(Clone, Deserialize;  Starkscan {
     api_key: String,
 });
 
-pub_struct!(Clone, Deserialize;  Braavos {
-    contract: FieldElement,
-});
-
-pub_struct!(Clone, Deserialize;  Argent {
+pub_struct!(Clone, Deserialize;  Achievement {
     contract: FieldElement,
 });
 
 pub_struct!(Clone, Deserialize;  Achievements {
-    braavos: Braavos,
-    argent: Argent,
+    braavos: Achievement,
+    argent: Achievement,
+    carbonable: Achievement,
 });
 
 pub_struct!(Clone, Deserialize;  Config {

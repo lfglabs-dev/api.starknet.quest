@@ -106,6 +106,7 @@ pub_struct!(Debug, Serialize, Deserialize; UserAchievements {
     category_name: String,
     category_desc: String,
     category_img_url: String,
+    category_type: String,
     achievements: Vec<UserAchievement>,
 });
 
@@ -160,4 +161,5 @@ pub_struct!(Debug, Deserialize, Serialize; BuildingDocument {
     description: String,
     entity: String,
     level: u32,
+    img_url: String,
 });

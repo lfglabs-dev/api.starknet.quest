@@ -104,10 +104,6 @@ async fn main() {
             get(endpoints::quests::starknetid::verify_socials::handler),
         )
         .route(
-            "/quests/jediswap/verify_has_root_domain",
-            get(endpoints::quests::jediswap::verify_has_root_domain::handler),
-        )
-        .route(
             "/quests/jediswap/verify_added_liquidity",
             get(endpoints::quests::jediswap::verify_added_liquidity::handler),
         )
@@ -124,10 +120,6 @@ async fn main() {
             get(endpoints::quests::jediswap::claimable::handler),
         )
         .route(
-            "/quests/zklend/verify_has_root_domain",
-            get(endpoints::quests::zklend::verify_has_root_domain::handler),
-        )
-        .route(
             "/quests/zklend/verify_borrow",
             get(endpoints::quests::zklend::verify_borrow::handler),
         )
@@ -142,10 +134,6 @@ async fn main() {
         .route(
             "/quests/zklend/claimable",
             get(endpoints::quests::zklend::claimable::handler),
-        )
-        .route(
-            "/quests/avnu/verify_twitter_fw",
-            get(endpoints::quests::avnu::verify_twitter_fw::handler),
         )
         .route(
             "/quests/avnu/verify_twitter_rt",
@@ -178,10 +166,6 @@ async fn main() {
         .route(
             "/quests/tribe/claimable",
             get(endpoints::quests::tribe::claimable::handler),
-        )
-        .route(
-            "/quests/sithswap/verify_has_root_domain",
-            get(endpoints::quests::sithswap::verify_has_root_domain::handler),
         )
         .route(
             "/quests/sithswap/verify_twitter_fw",
@@ -240,8 +224,48 @@ async fn main() {
             get(endpoints::quests::ekubo::verify_added_liquidity::handler),
         )
         .route(
+            "/quests/carmine/verify_quiz",
+            post(endpoints::quests::carmine::verify_quiz::handler),
+        )
+        .route(
+            "/quests/carmine/claimable",
+            get(endpoints::quests::carmine::claimable::handler),
+        )
+        .route(
+            "/quests/morphine/verify_quiz",
+            post(endpoints::quests::morphine::verify_quiz::handler),
+        )
+        .route(
+            "/quests/morphine/verify_added_liquidity",
+            get(endpoints::quests::morphine::verify_added_liquidity::handler),
+        )
+        .route(
+            "/quests/morphine/claimable",
+            get(endpoints::quests::morphine::claimable::handler),
+        )
+        .route(
+            "/quests/myswap/verify_added_liquidity",
+            get(endpoints::quests::myswap::verify_added_liquidity::handler),
+        )
+        .route(
+            "/quests/myswap/discord_fw_callback",
+            get(endpoints::quests::myswap::discord_fw_callback::handler),
+        )
+        .route(
+            "/quests/myswap/claimable",
+            get(endpoints::quests::myswap::claimable::handler),
+        )
+        .route(
             "/achievements/verify_default",
             get(endpoints::achievements::verify_default::handler),
+        )
+        .route(
+            "/achievements/verify_briq",
+            get(endpoints::achievements::verify_briq::handler),
+        )
+        .route(
+            "/achievements/verify_has_domain",
+            get(endpoints::achievements::verify_has_domain::handler),
         )
         .route(
             "/achievements/fetch",

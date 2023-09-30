@@ -3,7 +3,9 @@ use std::sync::Arc;
 use crate::{
     common::verify_has_nft::execute_has_nft,
     config::Config,
-    endpoints::achievements::verify_whitelisted::is_braavos_whitelisted,
+    endpoints::achievements::verify_whitelisted::{
+        is_argent_whitelisted, is_braavos_whitelisted, is_carbonable_whitelisted,
+    },
     models::{AchievedDocument, AppState, Nft, VerifyAchievementQuery},
     utils::{get_error, AchievementsTrait},
 };
@@ -17,13 +19,12 @@ use mongodb::bson::doc;
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
-use super::verify_whitelisted::is_argent_whitelisted;
-
 type NftCheck = fn(&Nft) -> bool;
 
 fn get_args(config: Config, achievement_id: u32) -> Result<(FieldElement, u32, NftCheck), String> {
     let argent_contract = config.achievements.argent.contract;
     let braavos_contract = config.achievements.braavos.contract;
+    let carbonable_contract = config.achievements.carbonable.contract;
 
     match achievement_id {
         // ArgentX Xplorer NFTs
@@ -34,6 +35,8 @@ fn get_args(config: Config, achievement_id: u32) -> Result<(FieldElement, u32, N
         4 => Ok((braavos_contract, 1, is_braavos_whitelisted)),
         5 => Ok((braavos_contract, 3, is_braavos_whitelisted)),
         6 => Ok((braavos_contract, 5, is_braavos_whitelisted)),
+        // Carbonable NFT
+        7 => Ok((carbonable_contract, 1, is_carbonable_whitelisted)),
         _ => Err("Invalid achievement ID".to_string()),
     }
 }
