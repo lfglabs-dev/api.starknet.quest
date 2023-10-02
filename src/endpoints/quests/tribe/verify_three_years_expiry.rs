@@ -17,7 +17,7 @@ use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
 use starknet::{
-    core::types::{BlockId, CallFunction, FieldElement},
+    core::types::{BlockId, BlockTag, FieldElement, FunctionCall},
     macros::selector,
     providers::Provider,
 };
@@ -37,36 +37,36 @@ pub async fn handler(
     // get starkname from address
     let call_result = state
         .provider
-        .call_contract(
-            CallFunction {
+        .call(
+            FunctionCall {
                 contract_address: state.conf.starknetid_contracts.naming_contract,
                 entry_point_selector: selector!("address_to_domain"),
                 calldata: vec![*addr],
             },
-            BlockId::Latest,
+            BlockId::Tag(BlockTag::Latest),
         )
         .await;
 
     match call_result {
         Ok(result) => {
-            let domain_len: u64 = result.result[0].try_into().unwrap();
+            let domain_len: u64 = result[0].try_into().unwrap();
             if domain_len == 1 {
                 // check expiry date
                 let expiry_result = state
                     .provider
-                    .call_contract(
-                        CallFunction {
+                    .call(
+                        FunctionCall {
                             contract_address: state.conf.starknetid_contracts.naming_contract,
                             entry_point_selector: selector!("domain_to_expiry"),
-                            calldata: result.result,
+                            calldata: result,
                         },
-                        BlockId::Latest,
+                        BlockId::Tag(BlockTag::Latest),
                     )
                     .await;
 
                 match expiry_result {
                     Ok(expiry) => {
-                        let expiry_timestamp: u32 = expiry.result[0].try_into().unwrap();
+                        let expiry_timestamp: u32 = expiry[0].try_into().unwrap();
                         let current_timestamp = SystemTime::now()
                             .duration_since(UNIX_EPOCH)
                             .expect("Time went backwards")
