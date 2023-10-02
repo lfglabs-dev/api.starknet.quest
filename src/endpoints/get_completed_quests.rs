@@ -78,9 +78,9 @@ pub async fn handler(
     let tasks_collection = state.db.collection::<Document>("completed_tasks");
     match tasks_collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
-            let mut quests: Vec<Document> = Vec::new();
+            let mut quests: Vec<u32> = Vec::new();
             while let Some(result) = cursor.try_next().await.unwrap() {
-                quests.push(result);
+                quests.push(result.get("quest_id").unwrap().as_i32().unwrap() as u32);
             }
             (StatusCode::OK, Json(quests)).into_response()
         }
