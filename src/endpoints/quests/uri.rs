@@ -208,6 +208,17 @@ pub async fn handler(
         )
             .into_response(),
 
+        Some(18) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Braavos x Project".into(),
+                description: "An NFT won for interacting with the protocol.".into(),
+                image: format!("{}/braavos/LP.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }

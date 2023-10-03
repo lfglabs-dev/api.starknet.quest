@@ -20,7 +20,8 @@ pub_struct!(Clone, Deserialize;  Variables {
     app_link: String,
     api_link: String,
     is_testnet: bool,
-    proxy: Option<String>
+    proxy: Option<String>,
+    rpc_url: String,
 });
 
 pub_struct!(Clone, Deserialize; StarknetIdContracts {
@@ -44,12 +45,17 @@ pub_struct!(Clone, Deserialize;  Contract {
     contract: FieldElement,
 });
 
+pub_struct!(Clone, Deserialize;  Braavos {
+    crew3_api_key: String,
+});
+
 pub_struct!(Clone, Deserialize;  Quests {
     sithswap: Pairs,
     zklend: Contract,
     jediswap: Pairs,
     ekubo: Contract,
     myswap: Contract,
+    braavos: Braavos,
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {

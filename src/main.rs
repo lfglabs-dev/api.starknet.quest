@@ -11,7 +11,7 @@ use axum::{
 };
 use mongodb::{bson::doc, options::ClientOptions, Client};
 use reqwest::{Proxy, Url};
-use starknet::providers::SequencerGatewayProvider;
+use starknet::providers::{jsonrpc::HttpTransport, JsonRpcClient};
 use std::net::SocketAddr;
 use std::sync::Arc;
 
@@ -34,19 +34,9 @@ async fn main() {
 
     let shared_state = Arc::new(models::AppState {
         conf: conf.clone(),
-        provider: if conf.variables.is_testnet {
-            SequencerGatewayProvider::new_with_client(
-                Url::parse("https://alpha4.starknet.io/gateway").unwrap(),
-                Url::parse("https://alpha4.starknet.io/feeder_gateway").unwrap(),
-                client,
-            )
-        } else {
-            SequencerGatewayProvider::new_with_client(
-                Url::parse("https://alpha-mainnet.starknet.io/gateway").unwrap(),
-                Url::parse("https://alpha-mainnet.starknet.io/feeder_gateway").unwrap(),
-                client,
-            )
-        },
+        provider: JsonRpcClient::new(HttpTransport::new(
+            Url::parse(&conf.variables.rpc_url).unwrap(),
+        )),
         db: Client::with_options(client_options)
             .unwrap()
             .database(&conf.database.name),
@@ -254,6 +244,26 @@ async fn main() {
         .route(
             "/quests/myswap/claimable",
             get(endpoints::quests::myswap::claimable::handler),
+        )
+        .route(
+            "/quests/braavos/partner/verify_has_domain",
+            get(endpoints::quests::braavos::partner::verify_has_domain::handler),
+        )
+        .route(
+            "/quests/braavos/partner/verify_twitter_fw_braavos",
+            get(endpoints::quests::braavos::partner::verify_twitter_fw_braavos::handler),
+        )
+        .route(
+            "/quests/braavos/partner/verify_twitter_fw_partner",
+            get(endpoints::quests::braavos::partner::verify_twitter_fw_partner::handler),
+        )
+        .route(
+            "/quests/braavos/partner/verify_twitter_fw_sq",
+            get(endpoints::quests::braavos::partner::verify_twitter_fw_sq::handler),
+        )
+        .route(
+            "/quests/braavos/partner/verify_has_mission",
+            get(endpoints::quests::braavos::partner::verify_has_mission::handler),
         )
         .route(
             "/achievements/verify_default",

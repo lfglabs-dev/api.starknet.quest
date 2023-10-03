@@ -27,6 +27,8 @@ contract = "0xXXXXXXXXXXXX"
 contract = "0xXXXXXXXXXXXX"
 [quests.myswap]
 contract = "0xXXXXXXXXXXXX"
+[quests.braavos]
+crew3_api_key = "xxxxxx"
 
 [twitter]
 oauth2_clientid = "xxxxxx"
@@ -41,6 +43,7 @@ app_link = "https://starknet.quest"
 api_link = "https://api.starknet.quest"
 is_testnet = false
 proxy = "xxxxx"
+rpc_url = "xxxxx"
 
 [starkscan]
 api_key = "xxxxxx"
