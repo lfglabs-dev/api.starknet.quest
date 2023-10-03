@@ -2,7 +2,7 @@ use crate::models::Nft;
 
 pub fn is_braavos_whitelisted(nft: &Nft) -> bool {
     let whitelist = vec![
-        "Starknet Onboarding Journey",
+        "Starknet Onboarding Journey NFT",
         "Starknet Identity Journey",
         "Starknet Exchange Journey",
         "Starknet Mobile Journey",
