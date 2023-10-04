@@ -28,7 +28,8 @@ contract = "0xXXXXXXXXXXXX"
 [quests.myswap]
 contract = "0xXXXXXXXXXXXX"
 [quests.braavos]
-crew3_api_key = "xxxxxx"
+api_key_user = "xxxxxx"
+api_key_claimed_mission = "xxxxxx"
 
 [twitter]
 oauth2_clientid = "xxxxxx"

@@ -46,7 +46,8 @@ pub_struct!(Clone, Deserialize;  Contract {
 });
 
 pub_struct!(Clone, Deserialize;  Braavos {
-    crew3_api_key: String,
+    api_key_user: String,
+    api_key_claimed_mission: String,
 });
 
 pub_struct!(Clone, Deserialize;  Quests {

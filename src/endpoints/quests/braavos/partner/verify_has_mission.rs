@@ -1,19 +1,13 @@
 use crate::{
-    common::verify_has_root_or_braavos_domain::verify_has_root_or_braavos_domain,
-    models::{AppState, VerifyQuery},
-    utils::{get_error, get_error_redirect},
+    models::AppState,
+    utils::{get_error, get_error_redirect, success_redirect, CompletedTasksTrait},
 };
 use axum::{
     extract::{Query, State},
     response::IntoResponse,
-    Json,
 };
-use reqwest::{
-    header::{self, AUTHORIZATION},
-    StatusCode,
-};
+use reqwest::header::{self, AUTHORIZATION};
 use serde::Deserialize;
-use serde_json::json;
 use starknet::core::types::FieldElement;
 use std::sync::Arc;
 
@@ -28,21 +22,6 @@ pub struct DiscordUser {
     id: String,
     #[allow(dead_code)]
     username: String,
-    discriminator: String,
-    global_name: Option<String>,
-    avatar: Option<String>,
-    bot: Option<bool>,
-    system: Option<bool>,
-    mfa_enabled: bool,
-    banner: Option<String>,
-    accent_color: Option<u32>,
-    locale: Option<String>,
-    verified: Option<bool>,
-    email: Option<String>,
-    flags: Option<u32>,
-    premium_type: Option<u32>,
-    public_flags: Option<u32>,
-    avatar_decoration: Option<String>,
 }
 
 pub async fn handler(
@@ -51,6 +30,7 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let quest_id = 100;
     let task_id = 50;
+    let mission_id = "2e1a9301-14da-4430-9ae0-b617e1c379f4";
     let authorization_code = &query.code;
     let error_redirect_uri = format!(
         "{}/quest/{}?task_id={}&res=false",
@@ -91,7 +71,6 @@ pub async fn handler(
     let response: DiscordUser = match response_result {
         Ok(response) => {
             let json_result = response.json().await;
-            println!("json_result: {:?}", json_result);
             match json_result {
                 Ok(json) => json,
                 Err(e) => {
@@ -113,12 +92,8 @@ pub async fn handler(
         }
     };
 
+    // Get Zealy profile from Discord id
     let discord_id = response.id;
-    println!("discord_id: {:?}", discord_id);
-    let username = response.username;
-    println!("username: {:?}", username);
-
-    // Get Crew3 profile from Discord username
     let url = format!(
         "https://api.zealy.io/communities/braavos/users?discordId={}",
         discord_id
@@ -128,32 +103,95 @@ pub async fn handler(
         .get(url)
         .header(
             header::HeaderName::from_static("x-api-key"),
-            header::HeaderValue::from_str(&state.conf.quests.braavos.crew3_api_key).unwrap(),
+            header::HeaderValue::from_str(&state.conf.quests.braavos.api_key_user).unwrap(),
         )
         .send()
         .await;
-    let response = match response_result {
+    let zealy_response = match response_result {
         Ok(response) => {
-            println!("response from Zealy: {:?}", response);
-            let json_result = response.json::<serde_json::Value>().await.unwrap();
-            println!("json_result from Zealy: {:?}", json_result);
-            // match json_result {
-            //     Ok(json) => json,
-            //     Err(e) => {
-            //         return get_error(format!(
-            //             "Failed to get JSON response while fetching user info: {}",
-            //             e
-            //         ));
-            //     }
-            // }
-            return (StatusCode::OK, Json(json!({"res": true}))).into_response();
+            let json_result = response.json::<serde_json::Value>().await;
+            match json_result {
+                Ok(json) => json,
+                Err(e) => {
+                    return get_error_redirect(
+                        error_redirect_uri,
+                        format!("Failed to get User info from Zealy's response: {:?}", e),
+                    );
+                }
+            }
         }
         Err(e) => {
             return get_error(format!("Failed to send request to fetch user info: {}", e));
         }
     };
+    if let Some(id) = zealy_response.get("id") {
+        let zealy_id = id.as_str().unwrap();
 
-    return (StatusCode::OK, Json(json!({"res": true}))).into_response();
+        // Get user completed mission from Zealy API
+        let url = format!(
+            "https://api.zealy.io/communities/braavos/claimed-quests?user_id={}&quest_id={}",
+            zealy_id, mission_id
+        );
+        let client = reqwest::Client::new();
+        let mission_response = client
+            .get(url)
+            .header(
+                header::HeaderName::from_static("x-api-key"),
+                header::HeaderValue::from_str(&state.conf.quests.braavos.api_key_claimed_mission)
+                    .unwrap(),
+            )
+            .send()
+            .await;
+        let missions = match mission_response {
+            Ok(response) => {
+                let json_result = response.json::<serde_json::Value>().await;
+                match json_result {
+                    Ok(json) => json,
+                    Err(e) => {
+                        return get_error_redirect(
+                            error_redirect_uri,
+                            format!("Failed to get user's mission from Zealy: {:?}", e),
+                        );
+                    }
+                }
+            }
+            Err(e) => {
+                return get_error(format!(
+                    "Failed to send request to fetch user missions: {}",
+                    e
+                ));
+            }
+        };
+        if let Some(mission_array) = missions.get("data").and_then(|v| v.as_array()) {
+            if !mission_array.is_empty() {
+                match state.upsert_completed_task(query.state, task_id).await {
+                    Ok(_) => {
+                        let redirect_uri = format!(
+                            "{}/quest/{}?task_id={}&res=true",
+                            state.conf.variables.app_link, quest_id, task_id
+                        );
+                        return success_redirect(redirect_uri);
+                    }
+                    Err(e) => return get_error_redirect(error_redirect_uri, format!("{}", e)),
+                }
+            } else {
+                return get_error_redirect(
+                    error_redirect_uri,
+                    "You have not fulfilled this mission on Zealy".to_string(),
+                );
+            }
+        } else {
+            return get_error_redirect(
+                error_redirect_uri,
+                format!("Failed to get Zealy ID from response: {:?}", zealy_response),
+            );
+        }
+    } else {
+        return get_error_redirect(
+            error_redirect_uri,
+            format!("Failed to get Zealy ID from response: {:?}", zealy_response),
+        );
+    };
 }
 
 async fn exchange_authorization_code(
