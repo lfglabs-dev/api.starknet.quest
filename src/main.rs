@@ -246,24 +246,28 @@ async fn main() {
             get(endpoints::quests::myswap::claimable::handler),
         )
         .route(
-            "/quests/braavos/partner/verify_has_domain",
-            get(endpoints::quests::braavos::proscore::verify_has_domain::handler),
+            "/quests/braavos/starknetid/verify_has_domain",
+            get(endpoints::quests::braavos::starknetid::verify_has_domain::handler),
         )
         .route(
-            "/quests/braavos/partner/verify_twitter_fw_braavos",
-            get(endpoints::quests::braavos::proscore::verify_twitter_fw_braavos::handler),
+            "/quests/braavos/starknetid/verify_twitter_fw_braavos",
+            get(endpoints::quests::braavos::starknetid::verify_twitter_fw_braavos::handler),
         )
         .route(
-            "/quests/braavos/partner/verify_twitter_fw_partner",
-            get(endpoints::quests::braavos::proscore::verify_twitter_fw_partner::handler),
+            "/quests/braavos/starknetid/verify_twitter_fw_sid",
+            get(endpoints::quests::braavos::starknetid::verify_twitter_fw_sid::handler),
         )
         .route(
-            "/quests/braavos/partner/verify_twitter_fw_sq",
-            get(endpoints::quests::braavos::proscore::verify_twitter_fw_sq::handler),
+            "/quests/braavos/starknetid/verify_twitter_fw_sq",
+            get(endpoints::quests::braavos::starknetid::verify_twitter_fw_sq::handler),
         )
         .route(
-            "/quests/braavos/partner/verify_has_mission",
-            get(endpoints::quests::braavos::proscore::verify_has_mission::handler),
+            "/quests/braavos/starknetid/verify_has_mission",
+            get(endpoints::quests::braavos::starknetid::verify_has_mission::handler),
+        )
+        .route(
+            "/quests/braavos/starknetid/claimable",
+            get(endpoints::quests::braavos::starknetid::claimable::handler),
         )
         .route(
             "/achievements/verify_default",

@@ -1,1 +1,1 @@
-pub mod proscore;
+pub mod starknetid;
