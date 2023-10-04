@@ -247,23 +247,23 @@ async fn main() {
         )
         .route(
             "/quests/braavos/partner/verify_has_domain",
-            get(endpoints::quests::braavos::partner::verify_has_domain::handler),
+            get(endpoints::quests::braavos::proscore::verify_has_domain::handler),
         )
         .route(
             "/quests/braavos/partner/verify_twitter_fw_braavos",
-            get(endpoints::quests::braavos::partner::verify_twitter_fw_braavos::handler),
+            get(endpoints::quests::braavos::proscore::verify_twitter_fw_braavos::handler),
         )
         .route(
             "/quests/braavos/partner/verify_twitter_fw_partner",
-            get(endpoints::quests::braavos::partner::verify_twitter_fw_partner::handler),
+            get(endpoints::quests::braavos::proscore::verify_twitter_fw_partner::handler),
         )
         .route(
             "/quests/braavos/partner/verify_twitter_fw_sq",
-            get(endpoints::quests::braavos::partner::verify_twitter_fw_sq::handler),
+            get(endpoints::quests::braavos::proscore::verify_twitter_fw_sq::handler),
         )
         .route(
             "/quests/braavos/partner/verify_has_mission",
-            get(endpoints::quests::braavos::partner::verify_has_mission::handler),
+            get(endpoints::quests::braavos::proscore::verify_has_mission::handler),
         )
         .route(
             "/achievements/verify_default",

@@ -1,1 +1,1 @@
-pub mod partner;
+pub mod proscore;
