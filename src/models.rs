@@ -1,13 +1,16 @@
 use mongodb::{bson, Database};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use starknet::{core::types::FieldElement, providers::SequencerGatewayProvider};
+use starknet::{
+    core::types::FieldElement,
+    providers::{jsonrpc::HttpTransport, JsonRpcClient},
+};
 
 use crate::config::Config;
 
 pub_struct!(;AppState {
     conf: Config,
-    provider: SequencerGatewayProvider,
+    provider: JsonRpcClient<HttpTransport>,
     db: Database,
 });
 

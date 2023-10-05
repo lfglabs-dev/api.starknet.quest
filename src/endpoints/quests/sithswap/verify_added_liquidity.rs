@@ -12,7 +12,7 @@ use axum::{
 };
 use serde_json::json;
 use starknet::{
-    core::types::{BlockId, CallFunction, FieldElement},
+    core::types::{BlockId, BlockTag, FieldElement, FunctionCall},
     macros::selector,
     providers::Provider,
 };
@@ -29,19 +29,19 @@ pub async fn handler(
     // get starkname from address
     let call_result = state
         .provider
-        .call_contract(
-            CallFunction {
+        .call(
+            FunctionCall {
                 contract_address: state.conf.quests.sithswap.utils_contract,
                 entry_point_selector: selector!("sum_balances"),
                 calldata,
             },
-            BlockId::Latest,
+            BlockId::Tag(BlockTag::Latest),
         )
         .await;
 
     match call_result {
         Ok(result) => {
-            if result.result[0] == FieldElement::ZERO {
+            if result[0] == FieldElement::ZERO {
                 get_error("You didn't deposit liquidity.".to_string())
             } else {
                 match state.upsert_completed_task(query.addr, task_id).await {

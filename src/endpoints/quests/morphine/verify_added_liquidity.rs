@@ -12,7 +12,7 @@ use axum::{
 };
 use serde_json::json;
 use starknet::{
-    core::types::{BlockId, CallFunction, FieldElement},
+    core::types::{BlockId, BlockTag, FieldElement, FunctionCall},
     macros::selector,
     providers::Provider,
 };
@@ -46,19 +46,19 @@ pub async fn handler(
     for pool in POOLS.iter() {
         let call_result = state
             .provider
-            .call_contract(
-                CallFunction {
+            .call(
+                FunctionCall {
                     contract_address: *pool,
                     entry_point_selector: selector!("balanceOf"),
                     calldata: vec![*addr],
                 },
-                BlockId::Latest,
+                BlockId::Tag(BlockTag::Latest),
             )
             .await;
 
         match call_result {
             Ok(result) => {
-                if result.result[0] != FieldElement::ZERO {
+                if result[0] != FieldElement::ZERO {
                     has_provided = true;
                     break;
                 }

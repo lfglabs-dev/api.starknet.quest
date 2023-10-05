@@ -1,31 +1,27 @@
+use std::{
+    str::FromStr,
+    sync::Arc,
+    time::{SystemTime, UNIX_EPOCH},
+};
+
 use crate::{
-    models::{AppState, VerifyQuery},
-    utils::{get_error, AchievementsTrait},
+    models::AppState,
+    utils::{get_error, CompletedTasksTrait},
 };
-use axum::{
-    extract::{Query, State},
-    http::StatusCode,
-    response::IntoResponse,
-    Json,
-};
+use axum::{http::StatusCode, response::IntoResponse, Json};
 use serde_json::json;
 use starknet::{
     core::types::{BlockId, BlockTag, FieldElement, FunctionCall},
     macros::selector,
     providers::Provider,
 };
-use std::{
-    sync::Arc,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use starknet_id::decode;
 
-pub async fn handler(
-    State(state): State<Arc<AppState>>,
-    Query(query): Query<VerifyQuery>,
+pub async fn verify_has_root_or_braavos_domain(
+    state: Arc<AppState>,
+    addr: &FieldElement,
+    task_id: u32,
 ) -> impl IntoResponse {
-    let addr = &query.addr;
-    let achievement_id = 9;
-
     // get starkname from address
     let call_result = state
         .provider
@@ -69,15 +65,24 @@ pub async fn handler(
                     return get_error("expired domain".to_string());
                 }
 
-                match state
-                    .upsert_completed_achievement(*addr, achievement_id)
-                    .await
-                {
+                match state.upsert_completed_task(*addr, task_id).await {
                     Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
                     Err(e) => get_error(format!("{}", e)),
                 }
+            } else if domain_len == 2 {
+                if decode(result[2]) == "braavos" {
+                    match state.upsert_completed_task(*addr, task_id).await {
+                        Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
+                        Err(e) => get_error(format!("{}", e)),
+                    }
+                } else {
+                    get_error("Invalid subdomain: only Braavos subdomains are eligible".to_string())
+                }
             } else {
-                get_error("Invalid domain: subdomains are not eligible".to_string())
+                get_error(
+                    "Invalid domain: only root domains & Braavos subdomains are eligible"
+                        .to_string(),
+                )
             }
         }
         Err(e) => get_error(format!("{}", e)),

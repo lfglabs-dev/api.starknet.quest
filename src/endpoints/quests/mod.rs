@@ -1,4 +1,5 @@
 pub mod avnu;
+pub mod braavos;
 pub mod carmine;
 pub mod contract_uri;
 pub mod ekubo;

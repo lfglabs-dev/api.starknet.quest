@@ -14,7 +14,7 @@ use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
 use starknet::{
-    core::types::{BlockId, CallFunction, FieldElement},
+    core::types::{BlockId, BlockTag, FieldElement, FunctionCall},
     macros::selector,
     providers::Provider,
 };
@@ -34,20 +34,19 @@ pub async fn handler(
     // get starkname from address
     let call_result = state
         .provider
-        .call_contract(
-            CallFunction {
+        .call(
+            FunctionCall {
                 contract_address: state.conf.starknetid_contracts.naming_contract,
                 entry_point_selector: selector!("address_to_domain"),
                 calldata: vec![*addr],
             },
-            BlockId::Latest,
+            BlockId::Tag(BlockTag::Latest),
         )
         .await;
 
     match call_result {
         Ok(result) => {
-            let domain_len =
-                i64::from_str_radix(&FieldElement::to_string(&result.result[0]), 16).unwrap();
+            let domain_len = i64::from_str_radix(&FieldElement::to_string(&result[0]), 16).unwrap();
 
             if domain_len > 0 {
                 match state.upsert_completed_task(query.addr, task_id).await {
