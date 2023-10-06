@@ -45,7 +45,7 @@ pub async fn handler(
         (
             "redirect_uri",
             &format!(
-                "{}/quests/braavos/partner/verify_has_mission",
+                "{}/quests/braavos/starknetid/verify_has_mission",
                 state.conf.variables.api_link
             ),
         ),
