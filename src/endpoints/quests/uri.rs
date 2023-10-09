@@ -213,7 +213,7 @@ pub async fn handler(
             Json(TokenURI {
                 name: "Starknet Pro Score x Starknet ID Quest NFT".into(),
                 description: "This Starknet commemorative Non-Fungible Token represents the first step into the Starknet universe. By getting a Stark domain name and becoming a Whisperer of Braavos, you are building solid foundations for your Starknet experience.".into(),
-                image: format!("{}/braavos/LP.webp", state.conf.variables.app_link),
+                image: format!("{}/braavos/starknetid.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
         )
