@@ -10,7 +10,7 @@ pub async fn execute_has_nft(
     addr: FieldElement,
     contract: FieldElement,
     limit: u32,
-    is_whitelisted: fn(&Nft) -> bool,
+    is_whitelisted: fn(&Nft, &mut Vec<String>),
 ) -> Result<bool, String> {
     let url = format!(
         "https://api.starkscan.co/api/v0/nfts?contract_address={}&owner_address={}",
@@ -34,11 +34,8 @@ pub async fn execute_has_nft(
                             let nft_data = res.data;
                             let mut unique_nfts: Vec<String> = Vec::new();
                             for nft in nft_data {
-                                if nft.name.is_some() && is_whitelisted(&nft) {
-                                    let name = nft.name.unwrap();
-                                    if !unique_nfts.contains(&name) {
-                                        unique_nfts.push(name);
-                                    }
+                                if nft.name.is_some() {
+                                    is_whitelisted(&nft, &mut unique_nfts)
                                 }
                             }
                             Ok(unique_nfts.len() >= limit as usize)

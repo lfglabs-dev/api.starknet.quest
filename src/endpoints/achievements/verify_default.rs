@@ -19,7 +19,7 @@ use mongodb::bson::doc;
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
-type NftCheck = fn(&Nft) -> bool;
+type NftCheck = fn(&Nft, unique_nfts: &mut Vec<String>);
 
 fn get_args(config: Config, achievement_id: u32) -> Result<(FieldElement, u32, NftCheck), String> {
     let argent_contract = config.achievements.argent.contract;
