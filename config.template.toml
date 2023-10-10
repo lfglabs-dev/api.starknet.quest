@@ -43,7 +43,6 @@ oauth2_secret = "xxxxxx"
 app_link = "https://starknet.quest"
 api_link = "https://api.starknet.quest"
 is_testnet = false
-proxy = "xxxxx"
 rpc_url = "xxxxx"
 
 [starkscan]

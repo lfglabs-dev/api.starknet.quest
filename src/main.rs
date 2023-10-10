@@ -10,7 +10,7 @@ use axum::{
     Router,
 };
 use mongodb::{bson::doc, options::ClientOptions, Client};
-use reqwest::{Proxy, Url};
+use reqwest::Url;
 use starknet::providers::{jsonrpc::HttpTransport, JsonRpcClient};
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -24,13 +24,6 @@ async fn main() {
     let client_options = ClientOptions::parse(&conf.database.connection_string)
         .await
         .unwrap();
-
-    let client = match &conf.variables.proxy {
-        Some(proxy_url) => reqwest::Client::builder().proxy(Proxy::http(proxy_url).unwrap()),
-        None => reqwest::Client::builder(),
-    }
-    .build()
-    .unwrap();
 
     let shared_state = Arc::new(models::AppState {
         conf: conf.clone(),
