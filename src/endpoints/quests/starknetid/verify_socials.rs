@@ -71,6 +71,7 @@ pub async fn handler(
                 id_res[0],
                 short_string!("twitter"),
                 state.conf.starknetid_contracts.verifier_contract,
+                FieldElement::ZERO,
             ],
         )
         .await?;
@@ -83,6 +84,7 @@ pub async fn handler(
                 id_res[0],
                 short_string!("discord"),
                 state.conf.starknetid_contracts.verifier_contract,
+                FieldElement::ZERO,
             ],
         )
         .await?;
