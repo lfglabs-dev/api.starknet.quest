@@ -239,6 +239,14 @@ async fn main() {
             get(endpoints::quests::myswap::claimable::handler),
         )
         .route(
+            "/quests/gigabrain/verify_quiz",
+            post(endpoints::quests::gigabrain::verify_quiz::handler),
+        )
+        .route(
+            "/quests/gigabrain/claimable",
+            get(endpoints::quests::gigabrain::claimable::handler),
+        )
+        .route(
             "/quests/braavos/starknetid/verify_has_domain",
             get(endpoints::quests::braavos::starknetid::verify_has_domain::handler),
         )

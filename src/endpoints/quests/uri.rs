@@ -219,6 +219,17 @@ pub async fn handler(
         )
             .into_response(),
 
+            Some(19) => (
+                StatusCode::OK,
+                Json(TokenURI {
+                    name: "Starknet Giga Brain NFT".into(),
+                    description: "A Starknet NFT won for successfuly responding to the Starknet Giga Brain quiz.".into(),
+                    image: format!("{}/starknet/gigabrain.webp", state.conf.variables.app_link),
+                    attributes: None,
+                }),
+            )
+                .into_response(),
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }
