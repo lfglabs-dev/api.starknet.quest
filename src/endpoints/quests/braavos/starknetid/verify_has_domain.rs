@@ -12,5 +12,5 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
-    verify_has_root_or_braavos_domain(state, &query.addr, 100).await
+    verify_has_root_or_braavos_domain(state, &query.addr, 46).await
 }
