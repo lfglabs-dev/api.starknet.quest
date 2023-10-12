@@ -107,20 +107,8 @@ async fn main() {
             get(endpoints::quests::zklend::verify_borrow::handler),
         )
         .route(
-            "/quests/zklend/verify_twitter_fw",
-            get(endpoints::quests::zklend::verify_twitter_fw::handler),
-        )
-        .route(
-            "/quests/zklend/verify_twitter_rt",
-            get(endpoints::quests::zklend::verify_twitter_rt::handler),
-        )
-        .route(
             "/quests/zklend/claimable",
             get(endpoints::quests::zklend::claimable::handler),
-        )
-        .route(
-            "/quests/avnu/verify_twitter_rt",
-            get(endpoints::quests::avnu::verify_twitter_rt::handler),
         )
         .route(
             "/quests/avnu/discord_fw_callback",
@@ -149,14 +137,6 @@ async fn main() {
         .route(
             "/quests/tribe/claimable",
             get(endpoints::quests::tribe::claimable::handler),
-        )
-        .route(
-            "/quests/sithswap/verify_twitter_fw",
-            get(endpoints::quests::sithswap::verify_twitter_fw::handler),
-        )
-        .route(
-            "/quests/sithswap/verify_twitter_rt",
-            get(endpoints::quests::sithswap::verify_twitter_rt::handler),
         )
         .route(
             "/quests/sithswap/verify_added_liquidity",
@@ -239,12 +219,20 @@ async fn main() {
             get(endpoints::quests::myswap::claimable::handler),
         )
         .route(
-            "/quests/gigabrain/verify_quiz",
-            post(endpoints::quests::gigabrain::verify_quiz::handler),
+            "/quests/starknet/gigabrain/verify_quiz",
+            post(endpoints::quests::starknet::gigabrain::verify_quiz::handler),
         )
         .route(
-            "/quests/gigabrain/claimable",
-            get(endpoints::quests::gigabrain::claimable::handler),
+            "/quests/starknet/gigabrain/claimable",
+            get(endpoints::quests::starknet::gigabrain::claimable::handler),
+        )
+        .route(
+            "/quests/starknet/aa/verify_quiz",
+            post(endpoints::quests::starknet::aa::verify_quiz::handler),
+        )
+        .route(
+            "/quests/starknet/aa/claimable",
+            get(endpoints::quests::starknet::aa::claimable::handler),
         )
         .route(
             "/quests/braavos/starknetid/verify_has_domain",
