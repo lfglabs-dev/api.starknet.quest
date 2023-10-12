@@ -223,7 +223,7 @@ pub async fn handler(
             StatusCode::OK,
             Json(TokenURI {
                 name: "Starknet Giga Brain NFT".into(),
-                description: "A Starknet NFT won for successfuly responding to the Starknet Giga Brain quiz.".into(),
+                description: "A Starknet Giga Brain NFT won for successfuly responding to a quiz.".into(),
                 image: format!("{}/starknet/gigabrain.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
@@ -233,8 +233,8 @@ pub async fn handler(
         Some(20) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "".into(),
-                description: "A Starknet NFT won for successfuly responding ".into(),
+                name: "Account Abstraction Mastery NFT".into(),
+                description: "An Account Abstraction Mastery NFT won for successfully responding to a quiz.".into(),
                 image: format!("{}/starknet/aa.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
