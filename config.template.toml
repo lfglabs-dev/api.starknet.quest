@@ -312,3 +312,140 @@ options = [
     "Starknet upgraded which achieved 10x transaction latency."
 ]
 correct_answers = [*]
+
+[quizzes.aa_mastery]
+name = "Starknet AA Mastery Quiz"
+desc = "Take part in our Starknet quiz to test your knowledge, and you'll have a chance to win an exclusive Account Abstraction Mastery NFT as your reward."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your knowledge, have fun, and earn exclusive NFT rewards by testing your Starknet related topics."
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "In the context of Ethereum, what do EOA wallets stand for and what are they?"
+options = [
+    "Ethereum Operational Accounts, used for mining ETH.", 
+    "Ethereum On-chain Authentication, used for DApps.", 
+    "External Ownership Addresses, used for tracking network upgrades.", 
+    "Externally Owned Accounts, your conventional wallets for sending and receiving ETH."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the primary disadvantage associated with Externally Owned Accounts (EOAs) in Ethereum?"
+options = [
+    "Their adaptability and customization options for user requirements are limited.", 
+    "They employ a 6-digit password as a means of private key protection.", 
+    "Initiating transactions doesn't necessitate the use of private keys.", 
+    "They lack flexibility and are pre-determined by the protocol, leading to poor UX."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What exactly is a Smart contract wallet in the context of Starknet?"
+options = [
+    "A wallet that can lock control of user funds to smart contracts.", 
+    "A wallet describing the complexity of blockchain smart contracts.", 
+    "A wallet which is a smart contract that is highly customizable, allowing users to define its functionality as they wish.", 
+    "A blockchain wallet consensus algorithm used for securing transactions."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What are the main 2 smart contract wallets on Starknet? "
+options = [
+    "Phanton, Trust Wallet", 
+    "Argent, Braavos", 
+    "MetaMask, Ledger", 
+    "OKX, Binance "
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "According to Starknet: What is Signature Abstraction in the context of Smart Contract Wallets?"
+options = [
+    "Signature Abstraction ensures comfortable user experiences by allowing multiple simultaneous transactions.", 
+    "Signature Abstraction enables the use of any custom logic for account control or any type of device for Signatures.", 
+    "Signature Abstraction enforces the complete ordering of transactions for security.", 
+    "Signature Abstraction restricts customization of account permissions."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "According to Starknet: What is Fee Abstraction in the context of Smart Contract Wallets?"
+options = [
+    "Fee Abstraction ensures comfortable user experiences by allowing multiple simultaneous transactions.", 
+    "Fee Abstraction restricts users to using only the network's native token for transaction fees.", 
+    "Fee Abstraction allows different tokens to be used as payment for transaction fees, not limited to the native token.", 
+    "Fee Abstraction enforces complete ordering of transactions for security. "
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "According to Starknet: What is Nonce Abstraction in the context of Smart Contract Wallets?"
+options = [
+    "Nonce Abstraction ensures comfortable user experiences by allowing multiple simultaneous transactions.", 
+    "Nonce Abstraction restricts users from sending multiple independent transactions simultaneously.", 
+    "Nonce Abstraction enforces the complete ordering of transactions for security.", 
+    "Nonce Abstraction allows customization of protection mechanism, permitting 2fa or 3fa."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What does the concept of 'Multicall' offer in the context of Smart Contract Wallets."
+options = [
+    "It enables you to execute multiple transactions simultaneously, increasing gas fees.", 
+    "It allows you to bundle multiple transactions into one transaction, simplifying on-chain interactions.", 
+    "It provides a method to recover lost seed phrases for wallet security.", 
+    "It automates the inspection of each transaction, ensuring user control."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How do 'Session keys' benefit users interacting on Starknet?"
+options = [
+    "They allow users to bypass transaction signing and use DApps/games without any signature.", 
+    "They eliminate the need for social recovery methods in DApps.", 
+    "Session keys enhance user experiences by eliminating the requirement to sign transactions repeatedly when using DApps or games. They also enable users to grant signature allowances to protocols.", 
+    "They provide unlimited access to a Dapp's functions without restrictions."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How does Braavos Hardware Signer Work?"
+options = [
+    "It uses a special security chip in mobile devices like iPhones or Android phones to create and protect private keys.", 
+    "The chip generates a unique identifier (UID) that is used to encrypt and safeguard keys.", 
+    "Transactions are approved using biometric authentication like fingerprint or face recognition directly within the app.", 
+    "It relies on a complex cryptographic algorithm called NIST-P256 for security."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the Argent Web Wallet, and what features does it offer?"
+options = [
+    "A physical wallet for storing cryptocurrency with a biometric lock.", 
+    "A self-custodial smart wallet with seed phrases on the web with various features, such as 2FA.", 
+    "A browser extension for secure internet browsing.", 
+    "An online shopping platform for buying digital goods."
+]
+correct_answers = [*]

@@ -227,12 +227,12 @@ async fn main() {
             get(endpoints::quests::starknet::gigabrain::claimable::handler),
         )
         .route(
-            "/quests/starknet/aa/verify_quiz",
-            post(endpoints::quests::starknet::aa::verify_quiz::handler),
+            "/quests/starknet/aa_mastery/verify_quiz",
+            post(endpoints::quests::starknet::aa_mastery::verify_quiz::handler),
         )
         .route(
-            "/quests/starknet/aa/claimable",
-            get(endpoints::quests::starknet::aa::claimable::handler),
+            "/quests/starknet/aa_mastery/claimable",
+            get(endpoints::quests::starknet::aa_mastery::claimable::handler),
         )
         .route(
             "/quests/braavos/starknetid/verify_has_domain",

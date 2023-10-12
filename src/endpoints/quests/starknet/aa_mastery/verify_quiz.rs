@@ -13,7 +13,7 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     body: Json<VerifyQuizQuery>,
 ) -> impl IntoResponse {
-    let task_id = 51;
+    let task_id = 52;
     if body.addr == FieldElement::ZERO {
         return get_error("Please connect your wallet first".to_string());
     }
