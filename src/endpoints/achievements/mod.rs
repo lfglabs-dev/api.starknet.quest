@@ -1,5 +1,6 @@
 pub mod fetch;
 pub mod fetch_buildings;
+pub mod verify_avnu;
 pub mod verify_briq;
 pub mod verify_default;
 pub mod verify_has_domain;
