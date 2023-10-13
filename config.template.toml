@@ -449,3 +449,179 @@ options = [
     "An online shopping platform for buying digital goods."
 ]
 correct_answers = [*]
+
+[quizzes.avnu]
+name = "AVNU NoFluff Quiz"
+desc = "Take part in our AVNU NoFluff Quiz to test your knowledge about Starknet’s Aggerator, and you'll have a chance to win an exclusive AVNU NoFluff Quiz as your reward."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of AVNU, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.avnu.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is AVNU's mission? "
+options = [
+    "To build Liquidity Infrastructure for traders and dApps",
+    "To offer the highest yields on investments",
+    "To create a social media platform",
+    "To provide health services "
+]
+correct_answers = [*]
+
+[[quizzes.avnu.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What problem does AVNU aim to address in the DeFi space?"
+options = [
+    "Inefficiencies in transportation systems",
+    "Poor weather forecasting",
+    "Capital inefficiency and poor price discovery in AMMs",
+    "Lack of social media engagement "
+]
+correct_answers = [*]
+
+[[quizzes.avnu.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How does AVNU's RFQ system work to improve the trading experience?"
+options = [
+    "By offering the highest possible yields to users",
+    "By preventing impermanent loss",
+    "By aggregating liquidity from various AMMs",
+    "By leveraging professional market makers and off-chain pricing algorithms to optimize pricing and minimize hidden costs"
+]
+correct_answers = [*]
+
+[[quizzes.avnu.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is MEV protection, and how does AVNU's RFQ system provide it?"
+options = [
+    "MEV protection is Maximum Earnings Volatility, and AVNU ensures it through trading volume.",
+    "MEV protection is Market Efficiency Verification, and AVNU uses it to verify liquidity sources.",
+    "MEV protection is Miner Extractable Value, and AVNU uses cryptographic signatures to prevent front-running and maintain a secure trading environment.",
+    "MEV protection is Monetary Exchange Value, and AVNU guarantees it through blockchain technology. "
+]
+correct_answers = [*]
+
+[quizzes.zklend]
+name = "ZkLend Zenders Quiz"
+desc = "Take part in our ZkLend Zenders Quiz to test your DeFi knowledge, and you'll have a chance to win an exclusive ZkLend Zenders NFT as your reward."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the intricate workings of ZkLend, enjoy the experience and earn exclusive NFT rewards by testing your Starknet-related topics."
+
+[[quizzes.zklend.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is ZkLend?"
+options = [
+    "ZkLend is a traditional banking system.",
+    "ZkLend is a cryptocurrency used for online payments.",
+    "ZkLend is a permissionless lending market for retail users, offering depositing, borrowing, and earning yields on digital assets.",
+    "ZkLend is a physical lending institution with branches worldwide."
+]
+correct_answers = [*]
+
+[[quizzes.zklend.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What does borrowing and lending mean in the context of ZkLend?"
+options = [
+    "Borrowing allows users to deposit assets to earn interest, while lending involves borrowing assets using collateral.",
+    "Lending allows users to deposit assets to earn interest, while borrowing involves borrowing assets using collateral.",
+    "Borrowing and lending both refer to depositing assets to earn interest without any collateral involved.",
+    "Borrowing and lending are unrelated to ZKLend; it's a decentralized platform for gaming. "
+]
+correct_answers = [*]
+
+[[quizzes.zklend.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the Health Factor in ZkLend?"
+options = [
+    "A numerical representation of the leverage ratio",
+    "A metric showing a user's borrowing capacity",
+    "The sum of outstanding borrowings and accrued interest",
+    "The safety of deposited assets in relation to borrowed assets"
+]
+correct_answers = [*]
+
+[[quizzes.zklend.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What does liquidation mean in ZkLend?"
+options = [
+    "Liquidation is a process initiated by borrowers to lower their debt.",
+    "Liquidation is the process of selling off collateral to repay a portion of a borrower's debt when their Health Factor falls below 1.",
+    "Liquidation is a bonus given to borrowers who maintain a high Health Factor.",
+    "Liquidation is a penalty imposed on external parties for monitoring zkLend's loan portfolios."
+]
+correct_answers = [*]
+
+[quizzes.starknetid]
+name = "Starknet ID Tribe Quiz"
+desc = "Take part in our Starknet ID Tribe Quiz to test your knowledge, and you'll have a chance to win an exclusive Starknet ID Tribe NFT as your reward."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the Basics of how Starknet ID functions, enjoy and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.starknetid.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the primary purpose of Starknet.id?"
+options = [
+    "A social media platform",
+    "An online marketplace",
+    "An identity and naming protocol for Starknet",
+    "A gaming platform"
+]
+correct_answers = [*]
+
+[[quizzes.starknetid.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What extension do the domain names use on Starknet.id?"
+options = [
+    ".com",
+    ".stark",
+    ".crypto",
+    ".eth"
+]
+correct_answers = [*]
+
+[[quizzes.starknetid.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the purpose of the 'Proof of Personhood' (POP) verification in Starknet.id?"
+options = [
+    "To verify financial transactions",
+    "To prove ownership of digital assets",
+    "To verify that a user is a real human and a single person",
+    "To confirm the user's location"
+]
+correct_answers = [*]
+
+[quizzes.sithswap]
+name = "SithSwap The Dark Side Quiz"
+desc = "Take part in our SithSwap The Dark Side Quiz to test your knowledge, and you'll have a chance to win an exclusive The Dark Side NFT as your reward."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Put your knowledge of the fundamental workings of SithSwap to the test, enjoy and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.sithswap.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What are volatile pairs in dual-liquidity pools?"
+options = [
+    "Volatile pairs are designed for assets with little-to-no volatility in trading correlation.",
+    "Volatile pairs rely on a constant-product formula.",
+    "Volatile pairs are optimized for assets with medium-to-high price volatility and use a generic constant-product formula.",
+    "Volatile pairs have extremely low slippage on large trading volumes."
+]
+correct_answers = [*]
+
+[[quizzes.sithswap.questions]]
+kind = "text_choice"
+layout = "default"
+question = "Why are stable pairs attractive for traders?"
+options = [
+    "Because they offer high returns on investment",
+    "Because they involve tokens with unpredictable price fluctuations",
+    "Because they allow for extremely low slippage, even on large trading volumes",
+    "Because they have high liquidity and are easy to trade"
+]
+correct_answers = [*]

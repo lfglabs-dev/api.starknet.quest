@@ -16,8 +16,8 @@ use starknet::{
 use std::sync::Arc;
 
 const QUEST_ID: u32 = 6;
-const TASK_IDS: &[u32] = &[24];
-const LAST_TASK: u32 = TASK_IDS[0];
+const TASK_IDS: &[u32] = &[24, 26, 53];
+const LAST_TASK: u32 = TASK_IDS[2];
 const NFT_LEVEL: u32 = 8;
 
 #[derive(Deserialize)]

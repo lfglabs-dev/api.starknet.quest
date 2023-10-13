@@ -67,10 +67,6 @@ async fn main() {
         )
         .route("/get_tasks", get(endpoints::get_tasks::handler))
         .route(
-            "/quests/starknetid/claimable",
-            get(endpoints::quests::starknetid::claimable::handler),
-        )
-        .route(
             "/quests/starknetid/verify_has_domain",
             get(endpoints::quests::starknetid::verify_has_domain::handler),
         )
@@ -85,6 +81,14 @@ async fn main() {
         .route(
             "/quests/starknetid/verify_socials",
             get(endpoints::quests::starknetid::verify_socials::handler),
+        )
+        .route(
+            "/quests/starknetid/verify_quiz",
+            post(endpoints::quests::starknetid::verify_quiz::handler),
+        )
+        .route(
+            "/quests/starknetid/claimable",
+            get(endpoints::quests::starknetid::claimable::handler),
         )
         .route(
             "/quests/jediswap/verify_added_liquidity",
@@ -107,6 +111,14 @@ async fn main() {
             get(endpoints::quests::zklend::verify_borrow::handler),
         )
         .route(
+            "/quests/zklend/verify_twitter_fw",
+            get(endpoints::quests::zklend::verify_twitter_fw::handler),
+        )
+        .route(
+            "/quests/zklend/verify_quiz",
+            post(endpoints::quests::zklend::verify_quiz::handler),
+        )
+        .route(
             "/quests/zklend/claimable",
             get(endpoints::quests::zklend::claimable::handler),
         )
@@ -117,6 +129,10 @@ async fn main() {
         .route(
             "/quests/avnu/verify_swap",
             get(endpoints::quests::avnu::verify_swap::handler),
+        )
+        .route(
+            "/quests/avnu/verify_quiz",
+            post(endpoints::quests::avnu::verify_quiz::handler),
         )
         .route(
             "/quests/avnu/claimable",
@@ -141,6 +157,14 @@ async fn main() {
         .route(
             "/quests/sithswap/verify_added_liquidity",
             get(endpoints::quests::sithswap::verify_added_liquidity::handler),
+        )
+        .route(
+            "/quests/sithswap/verify_twitter_fw",
+            get(endpoints::quests::sithswap::verify_twitter_fw::handler),
+        )
+        .route(
+            "/quests/sithswap/verify_quiz",
+            post(endpoints::quests::sithswap::verify_quiz::handler),
         )
         .route(
             "/quests/sithswap/claimable",
