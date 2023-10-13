@@ -36,8 +36,8 @@ pub async fn handler(
         Ok(response) => match response.json::<serde_json::Value>().await {
             Ok(json) => {
                 if let Some(total_tvl_dollars) = json["total_tvl_dollars"].as_f64() {
-                    if (achievement_id == 11 && total_tvl_dollars > 0.0)
-                        || (achievement_id == 12 && total_tvl_dollars >= 100.0)
+                    if (achievement_id == 11 && total_tvl_dollars >= 100.0)
+                        || (achievement_id == 12 && total_tvl_dollars >= 1000.0)
                         || (achievement_id == 13 && total_tvl_dollars >= 10000.0)
                     {
                         match state
