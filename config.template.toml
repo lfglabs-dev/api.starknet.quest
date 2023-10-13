@@ -175,3 +175,277 @@ options = [
     "Liquidity providers enforce exposure limits"
 ]
 correct_answers = [*]
+
+[quizzes.gigabrain]
+name = "Starknet Giga Brain Quiz"
+desc = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your knowledge, have fun, and earn exclusive NFT rewards by testing your Starknet related topics."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your knowledge, have fun, and earn exclusive NFT rewards by testing your Starknet related topics."
+
+[[quizzes.gigabrain.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is Starknet?"
+options = [
+    "Starknet is a zkEVM scaling solution.", 
+    "Starknet is a Layer 1 blockchain separate from Ethereum.", 
+    "An Ethereum Layer 2 secured by STARK proofs.", 
+    "Starknet is a permissioned blockchain primarily used for private business logic."
+]
+correct_answers = [*]
+
+[[quizzes.gigabrain.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What are STARKs?"
+options = [
+    "STARKs is a cryptographic solution decreasing blockspace.", 
+    "STARKs are a mathematical mechanism to provide proof of integrity in computer tasks.", 
+    "STARKs are a widely adopted consensus algorithm for blockchain networks.", 
+    "STARKs are a collection of Smart contract execution models."
+]
+correct_answers = [*]
+
+[[quizzes.gigabrain.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What are the differences between SNARKs and STARKs in the context of rollups?"
+options = [
+    "SNARKs are more scalable and require no trusted setup, while STARKs are vulnerable to quantum computers", 
+    "SNARKs require a trusted setup and are less scalable, while STARKs are secure against quantum computers and offer more scalability.", 
+    "SNARKs and STARKs are two names for the same cryptographic technique with no differences.", 
+    "SNARKs are faster to generate and verify than STARKs, but STARKs are more widely adopted in the blockchain industry."
+]
+correct_answers = [*]
+
+[[quizzes.gigabrain.questions]]
+kind = "text_choice"
+layout = "default"
+question = "Which one of these 4 options plays a crucial in Starknets architecture? "
+options = [
+    "Miner",
+    "Executor",
+    "Sequencer",
+    "Interpreter"
+]
+correct_answers = [*]
+
+[[quizzes.gigabrain.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is Cairo?"
+options = [
+    "Cairo is a low-level assembly language.",
+    "Cairo is a provable programming language that permits to deploy smart contracts on Starknet.",
+    "Cairo is a blockchain platform for deploying smart contracts.",
+    "Cairo is a Rust-based virtual machine."
+]
+correct_answers = [*]
+
+[[quizzes.gigabrain.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the primary role of the Starknet Foundation within the ecosystem?"
+options = [
+    "To serve as a mission-driven non-profit organization.",
+    "To maintain Starknet as a permissioned infrastructure.",
+    "To advance decentralization goals, liveness, censorship-resistance, transparency, and creativity within Starknet.",
+    "To make decisions regarding protocol updates and dispute resolution informally without any defined process."
+]
+correct_answers = [*]
+
+[[quizzes.gigabrain.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How does the voting process work on Starknet?"
+options = [
+    "Voting takes place on the Mainnet, and a proposal requires a minimum quorum to be valid.",
+    "Voting has a period where voters can examine a proposal and then vote via Snapshot.",
+    "The Foundation does the voting process.",
+    "Voting power was distributed solely among all DEFI Platforms."
+]
+correct_answers = [*]
+
+[[quizzes.gigabrain.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What will the STRK token be used for?"
+options = [
+    "Transaction fees, staking, and voting in Starknet governance.",
+    "Solely for paying transaction fees in Ether (ETH).",
+    "To secure the network and ensure its liveness.",
+    "To support the development of non-native tokens within Starknet."
+]
+correct_answers = [*]
+
+[[quizzes.gigabrain.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What are the five committees established by the Starknet Foundation?"
+options = [
+    "Infrastructure Committee, Innovation Committee, Community Committee, Funding Committee, Security Committee",
+    "Development Committee, Compliance Committee, Stakeholder Committee, Advisory Committee, Network Committee ",
+    "Provisions Committee, Early Adopter Grants Committee, Developer Partnerships Committee, Governance Committee, Ecosystem Onboarding Committee",
+    "Protocol Committee, Foundation Committee, Security Committee, Validators Committee, Stakeholder Engagement Committee"
+]
+correct_answers = [*]
+
+[[quizzes.gigabrain.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What does SNIP stand for in the context of Starknet?"
+options = [
+    "Starknet Networking and Infrastructure Protocol",
+    "Starknet Improvement Protocol",
+    "Starknet Node Integration Platform",
+    "Starknet Security and Identity Protocol"
+]
+correct_answers = [*]
+
+[[quizzes.gigabrain.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What was the Quantum Leap upgrade and what did it achieve?"
+options = [
+    "A Starknet upgrade which achieved a 10X increase in Tps.",
+    "An upgrade of Starknet Beta V1.0.0, and introduced a new scripting language.",
+    "An upgrade of Starknet V.0.11.9 and it achieved security enhancements.",
+    "Starknet upgraded which achieved 10x transaction latency."
+]
+correct_answers = [*]
+
+[quizzes.aa_mastery]
+name = "Starknet AA Mastery Quiz"
+desc = "Take part in our Starknet quiz to test your knowledge, and you'll have a chance to win an exclusive Account Abstraction Mastery NFT as your reward."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your knowledge, have fun, and earn exclusive NFT rewards by testing your Starknet related topics."
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "In the context of Ethereum, what do EOA wallets stand for and what are they?"
+options = [
+    "Ethereum Operational Accounts, used for mining ETH.", 
+    "Ethereum On-chain Authentication, used for DApps.", 
+    "External Ownership Addresses, used for tracking network upgrades.", 
+    "Externally Owned Accounts, your conventional wallets for sending and receiving ETH."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the primary disadvantage associated with Externally Owned Accounts (EOAs) in Ethereum?"
+options = [
+    "Their adaptability and customization options for user requirements are limited.", 
+    "They employ a 6-digit password as a means of private key protection.", 
+    "Initiating transactions doesn't necessitate the use of private keys.", 
+    "They lack flexibility and are pre-determined by the protocol, leading to poor UX."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What exactly is a Smart contract wallet in the context of Starknet?"
+options = [
+    "A wallet that can lock control of user funds to smart contracts.", 
+    "A wallet describing the complexity of blockchain smart contracts.", 
+    "A wallet which is a smart contract that is highly customizable, allowing users to define its functionality as they wish.", 
+    "A blockchain wallet consensus algorithm used for securing transactions."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What are the main 2 smart contract wallets on Starknet? "
+options = [
+    "Phanton, Trust Wallet", 
+    "Argent, Braavos", 
+    "MetaMask, Ledger", 
+    "OKX, Binance "
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "According to Starknet: What is Signature Abstraction in the context of Smart Contract Wallets?"
+options = [
+    "Signature Abstraction ensures comfortable user experiences by allowing multiple simultaneous transactions.", 
+    "Signature Abstraction enables the use of any custom logic for account control or any type of device for Signatures.", 
+    "Signature Abstraction enforces the complete ordering of transactions for security.", 
+    "Signature Abstraction restricts customization of account permissions."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "According to Starknet: What is Fee Abstraction in the context of Smart Contract Wallets?"
+options = [
+    "Fee Abstraction ensures comfortable user experiences by allowing multiple simultaneous transactions.", 
+    "Fee Abstraction restricts users to using only the network's native token for transaction fees.", 
+    "Fee Abstraction allows different tokens to be used as payment for transaction fees, not limited to the native token.", 
+    "Fee Abstraction enforces complete ordering of transactions for security. "
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "According to Starknet: What is Nonce Abstraction in the context of Smart Contract Wallets?"
+options = [
+    "Nonce Abstraction ensures comfortable user experiences by allowing multiple simultaneous transactions.", 
+    "Nonce Abstraction restricts users from sending multiple independent transactions simultaneously.", 
+    "Nonce Abstraction enforces the complete ordering of transactions for security.", 
+    "Nonce Abstraction allows customization of protection mechanism, permitting 2fa or 3fa."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What does the concept of 'Multicall' offer in the context of Smart Contract Wallets."
+options = [
+    "It enables you to execute multiple transactions simultaneously, increasing gas fees.", 
+    "It allows you to bundle multiple transactions into one transaction, simplifying on-chain interactions.", 
+    "It provides a method to recover lost seed phrases for wallet security.", 
+    "It automates the inspection of each transaction, ensuring user control."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How do 'Session keys' benefit users interacting on Starknet?"
+options = [
+    "They allow users to bypass transaction signing and use DApps/games without any signature.", 
+    "They eliminate the need for social recovery methods in DApps.", 
+    "Session keys enhance user experiences by eliminating the requirement to sign transactions repeatedly when using DApps or games. They also enable users to grant signature allowances to protocols.", 
+    "They provide unlimited access to a Dapp's functions without restrictions."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How does Braavos Hardware Signer Work?"
+options = [
+    "It uses a special security chip in mobile devices like iPhones or Android phones to create and protect private keys.", 
+    "The chip generates a unique identifier (UID) that is used to encrypt and safeguard keys.", 
+    "Transactions are approved using biometric authentication like fingerprint or face recognition directly within the app.", 
+    "It relies on a complex cryptographic algorithm called NIST-P256 for security."
+]
+correct_answers = [*]
+
+[[quizzes.aa_mastery.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the Argent Web Wallet, and what features does it offer?"
+options = [
+    "A physical wallet for storing cryptocurrency with a biometric lock.", 
+    "A self-custodial smart wallet with seed phrases on the web with various features, such as 2FA.", 
+    "A browser extension for secure internet browsing.", 
+    "An online shopping platform for buying digital goods."
+]
+correct_answers = [*]

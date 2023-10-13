@@ -8,6 +8,7 @@ pub mod morphine;
 pub mod myswap;
 pub mod orbiter;
 pub mod sithswap;
+pub mod starknet;
 pub mod starknetid;
 pub mod tribe;
 pub mod uri;
