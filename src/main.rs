@@ -62,6 +62,10 @@ async fn main() {
             get(endpoints::get_completed_quests::handler),
         )
         .route(
+            "/get_quest_participants",
+            get(endpoints::get_quest_participants::handler),
+        )
+        .route(
             "/get_trending_quests",
             get(endpoints::get_trending_quests::handler),
         )
