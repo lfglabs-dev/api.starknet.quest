@@ -3,6 +3,7 @@ pub mod braavos;
 pub mod carmine;
 pub mod contract_uri;
 pub mod ekubo;
+pub mod focustree;
 pub mod jediswap;
 pub mod morphine;
 pub mod myswap;

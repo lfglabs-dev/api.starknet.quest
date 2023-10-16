@@ -279,6 +279,18 @@ async fn main() {
             get(endpoints::quests::braavos::starknetid::claimable::handler),
         )
         .route(
+            "/quests/focustree/verify_twitter_fw",
+            get(endpoints::quests::focustree::verify_twitter_fw::handler),
+        )
+        .route(
+            "/quests/focustree/verify_twitter_rt",
+            get(endpoints::quests::focustree::verify_twitter_rt::handler),
+        )
+        .route(
+            "/quests/focustree/claimable",
+            get(endpoints::quests::focustree::claimable::handler),
+        )
+        .route(
             "/achievements/verify_default",
             get(endpoints::achievements::verify_default::handler),
         )

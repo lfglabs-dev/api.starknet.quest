@@ -241,6 +241,17 @@ pub async fn handler(
         )
             .into_response(),
 
+        Some(21) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Focus Tree x Starknet Quest NFT".into(),
+                description: "A Focus Tree NFT won on Starknet Quest.".into(),
+                image: format!("{}/starknet/aa.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }
