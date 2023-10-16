@@ -12,4 +12,5 @@ pub mod starknet;
 pub mod starknetid;
 pub mod tribe;
 pub mod uri;
+pub mod verify_quiz;
 pub mod zklend;

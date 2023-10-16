@@ -9,14 +9,31 @@ use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
+fn get_task_id(quiz_name: &str) -> Option<u32> {
+    match quiz_name {
+        "gigabrain_1" => Some(51),
+        "gigabrain_2" => Some(57),
+        "gigabrain_3" => Some(58),
+        "aa_mastery_1" => Some(52),
+        "aa_mastery_2" => Some(59),
+        "aa_mastery_3" => Some(60),
+        "focustree" => Some(61),
+        _ => None,
+    }
+}
+
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     body: Json<VerifyQuizQuery>,
 ) -> impl IntoResponse {
-    let task_id = 58;
     if body.addr == FieldElement::ZERO {
         return get_error("Please connect your wallet first".to_string());
     }
+
+    let task_id = match get_task_id(&body.quiz_name) {
+        Some(id) => id,
+        None => return get_error("Quiz name does not match".to_string()),
+    };
 
     let user_answers_numbers: Result<Vec<Vec<usize>>, _> = body
         .user_answers_list
