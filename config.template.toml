@@ -498,7 +498,7 @@ question = "What is MEV protection, and how does AVNU's RFQ system provide it?"
 options = [
     "MEV protection is Maximum Earnings Volatility, and AVNU ensures it through trading volume.",
     "MEV protection is Market Efficiency Verification, and AVNU uses it to verify liquidity sources.",
-    "MEV protection is Miner Extractable Value, and AVNU uses cryptographic signatures to prevent front-running and maintain a secure trading environment.",
+    "MEV protection is Maximal Extractable Value, and AVNU uses cryptographic signatures to prevent front-running and maintain a secure trading environment.",
     "MEV protection is Monetary Exchange Value, and AVNU guarantees it through blockchain technology. "
 ]
 correct_answers = [*]

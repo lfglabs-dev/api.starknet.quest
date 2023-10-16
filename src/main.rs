@@ -291,6 +291,18 @@ async fn main() {
             get(endpoints::achievements::verify_briq::handler),
         )
         .route(
+            "/achievements/verify_tvl",
+            get(endpoints::achievements::verify_tvl::handler),
+        )
+        .route(
+            "/achievements/verify_seniority",
+            get(endpoints::achievements::verify_seniority::handler),
+        )
+        .route(
+            "/achievements/verify_avnu",
+            get(endpoints::achievements::verify_avnu::handler),
+        )
+        .route(
             "/achievements/verify_has_domain",
             get(endpoints::achievements::verify_has_domain::handler),
         )
