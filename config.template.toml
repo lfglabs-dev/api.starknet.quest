@@ -621,3 +621,42 @@ options = [
     "Because they have high liquidity and are easy to trade"
 ]
 correct_answers = [*]
+
+[quizzes.focustree]
+name = "Focus Tree - Attentiveness Tree Quiz"
+desc = "Test your knowledge of Focus Tree in our quiz, and you could win an exclusive NFT as your prize."
+intro = "Engage in our Focus Tree Quest, finish the tasks, and secure an exclusive Attentiveness Tree NFT as your reward."
+
+[[quizzes.focustree.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How much time per day do teenagers spend on their phone on average?"
+options = [
+    "2 hours", 
+    "3 hours", 
+    "5 hours", 
+    "9 hours"
+]
+correct_answers = [*]
+
+[[quizzes.focustree.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What’s the percentage of the population that are feeling addicted to their phones?"
+options = [
+    "2%", "16%", "47%", "99%"
+]
+correct_answers = [*]
+
+[[quizzes.focustree.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What are the benefits from using Focus Tree app?"
+options = [
+    "Increase my focus and mental health while collecting NFTs.", 
+    "Transforms my phone into a hoverboard.",
+    "Cooks dinner for me every evening."
+    "Teaches my cat to speak fluent Spanish."
+]
+correct_answers = [*]
+
