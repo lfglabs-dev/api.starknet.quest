@@ -243,16 +243,32 @@ async fn main() {
             get(endpoints::quests::myswap::claimable::handler),
         )
         .route(
-            "/quests/starknet/gigabrain/verify_quiz",
-            post(endpoints::quests::starknet::gigabrain::verify_quiz::handler),
+            "/quests/starknet/gigabrain/verify_quiz_1",
+            post(endpoints::quests::starknet::gigabrain::verify_quiz_1::handler),
+        )
+        .route(
+            "/quests/starknet/gigabrain/verify_quiz_2",
+            post(endpoints::quests::starknet::gigabrain::verify_quiz_2::handler),
+        )
+        .route(
+            "/quests/starknet/gigabrain/verify_quiz_3",
+            post(endpoints::quests::starknet::gigabrain::verify_quiz_3::handler),
         )
         .route(
             "/quests/starknet/gigabrain/claimable",
             get(endpoints::quests::starknet::gigabrain::claimable::handler),
         )
         .route(
-            "/quests/starknet/aa_mastery/verify_quiz",
-            post(endpoints::quests::starknet::aa_mastery::verify_quiz::handler),
+            "/quests/starknet/aa_mastery/verify_quiz_1",
+            post(endpoints::quests::starknet::aa_mastery::verify_quiz_1::handler),
+        )
+        .route(
+            "/quests/starknet/aa_mastery/verify_quiz_2",
+            post(endpoints::quests::starknet::aa_mastery::verify_quiz_2::handler),
+        )
+        .route(
+            "/quests/starknet/aa_mastery/verify_quiz_3",
+            post(endpoints::quests::starknet::aa_mastery::verify_quiz_3::handler),
         )
         .route(
             "/quests/starknet/aa_mastery/claimable",

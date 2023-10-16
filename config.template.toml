@@ -176,12 +176,12 @@ options = [
 ]
 correct_answers = [*]
 
-[quizzes.gigabrain]
+[quizzes.gigabrain_1]
 name = "Starknet Giga Brain Quiz"
-desc = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your knowledge, have fun, and earn exclusive NFT rewards by testing your Starknet related topics."
-intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your knowledge, have fun, and earn exclusive NFT rewards by testing your Starknet related topics."
+desc = "Let's kick off the first part of the quiz to evaluate your foundational knowledge of Starknet"
+intro = "Take part in our Starknet quiz to test your knowledge, and you'll have a chance to win an exclusive Giga Brain NFT as your reward."
 
-[[quizzes.gigabrain.questions]]
+[[quizzes.gigabrain_1.questions]]
 kind = "text_choice"
 layout = "default"
 question = "What is Starknet?"
@@ -189,11 +189,11 @@ options = [
     "Starknet is a zkEVM scaling solution.", 
     "Starknet is a Layer 1 blockchain separate from Ethereum.", 
     "An Ethereum Layer 2 secured by STARK proofs.", 
-    "Starknet is a permissioned blockchain primarily used for private business logic."
+    "Starknet is a permissioned blockchain primarily."
 ]
 correct_answers = [*]
 
-[[quizzes.gigabrain.questions]]
+[[quizzes.gigabrain_1.questions]]
 kind = "text_choice"
 layout = "default"
 question = "What are STARKs?"
@@ -205,19 +205,7 @@ options = [
 ]
 correct_answers = [*]
 
-[[quizzes.gigabrain.questions]]
-kind = "text_choice"
-layout = "default"
-question = "What are the differences between SNARKs and STARKs in the context of rollups?"
-options = [
-    "SNARKs are more scalable and require no trusted setup, while STARKs are vulnerable to quantum computers", 
-    "SNARKs require a trusted setup and are less scalable, while STARKs are secure against quantum computers and offer more scalability.", 
-    "SNARKs and STARKs are two names for the same cryptographic technique with no differences.", 
-    "SNARKs are faster to generate and verify than STARKs, but STARKs are more widely adopted in the blockchain industry."
-]
-correct_answers = [*]
-
-[[quizzes.gigabrain.questions]]
+[[quizzes.gigabrain_1.questions]]
 kind = "text_choice"
 layout = "default"
 question = "Which one of these 4 options plays a crucial in Starknets architecture? "
@@ -229,7 +217,24 @@ options = [
 ]
 correct_answers = [*]
 
-[[quizzes.gigabrain.questions]]
+[quizzes.gigabrain_2]
+name = "Starknet Giga Brain Quiz"
+desc = "Let's proceed with the second segment of the Starknet quiz, where we'll explore more in-depth questions."
+intro = "Take part in our Starknet quiz to test your knowledge, and you'll have a chance to win an exclusive Giga Brain NFT as your reward."
+
+[[quizzes.gigabrain_2.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What are the differences between SNARKs and STARKs in the context of rollups?"
+options = [
+    "SNARKs are more scalable and require no trusted setup, while STARKs lack quantum resistance.",
+    "SNARKs require a trusted setup and lack scalability, whereas STARKs are quantum-secure and scalable.", 
+    "SNARKs and STARKs are the same cryptographic technique with no differences.", 
+    "SNARKs are faster in calculations, but STARKs are more widely adopted in Web 3."
+]
+correct_answers = [*]
+
+[[quizzes.gigabrain_2.questions]]
 kind = "text_choice"
 layout = "default"
 question = "What is Cairo?"
@@ -241,31 +246,48 @@ options = [
 ]
 correct_answers = [*]
 
-[[quizzes.gigabrain.questions]]
+[[quizzes.gigabrain_2.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What was the Quantum Leap upgrade and what did it achieve?"
+options = [
+    "A Starknet upgrade which achieved a 10X increase in Tps.",
+    "An upgrade of Starknet Beta V1.0.0, and introduced a new language.",
+    "An upgrade of Starknet V.0.11.9 and it achieved security enhancements.",
+    "Starknet upgraded which achieved 10x transaction latency."
+]
+correct_answers = [*]
+
+[quizzes.gigabrain_3]
+name = "Starknet Giga Brain Quiz"
+desc = "Participate in the last part of our Starknet Quest quiz to test your knowledge about the foundation!"
+intro = "Take part in our Starknet quiz to test your knowledge, and you'll have a chance to win an exclusive Giga Brain NFT as your reward."
+
+[[quizzes.gigabrain_3.questions]]
 kind = "text_choice"
 layout = "default"
 question = "What is the primary role of the Starknet Foundation within the ecosystem?"
 options = [
     "To serve as a mission-driven non-profit organization.",
     "To maintain Starknet as a permissioned infrastructure.",
-    "To advance decentralization goals, liveness, censorship-resistance, transparency, and creativity within Starknet.",
-    "To make decisions regarding protocol updates and dispute resolution informally without any defined process."
+    "To promote decentralization, liveness, censorship resistance, transparency, and creativity in Starknet.",
+    "To make decisions regarding protocol updates."
 ]
 correct_answers = [*]
 
-[[quizzes.gigabrain.questions]]
+[[quizzes.gigabrain_3.questions]]
 kind = "text_choice"
 layout = "default"
 question = "How does the voting process work on Starknet?"
 options = [
-    "Voting takes place on the Mainnet, and a proposal requires a minimum quorum to be valid.",
+    "Voting takes place on the Mainnet, and a proposal requires a minimum votes to be valid.",
     "Voting has a period where voters can examine a proposal and then vote via Snapshot.",
     "The Foundation does the voting process.",
     "Voting power was distributed solely among all DEFI Platforms."
 ]
 correct_answers = [*]
 
-[[quizzes.gigabrain.questions]]
+[[quizzes.gigabrain_3.questions]]
 kind = "text_choice"
 layout = "default"
 question = "What will the STRK token be used for?"
@@ -277,48 +299,24 @@ options = [
 ]
 correct_answers = [*]
 
-[[quizzes.gigabrain.questions]]
-kind = "text_choice"
-layout = "default"
-question = "What are the five committees established by the Starknet Foundation?"
-options = [
-    "Infrastructure Committee, Innovation Committee, Community Committee, Funding Committee, Security Committee",
-    "Development Committee, Compliance Committee, Stakeholder Committee, Advisory Committee, Network Committee ",
-    "Provisions Committee, Early Adopter Grants Committee, Developer Partnerships Committee, Governance Committee, Ecosystem Onboarding Committee",
-    "Protocol Committee, Foundation Committee, Security Committee, Validators Committee, Stakeholder Engagement Committee"
-]
-correct_answers = [*]
-
-[[quizzes.gigabrain.questions]]
+[[quizzes.gigabrain_3.questions]]
 kind = "text_choice"
 layout = "default"
 question = "What does SNIP stand for in the context of Starknet?"
 options = [
-    "Starknet Networking and Infrastructure Protocol",
-    "Starknet Improvement Protocol",
-    "Starknet Node Integration Platform",
-    "Starknet Security and Identity Protocol"
+    "Starknet Networking and Infrastructure Proposal",
+    "Starknet Improvement Proposal",
+    "Starknet Node Integration Proposal",
+    "Starknet Security and Identity Proposal"
 ]
 correct_answers = [*]
 
-[[quizzes.gigabrain.questions]]
-kind = "text_choice"
-layout = "default"
-question = "What was the Quantum Leap upgrade and what did it achieve?"
-options = [
-    "A Starknet upgrade which achieved a 10X increase in Tps.",
-    "An upgrade of Starknet Beta V1.0.0, and introduced a new scripting language.",
-    "An upgrade of Starknet V.0.11.9 and it achieved security enhancements.",
-    "Starknet upgraded which achieved 10x transaction latency."
-]
-correct_answers = [*]
-
-[quizzes.aa_mastery]
+[quizzes.aa_mastery_1]
 name = "Starknet AA Mastery Quiz"
-desc = "Take part in our Starknet quiz to test your knowledge, and you'll have a chance to win an exclusive Account Abstraction Mastery NFT as your reward."
+desc = "Take part in our Starknet Quest quiz to evaluate your Account Abstraction knowlegde, starting with basic AA concepts."
 intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your knowledge, have fun, and earn exclusive NFT rewards by testing your Starknet related topics."
 
-[[quizzes.aa_mastery.questions]]
+[[quizzes.aa_mastery_1.questions]]
 kind = "text_choice"
 layout = "default"
 question = "In the context of Ethereum, what do EOA wallets stand for and what are they?"
@@ -330,7 +328,7 @@ options = [
 ]
 correct_answers = [*]
 
-[[quizzes.aa_mastery.questions]]
+[[quizzes.aa_mastery_1.questions]]
 kind = "text_choice"
 layout = "default"
 question = "What is the primary disadvantage associated with Externally Owned Accounts (EOAs) in Ethereum?"
@@ -342,19 +340,19 @@ options = [
 ]
 correct_answers = [*]
 
-[[quizzes.aa_mastery.questions]]
+[[quizzes.aa_mastery_1.questions]]
 kind = "text_choice"
 layout = "default"
 question = "What exactly is a Smart contract wallet in the context of Starknet?"
 options = [
     "A wallet that can lock control of user funds to smart contracts.", 
     "A wallet describing the complexity of blockchain smart contracts.", 
-    "A wallet which is a smart contract that is highly customizable, allowing users to define its functionality as they wish.", 
+    "A wallet which is a smart contract and that is highly customizable.", 
     "A blockchain wallet consensus algorithm used for securing transactions."
 ]
 correct_answers = [*]
 
-[[quizzes.aa_mastery.questions]]
+[[quizzes.aa_mastery_1.questions]]
 kind = "text_choice"
 layout = "default"
 question = "What are the main 2 smart contract wallets on Starknet? "
@@ -366,43 +364,36 @@ options = [
 ]
 correct_answers = [*]
 
-[[quizzes.aa_mastery.questions]]
+[quizzes.aa_mastery_2]
+name = "Starknet AA Mastery Quiz"
+desc = "Participate in our Starknet Quest quiz Part 2, check how well you understand Account Abstraction in-depth."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your knowledge, have fun, and earn exclusive NFT rewards by testing your Starknet related topics."
+
+[[quizzes.aa_mastery_2.questions]]
 kind = "text_choice"
 layout = "default"
-question = "According to Starknet: What is Signature Abstraction in the context of Smart Contract Wallets?"
+question = "What is Signature Abstraction in the context of Smart Contract Wallets?"
 options = [
-    "Signature Abstraction ensures comfortable user experiences by allowing multiple simultaneous transactions.", 
-    "Signature Abstraction enables the use of any custom logic for account control or any type of device for Signatures.", 
-    "Signature Abstraction enforces the complete ordering of transactions for security.", 
-    "Signature Abstraction restricts customization of account permissions."
+    "It ensures comfortable user experiences by allowing multiple simultaneous transactions.", 
+    "It enables the use of any custom logic for account control or any type of device for Signatures.", 
+    "System enforces the complete ordering of transactions for security.", 
+    "The feature restricts customization of account permissions."
 ]
 correct_answers = [*]
 
-[[quizzes.aa_mastery.questions]]
+[[quizzes.aa_mastery_2.questions]]
 kind = "text_choice"
 layout = "default"
-question = "According to Starknet: What is Fee Abstraction in the context of Smart Contract Wallets?"
+question = "What is Fee Abstraction in the context of Smart Contract Wallets?"
 options = [
     "Fee Abstraction ensures comfortable user experiences by allowing multiple simultaneous transactions.", 
     "Fee Abstraction restricts users to using only the network's native token for transaction fees.", 
-    "Fee Abstraction allows different tokens to be used as payment for transaction fees, not limited to the native token.", 
+    "Fee Abstraction allows different tokens to be used as payment for Tx fees, not limited to the native token.", 
     "Fee Abstraction enforces complete ordering of transactions for security. "
 ]
 correct_answers = [*]
 
-[[quizzes.aa_mastery.questions]]
-kind = "text_choice"
-layout = "default"
-question = "According to Starknet: What is Nonce Abstraction in the context of Smart Contract Wallets?"
-options = [
-    "Nonce Abstraction ensures comfortable user experiences by allowing multiple simultaneous transactions.", 
-    "Nonce Abstraction restricts users from sending multiple independent transactions simultaneously.", 
-    "Nonce Abstraction enforces the complete ordering of transactions for security.", 
-    "Nonce Abstraction allows customization of protection mechanism, permitting 2fa or 3fa."
-]
-correct_answers = [*]
-
-[[quizzes.aa_mastery.questions]]
+[[quizzes.aa_mastery_2.questions]]
 kind = "text_choice"
 layout = "default"
 question = "What does the concept of 'Multicall' offer in the context of Smart Contract Wallets."
@@ -414,37 +405,42 @@ options = [
 ]
 correct_answers = [*]
 
-[[quizzes.aa_mastery.questions]]
+[[quizzes.aa_mastery_2.questions]]
 kind = "text_choice"
 layout = "default"
 question = "How do 'Session keys' benefit users interacting on Starknet?"
 options = [
     "They allow users to bypass transaction signing and use DApps/games without any signature.", 
     "They eliminate the need for social recovery methods in DApps.", 
-    "Session keys enhance user experiences by eliminating the requirement to sign transactions repeatedly when using DApps or games. They also enable users to grant signature allowances to protocols.", 
+    "Session keys enhance usability by reducing repeated signing & enabling signature allowances",
     "They provide unlimited access to a Dapp's functions without restrictions."
 ]
 correct_answers = [*]
 
-[[quizzes.aa_mastery.questions]]
+[quizzes.aa_mastery_3]
+name = "Starknet AA Mastery Quiz"
+desc = "Participate in our final Account Abstraction Mastery Quiz, with a focus on ecosystem players. Prove your expertise, become an AA master."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your knowledge, have fun, and earn exclusive NFT rewards by testing your Starknet related topics."
+
+[[quizzes.aa_mastery_3.questions]]
 kind = "text_choice"
 layout = "default"
 question = "How does Braavos Hardware Signer Work?"
 options = [
-    "It uses a special security chip in mobile devices like iPhones or Android phones to create and protect private keys.", 
-    "The chip generates a unique identifier (UID) that is used to encrypt and safeguard keys.", 
-    "Transactions are approved using biometric authentication like fingerprint or face recognition directly within the app.", 
-    "It relies on a complex cryptographic algorithm called NIST-P256 for security."
+    "It uses a special security chip in mobile devices to create and protect private keys.", 
+    "The chip generates a unique identifier (UID) that is connected with your Social Media", 
+    "Using biometric authentication like fingerprints to create an EOA.", 
+    "It relies on a complex cryptographic algorithm called NIST-P256."
 ]
 correct_answers = [*]
 
-[[quizzes.aa_mastery.questions]]
+[[quizzes.aa_mastery_3.questions]]
 kind = "text_choice"
 layout = "default"
 question = "What is the Argent Web Wallet, and what features does it offer?"
 options = [
-    "A physical wallet for storing cryptocurrency with a biometric lock.", 
-    "A self-custodial smart wallet with seed phrases on the web with various features, such as 2FA.", 
+    "A physical wallet for storing cryptocurrency with a smart lock.", 
+    "A self-custodial smart wallet on your browser with various features, such as 2FA via mail.", 
     "A browser extension for secure internet browsing.", 
     "An online shopping platform for buying digital goods."
 ]
