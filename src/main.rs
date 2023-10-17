@@ -67,6 +67,10 @@ async fn main() {
         )
         .route("/get_tasks", get(endpoints::get_tasks::handler))
         .route(
+            "/quests/verify_quiz",
+            post(endpoints::quests::verify_quiz::handler),
+        )
+        .route(
             "/quests/starknetid/verify_has_domain",
             get(endpoints::quests::starknetid::verify_has_domain::handler),
         )
@@ -243,16 +247,8 @@ async fn main() {
             get(endpoints::quests::myswap::claimable::handler),
         )
         .route(
-            "/quests/starknet/gigabrain/verify_quiz",
-            post(endpoints::quests::starknet::gigabrain::verify_quiz::handler),
-        )
-        .route(
             "/quests/starknet/gigabrain/claimable",
             get(endpoints::quests::starknet::gigabrain::claimable::handler),
-        )
-        .route(
-            "/quests/starknet/aa_mastery/verify_quiz",
-            post(endpoints::quests::starknet::aa_mastery::verify_quiz::handler),
         )
         .route(
             "/quests/starknet/aa_mastery/claimable",
@@ -281,6 +277,18 @@ async fn main() {
         .route(
             "/quests/braavos/starknetid/claimable",
             get(endpoints::quests::braavos::starknetid::claimable::handler),
+        )
+        .route(
+            "/quests/focustree/verify_twitter_fw",
+            get(endpoints::quests::focustree::verify_twitter_fw::handler),
+        )
+        .route(
+            "/quests/focustree/verify_twitter_rt",
+            get(endpoints::quests::focustree::verify_twitter_rt::handler),
+        )
+        .route(
+            "/quests/focustree/claimable",
+            get(endpoints::quests::focustree::claimable::handler),
         )
         .route(
             "/achievements/verify_default",

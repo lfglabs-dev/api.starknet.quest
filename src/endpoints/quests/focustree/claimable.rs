@@ -15,10 +15,10 @@ use starknet::{
 };
 use std::sync::Arc;
 
-const QUEST_ID: u32 = 14;
-const TASK_IDS: &[u32] = &[52, 59, 60];
+const QUEST_ID: u32 = 15;
+const TASK_IDS: &[u32] = &[61, 62, 63];
 const LAST_TASK: u32 = TASK_IDS[2];
-const NFT_LEVEL: u32 = 20;
+const NFT_LEVEL: u32 = 21;
 
 #[derive(Deserialize)]
 pub struct ClaimableQuery {
