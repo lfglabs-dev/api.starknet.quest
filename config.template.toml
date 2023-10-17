@@ -655,7 +655,7 @@ question = "What are the benefits from using Focus Tree app?"
 options = [
     "Increase my focus and mental health while collecting NFTs.", 
     "Transforms my phone into a hoverboard.",
-    "Cooks dinner for me every evening."
+    "Cooks dinner for me every evening.",
     "Teaches my cat to speak fluent Spanish."
 ]
 correct_answers = [*]
