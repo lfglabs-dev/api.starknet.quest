@@ -11,6 +11,12 @@ use starknet::core::types::FieldElement;
 
 fn get_task_id(quiz_name: &str) -> Option<u32> {
     match quiz_name {
+        "carmine" => Some(40),
+        "morphine" => Some(42),
+        "zklend" => Some(53),
+        "avnu" => Some(54),
+        "sithswap" => Some(55),
+        "starknetid" => Some(56),
         "gigabrain_1" => Some(51),
         "gigabrain_2" => Some(57),
         "gigabrain_3" => Some(58),
