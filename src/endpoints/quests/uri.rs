@@ -244,9 +244,9 @@ pub async fn handler(
         Some(21) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "Focus Tree x Starknet Quest NFT".into(),
-                description: "A Focus Tree NFT won on Starknet Quest.".into(),
-                image: format!("{}/starknet/aa.webp", state.conf.variables.app_link),
+                name: "Focus Tree NFT".into(),
+                description: "A Focus Tree NFT won during a Starknet Quest.".into(),
+                image: format!("{}/focustree/focustree.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
         )
