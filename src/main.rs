@@ -91,10 +91,6 @@ async fn main() {
             get(endpoints::quests::starknetid::verify_socials::handler),
         )
         .route(
-            "/quests/starknetid/verify_quiz",
-            post(endpoints::quests::starknetid::verify_quiz::handler),
-        )
-        .route(
             "/quests/starknetid/claimable",
             get(endpoints::quests::starknetid::claimable::handler),
         )
@@ -123,10 +119,6 @@ async fn main() {
             get(endpoints::quests::zklend::verify_twitter_fw::handler),
         )
         .route(
-            "/quests/zklend/verify_quiz",
-            post(endpoints::quests::zklend::verify_quiz::handler),
-        )
-        .route(
             "/quests/zklend/claimable",
             get(endpoints::quests::zklend::claimable::handler),
         )
@@ -137,10 +129,6 @@ async fn main() {
         .route(
             "/quests/avnu/verify_swap",
             get(endpoints::quests::avnu::verify_swap::handler),
-        )
-        .route(
-            "/quests/avnu/verify_quiz",
-            post(endpoints::quests::avnu::verify_quiz::handler),
         )
         .route(
             "/quests/avnu/claimable",
@@ -169,10 +157,6 @@ async fn main() {
         .route(
             "/quests/sithswap/verify_twitter_fw",
             get(endpoints::quests::sithswap::verify_twitter_fw::handler),
-        )
-        .route(
-            "/quests/sithswap/verify_quiz",
-            post(endpoints::quests::sithswap::verify_quiz::handler),
         )
         .route(
             "/quests/sithswap/claimable",
@@ -219,16 +203,8 @@ async fn main() {
             get(endpoints::quests::ekubo::verify_added_liquidity::handler),
         )
         .route(
-            "/quests/carmine/verify_quiz",
-            post(endpoints::quests::carmine::verify_quiz::handler),
-        )
-        .route(
             "/quests/carmine/claimable",
             get(endpoints::quests::carmine::claimable::handler),
-        )
-        .route(
-            "/quests/morphine/verify_quiz",
-            post(endpoints::quests::morphine::verify_quiz::handler),
         )
         .route(
             "/quests/morphine/verify_added_liquidity",
