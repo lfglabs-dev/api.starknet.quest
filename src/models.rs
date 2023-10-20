@@ -36,6 +36,7 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     disabled: bool,
     expiry: Option<bson::DateTime>,
     expiry_timestamp: Option<String>,
+    mandatory_domain: Option<String>,
 });
 
 pub_struct!(Deserialize; CompletedTasks {
