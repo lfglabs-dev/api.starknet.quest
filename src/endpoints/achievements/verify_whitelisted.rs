@@ -7,7 +7,7 @@ lazy_static::lazy_static! {
         Regex::new(r"Starknet Identity Journey").unwrap(),
         Regex::new(r"Starknet Exchange Journey").unwrap(),
         Regex::new(r"Starknet Mobile Journey").unwrap(),
-        Regex::new(r"(Starknet Journey Coin NFT|starknet-journey-coin)").unwrap()
+        Regex::new(r"(Starknet Journey Coin NFT|Starknet Journey Coin|starknet-journey-coin)").unwrap()
     ];
 }
 
