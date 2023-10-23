@@ -50,6 +50,10 @@ pub_struct!(Clone, Deserialize;  Braavos {
     api_key_claimed_mission: String,
 });
 
+pub_struct!(Clone, Deserialize;  Element {
+    api_key: String,
+});
+
 pub_struct!(Clone, Deserialize;  Quests {
     sithswap: Pairs,
     zklend: Contract,
@@ -57,6 +61,7 @@ pub_struct!(Clone, Deserialize;  Quests {
     ekubo: Contract,
     myswap: Contract,
     braavos: Braavos,
+    element: Element,
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {

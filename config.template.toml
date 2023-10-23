@@ -30,6 +30,8 @@ contract = "0xXXXXXXXXXXXX"
 [quests.braavos]
 api_key_user = "xxxxxx"
 api_key_claimed_mission = "xxxxxx"
+[quests.element]
+api_key = "xxxxxx"
 
 [twitter]
 oauth2_clientid = "xxxxxx"

@@ -271,6 +271,10 @@ async fn main() {
             get(endpoints::quests::focustree::claimable::handler),
         )
         .route(
+            "/quests/element/element/verify_is_eligible",
+            get(endpoints::quests::element::element::verify_is_eligible::handler),
+        )
+        .route(
             "/quests/element/element/verify_twitter_fw",
             get(endpoints::quests::element::element::verify_twitter_fw::handler),
         )

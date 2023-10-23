@@ -255,7 +255,7 @@ pub async fn handler(
         Some(22) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "Element Gem".into(),
+                name: "The Element Gem".into(),
                 description: "TO UPDATE".into(),
                 image: format!("{}/element/briq.webp", state.conf.variables.app_link),
                 attributes: None,
@@ -266,7 +266,7 @@ pub async fn handler(
         Some(23) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "Briq Gem".into(),
+                name: "The Briq Gem".into(),
                 description: "TO UPDATE".into(),
                 image: format!("{}/element/element.webp", state.conf.variables.app_link),
                 attributes: None,
