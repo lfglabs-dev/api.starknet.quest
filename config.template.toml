@@ -660,3 +660,55 @@ options = [
 ]
 correct_answers = [*]
 
+[quizzes.briq]
+name = "briquizz 🧱"
+desc = "briq is the Starknet project that allows to build anything you want as an NFT, using little construction blocks stored on the blockchain called 'briqs'. Take the quizz to check if you know all about this blocky project!"
+intro = "Ready? Set? Briq!"
+
+[[quizzes.briq.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What are briqs?"
+options = [
+    "Tokenized real estate shares", 
+    "ERC-1155 compatible construction blocks used to build NFTs", 
+    "ERC-20 tokens used to trade DeFi", 
+    "ERC-721 collectibles used as profile pictures"
+]
+correct_answers = [*]
+
+[[quizzes.briq.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What are sets?"
+options = [
+    "ERC-721 collectibles built with briqs", 
+    "ERC-1155 tokens used to build houses", 
+    "Tokenized real estate shares", 
+    "ERC-20 stablecoins"
+]
+correct_answers = [*]
+
+[[quizzes.briq.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the briq factory?"
+options = [
+    "A real factory, based in France, that produces physical bricks", 
+    "A secondary market to briqs", 
+    "A contract issuing briqs on the primary market, according to an emission schedule", 
+    "A marketplace to buy sets"
+]
+correct_answers = [*]
+
+[[quizzes.briq.questions]]
+kind = "text_choice"
+layout = "default"
+question = "When was briq deployed on Starknet mainnet for the 1st time?"
+options = [
+    "December 2021", 
+    "January 2020", 
+    "November 2022", 
+    "June 2023"
+]
+correct_answers = [*]

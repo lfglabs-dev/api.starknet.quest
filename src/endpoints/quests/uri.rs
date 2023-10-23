@@ -252,6 +252,28 @@ pub async fn handler(
         )
             .into_response(),
 
+        Some(22) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Element Gem".into(),
+                description: "TO UPDATE".into(),
+                image: format!("{}/element/briq.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
+        Some(23) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Briq Gem".into(),
+                description: "TO UPDATE".into(),
+                image: format!("{}/element/element.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }
