@@ -255,9 +255,9 @@ pub async fn handler(
         Some(22) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "The Element Gem".into(),
-                description: "TO UPDATE".into(),
-                image: format!("{}/element/briq.webp", state.conf.variables.app_link),
+                name: "The Element Gemstone".into(),
+                description: "An Element Gemstone NFT can be won for successfully finishing the Quest".into(),
+                image: format!("{}/element/elementGem.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
         )
@@ -266,9 +266,9 @@ pub async fn handler(
         Some(23) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "The Briq Gem".into(),
-                description: "TO UPDATE".into(),
-                image: format!("{}/element/element.webp", state.conf.variables.app_link),
+                name: "The Briq Element Gemstone".into(),
+                description: "A Briq Element Gemstone NFT can be won for successfully finishing the Quest".into(),
+                image: format!("{}/element/briqGem.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
         )

@@ -714,3 +714,44 @@ options = [
     "June 2023"
 ]
 correct_answers = [*]
+
+[quizzes.element]
+name = "Element - Gemstone Quest Quiz"
+desc = "Challenge your Element knowledge with our quiz for a chance to score an exclusive NFT prize."
+intro = "Embark on our Element Quest, complete the tasks, and claim an exclusive Gemstone NFT as your reward."
+
+[[quizzes.element.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is Element?"
+options = [
+    "A popular cryptocurrency exchange", 
+    "A mobile gaming app", 
+    "A community-driven aggregated marketplace for NFTs", 
+    "A new social media platform"
+]
+correct_answers = [*]
+
+[[quizzes.element.questions]]
+kind = "text_choice"
+layout = "default"
+question = " Which chain does Element NOT support currently?"
+options = [
+    "ETH", 
+    "ZkSync", 
+    "Starknet", 
+    "Solana"
+]
+correct_answers = [*]
+
+[[quizzes.element.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the right answer in the context of Element?"
+options = [
+    "Gas fee savings of up to 49% on NFT Trading.", 
+    "Gas increase of 35%", 
+    "Royalty payments instantly with 50% Gas", 
+    "Whale tracking for high Gas crypto trading"
+]
+correct_answers = [*]
