@@ -271,6 +271,30 @@ async fn main() {
             get(endpoints::quests::focustree::claimable::handler),
         )
         .route(
+            "/quests/element/element/verify_is_eligible",
+            get(endpoints::quests::element::element::verify_is_eligible::handler),
+        )
+        .route(
+            "/quests/element/element/verify_twitter_fw",
+            get(endpoints::quests::element::element::verify_twitter_fw::handler),
+        )
+        .route(
+            "/quests/element/element/claimable",
+            get(endpoints::quests::element::element::claimable::handler),
+        )
+        .route(
+            "/quests/element/briq/verify_own_briq",
+            get(endpoints::quests::element::briq::verify_own_briq::handler),
+        )
+        .route(
+            "/quests/element/briq/verify_twitter_fw",
+            get(endpoints::quests::element::briq::verify_twitter_fw::handler),
+        )
+        .route(
+            "/quests/element/briq/claimable",
+            get(endpoints::quests::element::briq::claimable::handler),
+        )
+        .route(
             "/achievements/verify_default",
             get(endpoints::achievements::verify_default::handler),
         )

@@ -24,6 +24,8 @@ fn get_task_id(quiz_name: &str) -> Option<u32> {
         "aa_mastery_2" => Some(59),
         "aa_mastery_3" => Some(60),
         "focustree" => Some(61),
+        "element" => Some(64),
+        "briq" => Some(67),
         _ => None,
     }
 }

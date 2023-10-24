@@ -252,6 +252,28 @@ pub async fn handler(
         )
             .into_response(),
 
+        Some(22) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "The Element Gemstone".into(),
+                description: "An Element Gemstone NFT can be won for successfully finishing the Quest".into(),
+                image: format!("{}/element/elementGem.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
+        Some(23) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "The Briq Element Gemstone".into(),
+                description: "A Briq Element Gemstone NFT can be won for successfully finishing the Quest".into(),
+                image: format!("{}/element/briqGem.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }
