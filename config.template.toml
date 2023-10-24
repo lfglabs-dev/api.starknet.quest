@@ -663,7 +663,7 @@ options = [
 correct_answers = [*]
 
 [quizzes.briq]
-name = "briquizz 🧱"
+name = "briquiz 🧱"
 desc = "briq is the Starknet project that allows to build anything you want as an NFT, using little construction blocks stored on the blockchain called 'briqs'. Take the quizz to check if you know all about this blocky project!"
 intro = "Ready? Set? Briq!"
 
