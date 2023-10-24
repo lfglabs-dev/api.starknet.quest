@@ -274,6 +274,17 @@ pub async fn handler(
         )
             .into_response(),
 
+        Some(24) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "The Layerswap Element Gemstone".into(),
+                description: "A Layerswap Element Gemstone NFT can be won for successfully finishing the Quest".into(),
+                image: format!("{}/element/layerswapGem.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }
