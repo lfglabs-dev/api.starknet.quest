@@ -105,14 +105,20 @@ pub_struct!(Debug, Serialize, Deserialize; AchievementCategoryDocument {
     img_url: String,
 });
 
-pub_struct!(Debug, Serialize, Deserialize; UserAchievements {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserAchievements {
     category_name: String,
     category_desc: String,
     category_img_url: String,
     category_type: String,
-    category_disabled: Option<bool>,
+    #[serde(default = "default_category_disabled")]
+    pub category_disabled: bool,
     achievements: Vec<UserAchievement>,
-});
+}
+
+pub fn default_category_disabled() -> bool {
+    false
+}
 
 pub_struct!(Debug, Serialize, Deserialize; UserAchievement {
     id: u32,

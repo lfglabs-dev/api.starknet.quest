@@ -113,7 +113,7 @@ pub async fn handler(
                 match result {
                     Ok(document) => {
                         if let Ok(achievement) = from_document::<UserAchievements>(document) {
-                            if !achievement.category_disabled.unwrap_or(false) {
+                            if !achievement.category_disabled {
                                 achievements.push(achievement);
                             }
                         }
