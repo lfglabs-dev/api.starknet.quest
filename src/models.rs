@@ -107,6 +107,7 @@ pub_struct!(Debug, Serialize, Deserialize; AchievementCategoryDocument {
 });
 
 pub_struct!(Debug, Serialize, Deserialize; UserAchievements {
+    category_id: u32,
     category_name: String,
     category_desc: String,
     category_img_url: String,
