@@ -285,6 +285,18 @@ pub async fn handler(
         )
             .into_response(),
 
+
+        Some(25) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "The Starknet.id Element Gemstone".into(),
+                description: "A Starknet.id Element Gemstone NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/element/starknetidGem.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+    
         _ => get_error("Error, this level is not correct".into()),
     }
 }

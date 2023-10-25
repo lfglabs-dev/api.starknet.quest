@@ -755,3 +755,44 @@ options = [
     "Whale tracking for high Gas crypto trading"
 ]
 correct_answers = [*]
+
+[quizzes.element_starknetid]
+name = "Starknet ID Tribe Quiz"
+desc = "Take part in our Starknet ID Tribe Quiz to test your knowledge, and you'll have a chance to win an exclusive Starknet ID Tribe NFT as your reward."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the Basics of how Starknet ID functions, enjoy and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.element_starknetid.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the primary purpose of Starknet.id?"
+options = [
+    "A social media platform",
+    "An online marketplace",
+    "An identity and naming protocol for Starknet",
+    "A gaming platform"
+]
+correct_answers = [*]
+
+[[quizzes.element_starknetid.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What extension do the domain names use on Starknet.id?"
+options = [
+    ".com",
+    ".stark",
+    ".crypto",
+    ".eth"
+]
+correct_answers = [*]
+
+[[quizzes.element_starknetid.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the purpose of the 'Proof of Personhood' (POP) verification in Starknet.id?"
+options = [
+    "To verify financial transactions",
+    "To prove ownership of digital assets",
+    "To verify that a user is a real human and a single person",
+    "To confirm the user's location"
+]
+correct_answers = [*]
