@@ -98,6 +98,9 @@ pub async fn handler(
             "_id": 0
           }
         },
+        doc! {
+            "$sort": { "category_id": 1 }
+        },
     ];
 
     match achievement_categories.aggregate(pipeline, None).await {
@@ -113,7 +116,6 @@ pub async fn handler(
                     _ => continue,
                 }
             }
-            achievements.sort_by(|a, b| a.category_id.cmp(&b.category_id));
             (StatusCode::OK, Json(achievements)).into_response()
         }
         Err(e) => get_error(format!("Error fetching user achievements: {}", e)),
