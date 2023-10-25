@@ -108,6 +108,7 @@ pub_struct!(Debug, Serialize, Deserialize; AchievementCategoryDocument {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UserAchievements {
+    category_id: u32,
     category_name: String,
     category_desc: String,
     category_img_url: String,
