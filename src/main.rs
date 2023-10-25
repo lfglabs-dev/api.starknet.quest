@@ -295,6 +295,22 @@ async fn main() {
             get(endpoints::quests::element::briq::claimable::handler),
         )
         .route(
+            "/quests/element/layerswap/verify_has_bridged",
+            get(endpoints::quests::element::layerswap::verify_has_bridged::handler),
+        )
+        .route(
+            "/quests/element/layerswap/verify_twitter_fw",
+            get(endpoints::quests::element::layerswap::verify_twitter_fw::handler),
+        )
+        .route(
+            "/quests/element/layerswap/verify_twitter_rt",
+            get(endpoints::quests::element::layerswap::verify_twitter_rt::handler),
+        )
+        .route(
+            "/quests/element/layerswap/claimable",
+            get(endpoints::quests::element::layerswap::claimable::handler),
+        )
+        .route(
             "/achievements/verify_default",
             get(endpoints::achievements::verify_default::handler),
         )

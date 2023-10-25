@@ -256,7 +256,7 @@ pub async fn handler(
             StatusCode::OK,
             Json(TokenURI {
                 name: "The Element Gemstone".into(),
-                description: "An Element Gemstone NFT can be won for successfully finishing the Quest".into(),
+                description: "An Element Gemstone NFT won for successfully finishing the Quest".into(),
                 image: format!("{}/element/elementGem.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
@@ -267,8 +267,19 @@ pub async fn handler(
             StatusCode::OK,
             Json(TokenURI {
                 name: "The Briq Element Gemstone".into(),
-                description: "A Briq Element Gemstone NFT can be won for successfully finishing the Quest".into(),
+                description: "A Briq Element Gemstone NFT won for successfully finishing the Quest".into(),
                 image: format!("{}/element/briqGem.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
+        Some(24) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "The Layerswap Element Gemstone".into(),
+                description: "A Layerswap Element Gemstone NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/element/layerswapGem.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
         )

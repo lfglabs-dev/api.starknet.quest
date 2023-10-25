@@ -48,7 +48,7 @@ pub async fn handler(
                     let duration = current_time - dt;
                     let days_passed = duration.num_days();
 
-                    if (achievement_id == 14 && days_passed >= 30)
+                    if (achievement_id == 14 && days_passed >= 90)
                         || (achievement_id == 15 && days_passed >= 180)
                         || (achievement_id == 16 && days_passed >= 365)
                     {
