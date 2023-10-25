@@ -311,6 +311,14 @@ async fn main() {
             get(endpoints::quests::element::layerswap::claimable::handler),
         )
         .route(
+            "/quests/element/starknetid/verify_has_root_domain",
+            get(endpoints::quests::element::starknetid::verify_has_root_domain::handler),
+        )
+        .route(
+            "/quests/element/starknetid/claimable",
+            get(endpoints::quests::element::starknetid::claimable::handler),
+        )
+        .route(
             "/achievements/verify_default",
             get(endpoints::achievements::verify_default::handler),
         )
