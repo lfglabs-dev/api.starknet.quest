@@ -56,6 +56,7 @@ pub async fn handler(
             "category_desc": "$desc",
             "category_img_url": "$img_url",
             "category_type": "$type",
+            "category_disabled": "$disabled",
             "achievements": {
               "id": "$achievement.id",
               "name": "$achievement.name",
@@ -82,7 +83,13 @@ pub async fn handler(
         },
         doc! {
           "$group": {
-            "_id": { "category_name": "$category_name", "category_desc": "$category_desc", "category_img_url": "$category_img_url", "category_type": "$category_type" },
+            "_id": {
+              "category_name": "$category_name",
+              "category_desc": "$category_desc",
+              "category_img_url": "$category_img_url",
+              "category_type": "$category_type",
+              "category_disabled": "$category_disabled",
+            },
             "achievements": { "$push": "$achievements" }
           }
         },
@@ -92,6 +99,7 @@ pub async fn handler(
             "category_desc": "$_id.category_desc",
             "category_img_url": "$_id.category_img_url",
             "category_type": "$_id.category_type",
+            "category_disabled": "$_id.category_disabled",
             "achievements": 1,
             "_id": 0
           }
@@ -105,7 +113,9 @@ pub async fn handler(
                 match result {
                     Ok(document) => {
                         if let Ok(achievement) = from_document::<UserAchievements>(document) {
-                            achievements.push(achievement);
+                            if !achievement.category_disabled {
+                                achievements.push(achievement);
+                            }
                         }
                     }
                     _ => continue,
