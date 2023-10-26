@@ -343,6 +343,10 @@ async fn main() {
             get(endpoints::achievements::verify_has_domain::handler),
         )
         .route(
+            "/achievements/verify_achieved_quests",
+            get(endpoints::achievements::verify_achieved_quests::handler),
+        )
+        .route(
             "/achievements/fetch",
             get(endpoints::achievements::fetch::handler),
         )
