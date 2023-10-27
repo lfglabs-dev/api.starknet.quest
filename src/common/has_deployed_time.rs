@@ -14,9 +14,8 @@ pub async fn execute_has_deployed_time(
 ) -> Result<u32, String> {
     // Check if we have already a result in the db
     let deployed_times_collection: Collection<DeployedTime> = state.db.collection("deployed_times");
-    let filter = doc! { "addr": addr.to_string() };
+    let filter = doc! { "addr": to_hex(*addr) };
     if let Ok(Some(document)) = deployed_times_collection.find_one(filter, None).await {
-        println!("Found deployed time in db: {:?}", document);
         return Ok(document.timestamp);
     }
 

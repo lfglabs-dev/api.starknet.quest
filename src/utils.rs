@@ -199,7 +199,7 @@ impl DeployedTimesTrait for AppState {
         let deployed_times_collection: Collection<CompletedTasks> =
             self.db.collection("deployed_times");
         let filter = doc! { "addr": addr.to_string() };
-        let update = doc! { "$setOnInsert": { "addr": addr.to_string(), "timestamp": timestamp } };
+        let update = doc! { "$setOnInsert": { "addr": to_hex(addr), "timestamp": timestamp } };
         let options = UpdateOptions::builder().upsert(true).build();
 
         let result = deployed_times_collection
