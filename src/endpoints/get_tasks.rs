@@ -82,21 +82,35 @@ pub async fn handler(
     let tasks_collection = state.db.collection::<Document>("tasks");
     match tasks_collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
-            let mut tasks: Vec<UserTask> = Vec::new();
+            let mut quiz_tasks: Vec<UserTask> = Vec::new();
+            let mut social_medias_tasks: Vec<UserTask> = Vec::new();
+            let mut default_tasks: Vec<UserTask> = Vec::new();
             while let Some(result) = cursor.next().await {
                 match result {
                     Ok(document) => {
                         if let Ok(task) = from_document::<UserTask>(document) {
-                            tasks.push(task);
+                            let endpoint_type = task.verify_endpoint_type.clone();
+                            match endpoint_type.as_str() {
+                                "quiz" => quiz_tasks.push(task),
+                                "default" => default_tasks.push(task),
+                                _ => social_medias_tasks.push(task),
+                            }
                         }
                     }
                     _ => continue,
                 }
             }
+            quiz_tasks.sort_by(|a, b| a.id.cmp(&b.id));
+            social_medias_tasks.sort_by(|a, b| a.id.cmp(&b.id));
+            default_tasks.sort_by(|a, b| a.id.cmp(&b.id));
+            let tasks: Vec<UserTask> = quiz_tasks
+                .into_iter()
+                .chain(default_tasks.into_iter())
+                .chain(social_medias_tasks.into_iter())
+                .collect();
             if tasks.is_empty() {
                 get_error("No tasks found for this quest_id".to_string())
             } else {
-                tasks.sort_by(|a, b| a.id.cmp(&b.id));
                 (StatusCode::OK, Json(tasks)).into_response()
             }
         }
