@@ -71,6 +71,10 @@ async fn main() {
         )
         .route("/get_tasks", get(endpoints::get_tasks::handler))
         .route(
+            "/get_deployed_time",
+            get(endpoints::get_deployed_time::handler),
+        )
+        .route(
             "/quests/verify_quiz",
             post(endpoints::quests::verify_quiz::handler),
         )
