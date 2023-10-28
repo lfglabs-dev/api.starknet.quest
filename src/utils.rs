@@ -179,3 +179,32 @@ impl AchievementsTrait for AppState {
         result
     }
 }
+
+#[async_trait]
+pub trait DeployedTimesTrait {
+    async fn upsert_deployed_timestamp(
+        &self,
+        addr: FieldElement,
+        timestamp: u32,
+    ) -> Result<UpdateResult, mongodb::error::Error>;
+}
+
+#[async_trait]
+impl DeployedTimesTrait for AppState {
+    async fn upsert_deployed_timestamp(
+        &self,
+        addr: FieldElement,
+        timestamp: u32,
+    ) -> Result<UpdateResult, mongodb::error::Error> {
+        let deployed_times_collection: Collection<CompletedTasks> =
+            self.db.collection("deployed_times");
+        let filter = doc! { "addr": addr.to_string() };
+        let update = doc! { "$setOnInsert": { "addr": to_hex(addr), "timestamp": timestamp } };
+        let options = UpdateOptions::builder().upsert(true).build();
+
+        let result = deployed_times_collection
+            .update_one(filter, update, options)
+            .await;
+        result
+    }
+}

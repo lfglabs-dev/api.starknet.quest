@@ -175,3 +175,8 @@ pub_struct!(Debug, Deserialize, Serialize; BuildingDocument {
     level: u32,
     img_url: String,
 });
+
+pub_struct!(Deserialize, Debug; DeployedTime {
+    addr: String,
+    timestamp: u32,
+});
