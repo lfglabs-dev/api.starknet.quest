@@ -119,6 +119,6 @@ pub async fn handler(
                 (StatusCode::OK, Json(tasks)).into_response()
             }
         }
-        Err(e) => get_error("Error querying tasks".to_string()),
+        Err(_) => get_error("Error querying tasks".to_string()),
     }
 }
