@@ -63,6 +63,26 @@ pub async fn handler(
         doc! { "$unwind": "$quest" },
         doc! { "$match": { "quest.disabled": false } },
         doc! {
+            "$addFields": {
+                "sort_order": doc! {
+                    "$switch": {
+                        "branches": [
+                            {
+                                "case": doc! { "$eq": ["$verify_endpoint_type", "quiz"] },
+                                "then": 1
+                            },
+                            {
+                                "case": doc! { "$eq": ["$verify_endpoint_type", "default"] },
+                                "then": 2
+                            }
+                        ],
+                        "default": 3
+                    }
+                }
+            }
+        },
+        doc! { "$sort": { "sort_order": 1 } },
+        doc! {
             "$project": {
                 "_id": 0,
                 "id": 1,
@@ -82,38 +102,26 @@ pub async fn handler(
     let tasks_collection = state.db.collection::<Document>("tasks");
     match tasks_collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
-            let mut quiz_tasks: Vec<UserTask> = Vec::new();
-            let mut social_medias_tasks: Vec<UserTask> = Vec::new();
-            let mut default_tasks: Vec<UserTask> = Vec::new();
+            let mut tasks: Vec<UserTask> = Vec::new();
             while let Some(result) = cursor.next().await {
                 match result {
                     Ok(document) => {
                         if let Ok(task) = from_document::<UserTask>(document) {
-                            let endpoint_type = task.verify_endpoint_type.clone();
-                            match endpoint_type.as_str() {
-                                "quiz" => quiz_tasks.push(task),
-                                "default" => default_tasks.push(task),
-                                _ => social_medias_tasks.push(task),
-                            }
+                            tasks.push(task);
                         }
                     }
                     _ => continue,
                 }
             }
-            quiz_tasks.sort_by(|a, b| a.id.cmp(&b.id));
-            social_medias_tasks.sort_by(|a, b| a.id.cmp(&b.id));
-            default_tasks.sort_by(|a, b| a.id.cmp(&b.id));
-            let tasks: Vec<UserTask> = quiz_tasks
-                .into_iter()
-                .chain(default_tasks.into_iter())
-                .chain(social_medias_tasks.into_iter())
-                .collect();
             if tasks.is_empty() {
                 get_error("No tasks found for this quest_id".to_string())
             } else {
                 (StatusCode::OK, Json(tasks)).into_response()
             }
         }
-        Err(_) => get_error("Error querying tasks".to_string()),
+        Err(e) => {
+            println!("Error querying tasks: {}", e);
+            get_error("Error querying tasks".to_string())
+        }
     }
 }
