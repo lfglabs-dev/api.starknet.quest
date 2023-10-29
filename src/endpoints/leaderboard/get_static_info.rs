@@ -24,8 +24,8 @@ pub struct GetCompletedQuestsQuery {
  -> get total users
  Steps to get data over time:
  1) iterate over one week timestamps and add total points and get top 3 and get user position
- 2) iterate over one week timestamps and add total points and get top 3 and get user position
- 3) iterate over one week timestamps and add total points and get top 3 and get user position
+ 2) iterate over one month timestamps and add total points and get top 3 and get user position
+ 3) iterate over one year timestamps and add total points and get top 3 and get user position
  */
 
 pub async fn handler(
