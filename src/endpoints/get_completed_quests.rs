@@ -82,6 +82,7 @@ pub async fn handler(
             while let Some(result) = cursor.try_next().await.unwrap() {
                 quests.push(result.get("quest_id").unwrap().as_i32().unwrap() as u32);
             }
+            print!("{:?}", quests);
             (StatusCode::OK, Json(quests)).into_response()
         }
         Err(_) => get_error("Error querying quests".to_string()),

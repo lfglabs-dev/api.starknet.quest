@@ -1,0 +1,1 @@
+pub mod get_static_info;
