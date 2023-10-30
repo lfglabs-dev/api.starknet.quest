@@ -6,18 +6,10 @@ use axum::{
 };
 
 use futures::TryStreamExt;
-use mongodb::bson::{doc, Document};
+use mongodb::bson::{doc, Document, Bson};
 use reqwest::StatusCode;
-use serde::{Deserialize, Serialize};
-use starknet::core::types::FieldElement;
 use std::sync::Arc;
-
-#[derive(Debug, Serialize, Deserialize)]
-
-pub struct GetCompletedQuestsQuery {
-    addr: FieldElement,
-}
-
+use chrono::{Duration, Utc};
 
 /*
  this endpoint will return static data for one address
@@ -28,29 +20,118 @@ pub struct GetCompletedQuestsQuery {
  3) iterate over one year timestamps and add total points and get top 3 and get user position
  */
 
+
+pub struct GetLeaderboardQuery {
+    addr: String,
+}
+
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    Query(query): Query<GetCompletedQuestsQuery>,
 ) -> impl IntoResponse {
-    let address = query.addr.to_string();
-    println!("{}", address);
-    let pipeline = vec![
+    let users_collection = state.db.collection::<Document>("user_exp");
+
+    // get total users
+    let total_users_pipeline = vec![
         doc! {
-            "$match": doc! {
-                "address": address
+            "$group": {
+                "_id": "$address",
             }
         },
-
     ];
-    let tasks_collection = state.db.collection::<Document>("user_exp");
-    match tasks_collection.aggregate(pipeline, None).await {
+
+    let mut total_users: i64 = 0; // Initialize with a value
+
+    match users_collection.aggregate(total_users_pipeline, None).await {
         Ok(mut cursor) => {
-            let mut quests: Vec<u32> = Vec::new();
             while let Some(result) = cursor.try_next().await.unwrap() {
-                quests.push(result.get("experience").unwrap().as_i32().unwrap() as u32);
+                total_users = total_users + 1;
             }
-            print!("{:?}", quests);
-            (StatusCode::OK, Json(quests)).into_response()
+            (StatusCode::OK, Json(total_users)).into_response()
+        }
+        Err(_) => get_error("Error querying quests".to_string()),
+    }
+
+    // iterate over weekly data
+    let one_week_ago = Utc::now() - Duration::days(7);
+
+    let weekly_pipeline = vec![
+        doc! {
+            "$match": {
+            // Filter documents with a date field greater than or equal to one week ago
+            "timestamp": {
+                    "$gte": Bson::DateTime(DateTime::<Utc>::from(one_week_ago)) }
+        }
+        },
+        doc! {
+            "$group": {
+                "_id": "$address",
+                "total_points": {
+                    "$sum": "$experience"
+                }
+            }
+        },
+    ];
+
+    match users_collection.aggregate(weekly_pipeline, None).await {
+        Ok(mut cursor) => {
+            while let Some(result) = cursor.try_next().await.unwrap() {
+                println!("weekly {}", result);
+            }
+            (StatusCode::OK, Json("hey")).into_response()
+        }
+        Err(_) => get_error("Error querying quests".to_string()),
+    }
+
+
+    // iterate over monthly data
+    let one_month_ago = Utc::now() - Duration::days(30);
+    let monthly_pipeline = vec![
+        doc! {
+            "$match": doc! {
+            // Filter documents with a date field greater than or equal to one month ago
+            "timestamp": doc!{
+                    "$gte": Bson::DateTime(DateTime::<Utc>::from(one_month_ago)) }
+        }
+        },
+        doc! {
+            "$group": doc!{
+                "_id": "$address",
+                "total_points": doc!{
+                    "$sum": "$experience"
+                }
+            }
+        },
+    ];
+
+    match users_collection.aggregate(monthly_pipeline, None).await {
+        Ok(mut cursor) => {
+            while let Some(result) = cursor.try_next().await.unwrap() {
+                println!("monthly {}", result);
+            }
+            (StatusCode::OK, Json("hey")).into_response()
+        }
+        Err(_) => get_error("Error querying quests".to_string()),
+    }
+
+
+    // iterate over all time data
+    let all_time_pipeline = vec![
+        doc! {
+            "$group": doc! {
+                "_id": "$address",
+                "total_points": doc!{
+                    "$sum": "$experience"
+                }
+            }
+        },
+    ];
+
+    match users_collection.aggregate(all_time_pipeline, None).await {
+        Ok(mut cursor) => {
+            while let Some(result) = cursor.try_next().await.unwrap() {
+                println!("all time {}", result);
+            }
+            (StatusCode::OK, Json("hey")).into_response()
         }
         Err(_) => get_error("Error querying quests".to_string()),
     }

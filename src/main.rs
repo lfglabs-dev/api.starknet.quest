@@ -40,6 +40,10 @@ async fn main() {
         .await
         .is_err()
     {
+        shared_state
+            .db
+            .run_command(doc! {"ping": 1}, None)
+            .await.expect("TODO: panic message");
         println!("error: unable to connect to database");
         return;
     } else {
@@ -326,7 +330,7 @@ async fn main() {
             "/achievements/fetch_buildings",
             get(endpoints::achievements::fetch_buildings::handler),
         )
-        .route("/leaderboard/get_static_info", get(endpoints::get_quests::handler))
+        .route("/leaderboard/get_static_info", get(endpoints::leaderboard::get_static_info::handler))
 
         .with_state(shared_state)
         .layer(cors);
