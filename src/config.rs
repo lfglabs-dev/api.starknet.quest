@@ -26,7 +26,7 @@ pub_struct!(Clone, Deserialize;  Variables {
 
 pub_struct!(Clone, Deserialize; StarknetIdContracts {
     naming_contract: FieldElement,
-    verifier_contract: FieldElement,
+    verifier_contracts: Vec<FieldElement>,
     identity_contract: FieldElement,
 });
 

@@ -11,7 +11,7 @@ private_key = "1"
 
 [starknetid_contracts]
 naming_contract = "0xXXXXXXXXXXXX"
-verifier_contract = "0xXXXXXXXXXXXX"
+verifier_contracts = [ "0xXXXXXXXXXXXX" ]
 identity_contract = "0xXXXXXXXXXXXX"
 
 [quests]
