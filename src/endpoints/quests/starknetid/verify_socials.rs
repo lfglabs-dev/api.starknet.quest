@@ -106,7 +106,7 @@ pub async fn handler(
                 Ok(_) => Ok((StatusCode::OK, Json(json!({"res": true})))),
                 Err(e) => Err(e.to_string()),
             }
-        } else if twitter{
+        } else if !twitter{
             Err("You have not verified your Twitter account".to_string())
         } else {
             Err("You have not verified your Discord account".to_string())
