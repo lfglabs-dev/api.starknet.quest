@@ -42,9 +42,6 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
             ]
         },
         {
-            "disabled": false
-        },
-        {
             "hidden": false
         }
     ]
