@@ -21,7 +21,7 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
-    let task_id = 44;
+    let task_id = 76;
     let addr = &query.addr;
 
     // check if user has provider liquidity
@@ -30,7 +30,7 @@ pub async fn handler(
         .call(
             FunctionCall {
                 contract_address: state.conf.quests.myswap.contract,
-                entry_point_selector: selector!("balanceOf"),
+                entry_point_selector: selector!("balance_of"),
                 calldata: vec![*addr],
             },
             BlockId::Tag(BlockTag::Latest),
@@ -39,7 +39,7 @@ pub async fn handler(
 
     match call_result {
         Ok(result) => {
-            if result[0] == FieldElement::ZERO {
+            if result[0] == FieldElement::ZERO && result[1] == FieldElement::ZERO {
                 get_error("You haven't provided any liquidity on MySwap.".to_string())
             } else {
                 match state.upsert_completed_task(query.addr, task_id).await {
