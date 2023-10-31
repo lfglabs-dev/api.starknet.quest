@@ -7,11 +7,9 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
-use chrono::Utc;
 use futures::StreamExt;
-use futures::TryStreamExt;
-use mongodb::bson;
 use mongodb::bson::doc;
+use mongodb::bson::from_document;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -22,55 +20,46 @@ pub struct NFTItem {
 }
 
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    let collection = state.db.collection::<QuestDocument>("quests");
-    let current_timestamp = bson::DateTime::from_millis(Utc::now().timestamp_millis());
-    let filter = doc! {
-        "$and": [
-        {
-            "$or": [
-                {
-                    "expiry": {
-                        "$exists": false
-                    }
-                },
-                {
-                    "expiry": {
-                        "$gt": current_timestamp
-                    }
-                }
-            ]
-        },
-        {
-            "disabled": false
-        },
-        {
-            "hidden": false
-        },
-        {
-            "is_trending": true
-        }
-    ]
-    };
-    match collection.find(Some(filter), None).await {
-        Ok(cursor) => {
-            let quests: Vec<QuestDocument> = cursor
-                .map(|result| {
-                    result.map(|mut quest: QuestDocument| {
-                        if let Some(expiry) = &quest.expiry {
-                            let timestamp = expiry.timestamp_millis().to_string();
-                            quest.expiry_timestamp = Some(timestamp);
-                        }
-                        quest
-                    })
-                })
-                .try_collect()
-                .await
-                .unwrap_or_else(|_| vec![]);
-            if quests.is_empty() {
-                get_error("No quests found".to_string())
-            } else {
-                (StatusCode::OK, Json(quests)).into_response()
+    let pipeline = vec![
+        doc! {
+            "$match": {
+                "disabled": false,
+                "hidden": false,
+                "is_trending": true,
             }
+        },
+        doc! {
+            "$addFields": {
+                "expired": {
+                    "$cond": [
+                        {
+                            "$and": [
+                                { "$gte": ["$expiry", 0] },
+                                { "$lt": ["$expiry", "$$NOW"] },
+                            ]
+                        },
+                        true,
+                        false
+                    ]
+                }
+            }
+        },
+    ];
+    let collection = state.db.collection::<QuestDocument>("quests");
+    match collection.aggregate(pipeline, None).await {
+        Ok(mut cursor) => {
+            let mut quests: Vec<QuestDocument> = Vec::new();
+            while let Some(result) = cursor.next().await {
+                match result {
+                    Ok(document) => {
+                        if let Ok(quest) = from_document::<QuestDocument>(document) {
+                            quests.push(quest);
+                        }
+                    }
+                    _ => continue,
+                }
+            }
+            (StatusCode::OK, Json(quests)).into_response()
         }
         Err(_) => get_error("Error querying quests".to_string()),
     }
