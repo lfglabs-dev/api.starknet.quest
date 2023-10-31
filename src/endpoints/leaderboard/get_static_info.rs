@@ -7,10 +7,11 @@ use axum::{
 };
 
 use futures::TryStreamExt;
-use mongodb::bson::{doc, Document, Bson, bson};
+use mongodb::bson::{doc, Document, Bson};
 use reqwest::StatusCode;
 use std::sync::Arc;
-use chrono::{DateTime, Duration, Utc};
+use chrono::{Duration, Utc};
+use mongodb::Collection;
 
 /*
  this endpoint will return static data for one address
@@ -26,11 +27,9 @@ pub struct GetLeaderboardQuery {
     addr: String,
 }
 
-pub async fn handler(
-    State(state): State<Arc<AppState>>,
-) -> impl IntoResponse {
-    let users_collection = state.db.collection::<Document>("user_exp");
-
+pub async fn get_total_users(
+    collection: &Collection<Document>,
+) -> Bson {
     // get total users
     let total_users_pipeline = vec![
         doc! {
@@ -41,63 +40,39 @@ pub async fn handler(
         doc! { "$count": "total_users" },
     ];
 
-    match users_collection.aggregate(total_users_pipeline, None).await {
+    match collection.aggregate(total_users_pipeline, None).await {
         Ok(mut cursor) => {
             let mut total_users: Bson = Bson::Null;
-            while let Some(result)  = &cursor.try_next().await.unwrap(){
-                total_users= Bson::from(result.get("total_users").unwrap());
+            while let Some(result) = &cursor.try_next().await.unwrap() {
+                total_users = Bson::from(result.get("total_users").unwrap());
             }
-            (StatusCode::OK, Json(total_users)).into_response()
+            return total_users;
         }
-        Err(_) => get_error("Error querying quests".to_string()),
+        Err(_) => return Bson::Null,
+    }
+}
+
+
+pub async fn get_leaderboard_toppers(
+    collection: &Collection<Document>,
+    days: i64
+) -> Bson {
+    let mut time_gap= 0;
+
+    // get time gap
+    if (days > 0){
+        let gap_limit = Utc::now() - Duration::days(days);
+        time_gap = gap_limit.timestamp_millis();
     }
 
-    // iterate over weekly data
-    let one_week_ago = Utc::now() - Duration::days(7);
-    let one_week_unix = one_week_ago.timestamp_millis();
-    let weekly_pipeline = vec![
-        doc! {
-            "$match": doc!{
-            // Filter documents with a date field greater than or equal to one week ago
-            "timestamp": doc! {
-                    "$gte": one_week_unix
-                }
-        }
-        },
-        doc! {
-            "$group": doc!{
-                "_id": "$address",
-                "total_points": doc!{
-                    "$sum": "$experience"
-                }
-            }
-        },
-        doc! { "$sort" : doc! { "total_points" : -1 } },
-        doc! { "$limit": 3 },
-    ];
-
-    match users_collection.aggregate(weekly_pipeline, None).await {
-        Ok(mut cursor) => {
-            while let Some(result) = cursor.try_next().await.unwrap() {
-                println!("weekly {}", result);
-            }
-            (StatusCode::OK, Json("hey")).into_response()
-        }
-        Err(_) => get_error("Error querying quests".to_string()),
-    }
-
-
-    // iterate over monthly data
-    let one_month_ago = Utc::now() - Duration::days(7);
-    let one_month_unix = one_month_ago.timestamp_millis();
-    let monthly_pipeline = vec![
+    let leaderboard_pipeline = vec![
         doc! {
             "$match": doc! {
             // Filter documents with a date field greater than or equal to one month ago
             "timestamp": doc!{
-                    "$gte": one_month_unix
-    }
-        }
+                    "$gte": time_gap
+                }
+            }
         },
         doc! {
             "$group": doc!{
@@ -111,38 +86,40 @@ pub async fn handler(
         doc! { "$limit": 3 },
     ];
 
-    match users_collection.aggregate(monthly_pipeline, None).await {
+
+    match collection.aggregate(leaderboard_pipeline, None).await {
         Ok(mut cursor) => {
+            let mut query_result = Vec::new();
             while let Some(result) = cursor.try_next().await.unwrap() {
-                println!("monthly {}", result);
+                query_result.push(result)
             }
-            (StatusCode::OK, Json("hey")).into_response()
+            return query_result.into();
         }
-        Err(_) => get_error("Error querying quests".to_string()),
+        Err(_) => return Bson::Null,
     }
+}
+
+pub async fn handler(
+    State(state): State<Arc<AppState>>,
+) -> impl IntoResponse {
+    let users_collection = state.db.collection::<Document>("user_exp");
+
+    let total_users = get_total_users(&users_collection).await;
+    let weekly_toppers = get_leaderboard_toppers(&users_collection, 7).await;
+    let monthly_toppers = get_leaderboard_toppers(&users_collection, 30).await;
+    let all_time_toppers = get_leaderboard_toppers(&users_collection, -1).await;
 
 
+    println!("total_users: {:?}", total_users);
+    println!("weekly_toppers: {:?}", weekly_toppers);
+    println!("monthly_toppers: {:?}", monthly_toppers);
+    println!("all_time_toppers: {:?}", all_time_toppers);
 
-
-    // iterate over all time data
-    let all_time_pipeline = vec![
-        doc! {
-            "$group": doc! {
-                "_id": "$address",
-                "total_points": doc!{
-                    "$sum": "$experience"
-                }
-            }
-        },
-        doc! { "$sort" : doc! { "total_points" : -1 } },
-        doc! { "$limit": 3 },
-    ];
-
-    match users_collection.aggregate(all_time_pipeline, None).await {
+    match all_time_toppers {
         Ok(mut cursor) => {
-           let mut all_time: Vec<Document> = Vec::new();
+            let mut all_time: Vec<Document> = Vec::new();
             while let Some(result) = cursor.try_next().await.unwrap() {
-                all_time.push(result)
+                all_time.push(result).unwrap();
             }
             (StatusCode::OK, Json(all_time)).into_response()
         }
