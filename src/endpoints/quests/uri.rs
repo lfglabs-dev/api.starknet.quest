@@ -300,9 +300,9 @@ pub async fn handler(
         Some(26) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "Starknet Pro Score x MySwap Quest NFT".into(),
-                description: "This Starknet commemorative Non-Fungible Token represents the first step into the Starknet universe. By getting a Stark domain name and becoming a Whisperer of Braavos, you are building solid foundations for your Starknet experience.".into(),
-                image: format!("{}/braavos/starknetid.webp", state.conf.variables.app_link),
+                name: "Starknet Pro Score x mySwap Quest NFT".into(),
+                description: "This Starknet commemorative Non-Fungible Token represents the first steps into the Starknet universe. By using mySwap and becoming a Whisperer of Braavos, you are building solid foundations for your Starknet experience.".into(),
+                image: format!("{}/braavos/myswap.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
         )
