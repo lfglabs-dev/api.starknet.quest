@@ -263,6 +263,26 @@ async fn main() {
             get(endpoints::quests::braavos::starknetid::claimable::handler),
         )
         .route(
+            "/quests/braavos/myswap/claimable",
+            get(endpoints::quests::braavos::myswap::claimable::handler),
+        )
+        .route(
+            "/quests/braavos/myswap/verify_has_domain",
+            get(endpoints::quests::braavos::myswap::verify_has_domain::handler),
+        )
+        .route(
+            "/quests/braavos/myswap/verify_added_liquidity",
+            get(endpoints::quests::braavos::myswap::verify_added_liquidity::handler),
+        )
+        .route(
+            "/quests/braavos/myswap/verify_twitter_fw_braavos",
+            get(endpoints::quests::braavos::myswap::verify_twitter_fw_braavos::handler),
+        )
+        .route(
+            "/quests/braavos/myswap/verify_twitter_fw_myswap",
+            get(endpoints::quests::braavos::myswap::verify_twitter_fw_myswap::handler),
+        )
+        .route(
             "/quests/focustree/verify_twitter_fw",
             get(endpoints::quests::focustree::verify_twitter_fw::handler),
         )
