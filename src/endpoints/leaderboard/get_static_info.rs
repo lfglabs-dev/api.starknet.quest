@@ -1,3 +1,4 @@
+use std::result;
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
@@ -6,10 +7,10 @@ use axum::{
 };
 
 use futures::TryStreamExt;
-use mongodb::bson::{doc, Document, Bson};
+use mongodb::bson::{doc, Document, Bson, bson};
 use reqwest::StatusCode;
 use std::sync::Arc;
-use chrono::{Duration, Utc};
+use chrono::{DateTime, Duration, Utc};
 
 /*
  this endpoint will return static data for one address
@@ -37,14 +38,14 @@ pub async fn handler(
                 "_id": "$address",
             }
         },
+        doc! { "$count": "total_users" },
     ];
-
-    let mut total_users: i64 = 0; // Initialize with a value
 
     match users_collection.aggregate(total_users_pipeline, None).await {
         Ok(mut cursor) => {
-            while let Some(result) = cursor.try_next().await.unwrap() {
-                total_users = total_users + 1;
+            let mut total_users: Bson = Bson::Null;
+            while let Some(result)  = &cursor.try_next().await.unwrap(){
+                total_users= Bson::from(result.get("total_users").unwrap());
             }
             (StatusCode::OK, Json(total_users)).into_response()
         }
@@ -53,23 +54,26 @@ pub async fn handler(
 
     // iterate over weekly data
     let one_week_ago = Utc::now() - Duration::days(7);
-
+    let one_week_unix = one_week_ago.timestamp_millis();
     let weekly_pipeline = vec![
         doc! {
-            "$match": {
+            "$match": doc!{
             // Filter documents with a date field greater than or equal to one week ago
-            "timestamp": {
-                    "$gte": Bson::DateTime(DateTime::<Utc>::from(one_week_ago)) }
+            "timestamp": doc! {
+                    "$gte": one_week_unix
+                }
         }
         },
         doc! {
-            "$group": {
+            "$group": doc!{
                 "_id": "$address",
-                "total_points": {
+                "total_points": doc!{
                     "$sum": "$experience"
                 }
             }
         },
+        doc! { "$sort" : doc! { "total_points" : -1 } },
+        doc! { "$limit": 3 },
     ];
 
     match users_collection.aggregate(weekly_pipeline, None).await {
@@ -84,13 +88,15 @@ pub async fn handler(
 
 
     // iterate over monthly data
-    let one_month_ago = Utc::now() - Duration::days(30);
+    let one_month_ago = Utc::now() - Duration::days(7);
+    let one_month_unix = one_month_ago.timestamp_millis();
     let monthly_pipeline = vec![
         doc! {
             "$match": doc! {
             // Filter documents with a date field greater than or equal to one month ago
             "timestamp": doc!{
-                    "$gte": Bson::DateTime(DateTime::<Utc>::from(one_month_ago)) }
+                    "$gte": one_month_unix
+    }
         }
         },
         doc! {
@@ -101,6 +107,8 @@ pub async fn handler(
                 }
             }
         },
+        doc! { "$sort" : doc! { "total_points" : -1 } },
+        doc! { "$limit": 3 },
     ];
 
     match users_collection.aggregate(monthly_pipeline, None).await {
@@ -114,6 +122,8 @@ pub async fn handler(
     }
 
 
+
+
     // iterate over all time data
     let all_time_pipeline = vec![
         doc! {
@@ -124,14 +134,17 @@ pub async fn handler(
                 }
             }
         },
+        doc! { "$sort" : doc! { "total_points" : -1 } },
+        doc! { "$limit": 3 },
     ];
 
     match users_collection.aggregate(all_time_pipeline, None).await {
         Ok(mut cursor) => {
+           let mut all_time: Vec<Document> = Vec::new();
             while let Some(result) = cursor.try_next().await.unwrap() {
-                println!("all time {}", result);
+                all_time.push(result)
             }
-            (StatusCode::OK, Json("hey")).into_response()
+            (StatusCode::OK, Json(all_time)).into_response()
         }
         Err(_) => get_error("Error querying quests".to_string()),
     }
