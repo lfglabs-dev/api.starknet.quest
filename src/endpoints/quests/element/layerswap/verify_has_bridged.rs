@@ -10,7 +10,6 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use chrono::{DateTime, Duration, Utc};
 use serde::Deserialize;
 use serde_json::json;
 
@@ -23,7 +22,6 @@ struct LayerswapResponse {
 #[derive(Debug, Deserialize)]
 struct DataEntry {
     status: String,
-    created_date: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -41,7 +39,6 @@ pub async fn handler(
         to_hex(query.addr)
     );
 
-    let three_months_ago = Utc::now() - Duration::days(90);
     let client = reqwest::Client::new();
     let response_result = client.get(url).send().await;
     match response_result {
@@ -52,12 +49,13 @@ pub async fn handler(
                 }
 
                 // Check if there is data and if any entry has "completed" status & was made in the last 3 months
-                if res.data.as_ref().unwrap_or(&vec![]).iter().any(|entry| {
-                    entry.status == "completed"
-                        && DateTime::parse_from_rfc3339(&entry.created_date)
-                            .unwrap_or(Utc::now().into())
-                            >= three_months_ago
-                }) {
+                if res
+                    .data
+                    .as_ref()
+                    .unwrap_or(&vec![])
+                    .iter()
+                    .any(|entry| entry.status == "completed")
+                {
                     match state.upsert_completed_task(query.addr, task_id).await {
                         Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
                         Err(e) => get_error(format!("{}", e)),
