@@ -41,7 +41,7 @@ pub async fn get_leaderboard_toppers(
         doc! {
             "$match": doc! {
             // Filter documents with a date field greater than or equal to one month ago
-            "timestamp": doc!{
+            "timestamp": doc! {
                     "$gte": time_gap
                 }
             }
@@ -64,6 +64,8 @@ pub async fn get_leaderboard_toppers(
             ],
                 //getting the total number of users
             "totalUsers": vec![doc!{ "$count": "total" }],
+
+                //getting the rank of the user
                 "rank": vec![
                          doc! {
             "$group": {
@@ -112,7 +114,6 @@ pub async fn get_leaderboard_toppers(
                     "$first":"$rank.rank"
 
                     }
-
         },
         },
     ];

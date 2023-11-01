@@ -11,8 +11,6 @@
 (last_index === -1 then no previous page && last_index === total.documents.length then no next page)
  */
 
-// TODO: get paginated data
-
 use crate::{models::AppState};
 use axum::{
     extract::{Query, State},
@@ -137,6 +135,15 @@ pub async fn handler(
         doc! {
             "$unwind": doc! {
             "path": "$docs",
+                "includeArrayIndex": "rownum",
+
+        },
+        },
+        doc! {
+            "$addFields": {
+            "docs.rank": {
+                "$add": ["$rownum", 1],
+            },
         },
         },
         doc! {
@@ -144,15 +151,31 @@ pub async fn handler(
             "newRoot": "$docs",
         }
         },
+        doc! {
+          "$match": doc!{
+            "rank":doc!{
+              "$gte":0,
+              "$lte":10
+            }
+          }
+        },
+        doc! {
+           "$project":{
+                "_id":0,
+                "address":"$_id",
+                "total_points":1,
+            }
+        }
     ];
 
 
     match users_collection.aggregate(paginated_leaderboard_pipeline, None).await {
         Ok(mut cursor) => {
+            let mut quest = Vec::new();
             while let Some(result) = cursor.try_next().await.unwrap() {
-                println!("result: {}", result);
+                quest.push(result);
             }
-            (StatusCode::OK, Json("ehy")).into_response()
+            (StatusCode::OK, Json(quest)).into_response()
         }
         Err(_) => get_error("Error querying quests".to_string()),
     }
