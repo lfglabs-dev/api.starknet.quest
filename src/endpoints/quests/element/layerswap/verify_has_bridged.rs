@@ -38,6 +38,7 @@ pub async fn handler(
         "https://bridge-api.layerswap.io/api/explorer/{}",
         to_hex(query.addr)
     );
+
     let client = reqwest::Client::new();
     let response_result = client.get(url).send().await;
     match response_result {
@@ -47,7 +48,7 @@ pub async fn handler(
                     return get_error(format!("Received error from Layerswap: {}", err.message));
                 }
 
-                // Check if there is data and if any entry has "completed" status
+                // Check if there is data and if any entry has "completed" status & was made in the last 3 months
                 if res
                     .data
                     .as_ref()
