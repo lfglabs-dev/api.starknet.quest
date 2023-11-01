@@ -53,6 +53,8 @@ pub async fn handler(
             if let Some(expiry) = &quest.expiry {
                 let timestamp = expiry.timestamp_millis().to_string();
                 quest.expiry_timestamp = Some(timestamp);
+                let current_timestamp = bson::DateTime::from_millis(Utc::now().timestamp_millis());
+                quest.expired = Some(expiry < &current_timestamp);
             }
             (StatusCode::OK, Json(quest)).into_response()
         }
