@@ -5,6 +5,7 @@ use axum::{extract::State, http::StatusCode};
 use futures::stream::StreamExt;
 use mongodb::bson::{doc, from_document};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::sync::Arc;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -53,7 +54,21 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                     _ => continue,
                 }
             }
-            (StatusCode::OK, Json(quests)).into_response()
+            let mut res: HashMap<String, Vec<QuestDocument>> = HashMap::new();
+            for quest in quests {
+                let category = quest.category.clone();
+                if res.contains_key(&category) {
+                    let quests = res.get_mut(&category).unwrap();
+                    quests.push(quest);
+                } else {
+                    res.insert(category, vec![quest]);
+                }
+            }
+            if res.is_empty() {
+                get_error("No quests found".to_string())
+            } else {
+                (StatusCode::OK, Json(res)).into_response()
+            }
         }
         Err(_) => get_error("Error querying quests".to_string()),
     }
