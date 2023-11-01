@@ -7,11 +7,9 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
-use chrono::Utc;
 use futures::StreamExt;
-use futures::TryStreamExt;
-use mongodb::bson;
 use mongodb::bson::doc;
+use mongodb::bson::from_document;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -55,7 +53,11 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
             while let Some(result) = cursor.next().await {
                 match result {
                     Ok(document) => {
-                        if let Ok(quest) = from_document::<QuestDocument>(document) {
+                        if let Ok(mut quest) = from_document::<QuestDocument>(document) {
+                            if let Some(expiry) = &quest.expiry {
+                                let timestamp = expiry.timestamp_millis().to_string();
+                                quest.expiry_timestamp = Some(timestamp);
+                            }
                             quests.push(quest);
                         }
                     }
