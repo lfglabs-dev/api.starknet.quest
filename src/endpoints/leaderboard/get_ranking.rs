@@ -84,43 +84,43 @@ pub async fn handler(
 
     let sort_documents_in_descending_order = doc! { "$sort" : doc! { "total_points" : -1 ,"timestamp":1} };
 
-    let user_rank_pipeline = vec![
-        collect_documents_within_timeframe,
-        group_users_by_points_pipeline,
-        sort_documents_in_descending_order,
-        doc! {
-            "$group": {
-            "_id": null,
-            "docs": doc! {
-                "$push": "$$ROOT",
-            },
-        },
-        },
-        doc! {
-            "$unwind": doc! {
-            "path": "$docs",
-            "includeArrayIndex": "rownum",
-        },
-        },
-        doc! {
-            "$match": doc! {
-            "docs._id":
-            address,
-        },
-        },
-        doc! {
-            "$addFields": doc! {
-            "docs.rank": doc! {
-                "$add": ["$rownum", 1],
-            },
-        },
-        },
-        doc! {
-            "$replaceRoot": doc! {
-            "newRoot": "$docs",
-        }
-        },
-    ];
+    // let user_rank_pipeline = vec![
+    //     collect_documents_within_timeframe,
+    //     group_users_by_points_pipeline,
+    //     sort_documents_in_descending_order,
+    //     doc! {
+    //         "$group": {
+    //         "_id": null,
+    //         "docs": doc! {
+    //             "$push": "$$ROOT",
+    //         },
+    //     },
+    //     },
+    //     doc! {
+    //         "$unwind": doc! {
+    //         "path": "$docs",
+    //         "includeArrayIndex": "rownum",
+    //     },
+    //     },
+    //     doc! {
+    //         "$match": doc! {
+    //         "docs._id":
+    //         address,
+    //     },
+    //     },
+    //     doc! {
+    //         "$addFields": doc! {
+    //         "docs.rank": doc! {
+    //             "$add": ["$rownum", 1],
+    //         },
+    //     },
+    //     },
+    //     doc! {
+    //         "$replaceRoot": doc! {
+    //         "newRoot": "$docs",
+    //     }
+    //     },
+    // ];
 
     let paginated_leaderboard_pipeline = [
         collect_documents_within_timeframe,
