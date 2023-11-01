@@ -331,6 +331,7 @@ async fn main() {
             get(endpoints::achievements::fetch_buildings::handler),
         )
         .route("/leaderboard/get_static_info", get(endpoints::leaderboard::get_static_info::handler))
+        .route("/leaderboard/get_ranking", get(endpoints::leaderboard::get_ranking::handler))
 
         .with_state(shared_state)
         .layer(cors);
