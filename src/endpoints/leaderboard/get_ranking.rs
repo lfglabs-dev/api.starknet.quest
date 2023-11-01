@@ -11,6 +11,57 @@
 (last_index === -1 then no previous page && last_index === total.documents.length then no next page)
  */
 
+/*
+handle pagination
+
+Scenarios:
+input - 13
+range - 9 -18
+
+input -20
+range - 15-25
+
+input 18
+range 13-23
+
+input 25
+range 20-30
+
+Placing element in center =>
+-> set range as (rank-((page_size/2)-1))) to (rank+page_size/2)
+-> handle navigation  by adding the shift to the range and navigate backwards and forwards
+
+*/
+
+pub fn get_default_range(num: i64, page_size: i64, total_users: i64) -> (i64, i64) {
+    let mut lower_range: i64 = 0;
+    let mut upper_range: i64 = 0;
+
+    // if rank is in top 5 then return default range
+    if num <= page_size / 2 {
+        lower_range = 1;
+        upper_range = page_size;
+    }
+
+    // if rank is in bottom 5 then return default range
+    else if num >= (total_users - page_size / 2) {
+        lower_range = total_users - page_size;
+        upper_range = total_users;
+    }
+
+    // if rank is in middle then return modified range where rank will be placed in middle of page
+    else {
+        lower_range = num - (page_size / 2 - 1);
+        upper_range = match num + (page_size / 2) > total_users {
+            true => total_users,
+            false => num + (page_size / 2),
+        };
+    }
+
+    return (lower_range, upper_range);
+}
+
+
 use crate::{models::AppState};
 use axum::{
     extract::{Query, State},
@@ -30,8 +81,9 @@ use crate::utils::get_error;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetCompletedQuestsQuery {
     addr: FieldElement,
-    page_size: i32,
-    shift: i32,
+    page_size: i64,
+    shift: i64,
+    num: i64,
 }
 
 pub async fn handler(
@@ -41,17 +93,58 @@ pub async fn handler(
     let address = query.addr.to_string();
     let page_size = query.page_size;
     let shift = query.shift;
+    let num = query.num;
     let days = 7; //TODO: add dynamic days
-
     let total_users = 46;
-    let mut total_pages = total_users / page_size;
-    if (total_users % page_size != 0) {
-        total_pages = (total_users / page_size) + 1;
+
+    let mut lower_range: i64 = 0;
+    let mut upper_range: i64 = 0;
+
+    // get user position and get range to get page for showing user position
+    if shift == 0 {
+        (lower_range, upper_range) = get_default_range(num, page_size, total_users);
     }
+
+    // get user position and set range if shift
+    else {
+        let (default_lower_range, default_upper_range) = get_default_range(num, page_size, total_users);
+
+        /*
+        -> calculate shift in elements needed.
+        -> The sign is considered here so the value will be negative or positive depending on shift.
+        -> If we want to move to next page then shift will be positive
+        -> if we want to move to previous page then shift will be negative.
+         */
+        let shift_in_elements = shift * page_size;
+
+
+        /*
+        -> if lower range becomes negative then set it to 0
+        -> if lower range becomes greater than total users then set it to total users - page_size to show last page.
+        -> else set lower range to default lower range + shift in elements
+         */
+        if default_lower_range + shift_in_elements < 0 {
+            lower_range = 0;
+        } else if default_lower_range + shift_in_elements >= total_users {
+            lower_range = total_users - page_size;
+        } else {
+            lower_range = default_lower_range + shift_in_elements;
+        }
+
+        /*
+          set upper range
+          -> if upper range becomes greater than total users then set it to total users
+           -> else set upper range to lower range + shift in elements
+         */
+        upper_range = match lower_range + page_size > total_users {
+            true => total_users,
+            false => lower_range + page_size,
+        };
+    }
+
     let users_collection = state.db.collection::<Document>("user_exp");
 
     let mut time_gap = 0;
-
     // get time gap
     if (days > 0) {
         let gap_limit = Utc::now() - Duration::days(days);
@@ -154,8 +247,8 @@ pub async fn handler(
         doc! {
           "$match": doc!{
             "rank":doc!{
-              "$gte":0,
-              "$lte":10
+              "$gte":lower_range,
+              "$lte":upper_range
             }
           }
         },
@@ -164,6 +257,7 @@ pub async fn handler(
                 "_id":0,
                 "address":"$_id",
                 "total_points":1,
+                "rank":1,
             }
         }
     ];
