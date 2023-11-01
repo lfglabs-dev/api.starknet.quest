@@ -6,6 +6,7 @@
  3) iterate over all timestamps and add total points and get top 3 and get user position
  */
 
+use std::collections::HashMap;
 use std::result;
 use crate::{models::AppState, utils::get_error};
 use axum::{
@@ -20,19 +21,22 @@ use reqwest::StatusCode;
 use std::sync::Arc;
 use chrono::{Duration, Utc};
 use mongodb::Collection;
+use serde::{Deserialize, Serialize};
 
-pub struct GetLeaderboardQuery {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetLeaderboardInfoQuery {
     addr: String,
 }
 
 pub async fn get_leaderboard_toppers(
     collection: &Collection<Document>,
     days: i64,
-) -> Bson {
+    address: &String,
+) -> Document {
     let mut time_gap = 0;
 
     // get time gap
-    if (days > 0) {
+    if days > 0 {
         let gap_limit = Utc::now() - Duration::days(days);
         time_gap = gap_limit.timestamp_millis();
     }
@@ -83,8 +87,7 @@ pub async fn get_leaderboard_toppers(
         },
         doc! {
             "$match": doc! {
-            "docs._id":
-            "3246245011749133880110396867610358293809804380010255939993086782333605065223",
+            "docs._id": &*address,
         },
         },
         doc! {
@@ -119,32 +122,31 @@ pub async fn get_leaderboard_toppers(
     ];
 
 
-    match collection.aggregate(leaderboard_pipeline, None).await {
+    return match collection.aggregate(leaderboard_pipeline, None).await {
         Ok(mut cursor) => {
             let mut query_result = Vec::new();
             while let Some(result) = cursor.try_next().await.unwrap() {
                 query_result.push(result)
             }
-            return query_result.into();
+            query_result[0].clone()
         }
-        Err(_) => return Bson::Null,
+        Err(_) => Document::new(),
     }
 }
 
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    Query(query): Query<GetLeaderboardInfoQuery>,
 ) -> impl IntoResponse {
+    let addr: String = query.addr.to_string();
     let users_collection = state.db.collection::<Document>("user_exp");
+    let weekly_toppers = get_leaderboard_toppers(&users_collection, 7, &addr).await;
+    let monthly_toppers = get_leaderboard_toppers(&users_collection, 30, &addr).await;
+    let all_time_toppers = get_leaderboard_toppers(&users_collection, -1, &addr).await;
+    let mut res: HashMap<String, Document> = HashMap::new();
 
-    let weekly_toppers = get_leaderboard_toppers(&users_collection, 7).await;
-    let monthly_toppers = get_leaderboard_toppers(&users_collection, 30).await;
-    let all_time_toppers = get_leaderboard_toppers(&users_collection, -1).await;
-
-
-    println!("weekly_toppers: {:?}", weekly_toppers);
-    println!("monthly_toppers: {:?}", monthly_toppers);
-    println!("all_time_toppers: {:?}", all_time_toppers);
-
-
-    (StatusCode::OK, Json(all_time_toppers)).into_response()
+    res.insert("weekly".to_string(), weekly_toppers);
+    res.insert("monthly".to_string(), monthly_toppers);
+    res.insert("all_time".to_string(), all_time_toppers);
+    (StatusCode::OK, Json(res)).into_response()
 }
