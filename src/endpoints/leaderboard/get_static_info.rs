@@ -58,66 +58,69 @@ pub async fn get_leaderboard_toppers(
                 }
             }
         },
-        doc! { "$sort": doc!{ "experience": -1 } },
+        doc! { "$sort":
+            doc!{
+                "experience": -1
+            }
+        },
         doc! {
-            // facet will allow us to run multiple pipelines on the same set of documents
             "$facet": doc! {
-                //sorting the users and getting the top 3
-            "best_users": vec![
-            doc!{ "$limit": 3 },
-            ],
-                //getting the total number of users
-            "totalUsers": vec![doc!{ "$count": "total" }],
-
-                //getting the rank of the user
-                "rank": vec![
-                         doc! {
-            "$group": {
-            "_id": null,
-            "docs": doc! {
-                "$push": "$$ROOT",
-            },
-        },
-        },
-        doc! {
-            "$unwind": doc! {
-            "path": "$docs",
-            "includeArrayIndex": "rownum",
-        },
-        },
-        doc! {
-            "$match": doc! {
-            "docs._id": &*address,
-        },
-        },
-        doc! {
-            "$addFields": doc! {
-            "docs.rank": doc! {
-                "$add": ["$rownum", 1],
-            },
-        },
-        },
-        doc! {
-            "$replaceRoot": doc! {
-            "newRoot": "$docs",
-        }
-        },
+                "best_users": vec![
+                    doc!{ "$limit": 3 },
                 ],
-        },
+                "totalUsers": vec![
+                    doc!
+                    {
+                        "$count": "total"
+                    }
+                ],
+                "rank": vec![
+                    doc! {
+                        "$group": {
+                            "_id": null,
+                            "docs": doc! {
+                                "$push": "$$ROOT",
+                            },
+                        },
+                    },
+                    doc! {
+                        "$unwind": doc! {
+                            "path": "$docs",
+                            "includeArrayIndex": "rownum",
+                        },
+                    },
+                    doc! {
+                        "$match": doc! {
+                            "docs._id": &*address,
+                        },
+                    },
+                    doc! {
+                        "$addFields": doc! {
+                            "docs.rank": doc! {
+                                "$add": ["$rownum", 1],
+                            },
+                        },
+                    },
+                    doc! {
+                        "$replaceRoot": doc! {
+                            "newRoot": "$docs",
+                        }
+                    },
+                ],
+            },
         },
         doc! {
             "$unwind": "$totalUsers",
         },
         doc! {
-            "$project": {
-            "_id": 0,
-            "length": "$totalUsers.total",
-            "best_users": 1,
-            "position": doc! {
+            "$project": doc!{
+                "_id": 0,
+                "length": "$totalUsers.total",
+                "best_users": 1,
+                "position": doc! {
                     "$first":"$rank.rank"
-
-                    }
-        },
+                }
+            },
         },
     ];
 
@@ -131,7 +134,7 @@ pub async fn get_leaderboard_toppers(
             query_result[0].clone()
         }
         Err(_) => Document::new(),
-    }
+    };
 }
 
 pub async fn handler(
