@@ -152,13 +152,13 @@ pub fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> (i64, i
     let mut lower_range: i64 = 0;
     let mut upper_range: i64 = 0;
 
-    // if rank is in top 5 then return default range
+    // if rank is in top half of the first page then return default range
     if rank <= page_size / 2 {
         lower_range = 1;
         upper_range = page_size;
     }
 
-    // if rank is in bottom 5 then return default range
+    // if rank is in bottom half of the last page then return default range
     else if rank >= (total_users - page_size / 2) {
         lower_range = total_users - page_size;
         upper_range = total_users;
@@ -175,6 +175,30 @@ pub fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> (i64, i
     return (lower_range, upper_range);
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn modified_range() {
+        assert_eq!((9,18), get_default_range(13, 10, 46));
+    }
+
+    #[test]
+    fn fetch_normal_range() {
+        assert_eq!((11,20), get_default_range(15, 10, 46));
+    }
+    #[test]
+    fn fetch_top_extreme_range() {
+        assert_eq!((1,10), get_default_range(3, 10, 46));
+    }
+    #[test]
+    fn fetch_bottom_extreme_range() {
+        assert_eq!((36,46), get_default_range(43, 10, 46));
+    }
+}
+
+
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetCompletedQuestsQuery {
@@ -189,12 +213,11 @@ pub async fn handler(
 ) -> impl IntoResponse {
     // TODO: handle dynamic days
     let days = 7;
-    let mut time_gap = 0;
-    // get time gap
-    if days > 0 {
-        let gap_limit = Utc::now() - Duration::days(days);
-        time_gap = gap_limit.timestamp_millis();
-    }
+    let time_gap = if days > 0 {
+        (Utc::now() - Duration::days(days)).timestamp_millis()
+    } else {
+        0
+    };
 
     // get collection
     let users_collection = state.db.collection::<Document>("user_exp");
@@ -207,7 +230,7 @@ pub async fn handler(
     // get user rank and total users
     let stats = get_user_rank(&users_collection, &address, &time_gap).await;
     let total_users = stats.get("total_users").unwrap().as_i32().unwrap() as i64;
-    let user_rank = stats.get("user_rank").unwrap().as_i64().unwrap();
+    let user_rank = stats.get("user_rank").unwrap().as_i64().unwrap() as i64;
 
 
     let mut lower_range: i64 = 0;
