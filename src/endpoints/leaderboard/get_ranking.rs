@@ -157,7 +157,7 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
     };
 }
 
-pub fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> (i64, i64) {
+pub async fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> (i64, i64) {
     let mut lower_range: i64 = 0;
     let mut upper_range: i64 = 0;
 
@@ -188,24 +188,24 @@ pub fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> (i64, i
 mod tests {
     use super::*;
 
-    #[test]
-    fn modified_range() {
-        assert_eq!((9, 18), get_default_range(13, 10, 46));
+    #[tokio::test]
+    async fn modified_range() {
+        assert_eq!((9, 18), get_default_range(13, 10, 46).await);
     }
 
-    #[test]
-    fn fetch_normal_range() {
-        assert_eq!((11, 20), get_default_range(15, 10, 46));
+    #[tokio::test]
+    async fn fetch_normal_range() {
+        assert_eq!((11, 20), get_default_range(15, 10, 46).await);
     }
 
-    #[test]
-    fn fetch_top_extreme_range() {
-        assert_eq!((1, 10), get_default_range(3, 10, 46));
+    #[tokio::test]
+    async fn fetch_top_extreme_range() {
+        assert_eq!((1, 10), get_default_range(3, 10, 46).await);
     }
 
-    #[test]
-    fn fetch_bottom_extreme_range() {
-        assert_eq!((36, 46), get_default_range(43, 10, 46));
+    #[tokio::test]
+    async fn fetch_bottom_extreme_range() {
+        assert_eq!((36, 46), get_default_range(43, 10, 46).await);
     }
 }
 
@@ -265,12 +265,12 @@ pub async fn handler(
 
     // get user position and get range to get page for showing user position
     if shift == 0 {
-        (lower_range, upper_range) = get_default_range(user_rank, page_size, total_users);
+        (lower_range, upper_range) = get_default_range(user_rank, page_size, total_users).await;
     }
 
     // get user position and set range if shift
     else {
-        let (default_lower_range, default_upper_range) = get_default_range(user_rank, page_size, total_users);
+        let (default_lower_range, default_upper_range) = get_default_range(user_rank, page_size, total_users).await;
 
         /*
         -> calculate shift in elements needed.
