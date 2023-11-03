@@ -51,12 +51,13 @@ use starknet::core::types::FieldElement;
 use crate::utils::get_error;
 
 
-pub async fn get_user_rank(collection: &Collection<Document>, address: &String, time_gap: &i64) -> Document {
+pub async fn get_user_rank(collection: &Collection<Document>, address: &String, start_timestamp: &i64, end_timestamp: &i64) -> Document {
     let user_rank_pipeline = vec![
         doc! {
-            "$match": doc! {
-            "timestamp": doc!{
-                    "$gte": time_gap
+            "$match": doc!{
+                "timestamp": doc!{
+                    "$gte": start_timestamp,
+                    "$lte": end_timestamp
                 }
             }
         },
@@ -148,8 +149,10 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
             data
         }
         Err(_) => {
-            println!("error");
-            Document::new()
+            let mut data = Document::new();
+            data.insert("user_rank", 1);
+            data.insert("total_users", 0);
+            data
         }
     };
 }
@@ -212,19 +215,26 @@ pub struct GetCompletedQuestsQuery {
     addr: String,
     page_size: i64,
     shift: i64,
+
+    /*
+    start of the timestamp range
+    -> How many days back you want to start the leaderboard
+     */
+    start_timestamp: i64,
+
+    /*
+    end of the timestamp range
+    -> When do you want to end it (the moment the frontend makes the request till that moment)
+    */
+    end_timestamp: i64,
 }
 
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetCompletedQuestsQuery>,
 ) -> impl IntoResponse {
-    // TODO: handle dynamic days
-    let days = 7;
-    let time_gap = if days > 0 {
-        (Utc::now() - Duration::days(days)).timestamp_millis()
-    } else {
-        0
-    };
+    let start_timestamp = query.start_timestamp;
+    let end_timestamp = query.end_timestamp;
 
     // get collection
     let users_collection = state.db.collection::<Document>("user_exp");
@@ -234,8 +244,8 @@ pub async fn handler(
     let page_size = query.page_size;
     let shift = query.shift;
 
-    // // get user rank and total users
-    let stats = get_user_rank(&users_collection, &address, &time_gap).await;
+    // get user rank and total users
+    let stats = get_user_rank(&users_collection, &address, &start_timestamp, &end_timestamp).await;
     let total_users = stats.get("total_users").unwrap().as_i32().unwrap() as i64;
     let user_rank = stats.get("user_rank").unwrap().as_i32().unwrap() as i64;
 
@@ -286,9 +296,10 @@ pub async fn handler(
 
     let paginated_leaderboard_pipeline = [
         doc! {
-            "$match": doc! {
-            "timestamp": doc!{
-                    "$gte": time_gap
+            "$match": doc!{
+                "timestamp": doc!{
+                    "$gte": start_timestamp,
+                    "$lte": end_timestamp
                 }
             }
         },

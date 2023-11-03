@@ -33,18 +33,15 @@ pub async fn get_leaderboard_toppers(
     days: i64,
     address: &String,
 ) -> Document {
-    let mut time_gap = 0;
-
-    // get time gap
-    if days > 0 {
-        let gap_limit = Utc::now() - Duration::days(days);
-        time_gap = gap_limit.timestamp_millis();
-    }
+    let time_gap = if days > 0 {
+        (Utc::now() - Duration::days(days)).timestamp_millis()
+    } else {
+        0
+    };
 
     let leaderboard_pipeline = vec![
         doc! {
             "$match": doc! {
-            // Filter documents with a date field greater than or equal to one month ago
             "timestamp": doc! {
                     "$gte": time_gap
                 }
