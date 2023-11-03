@@ -131,7 +131,7 @@ pub async fn get_leaderboard_toppers(
                 "position": doc!{
                     "$cond": {
                         "if": { "$eq": [{ "$indexOfArray": ["$rank.address", address] }, -1] }, // Check if indexOfArray returns -1
-                        "then": "$$REMOVE", // Return nothing (null) if -1
+                        "then": "$$REMOVE", // Remove field if doesn't exist
                         "else": { "$add": [{ "$indexOfArray": ["$rank.address", address] }, 1] } // Add 1 to the index if not -1
                         }
                 }
@@ -146,6 +146,9 @@ pub async fn get_leaderboard_toppers(
             while let Some(result) = cursor.try_next().await.unwrap() {
                 query_result.push(result)
             }
+            if query_result.is_empty() {
+                return Document::new();
+            }
             query_result[0].clone()
         }
         Err(_) => Document::new(),
@@ -157,12 +160,47 @@ pub async fn handler(
     Query(query): Query<GetLeaderboardInfoQuery>,
 ) -> impl IntoResponse {
     let addr: String = query.addr.to_string();
+    let mut error_flag = Document::new();
     let users_collection = state.db.collection::<Document>("user_exp");
-    let weekly_toppers = get_leaderboard_toppers(&users_collection, 7, &addr).await;
-    let monthly_toppers = get_leaderboard_toppers(&users_collection, 30, &addr).await;
-    let all_time_toppers = get_leaderboard_toppers(&users_collection, -1, &addr).await;
-    let mut res: HashMap<String, Document> = HashMap::new();
 
+    // fetch weekly toppers and check if valid result
+    let weekly_toppers_result = get_leaderboard_toppers(&users_collection, 7, &addr).await;
+    let weekly_toppers = match weekly_toppers_result.is_empty() {
+         true => {
+            error_flag.insert("status", true);
+            error_flag.clone()
+        }
+        false => weekly_toppers_result.clone(),
+    };
+
+    // fetch monthly toppers and check if valid result
+    let monthly_toppers_result = get_leaderboard_toppers(&users_collection, 7, &addr).await;
+    let monthly_toppers = match weekly_toppers_result.is_empty() {
+        true => {
+            error_flag.insert("status", true);
+            error_flag.clone()
+        }
+        false => weekly_toppers_result.clone(),
+    };
+
+    // fetch all time toppers and check if valid result
+    let all_time_toppers_result = get_leaderboard_toppers(&users_collection, 7, &addr).await;
+    let all_time_toppers = match all_time_toppers_result.is_empty() {
+        true => {
+            error_flag.insert("status", true);
+            error_flag.clone()
+        }
+        false => all_time_toppers_result.clone(),
+    };
+
+
+    // check if any error occurred
+    if error_flag.contains_key("status") {
+        println!("{:?}",error_flag);
+        return get_error("Error querying leaderboard".to_string());
+    }
+
+    let mut res: HashMap<String, Document> = HashMap::new();
     res.insert("weekly".to_string(), weekly_toppers);
     res.insert("monthly".to_string(), monthly_toppers);
     res.insert("all_time".to_string(), all_time_toppers);

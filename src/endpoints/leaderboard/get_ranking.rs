@@ -33,7 +33,7 @@ Placing element in center =>
 */
 
 use std::collections::HashMap;
-use crate::{models::AppState};
+use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
     response::IntoResponse,
@@ -48,7 +48,6 @@ use chrono::{Duration, Utc};
 use futures::TryStreamExt;
 use serde::{Deserialize, Serialize};
 use starknet::core::types::FieldElement;
-use crate::utils::get_error;
 
 
 pub async fn get_user_rank(collection: &Collection<Document>, address: &String, start_timestamp: &i64, end_timestamp: &i64) -> Document {
@@ -157,7 +156,7 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
     };
 }
 
-pub async fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> (i64, i64) {
+pub fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> (i64, i64) {
     let mut lower_range: i64 = 0;
     let mut upper_range: i64 = 0;
 
@@ -188,24 +187,24 @@ pub async fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> (
 mod tests {
     use super::*;
 
-    #[tokio::test]
-    async fn modified_range() {
-        assert_eq!((9, 18), get_default_range(13, 10, 46).await);
+    #[test]
+    fn modified_range() {
+        assert_eq!((9, 18), get_default_range(13, 10, 46));
     }
 
-    #[tokio::test]
-    async fn fetch_normal_range() {
-        assert_eq!((11, 20), get_default_range(15, 10, 46).await);
+    #[test]
+    fn fetch_normal_range() {
+        assert_eq!((11, 20), get_default_range(15, 10, 46));
     }
 
-    #[tokio::test]
-    async fn fetch_top_extreme_range() {
-        assert_eq!((1, 10), get_default_range(3, 10, 46).await);
+    #[test]
+    fn fetch_top_extreme_range() {
+        assert_eq!((1, 10), get_default_range(3, 10, 46));
     }
 
-    #[tokio::test]
-    async fn fetch_bottom_extreme_range() {
-        assert_eq!((36, 46), get_default_range(43, 10, 46).await);
+    #[test]
+    fn fetch_bottom_extreme_range() {
+        assert_eq!((36, 46), get_default_range(43, 10, 46));
     }
 }
 
@@ -235,7 +234,7 @@ pub struct GetCompletedQuestsQuery {
 
     /*
     end of the timestamp range
-    -> When do you want to end it (the moment the frontend makes the request till that moment)
+    -> When do you want to end it (ideally the moment the frontend makes the request till that timestamp)
     */
     end_timestamp: i64,
 }
@@ -246,6 +245,10 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let start_timestamp = query.start_timestamp;
     let end_timestamp = query.end_timestamp;
+
+    if start_timestamp > end_timestamp {
+        return get_error("Error querying ranks".to_string())
+    }
 
     // get collection
     let users_collection = state.db.collection::<Document>("user_exp");
@@ -265,12 +268,12 @@ pub async fn handler(
 
     // get user position and get range to get page for showing user position
     if shift == 0 {
-        (lower_range, upper_range) = get_default_range(user_rank, page_size, total_users).await;
+        (lower_range, upper_range) = get_default_range(user_rank, page_size, total_users);
     }
 
     // get user position and set range if shift
     else {
-        let (default_lower_range, default_upper_range) = get_default_range(user_rank, page_size, total_users).await;
+        let (default_lower_range, default_upper_range) = get_default_range(user_rank, page_size, total_users);
 
         /*
         -> calculate shift in elements needed.
@@ -410,6 +413,6 @@ pub async fn handler(
             res.insert("first_elt_position".to_string(), lower_range);
             (StatusCode::OK, Json(res)).into_response()
         }
-        Err(_) => get_error("Error querying quests".to_string()),
+        Err(_) => get_error("Error querying ranks".to_string()),
     }
 }
