@@ -61,17 +61,45 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
             }
         },
         doc! {
+             "$sort" : doc! { "timestamp":-1}
+        },
+        doc! {
             "$group": doc!{
                 "_id": "$address",
-                "total_points": doc!{
+                "experience": doc!{
                     "$sum": "$experience"
                 },
-                "timestamp": {
+                "timestamp": doc! {
                     "$last": "$timestamp"
                 }
             }
         },
-        doc! { "$sort" : doc! { "total_points" : -1 ,"timestamp":1,"_id":1} },
+        doc! {
+            "$lookup": doc!{
+                "from": "achieved",
+                "localField": "_id",
+                "foreignField": "addr",
+                "as": "associatedAchievement"
+            }
+        },
+        doc! {
+            "$project": doc!{
+                "_id": 0,
+                "address": "$_id",
+                "experience": 1,
+                "achievements": doc!{
+                    "$size": "$associatedAchievement"
+                }
+            }
+        },
+        doc! {
+            "$sort": doc!{
+                "experience": -1,
+                "achievements": -1,
+                "timestamp":1,
+                "address":1,
+            }
+        },
         doc! {
             "$facet":doc! {
                 "total_users":vec! [
@@ -80,37 +108,11 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
                     }
                 ],
                 "user_rank":vec![
-                    doc! {
-                        "$group": {
-                            "_id": null,
-                            "docs": doc! {
-                                "$push": "$$ROOT",
-                            },
+                    doc!{
+                        "$project": doc!{
+                            "_id": 0,
+                            "address": "$address",
                         },
-                    },
-                    doc! {
-                        "$unwind": doc! {
-                            "path": "$docs",
-                            "includeArrayIndex": "rownum",
-                        },
-                    },
-                    doc! {
-                        "$match": doc! {
-                            "docs._id":
-                            address,
-                        },
-                    },
-                    doc! {
-                        "$addFields": doc! {
-                            "docs.rank": doc! {
-                                "$add": ["$rownum", 1],
-                            },
-                        },
-                    },
-                    doc! {
-                        "$replaceRoot": doc! {
-                            "newRoot": "$docs",
-                        }
                     },
                 ]
             }
@@ -124,11 +126,13 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
                     ],
                 },
                 "rank": doc!{
-                    "$arrayElemAt": [
-                    "$user_rank.rank",
-                    0,
+                    "$add": [
+                        {
+                            "$indexOfArray": ["$user_rank.address",address],
+                        },
+                        1,
                     ],
-                },
+                }
             },
         },
     ];
@@ -143,8 +147,10 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
             }
             data
         }
-        Err(_) =>Document::new()
-
+        Err(_) => {
+            println!("error");
+            Document::new()
+        }
     };
 }
 
@@ -181,23 +187,24 @@ mod tests {
 
     #[test]
     fn modified_range() {
-        assert_eq!((9,18), get_default_range(13, 10, 46));
+        assert_eq!((9, 18), get_default_range(13, 10, 46));
     }
 
     #[test]
     fn fetch_normal_range() {
-        assert_eq!((11,20), get_default_range(15, 10, 46));
+        assert_eq!((11, 20), get_default_range(15, 10, 46));
     }
+
     #[test]
     fn fetch_top_extreme_range() {
-        assert_eq!((1,10), get_default_range(3, 10, 46));
+        assert_eq!((1, 10), get_default_range(3, 10, 46));
     }
+
     #[test]
     fn fetch_bottom_extreme_range() {
-        assert_eq!((36,46), get_default_range(43, 10, 46));
+        assert_eq!((36, 46), get_default_range(43, 10, 46));
     }
 }
-
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -227,11 +234,10 @@ pub async fn handler(
     let page_size = query.page_size;
     let shift = query.shift;
 
-    // get user rank and total users
+    // // get user rank and total users
     let stats = get_user_rank(&users_collection, &address, &time_gap).await;
     let total_users = stats.get("total_users").unwrap().as_i32().unwrap() as i64;
-    let user_rank = stats.get("user_rank").unwrap().as_i64().unwrap() as i64;
-
+    let user_rank = stats.get("user_rank").unwrap().as_i32().unwrap() as i64;
 
     let mut lower_range: i64 = 0;
     let mut upper_range: i64 = 0;
@@ -281,24 +287,51 @@ pub async fn handler(
     let paginated_leaderboard_pipeline = [
         doc! {
             "$match": doc! {
-            // Filter documents with a date field greater than or equal to one month ago
             "timestamp": doc!{
                     "$gte": time_gap
                 }
             }
         },
         doc! {
+             "$sort" : doc! { "timestamp":-1}
+        },
+        doc! {
             "$group": doc!{
                 "_id": "$address",
-                "total_points": doc!{
+                "experience": doc!{
                     "$sum": "$experience"
                 },
-                "timestamp": {
+                "timestamp": doc! {
                     "$last": "$timestamp"
                 }
             }
         },
-        doc! { "$sort" : doc! { "total_points" : -1 ,"timestamp":1,"_id":1} },
+        doc! {
+            "$lookup": doc!{
+                "from": "achieved",
+                "localField": "_id",
+                "foreignField": "addr",
+                "as": "associatedAchievement"
+            }
+        },
+        doc! {
+            "$project": doc!{
+                "_id": 0,
+                "address": "$_id",
+                "xp": "$experience",
+                "achievements": doc!{
+                    "$size": "$associatedAchievement"
+                }
+            }
+        },
+        doc! {
+            "$sort": doc!{
+                "xp": -1,
+                "achievements": -1,
+                "timestamp":1,
+                "address":1,
+            }
+        },
         doc! {
             "$group": {
             "_id": null,
@@ -336,10 +369,9 @@ pub async fn handler(
         },
         doc! {
            "$project":{
-                "_id":0,
-                "address":"$_id",
-                "total_points":1,
-                "rank":1,
+                "address":1,
+                "xp":1,
+                "achievements":1
             }
         }
     ];

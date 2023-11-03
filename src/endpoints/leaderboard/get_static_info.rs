@@ -51,22 +51,49 @@ pub async fn get_leaderboard_toppers(
             }
         },
         doc! {
+             "$sort" : doc! { "timestamp":-1}
+        },
+        doc! {
             "$group": doc!{
                 "_id": "$address",
                 "experience": doc!{
                     "$sum": "$experience"
+                },
+                "timestamp": doc! {
+                    "$last": "$timestamp"
                 }
             }
         },
-        doc! { "$sort":
-            doc!{
-                "experience": -1
+        doc! {
+            "$lookup": doc!{
+                "from": "achieved",
+                "localField": "_id",
+                "foreignField": "addr",
+                "as": "associatedAchievement"
+            }
+        },
+        doc! {
+            "$project": doc!{
+                "_id": 0,
+                "address": "$_id",
+                "xp": "$experience",
+                "achievements": doc!{
+                    "$size": "$associatedAchievement"
+                }
+            }
+        },
+        doc! {
+            "$sort": doc!{
+                "xp": -1,
+                "achievements": -1,
+                "timestamp":1,
+                "address":1,
             }
         },
         doc! {
             "$facet": doc! {
                 "best_users": vec![
-                    doc!{ "$limit": 3 },
+                    doc!{ "$limit": 3 }
                 ],
                 "totalUsers": vec![
                     doc!
@@ -75,39 +102,23 @@ pub async fn get_leaderboard_toppers(
                     }
                 ],
                 "rank": vec![
-                    doc! {
-                        "$group": {
-                            "_id": null,
-                            "docs": doc! {
-                                "$push": "$$ROOT",
-                            },
-                        },
-                    },
-                    doc! {
-                        "$unwind": doc! {
-                            "path": "$docs",
-                            "includeArrayIndex": "rownum",
-                        },
-                    },
-                    doc! {
-                        "$match": doc! {
-                            "docs._id": &*address,
-                        },
-                    },
-                    doc! {
-                        "$addFields": doc! {
-                            "docs.rank": doc! {
-                                "$add": ["$rownum", 1],
-                            },
-                        },
-                    },
-                    doc! {
-                        "$replaceRoot": doc! {
-                            "newRoot": "$docs",
-                        }
-                    },
-                ],
-            },
+                    doc!{
+          "$project": {
+            "_id": 0,
+            "address": "$address",
+          },
+        },
+                ]
+            }
+        },
+        doc! {
+            "$project": doc!{
+                "_id": 0,
+                "totalUsers": 1,
+                "best_users": 1,
+                "rank": 1
+
+                }
         },
         doc! {
             "$unwind": "$totalUsers",
@@ -117,10 +128,18 @@ pub async fn get_leaderboard_toppers(
                 "_id": 0,
                 "length": "$totalUsers.total",
                 "best_users": 1,
-                "position": doc! {
-                    "$first":"$rank.rank"
+                "position": doc!{
+                    "$add": [
+          {
+            "$indexOfArray": [
+              "$rank.address",
+              address,
+            ],
+          },
+          1,
+        ],
                 }
-            },
+                }
         },
     ];
 
