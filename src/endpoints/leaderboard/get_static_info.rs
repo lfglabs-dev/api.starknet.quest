@@ -25,6 +25,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetLeaderboardInfoQuery {
+    /*
+    user address
+    */
     addr: String,
 }
 
@@ -126,17 +129,13 @@ pub async fn get_leaderboard_toppers(
                 "length": "$totalUsers.total",
                 "best_users": 1,
                 "position": doc!{
-                    "$add": [
-          {
-            "$indexOfArray": [
-              "$rank.address",
-              address,
-            ],
-          },
-          1,
-        ],
+                    "$cond": {
+                        "if": { "$eq": [{ "$indexOfArray": ["$rank.address", address] }, -1] }, // Check if indexOfArray returns -1
+                        "then": "$$REMOVE", // Return nothing (null) if -1
+                        "else": { "$add": [{ "$indexOfArray": ["$rank.address", address] }, 1] } // Add 1 to the index if not -1
+                        }
                 }
-                }
+            }
         },
     ];
 

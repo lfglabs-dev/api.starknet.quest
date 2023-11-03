@@ -143,8 +143,8 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
         Ok(mut cursor) => {
             let mut data = Document::new();
             while let Some(result) = cursor.try_next().await.unwrap() {
-                data.insert("user_rank", result.get("rank").expect("hey"));
-                data.insert("total_users", result.get("total_users").expect("hey"));
+                data.insert("user_rank", result.get("rank").unwrap());
+                data.insert("total_users", result.get("total_users").unwrap());
             }
             data
         }
@@ -212,8 +212,19 @@ mod tests {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetCompletedQuestsQuery {
+    /*
+    user address
+     */
     addr: String,
+
+    /*
+    number of elements to show per page
+     */
     page_size: i64,
+
+    /*
+    move forward or backward in the leaderboard
+    */
     shift: i64,
 
     /*
