@@ -40,14 +40,10 @@ async fn main() {
         .await
         .is_err()
     {
-        shared_state
-            .db
-            .run_command(doc! {"ping": 1}, None)
-            .await.expect("TODO: panic message");
         println!("error: unable to connect to database");
         return;
     } else {
-        println!("database: connected {}",shared_state.db.name());
+        println!("database: connected");
     }
 
     let cors = CorsLayer::new().allow_headers(Any).allow_origin(Any);

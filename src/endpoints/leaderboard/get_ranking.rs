@@ -32,7 +32,6 @@ Placing element in center =>
 -> handle navigation  by adding the (shift*page_size) to the lower range and navigate backwards and forwards
 */
 
-use std::collections::HashMap;
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
@@ -40,14 +39,12 @@ use axum::{
     Json,
 };
 
-use mongodb::bson::{doc, Document, Bson};
+use mongodb::bson::{doc, Document};
 use mongodb::Collection;
 use reqwest::StatusCode;
 use std::sync::Arc;
-use chrono::{Duration, Utc};
 use futures::TryStreamExt;
 use serde::{Deserialize, Serialize};
-use starknet::core::types::FieldElement;
 
 
 pub async fn get_user_rank(collection: &Collection<Document>, address: &String, start_timestamp: &i64, end_timestamp: &i64) -> Document {
@@ -163,7 +160,7 @@ pub fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> (i64, i
     // if rank is in top half of the first page then return default range
     if rank <= page_size / 2 {
         lower_range = 1;
-        upper_range = page_size;
+        upper_range =  page_size;
     }
 
     // if rank is in bottom half of the last page then return default range

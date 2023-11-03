@@ -7,7 +7,6 @@
  */
 
 use std::collections::HashMap;
-use std::result;
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
@@ -16,7 +15,7 @@ use axum::{
 };
 
 use futures::TryStreamExt;
-use mongodb::bson::{doc, Document, Bson};
+use mongodb::bson::{doc, Document};
 use reqwest::StatusCode;
 use std::sync::Arc;
 use chrono::{Duration, Utc};
@@ -180,7 +179,7 @@ pub async fn handler(
             error_flag.insert("status", true);
             error_flag.clone()
         }
-        false => weekly_toppers_result.clone(),
+        false => monthly_toppers_result.clone(),
     };
 
     // fetch all time toppers and check if valid result
