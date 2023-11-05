@@ -195,7 +195,6 @@ pub async fn handler(
 
     // check if any error occurred
     if error_flag.contains_key("status") {
-        println!("{:?}",error_flag);
         return get_error("Error querying leaderboard".to_string());
     }
 

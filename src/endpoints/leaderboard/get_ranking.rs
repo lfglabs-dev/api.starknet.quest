@@ -160,7 +160,7 @@ pub fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> (i64, i
     // if rank is in top half of the first page then return default range
     if rank <= page_size / 2 {
         lower_range = 1;
-        upper_range =  page_size;
+        upper_range = page_size;
     }
 
     // if rank is in bottom half of the last page then return default range
@@ -244,7 +244,7 @@ pub async fn handler(
     let end_timestamp = query.end_timestamp;
 
     if start_timestamp > end_timestamp {
-        return get_error("Error querying ranks".to_string())
+        return get_error("Error querying ranks".to_string());
     }
 
     // get collection
@@ -301,7 +301,7 @@ pub async fn handler(
          */
         upper_range = match lower_range + page_size > total_users {
             true => total_users,
-            false => lower_range + page_size,
+            false => lower_range + page_size - 1,
         };
     }
 
