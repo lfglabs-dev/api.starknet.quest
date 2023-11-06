@@ -58,6 +58,7 @@ pub async fn handler(
             "category_img_url": "$img_url",
             "category_type": "$type",
             "category_disabled": "$disabled",
+            "category_override_verified_type": "$override_verified_type",
             "achievements": {
               "id": "$achievement.id",
               "name": "$achievement.name",
@@ -91,6 +92,7 @@ pub async fn handler(
               "category_img_url": "$category_img_url",
               "category_type": "$category_type",
               "category_disabled": "$category_disabled",
+              "category_override_verified_type": "$category_override_verified_type",
             },
             "achievements": { "$push": "$achievements" }
           }
@@ -103,6 +105,7 @@ pub async fn handler(
             "category_img_url": "$_id.category_img_url",
             "category_type": "$_id.category_type",
             "category_disabled": "$_id.category_disabled",
+            "category_override_verified_type": "$_id.category_override_verified_type",
             "achievements": 1,
             "_id": 0
           }

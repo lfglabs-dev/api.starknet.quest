@@ -115,6 +115,7 @@ pub struct UserAchievements {
     category_type: String,
     #[serde(default = "default_category_disabled")]
     pub category_disabled: bool,
+    pub category_override_verified_type: Option<String>,
     achievements: Vec<UserAchievement>,
 }
 
