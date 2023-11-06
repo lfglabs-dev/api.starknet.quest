@@ -180,3 +180,19 @@ pub_struct!(Deserialize, Debug; DeployedTime {
     addr: String,
     timestamp: u32,
 });
+
+pub_struct!(Deserialize; VerifyAchievementBatchedQuery {
+    addr: FieldElement,
+    category_id: u32,
+});
+
+pub_struct!(Deserialize, Serialize, Debug; UserAchievementsCategory {
+    category_id: u32,
+    achievements: Vec<UserAchievementCategory>,
+});
+
+pub_struct!(Deserialize, Serialize, Debug; UserAchievementCategory {
+    id: u32,
+    completed: bool,
+    verify_type: String,
+});

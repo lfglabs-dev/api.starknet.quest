@@ -1,3 +1,4 @@
+pub mod batched;
 pub mod fetch;
 pub mod fetch_buildings;
 pub mod verify_achieved_quests;
