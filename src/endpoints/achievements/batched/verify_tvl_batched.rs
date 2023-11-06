@@ -38,19 +38,20 @@ pub async fn handler(
 
                     match get_achievement(&state, &query.addr, query.category_id).await {
                         Ok(achievements) => {
-                            let mut achieved = false;
+                            let mut achieved: Vec<u32> = vec![];
                             for achievement in achievements.achievements {
                                 if !achievement.completed
                                     && (achievement.id == 11 && total_tvl_dollars >= 100.0)
                                     || (achievement.id == 12 && total_tvl_dollars >= 1000.0)
                                     || (achievement.id == 13 && total_tvl_dollars >= 10000.0)
                                 {
-                                    achieved = true;
                                     match state
                                         .upsert_completed_achievement(addr, achievement.id)
                                         .await
                                     {
-                                        Ok(_) => continue,
+                                        Ok(_) => {
+                                            achieved.push(achievement.id);
+                                        }
                                         Err(e) => return get_error(format!("{}", e)),
                                     }
                                 }
