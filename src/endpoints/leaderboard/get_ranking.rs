@@ -301,7 +301,7 @@ pub async fn handler(
          */
         upper_range = match lower_range + page_size > total_users {
             true => total_users,
-            false => lower_range + page_size - 1,
+            false => if lower_range == 0 { lower_range + page_size } else { lower_range + page_size - 1 },
         };
     }
 
@@ -407,7 +407,7 @@ pub async fn handler(
                 ranking.push(result);
             }
             res.insert("ranking".to_string(), ranking);
-            res.insert("first_elt_position".to_string(), lower_range);
+            res.insert("first_elt_position".to_string(), if lower_range == 0 { 1 } else { lower_range });
             (StatusCode::OK, Json(res)).into_response()
         }
         Err(_) => get_error("Error querying ranks".to_string()),
