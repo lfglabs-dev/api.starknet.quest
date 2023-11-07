@@ -173,8 +173,8 @@ pub async fn handler(
     };
 
     // fetch monthly toppers and check if valid result
-    let monthly_toppers_result = get_leaderboard_toppers(&users_collection, 7, &addr).await;
-    let monthly_toppers = match weekly_toppers_result.is_empty() {
+    let monthly_toppers_result = get_leaderboard_toppers(&users_collection, 30, &addr).await;
+    let monthly_toppers = match monthly_toppers_result.is_empty() {
         true => {
             error_flag.insert("status", true);
             error_flag.clone()
@@ -183,7 +183,7 @@ pub async fn handler(
     };
 
     // fetch all time toppers and check if valid result
-    let all_time_toppers_result = get_leaderboard_toppers(&users_collection, 7, &addr).await;
+    let all_time_toppers_result = get_leaderboard_toppers(&users_collection, -1, &addr).await;
     let all_time_toppers = match all_time_toppers_result.is_empty() {
         true => {
             error_flag.insert("status", true);
