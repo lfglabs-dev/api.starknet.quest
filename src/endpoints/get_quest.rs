@@ -27,7 +27,6 @@ pub async fn handler(
         doc! {
             "$match": {
                 "disabled": false,
-                "hidden": false,
                 "id": query.id
             }
         },
