@@ -40,7 +40,7 @@ pub async fn handler(
     match call_result {
         Ok(result) => {
             if result[0] == FieldElement::ZERO {
-                get_error("You didn't use defi pooling on MySwap.".to_string())
+                get_error("You haven't provided any liquidity on MySwap.".to_string())
             } else {
                 match state.upsert_completed_task(query.addr, task_id).await {
                     Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),

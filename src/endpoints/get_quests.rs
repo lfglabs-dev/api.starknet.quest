@@ -7,11 +7,9 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
-use chrono::Utc;
 use futures::StreamExt;
-use futures::TryStreamExt;
-use mongodb::bson;
 use mongodb::bson::doc;
+use mongodb::bson::from_document;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -23,50 +21,51 @@ pub struct NFTItem {
 }
 
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    let collection = state.db.collection::<QuestDocument>("quests");
-    let current_timestamp = bson::DateTime::from_millis(Utc::now().timestamp_millis());
-    let filter = doc! {
-        "$and": [
-        {
-            "$or": [
-                {
-                    "expiry": {
-                        "$exists": false
-                    }
-                },
-                {
-                    "expiry": {
-                        "$gt": current_timestamp
-                    }
+    let pipeline = vec![
+        doc! {
+            "$match": {
+                "disabled": false,
+                "hidden": false,
+            }
+        },
+        doc! {
+            "$addFields": {
+                "expired": {
+                    "$cond": [
+                        {
+                            "$and": [
+                                { "$gte": ["$expiry", 0] },
+                                { "$lt": ["$expiry", "$$NOW"] },
+                            ]
+                        },
+                        true,
+                        false
+                    ]
                 }
-            ]
+            }
         },
-        {
-            "disabled": false
-        },
-        {
-            "hidden": false
-        }
-    ]
-    };
+    ];
+    let collection = state.db.collection::<QuestDocument>("quests");
 
-    match collection.find(Some(filter), None).await {
-        Ok(cursor) => {
-            let quests_temp: Vec<QuestDocument> = cursor
-                .map(|result| {
-                    result.map(|mut quest: QuestDocument| {
-                        if let Some(expiry) = &quest.expiry {
-                            let timestamp = expiry.timestamp_millis().to_string();
-                            quest.expiry_timestamp = Some(timestamp);
+    match collection.aggregate(pipeline, None).await {
+        Ok(mut cursor) => {
+            let mut quests: Vec<QuestDocument> = Vec::new();
+            while let Some(result) = cursor.next().await {
+                match result {
+                    Ok(document) => {
+                        if let Ok(mut quest) = from_document::<QuestDocument>(document) {
+                            if let Some(expiry) = &quest.expiry {
+                                let timestamp = expiry.timestamp_millis().to_string();
+                                quest.expiry_timestamp = Some(timestamp);
+                            }
+                            quests.push(quest);
                         }
-                        quest
-                    })
-                })
-                .try_collect()
-                .await
-                .unwrap_or_else(|_| vec![]);
+                    }
+                    _ => continue,
+                }
+            }
             let mut res: HashMap<String, Vec<QuestDocument>> = HashMap::new();
-            for quest in quests_temp {
+            for quest in quests {
                 let category = quest.category.clone();
                 if res.contains_key(&category) {
                     let quests = res.get_mut(&category).unwrap();
@@ -75,7 +74,6 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                     res.insert(category, vec![quest]);
                 }
             }
-
             if res.is_empty() {
                 get_error("No quests found".to_string())
             } else {

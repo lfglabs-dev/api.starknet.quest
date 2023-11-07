@@ -63,38 +63,50 @@ pub async fn handler(
         )
         .await?;
 
-        let twitter_verifier_data = call_contract_helper(
-            &state,
-            state.conf.starknetid_contracts.identity_contract,
-            selector!("get_verifier_data"),
-            vec![
-                id_res[0],
-                short_string!("twitter"),
-                state.conf.starknetid_contracts.verifier_contract,
-                FieldElement::ZERO,
-            ],
-        )
-        .await?;
+        let mut twitter = false;
+        let mut discord = false;
+        for verifier_contract in &state.conf.starknetid_contracts.verifier_contracts {
 
-        let discord_verifier_data = call_contract_helper(
-            &state,
-            state.conf.starknetid_contracts.identity_contract,
-            selector!("get_verifier_data"),
-            vec![
-                id_res[0],
-                short_string!("discord"),
-                state.conf.starknetid_contracts.verifier_contract,
-                FieldElement::ZERO,
-            ],
-        )
-        .await?;
+            let twitter_verifier_data = call_contract_helper(
+                &state,
+                state.conf.starknetid_contracts.identity_contract,
+                selector!("get_verifier_data"),
+                vec![
+                    id_res[0],
+                    short_string!("twitter"),
+                    *verifier_contract,
+                    FieldElement::ZERO,
+                ],
+            )
+            .await?;
+        if twitter_verifier_data[0] != felt!("0") {
+            twitter = true;
+        }
+    
+            let discord_verifier_data = call_contract_helper(
+                &state,
+                state.conf.starknetid_contracts.identity_contract,
+                selector!("get_verifier_data"),
+                vec![
+                    id_res[0],
+                    short_string!("discord"),
+                    *verifier_contract,
+                    FieldElement::ZERO,
+                ],
+            )
+            .await?;
+        if discord_verifier_data[0] != felt!("0") {
+            discord = true;
+        }
+        }
+        
 
-        if twitter_verifier_data[0] != felt!("0") && discord_verifier_data[0] != felt!("0") {
+        if twitter && discord{
             match state.upsert_completed_task(query.addr, task_id).await {
                 Ok(_) => Ok((StatusCode::OK, Json(json!({"res": true})))),
                 Err(e) => Err(e.to_string()),
             }
-        } else if twitter_verifier_data[0] == felt!("0") {
+        } else if !twitter{
             Err("You have not verified your Twitter account".to_string())
         } else {
             Err("You have not verified your Discord account".to_string())

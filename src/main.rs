@@ -71,6 +71,10 @@ async fn main() {
         )
         .route("/get_tasks", get(endpoints::get_tasks::handler))
         .route(
+            "/get_deployed_time",
+            get(endpoints::get_deployed_time::handler),
+        )
+        .route(
             "/quests/verify_quiz",
             post(endpoints::quests::verify_quiz::handler),
         )
@@ -89,10 +93,6 @@ async fn main() {
         .route(
             "/quests/starknetid/verify_socials",
             get(endpoints::quests::starknetid::verify_socials::handler),
-        )
-        .route(
-            "/quests/starknetid/verify_quiz",
-            post(endpoints::quests::starknetid::verify_quiz::handler),
         )
         .route(
             "/quests/starknetid/claimable",
@@ -123,10 +123,6 @@ async fn main() {
             get(endpoints::quests::zklend::verify_twitter_fw::handler),
         )
         .route(
-            "/quests/zklend/verify_quiz",
-            post(endpoints::quests::zklend::verify_quiz::handler),
-        )
-        .route(
             "/quests/zklend/claimable",
             get(endpoints::quests::zklend::claimable::handler),
         )
@@ -137,10 +133,6 @@ async fn main() {
         .route(
             "/quests/avnu/verify_swap",
             get(endpoints::quests::avnu::verify_swap::handler),
-        )
-        .route(
-            "/quests/avnu/verify_quiz",
-            post(endpoints::quests::avnu::verify_quiz::handler),
         )
         .route(
             "/quests/avnu/claimable",
@@ -169,10 +161,6 @@ async fn main() {
         .route(
             "/quests/sithswap/verify_twitter_fw",
             get(endpoints::quests::sithswap::verify_twitter_fw::handler),
-        )
-        .route(
-            "/quests/sithswap/verify_quiz",
-            post(endpoints::quests::sithswap::verify_quiz::handler),
         )
         .route(
             "/quests/sithswap/claimable",
@@ -219,16 +207,8 @@ async fn main() {
             get(endpoints::quests::ekubo::verify_added_liquidity::handler),
         )
         .route(
-            "/quests/carmine/verify_quiz",
-            post(endpoints::quests::carmine::verify_quiz::handler),
-        )
-        .route(
             "/quests/carmine/claimable",
             get(endpoints::quests::carmine::claimable::handler),
-        )
-        .route(
-            "/quests/morphine/verify_quiz",
-            post(endpoints::quests::morphine::verify_quiz::handler),
         )
         .route(
             "/quests/morphine/verify_added_liquidity",
@@ -283,6 +263,26 @@ async fn main() {
             get(endpoints::quests::braavos::starknetid::claimable::handler),
         )
         .route(
+            "/quests/braavos/myswap/claimable",
+            get(endpoints::quests::braavos::myswap::claimable::handler),
+        )
+        .route(
+            "/quests/braavos/myswap/verify_has_domain",
+            get(endpoints::quests::braavos::myswap::verify_has_domain::handler),
+        )
+        .route(
+            "/quests/braavos/myswap/verify_added_liquidity",
+            get(endpoints::quests::braavos::myswap::verify_added_liquidity::handler),
+        )
+        .route(
+            "/quests/braavos/myswap/verify_twitter_fw_braavos",
+            get(endpoints::quests::braavos::myswap::verify_twitter_fw_braavos::handler),
+        )
+        .route(
+            "/quests/braavos/myswap/verify_twitter_fw_myswap",
+            get(endpoints::quests::braavos::myswap::verify_twitter_fw_myswap::handler),
+        )
+        .route(
             "/quests/focustree/verify_twitter_fw",
             get(endpoints::quests::focustree::verify_twitter_fw::handler),
         )
@@ -293,6 +293,66 @@ async fn main() {
         .route(
             "/quests/focustree/claimable",
             get(endpoints::quests::focustree::claimable::handler),
+        )
+        .route(
+            "/quests/element/element/verify_is_eligible",
+            get(endpoints::quests::element::element::verify_is_eligible::handler),
+        )
+        .route(
+            "/quests/element/element/verify_twitter_fw",
+            get(endpoints::quests::element::element::verify_twitter_fw::handler),
+        )
+        .route(
+            "/quests/element/element/claimable",
+            get(endpoints::quests::element::element::claimable::handler),
+        )
+        .route(
+            "/quests/element/briq/verify_own_briq",
+            get(endpoints::quests::element::briq::verify_own_briq::handler),
+        )
+        .route(
+            "/quests/element/briq/verify_twitter_fw",
+            get(endpoints::quests::element::briq::verify_twitter_fw::handler),
+        )
+        .route(
+            "/quests/element/briq/claimable",
+            get(endpoints::quests::element::briq::claimable::handler),
+        )
+        .route(
+            "/quests/element/layerswap/verify_has_bridged",
+            get(endpoints::quests::element::layerswap::verify_has_bridged::handler),
+        )
+        .route(
+            "/quests/element/layerswap/verify_twitter_fw",
+            get(endpoints::quests::element::layerswap::verify_twitter_fw::handler),
+        )
+        .route(
+            "/quests/element/layerswap/verify_twitter_rt",
+            get(endpoints::quests::element::layerswap::verify_twitter_rt::handler),
+        )
+        .route(
+            "/quests/element/layerswap/claimable",
+            get(endpoints::quests::element::layerswap::claimable::handler),
+        )
+        .route(
+            "/quests/element/starknetid/verify_has_root_domain",
+            get(endpoints::quests::element::starknetid::verify_has_root_domain::handler),
+        )
+        .route(
+            "/quests/element/starknetid/claimable",
+            get(endpoints::quests::element::starknetid::claimable::handler),
+        )
+        .route(
+            "/quests/nostra/claimable",
+            get(endpoints::quests::nostra::claimable::handler),
+        )
+        .route(
+            "/quests/nostra/discord_fw_callback",
+            get(endpoints::quests::nostra::discord_fw_callback::handler),
+        )
+        .route(
+            "/quests/nostra/verify_added_liquidity",
+            get(endpoints::quests::nostra::verify_added_liquidity::handler),
         )
         .route(
             "/achievements/verify_default",
@@ -307,6 +367,10 @@ async fn main() {
             get(endpoints::achievements::verify_tvl::handler),
         )
         .route(
+            "/achievements/batched/verify_tvl_batched",
+            get(endpoints::achievements::batched::verify_tvl_batched::handler),
+        )
+        .route(
             "/achievements/verify_seniority",
             get(endpoints::achievements::verify_seniority::handler),
         )
@@ -317,6 +381,10 @@ async fn main() {
         .route(
             "/achievements/verify_has_domain",
             get(endpoints::achievements::verify_has_domain::handler),
+        )
+        .route(
+            "/achievements/verify_achieved_quests",
+            get(endpoints::achievements::verify_achieved_quests::handler),
         )
         .route(
             "/achievements/fetch",

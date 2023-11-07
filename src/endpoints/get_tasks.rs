@@ -63,6 +63,26 @@ pub async fn handler(
         doc! { "$unwind": "$quest" },
         doc! { "$match": { "quest.disabled": false } },
         doc! {
+            "$addFields": {
+                "sort_order": doc! {
+                    "$switch": {
+                        "branches": [
+                            {
+                                "case": doc! { "$eq": ["$verify_endpoint_type", "quiz"] },
+                                "then": 1
+                            },
+                            {
+                                "case": doc! { "$eq": ["$verify_endpoint_type", "default"] },
+                                "then": 2
+                            }
+                        ],
+                        "default": 3
+                    }
+                }
+            }
+        },
+        doc! { "$sort": { "sort_order": 1 } },
+        doc! {
             "$project": {
                 "_id": 0,
                 "id": 1,
@@ -96,7 +116,6 @@ pub async fn handler(
             if tasks.is_empty() {
                 get_error("No tasks found for this quest_id".to_string())
             } else {
-                tasks.sort_by(|a, b| a.id.cmp(&b.id));
                 (StatusCode::OK, Json(tasks)).into_response()
             }
         }

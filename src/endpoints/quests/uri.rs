@@ -244,14 +244,81 @@ pub async fn handler(
         Some(21) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "Focus Tree x Starknet Quest NFT".into(),
-                description: "A Focus Tree NFT won on Starknet Quest.".into(),
-                image: format!("{}/starknet/aa.webp", state.conf.variables.app_link),
+                name: "The Focus Tree".into(),
+                description: "The Focus Tree NFT won during a Starknet Quest.".into(),
+                image: format!("{}/focustree/focustree.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
         )
             .into_response(),
 
+        Some(22) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "The Element Gemstone".into(),
+                description: "An Element Gemstone NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/element/elementGem.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
+        Some(23) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "The Briq Element Gemstone".into(),
+                description: "A Briq Element Gemstone NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/element/briqGem.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
+        Some(24) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "The Layerswap Element Gemstone".into(),
+                description: "A Layerswap Element Gemstone NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/element/layerswapGem.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
+
+        Some(25) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "The Starknet.id Element Gemstone".into(),
+                description: "A Starknet.id Element Gemstone NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/element/starknetidGem.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
+        Some(26) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Starknet Pro Score x mySwap Quest NFT".into(),
+                description: "This Starknet commemorative Non-Fungible Token represents the first steps into the Starknet universe. By using mySwap and becoming a Whisperer of Braavos, you are building solid foundations for your Starknet experience.".into(),
+                image: format!("{}/braavos/myswap.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
+        Some(27) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Nostra - LaFamiglia Rose".into(),
+                description: "A Nostra - LaFamiglia Rose NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/nostra/rose.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+    
         _ => get_error("Error, this level is not correct".into()),
     }
 }

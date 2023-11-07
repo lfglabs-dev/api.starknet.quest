@@ -52,10 +52,13 @@ pub async fn handler(
         doc! {
           "$project": {
             "_id": 0,
+            "category_id": "$id",
             "category_name": "$name",
             "category_desc": "$desc",
             "category_img_url": "$img_url",
             "category_type": "$type",
+            "category_disabled": "$disabled",
+            "category_override_verified_type": "$override_verified_type",
             "achievements": {
               "id": "$achievement.id",
               "name": "$achievement.name",
@@ -82,19 +85,33 @@ pub async fn handler(
         },
         doc! {
           "$group": {
-            "_id": { "category_name": "$category_name", "category_desc": "$category_desc", "category_img_url": "$category_img_url", "category_type": "$category_type" },
+            "_id": {
+              "category_id": "$category_id",
+              "category_name": "$category_name",
+              "category_desc": "$category_desc",
+              "category_img_url": "$category_img_url",
+              "category_type": "$category_type",
+              "category_disabled": "$category_disabled",
+              "category_override_verified_type": "$category_override_verified_type",
+            },
             "achievements": { "$push": "$achievements" }
           }
         },
         doc! {
           "$project": {
+            "category_id": "$_id.category_id",
             "category_name": "$_id.category_name",
             "category_desc": "$_id.category_desc",
             "category_img_url": "$_id.category_img_url",
             "category_type": "$_id.category_type",
+            "category_disabled": "$_id.category_disabled",
+            "category_override_verified_type": "$_id.category_override_verified_type",
             "achievements": 1,
             "_id": 0
           }
+        },
+        doc! {
+            "$sort": { "category_id": 1 }
         },
     ];
 
@@ -105,7 +122,9 @@ pub async fn handler(
                 match result {
                     Ok(document) => {
                         if let Ok(achievement) = from_document::<UserAchievements>(document) {
-                            achievements.push(achievement);
+                            if !achievement.category_disabled {
+                                achievements.push(achievement);
+                            }
                         }
                     }
                     _ => continue,

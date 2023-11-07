@@ -36,6 +36,8 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     disabled: bool,
     expiry: Option<bson::DateTime>,
     expiry_timestamp: Option<String>,
+    mandatory_domain: Option<String>,
+    expired: Option<bool>,
 });
 
 pub_struct!(Deserialize; CompletedTasks {
@@ -105,13 +107,22 @@ pub_struct!(Debug, Serialize, Deserialize; AchievementCategoryDocument {
     img_url: String,
 });
 
-pub_struct!(Debug, Serialize, Deserialize; UserAchievements {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserAchievements {
+    category_id: u32,
     category_name: String,
     category_desc: String,
     category_img_url: String,
     category_type: String,
+    #[serde(default = "default_category_disabled")]
+    pub category_disabled: bool,
+    pub category_override_verified_type: Option<String>,
     achievements: Vec<UserAchievement>,
-});
+}
+
+pub fn default_category_disabled() -> bool {
+    false
+}
 
 pub_struct!(Debug, Serialize, Deserialize; UserAchievement {
     id: u32,
@@ -165,4 +176,25 @@ pub_struct!(Debug, Deserialize, Serialize; BuildingDocument {
     entity: String,
     level: u32,
     img_url: String,
+});
+
+pub_struct!(Deserialize, Debug; DeployedTime {
+    addr: String,
+    timestamp: u32,
+});
+
+pub_struct!(Deserialize; VerifyAchievementBatchedQuery {
+    addr: FieldElement,
+    category_id: u32,
+});
+
+pub_struct!(Deserialize, Serialize, Debug; UserAchievementsCategory {
+    category_id: u32,
+    achievements: Vec<UserAchievementCategory>,
+});
+
+pub_struct!(Deserialize, Serialize, Debug; UserAchievementCategory {
+    id: u32,
+    completed: bool,
+    verify_type: String,
 });
