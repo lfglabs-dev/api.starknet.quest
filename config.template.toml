@@ -32,6 +32,9 @@ api_key_user = "xxxxxx"
 api_key_claimed_mission = "xxxxxx"
 [quests.element]
 api_key = "xxxxxx"
+[quests.nostra]
+utils_contract = "0xXXXXXXXXXXXX"
+pairs = ["0xXXXXXXXXXXXX"]
 
 [twitter]
 oauth2_clientid = "xxxxxx"
@@ -794,5 +797,46 @@ options = [
     "To prove ownership of digital assets",
     "To verify that a user is a real human and a single person",
     "To confirm the user's location"
+]
+correct_answers = [*]
+
+[quizzes.nostra]
+name = "Nostra Quiz"
+desc = "Take part in our Quiz to test your knowledge about Nostra, and you'll have a chance to win an exclusive LaFamiglia Rose NFT as your reward."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Nostra, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.nostra.questions]]
+kind = "text_choice"
+layout = "default"
+question = "Which network is Nostra built on?"
+options = [
+    "Scroll",
+    "Starknet",
+    "Binance Smart Chain",
+    "zkSync"
+]
+correct_answers = [*]
+
+[[quizzes.nostra.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How many sub-accounts can a user open on Nostra?"
+options = [
+    "10",
+    "100",
+    "255",
+    "Unlimited"
+]
+correct_answers = [*]
+
+[[quizzes.nostra.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the minimum borrow amount for USDC on Nostra?"
+options = [
+    "500 USDC",
+    "100 USDC.",
+    "3000 USDC.",
+    "There is no minimum amount"
 ]
 correct_answers = [*]

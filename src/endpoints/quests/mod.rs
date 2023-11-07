@@ -8,6 +8,7 @@ pub mod focustree;
 pub mod jediswap;
 pub mod morphine;
 pub mod myswap;
+pub mod nostra;
 pub mod orbiter;
 pub mod sithswap;
 pub mod starknet;
