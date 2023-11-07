@@ -35,7 +35,6 @@ pub async fn handler(
     match client.get(&url).send().await {
         Ok(response) => match response.json::<Vec<u32>>().await {
             Ok(quests) => {
-                println!("quests: {:?}", quests);
                 if quests.is_empty() {
                     return get_error("You have not completed any quests.".to_string());
                 }

@@ -367,6 +367,10 @@ async fn main() {
             get(endpoints::achievements::verify_tvl::handler),
         )
         .route(
+            "/achievements/batched/verify_tvl_batched",
+            get(endpoints::achievements::batched::verify_tvl_batched::handler),
+        )
+        .route(
             "/achievements/verify_seniority",
             get(endpoints::achievements::verify_seniority::handler),
         )

@@ -116,6 +116,7 @@ pub struct UserAchievements {
     category_type: String,
     #[serde(default = "default_category_disabled")]
     pub category_disabled: bool,
+    pub category_override_verified_type: Option<String>,
     achievements: Vec<UserAchievement>,
 }
 
@@ -180,4 +181,20 @@ pub_struct!(Debug, Deserialize, Serialize; BuildingDocument {
 pub_struct!(Deserialize, Debug; DeployedTime {
     addr: String,
     timestamp: u32,
+});
+
+pub_struct!(Deserialize; VerifyAchievementBatchedQuery {
+    addr: FieldElement,
+    category_id: u32,
+});
+
+pub_struct!(Deserialize, Serialize, Debug; UserAchievementsCategory {
+    category_id: u32,
+    achievements: Vec<UserAchievementCategory>,
+});
+
+pub_struct!(Deserialize, Serialize, Debug; UserAchievementCategory {
+    id: u32,
+    completed: bool,
+    verify_type: String,
 });
