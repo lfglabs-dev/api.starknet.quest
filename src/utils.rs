@@ -124,7 +124,7 @@ impl CompletedTasksTrait for AppState {
             .await?;
 
         match &result.upserted_id {
-            Some(id) => {
+            Some(_id) => {
                 // lookup from the tasks collection and get quest id
                 let tasks_collection: Collection<TaskDocument> = self.db.collection("tasks");
                 let filter = doc! { "id": task_id };
@@ -165,7 +165,7 @@ impl CompletedTasksTrait for AppState {
                                 break;
                             }
                         }
-                        Err(e) => {
+                        Err(_e) => {
                             result = false
                         }
                     }
@@ -231,7 +231,7 @@ impl AchievementsTrait for AppState {
 
 
         match &result.upserted_id {
-            Some(id) => {
+            Some(_id) => {
                 // Check if the document was modified
                 let achievement_collection: Collection<AchievementDocument> = self.db.collection("achievements");
                 // Define a query using the `doc!` macro.
@@ -248,7 +248,7 @@ impl AchievementsTrait for AppState {
                 // add doc with address ,experience and timestamp
                 let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                 let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
-                let yay = user_exp_collection.insert_one(document, None).await?;
+                user_exp_collection.insert_one(document, None).await?;
             }
             None => {}
         }
