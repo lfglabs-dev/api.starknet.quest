@@ -343,6 +343,18 @@ async fn main() {
             get(endpoints::quests::element::starknetid::claimable::handler),
         )
         .route(
+            "/quests/nostra/claimable",
+            get(endpoints::quests::nostra::claimable::handler),
+        )
+        .route(
+            "/quests/nostra/discord_fw_callback",
+            get(endpoints::quests::nostra::discord_fw_callback::handler),
+        )
+        .route(
+            "/quests/nostra/verify_added_liquidity",
+            get(endpoints::quests::nostra::verify_added_liquidity::handler),
+        )
+        .route(
             "/achievements/verify_default",
             get(endpoints::achievements::verify_default::handler),
         )

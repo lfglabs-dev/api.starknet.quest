@@ -307,6 +307,17 @@ pub async fn handler(
             }),
         )
             .into_response(),
+
+        Some(27) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Nostra - LaFamiglia Rose".into(),
+                description: "A Nostra - LaFamiglia Rose NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/nostra/nostra.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
     
         _ => get_error("Error, this level is not correct".into()),
     }
