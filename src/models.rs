@@ -38,6 +38,7 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     expiry_timestamp: Option<String>,
     mandatory_domain: Option<String>,
     expired: Option<bool>,
+    experience: i64,
 });
 
 pub_struct!(Deserialize; CompletedTasks {
@@ -97,7 +98,7 @@ pub_struct!(Debug, Serialize, Deserialize; AchievementDocument {
     done_title: String,
     done_desc: String,
     verify_type: String,
-    verify_endpoint: String,
+    experience:i64,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; AchievementCategoryDocument {
@@ -117,6 +118,42 @@ pub struct UserAchievements {
     #[serde(default = "default_category_disabled")]
     pub category_disabled: bool,
     achievements: Vec<UserAchievement>,
+}
+
+pub_struct!(Debug, Serialize, Deserialize ; UserExperienceDocument {
+    address: String,
+    timestamp: i64,
+    experience: i64,
+});
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserExperience {
+    address: String,
+    timestamp: f64,
+    experience: i64,
+}
+
+pub_struct!(Deserialize; Task {
+    id: u32,
+    quest_id: u32,
+    name: String,
+    href: String,
+    cta: String,
+    verify_endpoint: String,
+    desc: String,
+    verify_endpoint_type: String,
+});
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TaskDocument {
+    pub id: u32,
+    pub quest_id: u32,
+    name: String,
+    href: String,
+    cta: String,
+    verify_endpoint: String,
+    desc: String,
+    verify_endpoint_type: String,
 }
 
 pub fn default_category_disabled() -> bool {
