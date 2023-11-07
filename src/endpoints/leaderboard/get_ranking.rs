@@ -154,8 +154,8 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
 }
 
 pub fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> (i64, i64) {
-    let mut lower_range: i64 = 0;
-    let mut upper_range: i64 = 0;
+    let lower_range: i64 ;
+    let upper_range: i64 ;
 
     // if rank is in top half of the first page then return default range
     if rank <= page_size / 2 {
@@ -260,8 +260,8 @@ pub async fn handler(
     let total_users = stats.get("total_users").unwrap().as_i32().unwrap() as i64;
     let user_rank = stats.get("user_rank").unwrap().as_i32().unwrap() as i64;
 
-    let mut lower_range: i64 = 0;
-    let mut upper_range: i64 = 0;
+    let  lower_range: i64 ;
+    let  upper_range: i64 ;
 
     // get user position and get range to get page for showing user position
     if shift == 0 {
@@ -270,7 +270,7 @@ pub async fn handler(
 
     // get user position and set range if shift
     else {
-        let (default_lower_range, default_upper_range) = get_default_range(user_rank, page_size, total_users);
+        let (default_lower_range, _default_upper_range) = get_default_range(user_rank, page_size, total_users);
 
         /*
         -> calculate shift in elements needed.
