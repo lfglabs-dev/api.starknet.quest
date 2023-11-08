@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 starknet = { git = "https://github.com/xJonathanLEI/starknet-rs" }
-starknet-id = { git = "https://github.com/starknet-id/starknet-id.rs.git" }
+starknet-id = { git = "https://github.com/starknet-id/starknet-id.rs.git", branch = "master" }
 axum = "0.6.17"
 toml = "0.5.10"
 serde = { version = "1.0.152", features = ["derive"] }

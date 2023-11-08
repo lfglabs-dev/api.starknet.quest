@@ -8,3 +8,4 @@ pub mod get_quiz;
 pub mod get_tasks;
 pub mod get_trending_quests;
 pub mod quests;
+pub mod leaderboard;

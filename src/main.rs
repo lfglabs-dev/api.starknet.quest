@@ -43,7 +43,7 @@ async fn main() {
         println!("error: unable to connect to database");
         return;
     } else {
-        println!("database: connected")
+        println!("database: connected");
     }
 
     let cors = CorsLayer::new().allow_headers(Any).allow_origin(Any);
@@ -394,6 +394,9 @@ async fn main() {
             "/achievements/fetch_buildings",
             get(endpoints::achievements::fetch_buildings::handler),
         )
+        .route("/leaderboard/get_static_info", get(endpoints::leaderboard::get_static_info::handler))
+        .route("/leaderboard/get_ranking", get(endpoints::leaderboard::get_ranking::handler))
+
         .with_state(shared_state)
         .layer(cors);
 
