@@ -277,6 +277,10 @@ pub async fn handler(
     let total_users = stats.get("total_users").unwrap().as_i32().unwrap() as i64;
     let user_rank = stats.get("user_rank").unwrap().as_i32().unwrap() as i64;
 
+    if total_users == 0 {
+        return get_error("Error querying ranks".to_string());
+    }
+
     let  lower_range: i64 ;
     let  upper_range: i64 ;
 
