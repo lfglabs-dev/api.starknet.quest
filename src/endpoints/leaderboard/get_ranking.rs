@@ -139,8 +139,25 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
         Ok(mut cursor) => {
             let mut data = Document::new();
             while let Some(result) = cursor.try_next().await.unwrap() {
-                data.insert("user_rank", result.get("rank").unwrap());
-                data.insert("total_users", result.get("total_users").unwrap());
+                match result.get("rank") {
+                    Some(rank) => {
+                        data.insert("user_rank", rank);
+                    }
+                    None => {
+                        data.insert("user_rank", 1);
+                        return data;
+                    }
+                }
+
+                match result.get("total_users") {
+                    Some(total_users) => {
+                        data.insert("total_users", total_users);
+                    }
+                    None => {
+                        data.insert("total_users", 0);
+                        return data;
+                    }
+                }
             }
             data
         }
