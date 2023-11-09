@@ -38,6 +38,7 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     expiry_timestamp: Option<String>,
     mandatory_domain: Option<String>,
     expired: Option<bool>,
+    experience: i64,
 });
 
 pub_struct!(Deserialize; CompletedTasks {
@@ -97,7 +98,7 @@ pub_struct!(Debug, Serialize, Deserialize; AchievementDocument {
     done_title: String,
     done_desc: String,
     verify_type: String,
-    verify_endpoint: String,
+    experience:i64,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; AchievementCategoryDocument {
@@ -119,7 +120,6 @@ pub struct UserAchievements {
     pub category_override_verified_type: Option<String>,
     achievements: Vec<UserAchievement>,
 }
-
 pub fn default_category_disabled() -> bool {
     false
 }

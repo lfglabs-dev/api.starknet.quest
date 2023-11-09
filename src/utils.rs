@@ -1,3 +1,4 @@
+use futures::TryStreamExt;
 use crate::models::{AchievementDocument, AppState, CompletedTasks};
 use async_trait::async_trait;
 use axum::{
@@ -17,6 +18,8 @@ use starknet::{
 use std::fmt::Write;
 use std::result::Result;
 use std::str::FromStr;
+use chrono::{Utc};
+
 
 #[macro_export]
 macro_rules! pub_struct {
@@ -118,8 +121,129 @@ impl CompletedTasksTrait for AppState {
 
         let result = completed_tasks_collection
             .update_one(filter, update, options)
-            .await;
-        result
+            .await?;
+
+        match &result.upserted_id {
+            Some(_id) => {
+                let pipeline = vec![
+                    doc! {
+                        "$match": doc!{
+                        "address": addr.to_string(),
+                    },
+                    },
+                    doc! {
+                        "$lookup": doc! {
+                        "from": "tasks",
+                        "localField": "task_id",
+                        "foreignField": "id",
+                        "as": "associatedTask",
+                    },
+                    },
+                    doc! {
+                        "$unwind": "$associatedTask",
+                    },
+                    doc! {
+                       "$project": doc! {
+                        "address": "$address",
+                        "task_id": "$task_id",
+                       "quest_id": "$associatedTask.quest_id",
+                    },
+                    },
+                    doc! {
+                        "$group": doc! {
+                        "_id": "$quest_id",
+                        "done": doc! {
+                            "$sum": 1,
+                        },
+                    },
+                    },
+                    doc! {
+                        "$lookup": doc! {
+                        "from": "tasks",
+                        "localField": "_id",
+                        "foreignField": "quest_id",
+                        "as": "tasks",
+                    },
+                    },
+                    doc! {
+                        "$match": doc! {
+                        "$expr": {
+                            "$eq": [
+                            "$done",
+                            {
+                                "$size": "$tasks",
+                            },
+                            ],
+                        },
+                    },
+                    },
+                    doc! {
+                        "$lookup": doc! {
+                        "from": "quests",
+                        "localField": "_id",
+                        "foreignField": "id",
+                        "as": "associatedQuests",
+                    }
+                    },
+                    doc! {
+                        "$unwind": "$associatedQuests",
+                    },
+                    doc! {
+                        "$project": doc! {
+                        "experience": "$associatedQuests.experience",
+                    }
+                    },
+                    doc! {
+                        "$lookup": doc! {
+                        "from": "tasks",
+                        "localField": "_id",
+                        "foreignField": "quest_id",
+                        "as": "completedTasks",
+                    },
+                    },
+                    doc! {
+                        "$unwind": "$completedTasks",
+                    },
+                    doc! {
+                        "$match": {
+                        "completedTasks.id": task_id,
+                    },
+                    },
+                    doc! {
+                        "$project": doc! {
+                        "_id": 0,
+                        "experience": 1,
+                    },
+                    },
+                ];
+                match completed_tasks_collection.aggregate(pipeline, None).await {
+                    Ok(mut cursor) => {
+                        let mut experience = 0;
+                        while let Some(response) = cursor.try_next().await.unwrap() {
+                            experience = response.get("experience").unwrap().as_i32().unwrap();
+                        }
+
+                        // return result if experience is 0 (quest is not completed)
+                        if experience == 0 {
+                            return Ok(result);
+                        }
+
+                        // save the user_exp document in the collection
+                        let user_exp_collection = self.db.collection("user_exp");
+                        // add doc with address ,experience and timestamp
+                        let timestamp = Utc::now().timestamp_millis();
+                        let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
+                        user_exp_collection.insert_one(document, None).await?;
+                    }
+                    Err(_e) => {
+                        get_error("Error querying quests".to_string());
+                    }
+                }
+            }
+            None => {}
+        }
+
+        Ok(result)
     }
 }
 
@@ -162,8 +286,32 @@ impl AchievementsTrait for AppState {
 
         let result = achieved_collection
             .update_one(filter, update, options)
-            .await;
-        result
+            .await?;
+
+
+        match &result.upserted_id {
+            Some(_id) => {
+                // Check if the document was modified
+                let achievement_collection: Collection<AchievementDocument> = self.db.collection("achievements");
+                // Define a query using the `doc!` macro.
+                let query = doc! { "id": achievement_id };
+                let mut experience: i32 = 0;
+
+                let mut cursor = achievement_collection.find(query, None).await?;
+                // Iterate over the results.
+                while let Some(doc) = cursor.try_next().await? {
+                    experience = doc.experience as i32;
+                }
+
+                let user_exp_collection = self.db.collection("user_exp");
+                // add doc with address ,experience and timestamp
+                let timestamp: f64 = Utc::now().timestamp_millis() as f64;
+                let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
+                user_exp_collection.insert_one(document, None).await?;
+            }
+            None => {}
+        }
+        Ok(result)
     }
 
     async fn get_achievement(
