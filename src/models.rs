@@ -119,43 +119,6 @@ pub struct UserAchievements {
     pub category_disabled: bool,
     achievements: Vec<UserAchievement>,
 }
-
-pub_struct!(Debug, Serialize, Deserialize ; UserExperienceDocument {
-    address: String,
-    timestamp: i64,
-    experience: i64,
-});
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UserExperience {
-    address: String,
-    timestamp: f64,
-    experience: i64,
-}
-
-pub_struct!(Deserialize; Task {
-    id: u32,
-    quest_id: u32,
-    name: String,
-    href: String,
-    cta: String,
-    verify_endpoint: String,
-    desc: String,
-    verify_endpoint_type: String,
-});
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TaskDocument {
-    pub id: u32,
-    pub quest_id: u32,
-    name: String,
-    href: String,
-    cta: String,
-    verify_endpoint: String,
-    desc: String,
-    verify_endpoint_type: String,
-}
-
 pub fn default_category_disabled() -> bool {
     false
 }
