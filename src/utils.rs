@@ -1,5 +1,5 @@
 use futures::TryStreamExt;
-use crate::models::{AchievementDocument, AppState, CompletedTasks, TaskDocument, QuestDocument};
+use crate::models::{AchievementDocument, AppState, CompletedTasks};
 use async_trait::async_trait;
 use axum::{
     body::Body,
@@ -125,60 +125,119 @@ impl CompletedTasksTrait for AppState {
 
         match &result.upserted_id {
             Some(_id) => {
-                // lookup from the tasks collection and get quest id
-                let tasks_collection: Collection<TaskDocument> = self.db.collection("tasks");
-                let filter = doc! { "id": task_id };
-                let mut quest_id = 0;
-                let mut cursor = tasks_collection.find(filter, None).await?;
-                while let Some(doc) = cursor.try_next().await? {
-                    quest_id = doc.quest_id;
-                }
-
-                // get total tasks for a specific quest id from task collection
-                let filter = doc! { "quest_id": quest_id };
-                let mut total_tasks = Vec::new();
-                let mut cursor = tasks_collection.find(filter, None).await?;
-                while let Some(doc) = cursor.try_next().await? {
-                    total_tasks.push(doc.id);
-                }
-
-                // get total experience for a specific quest id from quest collection
-                let quests_collection: Collection<QuestDocument> = self.db.collection("quests");
-                let filter = doc! { "id": quest_id };
-                let mut experience: i32 = 0;
-                let mut cursor = quests_collection.find(filter, None).await?;
-                while let Some(doc) = cursor.try_next().await? {
-                    experience = doc.experience as i32;
-                }
-
-
-                // flag value to check if quest completed (initially we assume it is and then check if any task is not completed)
-                let mut result = true;
-
-                // get completed tasks for a specific quest id from completed_tasks collection
-                for &item in total_tasks.iter() {
-                    let filter = doc! { "address": addr.to_string(),"task_id": item };
-                    match completed_tasks_collection.find(filter, None).await {
-                        Ok(mut cursor) => {
-                            if cursor.try_next().await?.is_none() {
-                                result = false;
-                                break;
-                            }
-                        }
-                        Err(_e) => {
-                            result = false
-                        }
+                let pipeline = vec![
+                    doc! {
+                        "$match": doc!{
+                        "address": addr.to_string(),
+                    },
+                    },
+                    doc! {
+                        "$lookup": doc! {
+                        "from": "tasks",
+                        "localField": "task_id",
+                        "foreignField": "id",
+                        "as": "associatedTask",
+                    },
+                    },
+                    doc! {
+                        "$unwind": "$associatedTask",
+                    },
+                    doc! {
+                       "$project": doc! {
+                        "address": "$address",
+                        "task_id": "$task_id",
+                       "quest_id": "$associatedTask.quest_id",
+                    },
+                    },
+                    doc! {
+                        "$group": doc! {
+                        "_id": "$quest_id",
+                        "done": doc! {
+                            "$sum": 1,
+                        },
+                    },
+                    },
+                    doc! {
+                        "$lookup": doc! {
+                        "from": "tasks",
+                        "localField": "_id",
+                        "foreignField": "quest_id",
+                        "as": "tasks",
+                    },
+                    },
+                    doc! {
+                        "$match": doc! {
+                        "$expr": {
+                            "$eq": [
+                            "$done",
+                            {
+                                "$size": "$tasks",
+                            },
+                            ],
+                        },
+                    },
+                    },
+                    doc! {
+                        "$lookup": doc! {
+                        "from": "quests",
+                        "localField": "_id",
+                        "foreignField": "id",
+                        "as": "associatedQuests",
                     }
-                }
+                    },
+                    doc! {
+                        "$unwind": "$associatedQuests",
+                    },
+                    doc! {
+                        "$project": doc! {
+                        "experience": "$associatedQuests.experience",
+                    }
+                    },
+                    doc! {
+                        "$lookup": doc! {
+                        "from": "tasks",
+                        "localField": "_id",
+                        "foreignField": "quest_id",
+                        "as": "completedTasks",
+                    },
+                    },
+                    doc! {
+                        "$unwind": "$completedTasks",
+                    },
+                    doc! {
+                        "$match": {
+                        "completedTasks.id": task_id,
+                    },
+                    },
+                    doc! {
+                        "$project": doc! {
+                        "_id": 0,
+                        "experience": 1,
+                    },
+                    },
+                ];
+                match completed_tasks_collection.aggregate(pipeline, None).await {
+                    Ok(mut cursor) => {
+                        let mut experience = 0;
+                        while let Some(response) = cursor.try_next().await.unwrap() {
+                            experience = response.get("experience").unwrap().as_i32().unwrap();
+                        }
 
-                // save the user_exp document in the collection if the quest is completed
-                if result == true {
-                    // save the user_exp document in the collection
-                    let user_exp_collection = self.db.collection("user_exp");
-                    // add doc with address ,experience and timestamp
-                    let timestamp: f64 = Utc::now().timestamp_millis() as f64;
-                    let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
-                    user_exp_collection.insert_one(document, None).await?;
+                        // return result if experience is 0 (quest is not completed)
+                        if experience == 0 {
+                            return Ok(result);
+                        }
+
+                        // save the user_exp document in the collection
+                        let user_exp_collection = self.db.collection("user_exp");
+                        // add doc with address ,experience and timestamp
+                        let timestamp = Utc::now().timestamp_millis();
+                        let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
+                        user_exp_collection.insert_one(document, None).await?;
+                    }
+                    Err(_e) => {
+                        get_error("Error querying quests".to_string());
+                    }
                 }
             }
             None => {}
