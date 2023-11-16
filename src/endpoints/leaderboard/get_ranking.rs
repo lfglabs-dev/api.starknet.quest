@@ -171,8 +171,8 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
 }
 
 pub fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> (i64, i64) {
-    let lower_range: i64 ;
-    let upper_range: i64 ;
+    let lower_range: i64;
+    let upper_range: i64;
 
     // if rank is in top half of the first page then return default range
     if rank <= page_size / 2 {
@@ -281,8 +281,8 @@ pub async fn handler(
         return get_error("Error querying ranks".to_string());
     }
 
-    let  lower_range: i64 ;
-    let  upper_range: i64 ;
+    let lower_range: i64;
+    let upper_range: i64;
 
     // get user position and get range to get page for showing user position
     if shift == 0 {
@@ -350,29 +350,9 @@ pub async fn handler(
             }
         },
         doc! {
-            "$lookup": doc!{
-                "from": "achieved",
-                "localField": "_id",
-                "foreignField": "addr",
-                "as": "associatedAchievement"
-            }
-        },
-        doc! {
-            "$project": doc!{
-                "_id": 0,
-                "address": "$_id",
-                "xp": "$experience",
-                "achievements": doc!{
-                    "$size": "$associatedAchievement"
-                }
-            }
-        },
-        doc! {
             "$sort": doc!{
                 "xp": -1,
-                "achievements": -1,
                 "timestamp":1,
-                "address":1,
             }
         },
         doc! {
@@ -409,6 +389,24 @@ pub async fn handler(
               "$lte":upper_range
             }
           }
+        },
+        doc! {
+            "$lookup": doc!{
+                "from": "achieved",
+                "localField": "_id",
+                "foreignField": "addr",
+                "as": "associatedAchievement"
+            }
+        },
+        doc! {
+            "$project": doc!{
+                "_id": 0,
+                "address": "$_id",
+                "xp": "$experience",
+                "achievements": doc!{
+                    "$size": "$associatedAchievement"
+                }
+            }
         },
         doc! {
            "$project":{
