@@ -100,14 +100,35 @@ pub async fn get_leaderboard_toppers(
                         "$count": "total"
                     }
                 ],
-                "rank": vec![
-                    doc!{
-          "$project": {
-            "_id": 0,
-            "address": "$address",
+      "rank": vec! [
+        doc! {
+          "$group": {
+            "_id": null,
+            "addressList": { "$push": "$address" },
           },
         },
-                ]
+        doc!{
+          "$project": {
+            "_id": 0,
+            "addressList": 1,
+          },
+        },
+        doc! {
+          "$project": {
+            "rank": {
+              "$add": [
+                {
+                  "$indexOfArray": [
+                    "$addressList",
+                    address,
+                  ],
+                },
+                1,
+              ],
+            },
+          },
+        },
+      ],
             }
         },
         doc! {
@@ -123,18 +144,29 @@ pub async fn get_leaderboard_toppers(
             "$unwind": "$totalUsers",
         },
         doc! {
-            "$project": doc!{
-                "_id": 0,
-                "length": "$totalUsers.total",
-                "best_users": 1,
+            "$project": doc! {
+            "_id": 0,
+            "length": "$totalUsers.total",
+            "best_users": 1,
+            "rank":1
+        }
+        },
+        doc! {
+            "$unwind": "$rank",
+        },
+        doc! {
+            "$project": doc! {
+            "_id": 0,
+            "length": 1,
+            "best_users": 1,
                 "position": doc!{
                     "$cond": {
-                        "if": { "$eq": [{ "$indexOfArray": ["$rank.address", address] }, -1] }, // Check if indexOfArray returns -1
+                        "if": { "$eq": [ "$rank.rank", 0] }, // Check if indexOfArray returns -1
                         "then": "$$REMOVE", // Remove field if doesn't exist
-                        "else": { "$add": [{ "$indexOfArray": ["$rank.address", address] }, 1] } // Add 1 to the index if not -1
+                        "else": "$rank.rank" // Add 1 to the index if not -1
                         }
                 }
-            }
+        }
         },
     ];
 
@@ -150,7 +182,9 @@ pub async fn get_leaderboard_toppers(
             }
             query_result[0].clone()
         }
-        Err(_) => Document::new(),
+        Err(_err) => {
+            Document::new()
+        }
     };
 }
 
@@ -165,7 +199,7 @@ pub async fn handler(
     // fetch weekly toppers and check if valid result
     let weekly_toppers_result = get_leaderboard_toppers(&users_collection, 7, &addr).await;
     let weekly_toppers = match weekly_toppers_result.is_empty() {
-         true => {
+        true => {
             error_flag.insert("status", true);
             error_flag.clone()
         }

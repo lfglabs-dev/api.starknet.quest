@@ -98,42 +98,64 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
             }
         },
         doc! {
-            "$facet":doc! {
-                "total_users":vec! [
-                    doc!{
-                        "$count":"total_users"
-                    }
-                ],
-                "user_rank":vec![
-                    doc!{
-                        "$project": doc!{
-                            "_id": 0,
-                            "address": "$address",
-                        },
-                    },
-                ]
-            }
+           "$group": doc! {
+            "_id": null,
+            "addressList": { "$push": "$address" },
+        },
         },
         doc! {
-            "$project": doc! {
-                "total_users": doc! {
-                    "$arrayElemAt": [
-                    "$total_users.total_users",
-                    0,
+            "$project": doc!{
+            "_id": 0,
+            "addressList": 1,
+        },
+        },
+        doc! {
+            "$facet": {
+            "total_users": vec! [
+            doc!{
+                "$project": doc! {
+                "total": {
+                    "$size": "$addressList",
+                },
+            },
+            },
+            ],
+            "user_rank": vec![
+            doc!{
+                "$project": {
+                "rank": {
+                    "$add": [
+                    doc! {
+                        "$indexOfArray": [
+                        "$addressList",
+                        address,
+                        ],
+                    },
+                    1,
                     ],
                 },
-                "rank": doc!{
-                    "$add": [
-                        {
-                            "$indexOfArray": ["$user_rank.address",address],
-                        },
-                        1,
-                    ],
-                }
+            },
+            },
+            ],
+        },
+        },
+        doc! {
+            "$project": doc!{
+            "total_users": doc!{
+                "$arrayElemAt": [
+                "$total_users.total",
+                0,
+                ],
+            },
+            "rank": doc!{
+                "$arrayElemAt": [
+                "$user_rank.rank",
+                0,
+                ],
             },
         },
+        },
     ];
-
 
     return match collection.aggregate(user_rank_pipeline, None).await {
         Ok(mut cursor) => {
@@ -161,7 +183,7 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
             }
             data
         }
-        Err(_) => {
+        Err(_err) => {
             let mut data = Document::new();
             data.insert("user_rank", 1);
             data.insert("total_users", 0);
@@ -170,31 +192,30 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
     };
 }
 
+<<<<<<< Updated upstream
 pub fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> (i64, i64) {
     let lower_range: i64;
     let upper_range: i64;
+=======
+pub fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> i64 {
+    let lower_range: i64;
+>>>>>>> Stashed changes
 
     // if rank is in top half of the first page then return default range
     if rank <= page_size / 2 {
         lower_range = 1;
-        upper_range = page_size;
     }
 
     // if rank is in bottom half of the last page then return default range
     else if rank >= (total_users - page_size / 2) {
         lower_range = total_users - page_size;
-        upper_range = total_users;
     }
 
     // if rank is in middle then return modified range where rank will be placed in middle of page
     else {
         lower_range = rank - (page_size / 2 - 1);
-        upper_range = match rank + (page_size / 2) > total_users {
-            true => total_users,
-            false => rank + (page_size / 2),
-        };
     }
-    return (lower_range, upper_range);
+    return lower_range;
 }
 
 #[cfg(test)]
@@ -282,16 +303,19 @@ pub async fn handler(
     }
 
     let lower_range: i64;
+<<<<<<< Updated upstream
     let upper_range: i64;
+=======
+>>>>>>> Stashed changes
 
     // get user position and get range to get page for showing user position
     if shift == 0 {
-        (lower_range, upper_range) = get_default_range(user_rank, page_size, total_users);
+        lower_range = get_default_range(user_rank, page_size, total_users);
     }
 
     // get user position and set range if shift
     else {
-        let (default_lower_range, _default_upper_range) = get_default_range(user_rank, page_size, total_users);
+        let default_lower_range = get_default_range(user_rank, page_size, total_users);
 
         /*
         -> calculate shift in elements needed.
@@ -314,16 +338,6 @@ pub async fn handler(
         } else {
             lower_range = default_lower_range + shift_in_elements;
         }
-
-        /*
-          set upper range
-          -> if upper range becomes greater than total users then set it to total users
-           -> else set upper range to lower range + shift in elements
-         */
-        upper_range = match lower_range + page_size > total_users {
-            true => total_users,
-            false => if lower_range == 0 { lower_range + page_size } else { lower_range + page_size - 1 },
-        };
     }
 
     let paginated_leaderboard_pipeline = [
@@ -356,21 +370,13 @@ pub async fn handler(
             }
         },
         doc! {
-            "$group": {
-            "_id": null,
-            "docs": doc! {
-                "$push": "$$ROOT",
-            },
-        },
+            "$skip": lower_range-1
         },
         doc! {
-            "$unwind": doc! {
-            "path": "$docs",
-                "includeArrayIndex": "rownum",
-
-        },
+            "$limit": page_size
         },
         doc! {
+<<<<<<< Updated upstream
             "$addFields": {
             "docs.rank": {
                 "$add": ["$rownum", 1],
@@ -410,13 +416,15 @@ pub async fn handler(
         },
         doc! {
            "$project":{
+=======
+            "$project": doc!{
+                "xp": 1,
+                "achievements": 1,
+>>>>>>> Stashed changes
                 "address":1,
-                "xp":1,
-                "achievements":1
             }
         }
     ];
-
 
     match users_collection.aggregate(paginated_leaderboard_pipeline, None).await {
         Ok(mut cursor) => {
@@ -429,6 +437,8 @@ pub async fn handler(
             res.insert("first_elt_position".to_string(), if lower_range == 0 { 1 } else { lower_range });
             (StatusCode::OK, Json(res)).into_response()
         }
-        Err(_) => get_error("Error querying ranks".to_string()),
+        Err(_err) => {
+            get_error("Error querying ranks".to_string())
+        }
     }
 }
