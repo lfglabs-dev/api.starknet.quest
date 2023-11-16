@@ -199,30 +199,9 @@ impl CompletedTasksTrait for AppState {
                     },
                     doc! {
                         "$project": doc! {
-                        "experience": "$associatedQuests.experience",
-                    }
-                    },
-                    doc! {
-                        "$lookup": doc! {
-                        "from": "tasks",
-                        "localField": "_id",
-                        "foreignField": "quest_id",
-                        "as": "completedTasks",
-                    },
-                    },
-                    doc! {
-                        "$unwind": "$completedTasks",
-                    },
-                    doc! {
-                        "$match": {
-                        "completedTasks.id": task_id,
-                    },
-                    },
-                    doc! {
-                        "$project": doc! {
-                        "_id": 0,
-                        "experience": 1,
-                    },
+                            "_id": 0,
+                            "experience": "$associatedQuests.experience",
+                        }
                     },
                 ];
                 match completed_tasks_collection.aggregate(pipeline, None).await {
