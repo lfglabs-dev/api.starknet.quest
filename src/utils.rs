@@ -178,6 +178,15 @@ impl CompletedTasksTrait for AppState {
                     },
                     },
                     doc! {
+                        "$match": doc! {
+                        "tasks": doc! {
+                            "$elemMatch": {
+                                "id": task_id,
+                            },
+                        },
+                    },
+                    },
+                    doc! {
                         "$lookup": doc! {
                         "from": "quests",
                         "localField": "_id",
