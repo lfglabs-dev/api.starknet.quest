@@ -192,14 +192,8 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
     };
 }
 
-<<<<<<< Updated upstream
-pub fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> (i64, i64) {
-    let lower_range: i64;
-    let upper_range: i64;
-=======
 pub fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> i64 {
     let lower_range: i64;
->>>>>>> Stashed changes
 
     // if rank is in top half of the first page then return default range
     if rank <= page_size / 2 {
@@ -303,10 +297,6 @@ pub async fn handler(
     }
 
     let lower_range: i64;
-<<<<<<< Updated upstream
-    let upper_range: i64;
-=======
->>>>>>> Stashed changes
 
     // get user position and get range to get page for showing user position
     if shift == 0 {
@@ -364,39 +354,6 @@ pub async fn handler(
             }
         },
         doc! {
-            "$sort": doc!{
-                "xp": -1,
-                "timestamp":1,
-            }
-        },
-        doc! {
-            "$skip": lower_range-1
-        },
-        doc! {
-            "$limit": page_size
-        },
-        doc! {
-<<<<<<< Updated upstream
-            "$addFields": {
-            "docs.rank": {
-                "$add": ["$rownum", 1],
-            },
-        },
-        },
-        doc! {
-            "$replaceRoot": doc! {
-            "newRoot": "$docs",
-        }
-        },
-        doc! {
-          "$match": doc!{
-            "rank":doc!{
-              "$gte":lower_range,
-              "$lte":upper_range
-            }
-          }
-        },
-        doc! {
             "$lookup": doc!{
                 "from": "achieved",
                 "localField": "_id",
@@ -415,12 +372,23 @@ pub async fn handler(
             }
         },
         doc! {
-           "$project":{
-=======
+            "$sort":doc! {
+                "xp":-1,
+                "timestamp":1,
+                "achievements":-1,
+                "address":1,
+            }
+        },
+        doc! {
+            "$skip": lower_range-1
+        },
+        doc! {
+          "$limit":page_size
+        },
+        doc! {
             "$project": doc!{
                 "xp": 1,
                 "achievements": 1,
->>>>>>> Stashed changes
                 "address":1,
             }
         }
