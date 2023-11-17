@@ -24,7 +24,7 @@ pub async fn handler(
     }
 
     let url = format!(
-        "https://stack.starkendefi.xyz/public/aggregates/{}",
+        "https://public.starkendefi.xyz/public/aggregates/{}",
         to_hex(addr)
     );
     let client = reqwest::Client::new();
@@ -41,9 +41,9 @@ pub async fn handler(
                             let mut achieved: Vec<u32> = vec![];
                             for achievement in achievements.achievements {
                                 if !achievement.completed
-                                    && (achievement.id == 11 && total_tvl_dollars >= 100.0)
-                                    || (achievement.id == 12 && total_tvl_dollars >= 1000.0)
-                                    || (achievement.id == 13 && total_tvl_dollars >= 10000.0)
+                                    && ((achievement.id == 11 && total_tvl_dollars >= 100.0)
+                                        || (achievement.id == 12 && total_tvl_dollars >= 1000.0)
+                                        || (achievement.id == 13 && total_tvl_dollars >= 10000.0))
                                 {
                                     match state
                                         .upsert_completed_achievement(addr, achievement.id)
