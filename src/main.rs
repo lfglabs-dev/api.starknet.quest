@@ -283,6 +283,30 @@ async fn main() {
             get(endpoints::quests::braavos::myswap::verify_twitter_fw_myswap::handler),
         )
         .route(
+            "/quests/braavos/avnu/claimable",
+            get(endpoints::quests::braavos::avnu::claimable::handler),
+        )
+        .route(
+            "/quests/braavos/avnu/verify_has_domain",
+            get(endpoints::quests::braavos::avnu::verify_has_domain::handler),
+        )
+        .route(
+            "/quests/braavos/avnu/verify_swap",
+            get(endpoints::quests::braavos::avnu::verify_swap::handler),
+        )
+        .route(
+            "/quests/braavos/avnu/verify_twitter_fw_avnu",
+            get(endpoints::quests::braavos::avnu::verify_twitter_fw_avnu::handler),
+        )
+        .route(
+            "/quests/braavos/avnu/verify_twitter_fw_braavos",
+            get(endpoints::quests::braavos::avnu::verify_twitter_fw_braavos::handler),
+        )
+        .route(
+            "/quests/braavos/avnu/verify_twitter_rt",
+            get(endpoints::quests::braavos::avnu::verify_twitter_rt::handler),
+        )
+        .route(
             "/quests/focustree/verify_twitter_fw",
             get(endpoints::quests::focustree::verify_twitter_fw::handler),
         )
@@ -394,9 +418,14 @@ async fn main() {
             "/achievements/fetch_buildings",
             get(endpoints::achievements::fetch_buildings::handler),
         )
-        .route("/leaderboard/get_static_info", get(endpoints::leaderboard::get_static_info::handler))
-        .route("/leaderboard/get_ranking", get(endpoints::leaderboard::get_ranking::handler))
-
+        .route(
+            "/leaderboard/get_static_info",
+            get(endpoints::leaderboard::get_static_info::handler),
+        )
+        .route(
+            "/leaderboard/get_ranking",
+            get(endpoints::leaderboard::get_ranking::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 
