@@ -20,7 +20,7 @@ pub async fn handler(
     let hex_addr = format!("{:#x}", query.addr);
 
     // Fetch AVNU endpoint to get user score
-    let url = format!("https://starknet.api.avnu.fi/v1/takers/{}", hex_addr);
+    let url = format!("https://starknet.api.avnu.fi/v1/quest/takers/{}", hex_addr);
     let client = reqwest::Client::new();
     let response_result = client.get(url).send().await;
     let response = match response_result {
@@ -40,14 +40,14 @@ pub async fn handler(
             return get_error(format!("Failed to send request to fetch user info: {}", e));
         }
     };
-    let score = match response["score"].as_u64() {
+    let score = match response["volumeInUSD"].as_f64() {
         Some(s) => s,
         None => {
             return get_error("Failed to get user info from response data".to_string());
         }
     };
 
-    if score == 0 {
+    if score == 0.0 {
         get_error("You have not made a swap on AVNU yet.".to_string())
     } else {
         match state.upsert_completed_task(query.addr, task_id).await {
