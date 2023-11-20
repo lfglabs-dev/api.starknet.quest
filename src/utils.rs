@@ -354,9 +354,6 @@ pub async fn add_leaderboard_watcher(db: &Database) {
 
     let pipeline = vec![
         doc! {
-             "$sort" : doc! { "timestamp":-1}
-        },
-        doc! {
             "$group": doc!{
                 "_id": "$address",
                 "experience": doc!{
