@@ -6,7 +6,7 @@ use axum::{
     http::{Response as HttpResponse, StatusCode, Uri},
     response::{IntoResponse, Response},
 };
-use mongodb::{bson::doc, options::UpdateOptions, results::UpdateResult, Collection, Database, Cursor};
+use mongodb::{bson::doc, options::UpdateOptions, results::UpdateResult, Collection, Database, Cursor, IndexModel, bson};
 use starknet::signers::Signer;
 use starknet::{
     core::{
@@ -367,11 +367,18 @@ pub async fn add_leaderboard_watcher(db: &Database) {
         doc! { "$merge" : doc! { "into":  view_collection_name , "on": "_id",  "whenMatched": "replace", "whenNotMatched": "insert" } },
     ];
 
-    let view_collection:Collection<Leaderboard_table> = db.collection::<Leaderboard_table>(view_collection_name);
+    let view_collection: Collection<Leaderboard_table> = db.collection::<Leaderboard_table>(view_collection_name);
     let source_collection = db.collection::<User_experience>("user_exp");
 
     // create materialised view
     source_collection.aggregate(pipeline, None).await.unwrap();
+
+    let index = IndexModel::builder()
+        .keys(doc! { "experience": -1})
+        .build();
+
+    //add indexing to materialised view
+    let idx = view_collection.create_index(index, None).await.unwrap();
 
     // add collection listener
     let mut change_stream: ChangeStream<ChangeStreamEvent<User_experience>> = db.collection("user_exp").watch(None, None).await.unwrap();
@@ -383,7 +390,7 @@ pub async fn add_leaderboard_watcher(db: &Database) {
 
                     // get current experience and new experience to it
                     let filter = doc! { "_id": document.address.clone() };
-                    let mut cursor :Cursor<Leaderboard_table> = view_collection.find(filter, None).await.unwrap();
+                    let mut cursor: Cursor<Leaderboard_table> = view_collection.find(filter, None).await.unwrap();
                     let mut experience = 0;
                     while let Some(doc) = cursor.try_next().await.unwrap() {
                         experience = doc.experience;
