@@ -1,12 +1,12 @@
 use futures::TryStreamExt;
-use crate::models::{AchievementDocument, AppState, CompletedTasks};
+use crate::models::{AchievementDocument, AppState, CompletedTasks, Leaderboard_table, User_experience};
 use async_trait::async_trait;
 use axum::{
     body::Body,
     http::{Response as HttpResponse, StatusCode, Uri},
     response::{IntoResponse, Response},
 };
-use mongodb::{bson::doc, options::UpdateOptions, results::UpdateResult, Collection};
+use mongodb::{bson::doc, options::UpdateOptions, results::UpdateResult, Collection, Database, Cursor};
 use starknet::signers::Signer;
 use starknet::{
     core::{
@@ -18,7 +18,10 @@ use starknet::{
 use std::fmt::Write;
 use std::result::Result;
 use std::str::FromStr;
+use std::sync::Arc;
 use chrono::{Utc};
+use mongodb::change_stream::ChangeStream;
+use mongodb::change_stream::event::ChangeStreamEvent;
 
 
 #[macro_export]
@@ -343,4 +346,60 @@ impl DeployedTimesTrait for AppState {
             .await;
         result
     }
+}
+
+
+pub async fn add_leaderboard_watcher(db: &Database) {
+    let view_collection_name = "leaderboard_table";
+
+    let pipeline = vec![
+        doc! {
+             "$sort" : doc! { "timestamp":-1}
+        },
+        doc! {
+            "$group": doc!{
+                "_id": "$address",
+                "experience": doc!{
+                    "$sum": "$experience"
+                },
+                "timestamp": doc! {
+                    "$last": "$timestamp"
+                }
+            }
+        },
+        doc! { "$merge" : doc! { "into":  view_collection_name , "on": "_id",  "whenMatched": "replace", "whenNotMatched": "insert" } },
+    ];
+
+    let view_collection:Collection<Leaderboard_table> = db.collection::<Leaderboard_table>(view_collection_name);
+    let source_collection = db.collection::<User_experience>("user_exp");
+
+    // create materialised view
+    source_collection.aggregate(pipeline, None).await.unwrap();
+
+    // add collection listener
+    let mut change_stream: ChangeStream<ChangeStreamEvent<User_experience>> = db.collection("user_exp").watch(None, None).await.unwrap();
+
+    tokio::spawn(async move {
+        while let Some(change) = change_stream.try_next().await.unwrap() {
+            match change.full_document {
+                Some(document) => {
+
+                    // get current experience and new experience to it
+                    let filter = doc! { "_id": document.address.clone() };
+                    let mut cursor :Cursor<Leaderboard_table> = view_collection.find(filter, None).await.unwrap();
+                    let mut experience = 0;
+                    while let Some(doc) = cursor.try_next().await.unwrap() {
+                        experience = doc.experience;
+                    }
+
+                    // update the view collection
+                    let filter = doc! { "_id": document.address.clone() };
+                    let update = doc! { "$set": { "experience": experience + document.experience, "timestamp": document.timestamp } };
+                    let options = UpdateOptions::builder().upsert(true).build();
+                    view_collection.update_one(filter, update, options).await.unwrap();
+                }
+                None => {}
+            }
+        }
+    });
 }
