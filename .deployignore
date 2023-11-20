@@ -1,0 +1,6 @@
+.*
+target
+backups
+config.template.toml
+docker-compose.prod.yml
+docker-compose.yml

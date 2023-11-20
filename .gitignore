@@ -1,5 +1,7 @@
 backups/**
 config.toml
+.ssh-connection*
+.deployments
 
 ### Git ###
 # Created by git for backups. To disable backups in Git:
