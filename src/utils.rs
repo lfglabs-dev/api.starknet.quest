@@ -378,7 +378,7 @@ pub async fn add_leaderboard_watcher(db: &Database) {
         .build();
 
     //add indexing to materialised view
-    let idx = view_collection.create_index(index, None).await.unwrap();
+    view_collection.create_index(index, None).await.unwrap();
 
     // add collection listener
     let mut change_stream: ChangeStream<ChangeStreamEvent<User_experience>> = db.collection("user_exp").watch(None, None).await.unwrap();
