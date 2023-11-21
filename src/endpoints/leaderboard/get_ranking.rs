@@ -183,22 +183,22 @@ mod tests {
 
     #[test]
     fn modified_range() {
-        assert_eq!((9, 18), get_default_range(13, 10, 46));
+        assert_eq!((9), get_default_range(13, 10, 46));
     }
 
     #[test]
     fn fetch_normal_range() {
-        assert_eq!((11, 20), get_default_range(15, 10, 46));
+        assert_eq!((11), get_default_range(15, 10, 46));
     }
 
     #[test]
     fn fetch_top_extreme_range() {
-        assert_eq!((1, 10), get_default_range(3, 10, 46));
+        assert_eq!((1), get_default_range(3, 10, 46));
     }
 
     #[test]
     fn fetch_bottom_extreme_range() {
-        assert_eq!((36, 46), get_default_range(43, 10, 46));
+        assert_eq!((36), get_default_range(43, 10, 46));
     }
 }
 

@@ -1,12 +1,12 @@
 use futures::TryStreamExt;
-use crate::models::{AchievementDocument, AppState, CompletedTasks, Leaderboard_table, User_experience};
+use crate::models::{AchievementDocument, AppState, CompletedTasks, LeaderboardTable, UserExperience};
 use async_trait::async_trait;
 use axum::{
     body::Body,
     http::{Response as HttpResponse, StatusCode, Uri},
     response::{IntoResponse, Response},
 };
-use mongodb::{bson::doc, options::UpdateOptions, results::UpdateResult, Collection, Database, Cursor, IndexModel, bson};
+use mongodb::{bson::doc, options::UpdateOptions, results::UpdateResult, Collection, Database, Cursor, IndexModel};
 use starknet::signers::Signer;
 use starknet::{
     core::{
@@ -18,12 +18,7 @@ use starknet::{
 use std::fmt::Write;
 use std::result::Result;
 use std::str::FromStr;
-use std::sync::Arc;
 use chrono::{Utc};
-use mongodb::change_stream::ChangeStream;
-use mongodb::change_stream::event::ChangeStreamEvent;
-
-
 #[macro_export]
 macro_rules! pub_struct {
     ($($derive:path),*; $name:ident {$($field:ident: $t:ty),* $(,)?}) => {
@@ -225,7 +220,7 @@ impl CompletedTasksTrait for AppState {
                         let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                         let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
                         user_exp_collection.insert_one(document, None).await?;
-                        let view_collection: Collection<Leaderboard_table> = self.db.collection("leaderboard_table");
+                        let view_collection: Collection<LeaderboardTable> = self.db.collection("leaderboard_table");
                         update_leaderboard(view_collection, addr.to_string(), experience.into(), timestamp).await;
                     }
                     Err(_e) => {
@@ -301,7 +296,7 @@ impl AchievementsTrait for AppState {
                 let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                 let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
                 user_exp_collection.insert_one(document, None).await?;
-                let view_collection: Collection<Leaderboard_table> = self.db.collection("leaderboard_table");
+                let view_collection: Collection<LeaderboardTable> = self.db.collection("leaderboard_table");
                 update_leaderboard(view_collection, addr.to_string(), experience.into(), timestamp).await;
             }
             None => {}
@@ -352,11 +347,11 @@ impl DeployedTimesTrait for AppState {
     }
 }
 
-pub async fn update_leaderboard(view_collection: Collection<Leaderboard_table>, address: String, experience: i64, timestamp: f64) {
+pub async fn update_leaderboard(view_collection: Collection<LeaderboardTable>, address: String, experience: i64, timestamp: f64) {
     // get current experience and new experience to it
     let mut old_experience = 0;
     let filter = doc! { "_id": &*address };
-    let mut cursor: Cursor<Leaderboard_table> = view_collection.find(filter, None).await.unwrap();
+    let mut cursor: Cursor<LeaderboardTable> = view_collection.find(filter, None).await.unwrap();
     while let Some(doc) = cursor.try_next().await.unwrap() {
         old_experience = doc.experience;
     }
@@ -388,8 +383,8 @@ pub async fn add_leaderboard_watcher(db: &Database) {
         doc! { "$merge" : doc! { "into":  view_collection_name , "on": "_id",  "whenMatched": "replace", "whenNotMatched": "insert" } },
     ];
 
-    let view_collection: Collection<Leaderboard_table> = db.collection::<Leaderboard_table>(view_collection_name);
-    let source_collection = db.collection::<User_experience>("user_exp");
+    let view_collection: Collection<LeaderboardTable> = db.collection::<LeaderboardTable>(view_collection_name);
+    let source_collection = db.collection::<UserExperience>("user_exp");
 
     // create materialised view
     source_collection.aggregate(pipeline, None).await.unwrap();

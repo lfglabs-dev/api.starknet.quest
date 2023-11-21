@@ -5,21 +5,18 @@ mod config;
 mod endpoints;
 mod models;
 
-use futures::TryStreamExt;
-
 use axum::{
     http::StatusCode,
     routing::{get, post},
     Router,
 };
-use mongodb::{bson::doc, options::ClientOptions, Client, Collection};
+use mongodb::{bson::doc, options::ClientOptions, Client};
 use reqwest::Url;
 use starknet::providers::{jsonrpc::HttpTransport, JsonRpcClient};
 use std::net::SocketAddr;
 use std::sync::Arc;
 
 use tower_http::cors::{Any, CorsLayer};
-use crate::models::User_experience;
 use crate::utils::{add_leaderboard_watcher};
 
 #[tokio::main]
