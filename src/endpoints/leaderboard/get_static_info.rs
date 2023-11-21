@@ -50,20 +50,6 @@ pub async fn get_leaderboard_toppers(
             }
         },
         doc! {
-             "$sort" : doc! { "timestamp":-1}
-        },
-        doc! {
-            "$group": doc!{
-                "_id": "$address",
-                "experience": doc!{
-                    "$sum": "$experience"
-                },
-                "timestamp": doc! {
-                    "$last": "$timestamp"
-                }
-            }
-        },
-        doc! {
             "$lookup": doc!{
                 "from": "achieved",
                 "localField": "_id",
@@ -85,7 +71,6 @@ pub async fn get_leaderboard_toppers(
             "$sort": doc!{
                 "xp": -1,
                 "achievements": -1,
-                "timestamp":1,
                 "address":1,
             }
         },
@@ -194,7 +179,7 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let addr: String = query.addr.to_string();
     let mut error_flag = Document::new();
-    let users_collection = state.db.collection::<Document>("user_exp");
+    let users_collection = state.db.collection::<Document>("leaderboard_table");
 
     // fetch weekly toppers and check if valid result
     let weekly_toppers_result = get_leaderboard_toppers(&users_collection, 7, &addr).await;

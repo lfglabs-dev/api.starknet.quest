@@ -144,7 +144,7 @@ pub_struct!(Debug, Serialize, Deserialize; User_experience {
 
 pub_struct!(Debug, Serialize, Deserialize; Leaderboard_table {
     experience:i64,
-    timestamp:i64,
+    timestamp:f64,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; NftBalance {

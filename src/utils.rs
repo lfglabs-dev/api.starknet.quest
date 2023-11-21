@@ -222,9 +222,11 @@ impl CompletedTasksTrait for AppState {
                         // save the user_exp document in the collection
                         let user_exp_collection = self.db.collection("user_exp");
                         // add doc with address ,experience and timestamp
-                        let timestamp = Utc::now().timestamp_millis();
+                        let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                         let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
                         user_exp_collection.insert_one(document, None).await?;
+                        let view_collection: Collection<Leaderboard_table> = self.db.collection("leaderboard_table");
+                        update_leaderboard(view_collection, addr.to_string(), experience.into(), timestamp).await;
                     }
                     Err(_e) => {
                         get_error("Error querying quests".to_string());
@@ -299,6 +301,8 @@ impl AchievementsTrait for AppState {
                 let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                 let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
                 user_exp_collection.insert_one(document, None).await?;
+                let view_collection: Collection<Leaderboard_table> = self.db.collection("leaderboard_table");
+                update_leaderboard(view_collection, addr.to_string(), experience.into(), timestamp).await;
             }
             None => {}
         }
@@ -348,6 +352,23 @@ impl DeployedTimesTrait for AppState {
     }
 }
 
+pub async fn update_leaderboard(view_collection: Collection<Leaderboard_table>, address: String, experience: i64, timestamp: f64) {
+    // get current experience and new experience to it
+    let mut old_experience = 0;
+    let filter = doc! { "_id": &*address };
+    let mut cursor: Cursor<Leaderboard_table> = view_collection.find(filter, None).await.unwrap();
+    while let Some(doc) = cursor.try_next().await.unwrap() {
+        old_experience = doc.experience;
+    }
+
+
+    // update the view collection
+    let filter = doc! { "_id": &*address };
+    let update = doc! { "$set": { "experience": old_experience + experience, "timestamp": timestamp } };
+    let options = UpdateOptions::builder().upsert(true).build();
+    view_collection.update_one(filter, update, options).await.unwrap();
+}
+
 
 pub async fn add_leaderboard_watcher(db: &Database) {
     let view_collection_name = "leaderboard_table";
@@ -379,31 +400,4 @@ pub async fn add_leaderboard_watcher(db: &Database) {
 
     //add indexing to materialised view
     view_collection.create_index(index, None).await.unwrap();
-
-    // add collection listener
-    let mut change_stream: ChangeStream<ChangeStreamEvent<User_experience>> = db.collection("user_exp").watch(None, None).await.unwrap();
-
-    tokio::spawn(async move {
-        while let Some(change) = change_stream.try_next().await.unwrap() {
-            match change.full_document {
-                Some(document) => {
-
-                    // get current experience and new experience to it
-                    let filter = doc! { "_id": document.address.clone() };
-                    let mut cursor: Cursor<Leaderboard_table> = view_collection.find(filter, None).await.unwrap();
-                    let mut experience = 0;
-                    while let Some(doc) = cursor.try_next().await.unwrap() {
-                        experience = doc.experience;
-                    }
-
-                    // update the view collection
-                    let filter = doc! { "_id": document.address.clone() };
-                    let update = doc! { "$set": { "experience": experience + document.experience, "timestamp": document.timestamp } };
-                    let options = UpdateOptions::builder().upsert(true).build();
-                    view_collection.update_one(filter, update, options).await.unwrap();
-                }
-                None => {}
-            }
-        }
-    });
 }

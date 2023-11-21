@@ -58,49 +58,16 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
             }
         },
         doc! {
-             "$sort" : doc! { "timestamp":-1}
-        },
-        doc! {
-            "$group": doc!{
-                "_id": "$address",
-                "experience": doc!{
-                    "$sum": "$experience"
-                },
-                "timestamp": doc! {
-                    "$last": "$timestamp"
-                }
-            }
-        },
-        doc! {
-            "$lookup": doc!{
-                "from": "achieved",
-                "localField": "_id",
-                "foreignField": "addr",
-                "as": "associatedAchievement"
-            }
-        },
-        doc! {
-            "$project": doc!{
-                "_id": 0,
-                "address": "$_id",
-                "experience": 1,
-                "achievements": doc!{
-                    "$size": "$associatedAchievement"
-                }
-            }
-        },
-        doc! {
             "$sort": doc!{
                 "experience": -1,
-                "achievements": -1,
                 "timestamp":1,
-                "address":1,
+                "_id":1,
             }
         },
         doc! {
            "$group": doc! {
             "_id": null,
-            "addressList": { "$push": "$address" },
+            "addressList": { "$push": "$_id" },
         },
         },
         doc! {
@@ -167,7 +134,6 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
                     }
                     None => {
                         data.insert("user_rank", 1);
-                        return data;
                     }
                 }
 
@@ -177,7 +143,6 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
                     }
                     None => {
                         data.insert("total_users", 0);
-                        return data;
                     }
                 }
             }
@@ -280,7 +245,7 @@ pub async fn handler(
     }
 
     // get collection
-    let users_collection = state.db.collection::<Document>("user_exp");
+    let users_collection = state.db.collection::<Document>("leaderboard_table");
 
     // get params from query
     let address = query.addr.to_string();
@@ -340,20 +305,6 @@ pub async fn handler(
             }
         },
         doc! {
-             "$sort" : doc! { "timestamp":-1}
-        },
-        doc! {
-            "$group": doc!{
-                "_id": "$address",
-                "experience": doc!{
-                    "$sum": "$experience"
-                },
-                "timestamp": doc! {
-                    "$last": "$timestamp"
-                }
-            }
-        },
-        doc! {
             "$lookup": doc!{
                 "from": "achieved",
                 "localField": "_id",
@@ -375,7 +326,6 @@ pub async fn handler(
             "$sort":doc! {
                 "xp":-1,
                 "timestamp":1,
-                "achievements":-1,
                 "address":1,
             }
         },
