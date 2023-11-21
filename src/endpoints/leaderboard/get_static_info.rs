@@ -50,6 +50,17 @@ pub async fn get_leaderboard_toppers(
             }
         },
         doc! {
+            "$sort": doc!{
+                "experience": -1,
+                "timestamp":1,
+                "_id":1,
+            }
+        },
+        doc! {
+            "$facet": doc! {
+                "best_users": vec![
+                    doc!{ "$limit": 3 },
+                            doc! {
             "$lookup": doc!{
                 "from": "achieved",
                 "localField": "_id",
@@ -67,17 +78,6 @@ pub async fn get_leaderboard_toppers(
                 }
             }
         },
-        doc! {
-            "$sort": doc!{
-                "xp": -1,
-                "achievements": -1,
-                "address":1,
-            }
-        },
-        doc! {
-            "$facet": doc! {
-                "best_users": vec![
-                    doc!{ "$limit": 3 }
                 ],
                 "totalUsers": vec![
                     doc!
@@ -89,7 +89,7 @@ pub async fn get_leaderboard_toppers(
         doc! {
           "$group": {
             "_id": null,
-            "addressList": { "$push": "$address" },
+            "addressList": { "$push": "$_id" },
           },
         },
         doc!{

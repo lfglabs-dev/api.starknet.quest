@@ -305,6 +305,19 @@ pub async fn handler(
             }
         },
         doc! {
+            "$sort":doc! {
+                "experience":-1,
+                "timestamp":1,
+                "_id":1,
+            }
+        },
+        doc! {
+            "$skip": lower_range-1
+        },
+        doc! {
+          "$limit":page_size
+        },
+        doc! {
             "$lookup": doc!{
                 "from": "achieved",
                 "localField": "_id",
@@ -321,19 +334,6 @@ pub async fn handler(
                     "$size": "$associatedAchievement"
                 }
             }
-        },
-        doc! {
-            "$sort":doc! {
-                "xp":-1,
-                "timestamp":1,
-                "address":1,
-            }
-        },
-        doc! {
-            "$skip": lower_range-1
-        },
-        doc! {
-          "$limit":page_size
         },
         doc! {
             "$project": doc!{
