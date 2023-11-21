@@ -365,7 +365,7 @@ pub async fn update_leaderboard(view_collection: Collection<LeaderboardTable>, a
 }
 
 
-pub async fn add_leaderboard_watcher(db: &Database) {
+pub async fn add_leaderboard_table(db: &Database) {
     let view_collection_name = "leaderboard_table";
 
     let pipeline = vec![
