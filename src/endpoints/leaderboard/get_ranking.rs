@@ -335,13 +335,6 @@ pub async fn handler(
                 }
             }
         },
-        doc! {
-            "$project": doc!{
-                "xp": 1,
-                "achievements": 1,
-                "address":1,
-            }
-        }
     ];
 
     match users_collection.aggregate(paginated_leaderboard_pipeline, None).await {
