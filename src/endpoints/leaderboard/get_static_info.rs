@@ -43,17 +43,17 @@ pub async fn get_leaderboard_toppers(
 
     let leaderboard_pipeline = vec![
         doc! {
-            "$match": doc! {
-            "timestamp": doc! {
-                    "$gte": time_gap
-                }
-            }
-        },
-        doc! {
             "$sort": doc!{
                 "experience": -1,
                 "timestamp":1,
                 "_id":1,
+            }
+        },
+        doc! {
+            "$match": doc! {
+            "timestamp": doc! {
+                    "$gte": time_gap
+                }
             }
         },
         doc! {

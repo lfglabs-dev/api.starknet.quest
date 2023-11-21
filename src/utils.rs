@@ -390,7 +390,7 @@ pub async fn add_leaderboard_watcher(db: &Database) {
     source_collection.aggregate(pipeline, None).await.unwrap();
 
     let index = IndexModel::builder()
-        .keys(doc! { "experience": -1})
+        .keys(doc! { "experience": -1,"timestamp":1,"_id":1})
         .build();
 
     //add indexing to materialised view
