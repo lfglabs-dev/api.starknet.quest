@@ -43,116 +43,101 @@ pub async fn get_leaderboard_toppers(
 
     let leaderboard_pipeline = vec![
         doc! {
-            "$sort": doc!{
-                "experience": -1,
-                "timestamp":1,
-                "_id":1,
-            }
-        },
-        doc! {
-            "$match": doc! {
+        "$match": doc! {
             "timestamp": doc! {
-                    "$gte": time_gap
-                }
+                "$gte": time_gap
             }
-        },
+        }
+    },
         doc! {
-            "$facet": doc! {
-                "best_users": vec![
-                    doc!{ "$limit": 3 },
-                            doc! {
-            "$lookup": doc!{
-                "from": "achieved",
-                "localField": "_id",
-                "foreignField": "addr",
-                "as": "associatedAchievement"
-            }
-        },
+        "$sort": doc! {
+            "experience": -1,
+            "timestamp": 1,
+            "_id": 1
+        }
+    },
         doc! {
-            "$project": doc!{
-                "_id": 0,
-                "address": "$_id",
-                "xp": "$experience",
-                "achievements": doc!{
-                    "$size": "$associatedAchievement"
-                }
-            }
-        },
-                ],
-                "totalUsers": vec![
-                    doc!
-                    {
-                        "$count": "total"
-                    }
-                ],
-      "rank": vec! [
-        doc! {
-          "$group": {
-            "_id": null,
-            "addressList": { "$push": "$_id" },
-          },
-        },
-        doc!{
-          "$project": {
-            "_id": 0,
-            "addressList": 1,
-          },
-        },
-        doc! {
-          "$project": {
-            "rank": {
-              "$add": [
-                {
-                  "$indexOfArray": [
-                    "$addressList",
-                    address,
-                  ],
+        "$facet": doc! {
+            "best_users": [
+                doc! {
+                    "$limit": 3
                 },
-                1,
-              ],
-            },
-          },
-        },
-      ],
-            }
-        },
-        doc! {
-            "$project": doc!{
-                "_id": 0,
-                "totalUsers": 1,
-                "best_users": 1,
-                "rank": 1
-
-                }
-        },
-        doc! {
-            "$unwind": "$totalUsers",
-        },
-        doc! {
-            "$project": doc! {
-            "_id": 0,
-            "length": "$totalUsers.total",
-            "best_users": 1,
-            "rank":1
-        }
-        },
-        doc! {
-            "$unwind": "$rank",
-        },
-        doc! {
-            "$project": doc! {
-            "_id": 0,
-            "length": 1,
-            "best_users": 1,
-                "position": doc!{
-                    "$cond": {
-                        "if": { "$eq": [ "$rank.rank", 0] }, // Check if indexOfArray returns -1
-                        "then": "$$REMOVE", // Remove field if doesn't exist
-                        "else": "$rank.rank" // Add 1 to the index if not -1
+                doc! {
+                    "$lookup": doc! {
+                        "from": "achieved",
+                        "localField": "_id",
+                        "foreignField": "addr",
+                        "as": "associatedAchievement"
+                    }
+                },
+                doc! {
+                    "$project": doc! {
+                        "_id": 0,
+                        "address": "$_id",
+                        "xp": "$experience",
+                        "achievements": doc! {
+                            "$size": "$associatedAchievement"
                         }
+                    }
                 }
+            ],
+            "total_users": [
+                doc! {
+                    "$count": "total"
+                }
+            ],
+            "rank": [
+                doc! {
+                    "$addFields": doc! {
+                        "tempSortField": 1
+                    }
+                },
+                doc! {
+                    "$setWindowFields": doc! {
+                        "sortBy": doc! {
+                            "tempSortField": -1
+                        },
+                        "output": doc! {
+                            "rank": doc! {
+                                "$documentNumber": doc! {}
+                            }
+                        }
+                    }
+                },
+                doc! {
+                    "$match": doc! {
+                        "_id": address
+                    }
+                },
+                doc! {
+                    "$project": doc! {
+                        "_id": 0,
+                        "rank": "$rank"
+                    }
+                },
+                doc! {
+                    "$unwind": "$rank"
+                }
+            ]
         }
-        },
+    },
+        doc! {
+        "$project": doc! {
+            "best_users": 1,
+            "total_users": doc! {
+                "$arrayElemAt": [
+                    "$total_users.total",
+                    0
+                ]
+            },
+            "rank": doc! {
+                "$arrayElemAt": [
+                    "$rank.rank",
+                    0
+                ]
+            }
+        }
+    },
     ];
 
 

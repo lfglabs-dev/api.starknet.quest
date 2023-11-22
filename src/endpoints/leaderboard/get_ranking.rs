@@ -50,83 +50,90 @@ use serde::{Deserialize, Serialize};
 pub async fn get_user_rank(collection: &Collection<Document>, address: &String, start_timestamp: &i64, end_timestamp: &i64) -> Document {
     let user_rank_pipeline = vec![
         doc! {
-            "$match": doc!{
-                "timestamp": doc!{
-                    "$gte": start_timestamp,
-                    "$lte": end_timestamp
+        "$match": doc! {
+            "timestamp": doc! {
+                "$gte": start_timestamp,
+                "$lte": end_timestamp
+            }
+        }
+    },
+        doc! {
+        "$sort": doc! {
+            "experience": -1,
+            "timestamp": 1,
+            "_id": 1
+        }
+    },
+        doc! {
+        "$addFields": doc! {
+            "tempSortField": 1
+        }
+    },
+        doc! {
+        "$setWindowFields": doc! {
+            "sortBy": doc! {
+                "tempSortField": -1
+            },
+            "output": doc! {
+                "rank": doc! {
+                    "$documentNumber": doc! {}
                 }
             }
-        },
+        }
+    },
         doc! {
-            "$sort": doc!{
-                "experience": -1,
-                "timestamp":1,
-                "_id":1,
+        "$facet": doc! {
+            "total_users": [
+                doc! {
+                    "$count": "total"
+                }
+            ],
+            "user_rank": [
+                doc! {
+                    "$match": doc! {
+                        "_id": address
+                    }
+                },
+                doc! {
+                    "$project": doc! {
+                        "_id": 0,
+                        "rank": "$rank"
+                    }
+                }
+            ]
+        }
+    },
+        doc! {
+        "$project": doc! {
+            "total_users": doc! {
+                "$arrayElemAt": [
+                    "$total_users.total",
+                    0
+                ]
+            },
+            "rank": doc! {
+                "$arrayElemAt": [
+                    "$user_rank",
+                    0
+                ]
             }
-        },
+        }
+    },
         doc! {
-           "$group": doc! {
-            "_id": null,
-            "addressList": { "$push": "$_id" },
-        },
-        },
-        doc! {
-            "$project": doc!{
-            "_id": 0,
-            "addressList": 1,
-        },
-        },
-        doc! {
-            "$facet": {
-            "total_users": vec! [
-            doc!{
-                "$project": doc! {
-                "total": {
-                    "$size": "$addressList",
-                },
-            },
-            },
-            ],
-            "user_rank": vec![
-            doc!{
-                "$project": {
-                "rank": {
-                    "$add": [
-                    doc! {
-                        "$indexOfArray": [
-                        "$addressList",
-                        address,
-                        ],
-                    },
-                    1,
-                    ],
-                },
-            },
-            },
-            ],
-        },
-        },
-        doc! {
-            "$project": doc!{
-            "total_users": doc!{
-                "$arrayElemAt": [
-                "$total_users.total",
-                0,
-                ],
-            },
-            "rank": doc!{
-                "$arrayElemAt": [
-                "$user_rank.rank",
-                0,
-                ],
-            },
-        },
-        },
+        "$project": doc! {
+            "total_users": 1,
+            "rank": "$rank.rank"
+        }
+    },
     ];
 
-    return match collection.aggregate(user_rank_pipeline, None).await {
+    // add allow disk use to view options
+    let view_options = mongodb::options::AggregateOptions::builder().allow_disk_use(true).build();
+
+    return match collection.aggregate(user_rank_pipeline, view_options).await {
         Ok(mut cursor) => {
             let mut data = Document::new();
+
             while let Some(result) = cursor.try_next().await.unwrap() {
                 match result.get("rank") {
                     Some(rank) => {
@@ -148,7 +155,7 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
             }
             data
         }
-        Err(_err) => {
+        Err(err) => {
             let mut data = Document::new();
             data.insert("user_rank", 1);
             data.insert("total_users", 0);
