@@ -130,7 +130,7 @@ pub async fn get_leaderboard_toppers(
                     0
                 ]
             },
-            "rank": doc! {
+            "position": doc! {
                 "$arrayElemAt": [
                     "$rank.rank",
                     0
