@@ -47,7 +47,7 @@ pub async fn handler(
                 Ok(response) => {
                     if let Some(sets) = response.get("sets") {
                         match sets {
-                            serde_json::Value::Array(sets_array) => {
+                            serde_json::Value::Array(sets_array ) => {
                                 for set in sets_array.iter() {
                                     if let serde_json::Value::String(set_str) = set {
                                         let url = format!(

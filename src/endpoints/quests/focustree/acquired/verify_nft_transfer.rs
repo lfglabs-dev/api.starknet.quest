@@ -12,13 +12,13 @@ use axum::{
 };
 use serde_json::json;
 use crate::models::EmailQuery;
-use crate::utils::{fetch_json_from_url};
+use crate::utils::{CompletedTasksTrait, fetch_json_from_url};
 
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<EmailQuery>,
 ) -> impl IntoResponse {
-    let task_id = 87;
+    let task_id = 88;
 
     // add check for empty email
     if query.email == "" {
@@ -39,12 +39,19 @@ pub async fn handler(
                 return get_error("User not found".to_string());
             }
             let has_sent_nft = response.get("hasSentNFTToFocusTreeWallet").unwrap().as_bool().unwrap();
-            if has_sent_nft  {
-                return get_error("NFT Sent".to_string());
+            if has_sent_nft {
+                match state.upsert_completed_task(query.addr, task_id).await {
+                    Ok(_) => {
+                        return (StatusCode::OK, Json(json!({"res": true}))).into_response()
+                    }
+                    Err(e) => {
+                        return get_error(format!("{}", e))
+                    },
+                }
             } else {
                 return get_error("NFT not sent".to_string());
             }
         }
-        Err(e) => get_error(e),
+        Err(e) => get_error("Failed to get NFT sent status".to_string())
     }
 }

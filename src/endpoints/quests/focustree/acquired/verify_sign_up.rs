@@ -12,7 +12,7 @@ use axum::{
 };
 use serde_json::json;
 use crate::models::EmailQuery;
-use crate::utils::{fetch_json_from_url, to_hex};
+use crate::utils::{CompletedTasksTrait, fetch_json_from_url};
 
 pub async fn handler(
     State(state): State<Arc<AppState>>,
@@ -39,12 +39,20 @@ pub async fn handler(
                 return get_error("User not found".to_string());
             }
             let is_signed_up = response.get("hasSignedUp").unwrap().as_bool().unwrap();
-            if is_signed_up  {
-                return get_error("Signed Up".to_string());
+            if is_signed_up {
+                match state.upsert_completed_task(query.addr, task_id).await {
+                    Ok(_) => {
+                        return (StatusCode::OK, Json(json!({"res": true}))).into_response()
+                    }
+                    Err(e) => {
+                        return get_error(format!("{}", e))
+                    }
+                }
             } else {
                 return get_error("Not signed Up".to_string());
             }
+            return get_error("Failed to get user sign up status".to_string());
         }
-        Err(e) => get_error(e),
+        Err(e) => get_error("Failed to get user sign up status".to_string())
     }
 }
