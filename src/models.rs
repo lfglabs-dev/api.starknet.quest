@@ -120,6 +120,7 @@ pub struct UserAchievements {
     pub category_override_verified_type: Option<String>,
     achievements: Vec<UserAchievement>,
 }
+
 pub fn default_category_disabled() -> bool {
     false
 }
@@ -133,6 +134,17 @@ pub_struct!(Debug, Serialize, Deserialize; UserAchievement {
     completed: bool,
     verify_type: String,
     img_url: String,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; UserExperience {
+    address: String,
+    experience:i64,
+    timestamp:i64,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; LeaderboardTable {
+    experience:i64,
+    timestamp:f64,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; NftBalance {

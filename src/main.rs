@@ -4,6 +4,7 @@ mod common;
 mod config;
 mod endpoints;
 mod models;
+
 use axum::{
     http::StatusCode,
     routing::{get, post},
@@ -16,6 +17,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 use tower_http::cors::{Any, CorsLayer};
+use crate::utils::{add_leaderboard_table};
 
 #[tokio::main]
 async fn main() {
@@ -24,6 +26,7 @@ async fn main() {
     let client_options = ClientOptions::parse(&conf.database.connection_string)
         .await
         .unwrap();
+
 
     let shared_state = Arc::new(models::AppState {
         conf: conf.clone(),
@@ -45,6 +48,8 @@ async fn main() {
     } else {
         println!("database: connected");
     }
+
+    add_leaderboard_table(&shared_state.db).await;
 
     let cors = CorsLayer::new().allow_headers(Any).allow_origin(Any);
     let app = Router::new()
