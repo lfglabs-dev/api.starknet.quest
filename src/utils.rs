@@ -1,12 +1,18 @@
-use futures::TryStreamExt;
-use crate::models::{AchievementDocument, AppState, CompletedTasks, LeaderboardTable, UserExperience};
+use crate::models::{
+    AchievementDocument, AppState, CompletedTasks, LeaderboardTable, UserExperience,
+};
 use async_trait::async_trait;
 use axum::{
     body::Body,
     http::{Response as HttpResponse, StatusCode, Uri},
     response::{IntoResponse, Response},
 };
-use mongodb::{bson::doc, options::UpdateOptions, results::UpdateResult, Collection, Database, Cursor, IndexModel};
+use chrono::Utc;
+use futures::TryStreamExt;
+use mongodb::{
+    bson::doc, options::UpdateOptions, results::UpdateResult, Collection, Cursor, Database,
+    IndexModel,
+};
 use starknet::signers::Signer;
 use starknet::{
     core::{
@@ -18,7 +24,6 @@ use starknet::{
 use std::fmt::Write;
 use std::result::Result;
 use std::str::FromStr;
-use chrono::{Utc};
 #[macro_export]
 macro_rules! pub_struct {
     ($($derive:path),*; $name:ident {$($field:ident: $t:ty),* $(,)?}) => {
@@ -220,8 +225,15 @@ impl CompletedTasksTrait for AppState {
                         let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                         let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
                         user_exp_collection.insert_one(document, None).await?;
-                        let view_collection: Collection<LeaderboardTable> = self.db.collection("leaderboard_table");
-                        update_leaderboard(view_collection, addr.to_string(), experience.into(), timestamp).await;
+                        let view_collection: Collection<LeaderboardTable> =
+                            self.db.collection("leaderboard_table");
+                        update_leaderboard(
+                            view_collection,
+                            addr.to_string(),
+                            experience.into(),
+                            timestamp,
+                        )
+                        .await;
                     }
                     Err(_e) => {
                         get_error("Error querying quests".to_string());
@@ -276,11 +288,11 @@ impl AchievementsTrait for AppState {
             .update_one(filter, update, options)
             .await?;
 
-
         match &result.upserted_id {
             Some(_id) => {
                 // Check if the document was modified
-                let achievement_collection: Collection<AchievementDocument> = self.db.collection("achievements");
+                let achievement_collection: Collection<AchievementDocument> =
+                    self.db.collection("achievements");
                 // Define a query using the `doc!` macro.
                 let query = doc! { "id": achievement_id };
                 let mut experience: i32 = 0;
@@ -296,8 +308,15 @@ impl AchievementsTrait for AppState {
                 let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                 let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
                 user_exp_collection.insert_one(document, None).await?;
-                let view_collection: Collection<LeaderboardTable> = self.db.collection("leaderboard_table");
-                update_leaderboard(view_collection, addr.to_string(), experience.into(), timestamp).await;
+                let view_collection: Collection<LeaderboardTable> =
+                    self.db.collection("leaderboard_table");
+                update_leaderboard(
+                    view_collection,
+                    addr.to_string(),
+                    experience.into(),
+                    timestamp,
+                )
+                .await;
             }
             None => {}
         }
@@ -347,7 +366,12 @@ impl DeployedTimesTrait for AppState {
     }
 }
 
-pub async fn update_leaderboard(view_collection: Collection<LeaderboardTable>, address: String, experience: i64, timestamp: f64) {
+pub async fn update_leaderboard(
+    view_collection: Collection<LeaderboardTable>,
+    address: String,
+    experience: i64,
+    timestamp: f64,
+) {
     // get current experience and new experience to it
     let mut old_experience = 0;
     let filter = doc! { "_id": &*address };
@@ -356,14 +380,16 @@ pub async fn update_leaderboard(view_collection: Collection<LeaderboardTable>, a
         old_experience = doc.experience;
     }
 
-
     // update the view collection
     let filter = doc! { "_id": &*address };
-    let update = doc! { "$set": { "experience": old_experience + experience, "timestamp": timestamp } };
+    let update =
+        doc! { "$set": { "experience": old_experience + experience, "timestamp": timestamp } };
     let options = UpdateOptions::builder().upsert(true).build();
-    view_collection.update_one(filter, update, options).await.unwrap();
+    view_collection
+        .update_one(filter, update, options)
+        .await
+        .unwrap();
 }
-
 
 pub async fn add_leaderboard_table(db: &Database) {
     let view_collection_name = "leaderboard_table";
@@ -383,16 +409,29 @@ pub async fn add_leaderboard_table(db: &Database) {
         doc! { "$merge" : doc! { "into":  view_collection_name , "on": "_id",  "whenMatched": "replace", "whenNotMatched": "insert" } },
     ];
 
-    let view_collection: Collection<LeaderboardTable> = db.collection::<LeaderboardTable>(view_collection_name);
+    let view_collection: Collection<LeaderboardTable> =
+        db.collection::<LeaderboardTable>(view_collection_name);
     let source_collection = db.collection::<UserExperience>("user_exp");
 
     // create materialised view
     source_collection.aggregate(pipeline, None).await.unwrap();
 
-    let index = IndexModel::builder()
+    //create multiple indexes to speed it up
+    let timestamp_only = IndexModel::builder().keys(doc! { "timestamp":1}).build();
+    view_collection
+        .create_index(timestamp_only, None)
+        .await
+        .unwrap();
+    let addrs_only = IndexModel::builder().keys(doc! { "_id":1}).build();
+    view_collection
+        .create_index(addrs_only, None)
+        .await
+        .unwrap();
+    let compound_index = IndexModel::builder()
         .keys(doc! { "experience": -1,"timestamp":1,"_id":1})
         .build();
-
-    //add indexing to materialised view
-    view_collection.create_index(index, None).await.unwrap();
+    view_collection
+        .create_index(compound_index, None)
+        .await
+        .unwrap();
 }
