@@ -155,7 +155,7 @@ pub async fn get_user_rank(collection: &Collection<Document>, address: &String, 
             }
             data
         }
-        Err(err) => {
+        Err(_err) => {
             let mut data = Document::new();
             data.insert("user_rank", 1);
             data.insert("total_users", 0);
