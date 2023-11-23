@@ -13,6 +13,7 @@ use axum::{
 use mongodb::bson::doc;
 use serde_json::json;
 use starknet::core::types::FieldElement;
+use crate::utils::fetch_json_from_url;
 
 pub async fn handler(
     State(state): State<Arc<AppState>>,
@@ -101,17 +102,6 @@ pub async fn handler(
             (StatusCode::OK, Json(json!({"achieved": false}))).into_response()
         }
         Err(e) => get_error(format!("Error querying user briq NFTs : {}", e)),
-    }
-}
-
-pub async fn fetch_json_from_url(url: String) -> Result<serde_json::Value, String> {
-    let client = reqwest::Client::new();
-    match client.get(url).send().await {
-        Ok(response) => match response.json::<serde_json::Value>().await {
-            Ok(json) => Ok(json),
-            Err(e) => Err(format!("Failed to get JSON response: {}", e)),
-        },
-        Err(e) => Err(format!("Failed to send request: {}", e)),
     }
 }
 

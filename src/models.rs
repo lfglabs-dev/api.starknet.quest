@@ -67,6 +67,11 @@ pub_struct!(Deserialize; VerifyQuery {
      addr: FieldElement,
 });
 
+pub_struct!(Deserialize; EmailQuery {
+    addr: FieldElement,
+    email: String,
+});
+
 pub_struct!(Deserialize; VerifyQuizQuery {
     addr: FieldElement,
     quiz_name: String,
@@ -120,6 +125,7 @@ pub struct UserAchievements {
     pub category_override_verified_type: Option<String>,
     achievements: Vec<UserAchievement>,
 }
+
 pub fn default_category_disabled() -> bool {
     false
 }

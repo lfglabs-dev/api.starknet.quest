@@ -4,6 +4,7 @@ mod common;
 mod config;
 mod endpoints;
 mod models;
+
 use axum::{
     http::StatusCode,
     routing::{get, post},
@@ -308,15 +309,19 @@ async fn main() {
         )
         .route(
             "/quests/focustree/verify_twitter_fw",
-            get(endpoints::quests::focustree::verify_twitter_fw::handler),
+            get(endpoints::quests::focustree::introduction::verify_twitter_fw::handler),
         )
         .route(
             "/quests/focustree/verify_twitter_rt",
-            get(endpoints::quests::focustree::verify_twitter_rt::handler),
+            get(endpoints::quests::focustree::introduction::verify_twitter_rt::handler),
+        )
+        .route(
+            "/quests/focustree/verify_sign_up",
+            get(endpoints::quests::focustree::acquired::verify_sign_up::handler),
         )
         .route(
             "/quests/focustree/claimable",
-            get(endpoints::quests::focustree::claimable::handler),
+            get(endpoints::quests::focustree::introduction::claimable::handler),
         )
         .route(
             "/quests/element/element/verify_is_eligible",
