@@ -316,12 +316,20 @@ async fn main() {
             get(endpoints::quests::focustree::introduction::verify_twitter_rt::handler),
         )
         .route(
-            "/quests/focustree/verify_sign_up",
-            get(endpoints::quests::focustree::acquired::verify_sign_up::handler),
-        )
-        .route(
             "/quests/focustree/claimable",
             get(endpoints::quests::focustree::introduction::claimable::handler),
+        )
+        .route(
+            "/quests/focustree/verify_sign_up",
+            get(endpoints::quests::focustree::engagement::verify_sign_up::handler),
+        )
+        .route(
+            "/quests/focustree/verify_nft_transfer",
+            get(endpoints::quests::focustree::engagement::verify_nft_transfer::handler),
+        )
+        .route(
+            "/quests/focustree/verify_twitter_rw_user",
+            get(endpoints::quests::focustree::engagement::verify_twitter_rt::handler),
         )
         .route(
             "/quests/element/element/verify_is_eligible",

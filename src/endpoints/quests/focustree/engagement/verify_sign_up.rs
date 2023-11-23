@@ -25,7 +25,7 @@ pub async fn handler(
         get_error("Please enter your email".to_string());
     }
 
-    // make get request to focustree api for verification
+    // prepare url to make get request to focus tree api for verification
     let url = format!(
         "{}/{}", state.conf.quests.focustree.api_endpoint,
         query.email
@@ -35,24 +35,33 @@ pub async fn handler(
         Ok(response) => {
             let error_message = response.get("message").unwrap().as_str().unwrap();
 
+            /*
+             focus tree will return a message with 403 response if email address if empty
+             Something like the below -
+                {
+                    "message": "Missing Authentication Token"
+                }
+              The below code will check if the message ha some value and return an error
+            */
             if error_message.len() > 0 {
-                return get_error("User not found".to_string());
+                return get_error("Couldn't verify if user signed up".to_string());
             }
+
+            // check if user has signed up
             let is_signed_up = response.get("hasSignedUp").unwrap().as_bool().unwrap();
-            if is_signed_up {
+            return if is_signed_up {
                 match state.upsert_completed_task(query.addr, task_id).await {
                     Ok(_) => {
-                        return (StatusCode::OK, Json(json!({"res": true}))).into_response()
+                        (StatusCode::OK, Json(json!({"res": true}))).into_response()
                     }
                     Err(e) => {
-                        return get_error(format!("{}", e))
+                        get_error(format!("{}", e))
                     }
                 }
             } else {
-                return get_error("Not signed Up".to_string());
+                get_error("Failed to get user sign up status".to_string())
             }
-            return get_error("Failed to get user sign up status".to_string());
         }
-        Err(e) => get_error("Failed to get user sign up status".to_string())
+        Err(e) => get_error(format!("{}", e)),
     }
 }

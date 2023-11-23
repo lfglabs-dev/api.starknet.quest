@@ -34,24 +34,33 @@ pub async fn handler(
     match fetch_json_from_url(url).await {
         Ok(response) => {
             let error_message = response.get("message").unwrap().as_str().unwrap();
-
+            /*
+               focus tree will return a message with 403 response if email address if empty
+                Something like the below -
+                    {
+                        "message": "Missing Authentication Token"
+                    }
+               The below code will check if the message ha some value and return an error
+            */
             if error_message.len() > 0 {
                 return get_error("User not found".to_string());
             }
+
+            // check if user has sent NFT to focus tree wallet
             let has_sent_nft = response.get("hasSentNFTToFocusTreeWallet").unwrap().as_bool().unwrap();
-            if has_sent_nft {
+            return if has_sent_nft {
                 match state.upsert_completed_task(query.addr, task_id).await {
                     Ok(_) => {
-                        return (StatusCode::OK, Json(json!({"res": true}))).into_response()
+                        (StatusCode::OK, Json(json!({"res": true}))).into_response()
                     }
                     Err(e) => {
-                        return get_error(format!("{}", e))
-                    },
+                        get_error(format!("{}", e))
+                    }
                 }
             } else {
-                return get_error("NFT not sent".to_string());
+                get_error("NFT not sent".to_string())
             }
         }
-        Err(e) => get_error("Failed to get NFT sent status".to_string())
+        Err(e) => get_error(format!("{}", e)),
     }
 }
