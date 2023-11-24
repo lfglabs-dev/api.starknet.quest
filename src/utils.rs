@@ -1,12 +1,12 @@
 use futures::TryStreamExt;
-use crate::models::{AchievementDocument, AppState, CompletedTasks};
+use crate::models::{AchievementDocument, AppState, CompletedTasks, LeaderboardTable, UserExperience};
 use async_trait::async_trait;
 use axum::{
     body::Body,
     http::{Response as HttpResponse, StatusCode, Uri},
     response::{IntoResponse, Response},
 };
-use mongodb::{bson::doc, options::UpdateOptions, results::UpdateResult, Collection};
+use mongodb::{bson::doc, options::UpdateOptions, results::UpdateResult, Collection, Database, Cursor, IndexModel};
 use starknet::signers::Signer;
 use starknet::{
     core::{
@@ -19,8 +19,6 @@ use std::fmt::Write;
 use std::result::Result;
 use std::str::FromStr;
 use chrono::{Utc};
-
-
 #[macro_export]
 macro_rules! pub_struct {
     ($($derive:path),*; $name:ident {$($field:ident: $t:ty),* $(,)?}) => {
@@ -178,6 +176,15 @@ impl CompletedTasksTrait for AppState {
                     },
                     },
                     doc! {
+                        "$match": doc! {
+                        "tasks": doc! {
+                            "$elemMatch": {
+                                "id": task_id,
+                            },
+                        },
+                    },
+                    },
+                    doc! {
                         "$lookup": doc! {
                         "from": "quests",
                         "localField": "_id",
@@ -190,30 +197,9 @@ impl CompletedTasksTrait for AppState {
                     },
                     doc! {
                         "$project": doc! {
-                        "experience": "$associatedQuests.experience",
-                    }
-                    },
-                    doc! {
-                        "$lookup": doc! {
-                        "from": "tasks",
-                        "localField": "_id",
-                        "foreignField": "quest_id",
-                        "as": "completedTasks",
-                    },
-                    },
-                    doc! {
-                        "$unwind": "$completedTasks",
-                    },
-                    doc! {
-                        "$match": {
-                        "completedTasks.id": task_id,
-                    },
-                    },
-                    doc! {
-                        "$project": doc! {
-                        "_id": 0,
-                        "experience": 1,
-                    },
+                            "_id": 0,
+                            "experience": "$associatedQuests.experience",
+                        }
                     },
                 ];
                 match completed_tasks_collection.aggregate(pipeline, None).await {
@@ -231,9 +217,11 @@ impl CompletedTasksTrait for AppState {
                         // save the user_exp document in the collection
                         let user_exp_collection = self.db.collection("user_exp");
                         // add doc with address ,experience and timestamp
-                        let timestamp = Utc::now().timestamp_millis();
+                        let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                         let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
                         user_exp_collection.insert_one(document, None).await?;
+                        let view_collection: Collection<LeaderboardTable> = self.db.collection("leaderboard_table");
+                        update_leaderboard(view_collection, addr.to_string(), experience.into(), timestamp).await;
                     }
                     Err(_e) => {
                         get_error("Error querying quests".to_string());
@@ -308,6 +296,8 @@ impl AchievementsTrait for AppState {
                 let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                 let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
                 user_exp_collection.insert_one(document, None).await?;
+                let view_collection: Collection<LeaderboardTable> = self.db.collection("leaderboard_table");
+                update_leaderboard(view_collection, addr.to_string(), experience.into(), timestamp).await;
             }
             None => {}
         }
@@ -367,3 +357,54 @@ pub async fn fetch_json_from_url(url: String) -> Result<serde_json::Value, Strin
         Err(e) => Err(format!("Failed to send request: {}", e)),
     }
 }
+
+pub async fn update_leaderboard(view_collection: Collection<LeaderboardTable>, address: String, experience: i64, timestamp: f64) {
+    // get current experience and new experience to it
+    let mut old_experience = 0;
+    let filter = doc! { "_id": &*address };
+    let mut cursor: Cursor<LeaderboardTable> = view_collection.find(filter, None).await.unwrap();
+    while let Some(doc) = cursor.try_next().await.unwrap() {
+        old_experience = doc.experience;
+    }
+
+
+    // update the view collection
+    let filter = doc! { "_id": &*address };
+    let update = doc! { "$set": { "experience": old_experience + experience, "timestamp": timestamp } };
+    let options = UpdateOptions::builder().upsert(true).build();
+    view_collection.update_one(filter, update, options).await.unwrap();
+}
+
+
+pub async fn add_leaderboard_table(db: &Database) {
+    let view_collection_name = "leaderboard_table";
+
+    let pipeline = vec![
+        doc! {
+            "$group": doc!{
+                "_id": "$address",
+                "experience": doc!{
+                    "$sum": "$experience"
+                },
+                "timestamp": doc! {
+                    "$last": "$timestamp"
+                }
+            }
+        },
+        doc! { "$merge" : doc! { "into":  view_collection_name , "on": "_id",  "whenMatched": "replace", "whenNotMatched": "insert" } },
+    ];
+
+    let view_collection: Collection<LeaderboardTable> = db.collection::<LeaderboardTable>(view_collection_name);
+    let source_collection = db.collection::<UserExperience>("user_exp");
+
+    // create materialised view
+    source_collection.aggregate(pipeline, None).await.unwrap();
+
+    let index = IndexModel::builder()
+        .keys(doc! { "experience": -1,"timestamp":1,"_id":1})
+        .build();
+
+    //add indexing to materialised view
+    view_collection.create_index(index, None).await.unwrap();
+}
+

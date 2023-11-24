@@ -141,6 +141,17 @@ pub_struct!(Debug, Serialize, Deserialize; UserAchievement {
     img_url: String,
 });
 
+pub_struct!(Debug, Serialize, Deserialize; UserExperience {
+    address: String,
+    experience:i64,
+    timestamp:i64,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; LeaderboardTable {
+    experience:i64,
+    timestamp:f64,
+});
+
 pub_struct!(Debug, Serialize, Deserialize; NftBalance {
     contract_address: String,
     token_id: String,

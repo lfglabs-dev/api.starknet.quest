@@ -43,99 +43,101 @@ pub async fn get_leaderboard_toppers(
 
     let leaderboard_pipeline = vec![
         doc! {
-            "$match": doc! {
+        "$match": doc! {
             "timestamp": doc! {
-                    "$gte": time_gap
-                }
+                "$gte": time_gap
             }
-        },
+        }
+    },
         doc! {
-             "$sort" : doc! { "timestamp":-1}
-        },
+        "$sort": doc! {
+            "experience": -1,
+            "timestamp": 1,
+            "_id": 1
+        }
+    },
         doc! {
-            "$group": doc!{
-                "_id": "$address",
-                "experience": doc!{
-                    "$sum": "$experience"
+        "$facet": doc! {
+            "best_users": [
+                doc! {
+                    "$limit": 3
                 },
-                "timestamp": doc! {
-                    "$last": "$timestamp"
-                }
-            }
-        },
-        doc! {
-            "$lookup": doc!{
-                "from": "achieved",
-                "localField": "_id",
-                "foreignField": "addr",
-                "as": "associatedAchievement"
-            }
-        },
-        doc! {
-            "$project": doc!{
-                "_id": 0,
-                "address": "$_id",
-                "xp": "$experience",
-                "achievements": doc!{
-                    "$size": "$associatedAchievement"
-                }
-            }
-        },
-        doc! {
-            "$sort": doc!{
-                "xp": -1,
-                "achievements": -1,
-                "timestamp":1,
-                "address":1,
-            }
-        },
-        doc! {
-            "$facet": doc! {
-                "best_users": vec![
-                    doc!{ "$limit": 3 }
-                ],
-                "totalUsers": vec![
-                    doc!
-                    {
-                        "$count": "total"
+                doc! {
+                    "$lookup": doc! {
+                        "from": "achieved",
+                        "localField": "_id",
+                        "foreignField": "addr",
+                        "as": "associatedAchievement"
                     }
-                ],
-                "rank": vec![
-                    doc!{
-          "$project": {
-            "_id": 0,
-            "address": "$address",
-          },
-        },
+                },
+                doc! {
+                    "$project": doc! {
+                        "_id": 0,
+                        "address": "$_id",
+                        "xp": "$experience",
+                        "achievements": doc! {
+                            "$size": "$associatedAchievement"
+                        }
+                    }
+                }
+            ],
+            "total_users": [
+                doc! {
+                    "$count": "total"
+                }
+            ],
+            "rank": [
+                doc! {
+                    "$addFields": doc! {
+                        "tempSortField": 1
+                    }
+                },
+                doc! {
+                    "$setWindowFields": doc! {
+                        "sortBy": doc! {
+                            "tempSortField": -1
+                        },
+                        "output": doc! {
+                            "rank": doc! {
+                                "$documentNumber": doc! {}
+                            }
+                        }
+                    }
+                },
+                doc! {
+                    "$match": doc! {
+                        "_id": address
+                    }
+                },
+                doc! {
+                    "$project": doc! {
+                        "_id": 0,
+                        "rank": "$rank"
+                    }
+                },
+                doc! {
+                    "$unwind": "$rank"
+                }
+            ]
+        }
+    },
+        doc! {
+        "$project": doc! {
+            "best_users": 1,
+            "total_users": doc! {
+                "$arrayElemAt": [
+                    "$total_users.total",
+                    0
+                ]
+            },
+            "position": doc! {
+                "$arrayElemAt": [
+                    "$rank.rank",
+                    0
                 ]
             }
-        },
-        doc! {
-            "$project": doc!{
-                "_id": 0,
-                "totalUsers": 1,
-                "best_users": 1,
-                "rank": 1
-
-                }
-        },
-        doc! {
-            "$unwind": "$totalUsers",
-        },
-        doc! {
-            "$project": doc!{
-                "_id": 0,
-                "length": "$totalUsers.total",
-                "best_users": 1,
-                "position": doc!{
-                    "$cond": {
-                        "if": { "$eq": [{ "$indexOfArray": ["$rank.address", address] }, -1] }, // Check if indexOfArray returns -1
-                        "then": "$$REMOVE", // Remove field if doesn't exist
-                        "else": { "$add": [{ "$indexOfArray": ["$rank.address", address] }, 1] } // Add 1 to the index if not -1
-                        }
-                }
-            }
-        },
+        }
+    },
     ];
 
 
@@ -150,7 +152,9 @@ pub async fn get_leaderboard_toppers(
             }
             query_result[0].clone()
         }
-        Err(_) => Document::new(),
+        Err(_err) => {
+            Document::new()
+        }
     };
 }
 
@@ -160,12 +164,12 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let addr: String = query.addr.to_string();
     let mut error_flag = Document::new();
-    let users_collection = state.db.collection::<Document>("user_exp");
+    let users_collection = state.db.collection::<Document>("leaderboard_table");
 
     // fetch weekly toppers and check if valid result
     let weekly_toppers_result = get_leaderboard_toppers(&users_collection, 7, &addr).await;
     let weekly_toppers = match weekly_toppers_result.is_empty() {
-         true => {
+        true => {
             error_flag.insert("status", true);
             error_flag.clone()
         }
