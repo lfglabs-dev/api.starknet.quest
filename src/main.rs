@@ -431,6 +431,10 @@ async fn main() {
             "/leaderboard/get_ranking",
             get(endpoints::leaderboard::get_ranking::handler),
         )
+        .route(
+            "/boost/get_claim_params",
+            get(endpoints::quest_boost::get_claim_params::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 
