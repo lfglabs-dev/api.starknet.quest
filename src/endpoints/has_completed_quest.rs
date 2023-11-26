@@ -98,7 +98,8 @@ pub async fn handler(
             while let Some(doc) = cursor.try_next().await.unwrap() {
                 result = doc.get("result").unwrap().as_bool().unwrap();
             }
-            (StatusCode::OK, Json(result)).into_response()
+            let response = serde_json::json!({ "completed": result });
+            (StatusCode::OK, Json(response)).into_response()
         }
         Err(_) => get_error("Error querying status".to_string()),
     }
