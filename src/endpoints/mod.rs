@@ -9,3 +9,4 @@ pub mod get_tasks;
 pub mod get_trending_quests;
 pub mod quests;
 pub mod leaderboard;
+pub mod has_completed_quest;
