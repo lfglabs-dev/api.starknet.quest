@@ -328,10 +328,6 @@ async fn main() {
             get(endpoints::quests::focustree::engagement::verify_sign_up::handler),
         )
         .route(
-            "/quests/focustree/verify_nft_transfer",
-            get(endpoints::quests::focustree::engagement::verify_nft_transfer::handler),
-        )
-        .route(
             "/quests/focustree/verify_twitter_rw_user",
             get(endpoints::quests::focustree::engagement::verify_twitter_rt::handler),
         )
