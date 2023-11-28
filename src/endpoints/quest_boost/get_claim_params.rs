@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
@@ -10,18 +11,18 @@ use mongodb::bson::{doc, Document};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use serde_json::json;
 use starknet::{
     core::{
-        crypto::{pedersen_hash, Signature},
+        crypto::{pedersen_hash},
         types::FieldElement,
     },
-    signers::LocalWallet,
 };
-use starknet::signers::SigningKey;
+use starknet::core::crypto::ecdsa_sign;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetClaimBoostQuery {
-    boost_id: i64,
+    boost_id: u32,
     addr: FieldElement,
 }
 
@@ -29,93 +30,51 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetClaimBoostQuery>,
 ) -> impl IntoResponse {
-
-    // const CLAIM_STRING: &str ="Claim Boost Reward";
-
-    // get boost id from params
-    let boost_id = query.boost_id as u32;
+    let boost_id = query.boost_id;
     let address = query.addr;
 
-    // make a signature for the boost id, amount, token, user address
-    //
-    let signer = LocalWallet::from(SigningKey::from_secret_scalar(
-        state.conf.nft_contract.private_key,
-    ));
+    let pipeline = vec![
+        doc! {
+            "$match": {
+                "id": boost_id
+            },
+        },
+        doc! {
+            "$project": {
+                "_id": "0",
+                "amount":"$amount",
+                "token":"$token",
+            },
+        },
+    ];
 
-    // has with boost id, CLAIM_STRING, address
-    let hashed = pedersen_hash(
-        &FieldElement::from(boost_id),
-        &FieldElement::from(address),
-    );
+    let collection = state.db.collection::<Document>("boosts");
+    let mut res = match collection.aggregate(pipeline, None).await {
+        Ok(mut cursor) => {
+            cursor.try_next().await.unwrap()
+        }
+        Err(_) => return get_error("Error querying boosts".to_string()),
+    };
 
-    println!("hashed: {:?}", hashed);
-    let sig = signer.sign_hash(&hashed).await?;
-    // return the signature
+    let boost: Document = res.unwrap();
+    let amount = boost.get("amount").unwrap().as_i32().unwrap() as u32;
+    let token = boost.get("token").unwrap().as_str().unwrap();
 
-    get_error("Error querying quests".to_string())
+    let hashed = pedersen_hash(&FieldElement::from(boost_id),
+                               &pedersen_hash(&FieldElement::from(amount),
+                                              &pedersen_hash(&FieldElement::from_str(token).unwrap(),
+                                                             &address)));
 
-    // let address = query.addr.to_string();
-    // let pipeline = vec![
-    //     doc! {
-    //         "$match": doc! {
-    //             "address": address
-    //         }
-    //     },
-    //     doc! {
-    //         "$lookup": doc! {
-    //             "from": "tasks",
-    //             "localField": "task_id",
-    //             "foreignField": "id",
-    //             "as": "associatedTask"
-    //         }
-    //     },
-    //     doc! {
-    //         "$unwind": "$associatedTask"
-    //     },
-    //     doc! {
-    //         "$group": doc! {
-    //             "_id": "$associatedTask.quest_id",
-    //             "done": doc! {
-    //                 "$sum": 1
-    //             }
-    //         }
-    //     },
-    //     doc! {
-    //         "$lookup": doc! {
-    //             "from": "tasks",
-    //             "localField": "_id",
-    //             "foreignField": "quest_id",
-    //             "as": "tasks"
-    //         }
-    //     },
-    //     doc! {
-    //         "$match": doc! {
-    //             "$expr": doc! {
-    //                 "$eq": [
-    //                     "$done",
-    //                     doc! {
-    //                         "$size": "$tasks"
-    //                     }
-    //                 ]
-    //             }
-    //         }
-    //     },
-    //     doc! {
-    //         "$project": doc! {
-    //             "quest_id": "$_id",
-    //             "_id": 0
-    //         }
-    //     },
-    // ];
-    // let tasks_collection = state.db.collection::<Document>("completed_tasks");
-    // match tasks_collection.aggregate(pipeline, None).await {
-    //     Ok(mut cursor) => {
-    //         let mut quests: Vec<u32> = Vec::new();
-    //         while let Some(result) = cursor.try_next().await.unwrap() {
-    //             quests.push(result.get("quest_id").unwrap().as_i32().unwrap() as u32);
-    //         }
-    //         (StatusCode::OK, Json(quests)).into_response()
-    //     }
-    //     Err(_) => get_error("Error querying quests".to_string()),
-    // }
+    let signature = ecdsa_sign(&state.conf.nft_contract.private_key, &hashed).unwrap();
+
+    match ecdsa_sign(&state.conf.nft_contract.private_key, &hashed) {
+        Ok(signature) => (
+            StatusCode::OK,
+            Json(
+                json!({"address": address, "r": signature.r, "s": signature.s}),
+            ),
+        )
+            .into_response(),
+        Err(e) => get_error(format!("Error while generating signature: {}", e)),
+    }
 }
