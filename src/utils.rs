@@ -13,6 +13,7 @@ use mongodb::{
     bson::doc, options::UpdateOptions, results::UpdateResult, Collection, Cursor, Database,
     IndexModel,
 };
+use rand::distributions::{Distribution, Uniform};
 use starknet::signers::Signer;
 use starknet::{
     core::{
@@ -24,7 +25,6 @@ use starknet::{
 use std::fmt::Write;
 use std::result::Result;
 use std::str::FromStr;
-use rand::distributions::{Distribution, Uniform};
 use tokio::time::{sleep, Duration};
 #[macro_export]
 macro_rules! pub_struct {
@@ -235,7 +235,7 @@ impl CompletedTasksTrait for AppState {
                             experience.into(),
                             timestamp,
                         )
-                            .await;
+                        .await;
                     }
                     Err(_e) => {
                         get_error("Error querying quests".to_string());
@@ -318,7 +318,7 @@ impl AchievementsTrait for AppState {
                     experience.into(),
                     timestamp,
                 )
-                    .await;
+                .await;
             }
             None => {}
         }
@@ -426,7 +426,10 @@ pub async fn add_leaderboard_table(db: &Database) {
     view_collection.create_index(index, None).await.unwrap();
 }
 
-pub async fn fetch_and_update_boosts_winner(boost_collection: Collection<BoostTable>, completed_tasks_collection: Collection<CompletedTasks>) {
+pub async fn fetch_and_update_boosts_winner(
+    boost_collection: Collection<BoostTable>,
+    completed_tasks_collection: Collection<CompletedTasks>,
+) {
     loop {
         let pipeline = vec![
             doc! {
@@ -460,6 +463,18 @@ pub async fn fetch_and_update_boosts_winner(boost_collection: Collection<BoostTa
                                             "localField": "task_id",
                                             "foreignField": "id",
                                             "as": "associated_tasks"
+                                        }
+                                    },
+                                    doc! {
+                                        "$match": doc! {
+                                            "$expr": doc! {
+                                                "$eq": [
+                                                    doc! {
+                                                        "$first": "$associated_tasks.quest_id"
+                                                    },
+                                                    quest
+                                                ]
+                                            }
                                         }
                                     },
                                     doc! {
@@ -520,11 +535,6 @@ pub async fn fetch_and_update_boosts_winner(boost_collection: Collection<BoostTa
                                         }
                                     },
                                     doc! {
-                                        "$match": doc! {
-                                            "quest_id": quest
-                                        }
-                                    },
-                                    doc! {
                                         "$project": doc! {
                                             "address": "$address"
                                         }
@@ -536,8 +546,10 @@ pub async fn fetch_and_update_boosts_winner(boost_collection: Collection<BoostTa
                                 {
                                     Ok(mut cursor) => {
                                         while let Some(doc) = cursor.try_next().await.unwrap() {
-                                            let address = doc.get("address").unwrap().as_str().unwrap();
-                                            let formatted_address = FieldElement::from_str(address).unwrap();
+                                            let address =
+                                                doc.get("address").unwrap().as_str().unwrap();
+                                            let formatted_address =
+                                                FieldElement::from_str(address).unwrap();
                                             address_list.push(formatted_address);
                                         }
                                     }
@@ -555,7 +567,6 @@ pub async fn fetch_and_update_boosts_winner(boost_collection: Collection<BoostTa
                             if address_list.len() == 1 {
                                 random_index = 0;
                             }
-
                             // if length of address list is 2 then select the only user
                             else {
                                 let mut rng = rand::thread_rng();
@@ -568,7 +579,10 @@ pub async fn fetch_and_update_boosts_winner(boost_collection: Collection<BoostTa
                             let filter = doc! { "id": doc.get("id").unwrap().as_i32().unwrap() };
                             let update = doc! { "$set": { "winner": winner } };
                             let options = UpdateOptions::builder().upsert(true).build();
-                            boost_collection.update_one(filter, update, options).await.unwrap();
+                            boost_collection
+                                .update_one(filter, update, options)
+                                .await
+                                .unwrap();
                         }
                         None => {}
                     }
@@ -584,5 +598,8 @@ pub async fn fetch_and_update_boosts_winner(boost_collection: Collection<BoostTa
 pub fn run_boosts_raffle(db: &Database) {
     let boost_collection = db.collection::<BoostTable>("boosts");
     let completed_tasks_collection = db.collection::<CompletedTasks>("completed_tasks");
-    tokio::spawn(fetch_and_update_boosts_winner(boost_collection, completed_tasks_collection));
+    tokio::spawn(fetch_and_update_boosts_winner(
+        boost_collection,
+        completed_tasks_collection,
+    ));
 }
