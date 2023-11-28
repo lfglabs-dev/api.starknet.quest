@@ -41,7 +41,7 @@ pub async fn handler(
         },
         doc! {
             "$project": {
-                "_id": "0",
+                "_id": 0,
                 "amount":"$amount",
                 "token":"$token",
             },
