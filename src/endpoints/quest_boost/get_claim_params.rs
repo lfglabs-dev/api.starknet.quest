@@ -23,7 +23,6 @@ use starknet::core::crypto::ecdsa_sign;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetClaimBoostQuery {
     boost_id: u32,
-    addr: FieldElement,
 }
 
 pub async fn handler(
@@ -31,7 +30,6 @@ pub async fn handler(
     Query(query): Query<GetClaimBoostQuery>,
 ) -> impl IntoResponse {
     let boost_id = query.boost_id;
-    let address = query.addr;
 
     let pipeline = vec![
         doc! {
@@ -44,6 +42,7 @@ pub async fn handler(
                 "_id": 0,
                 "amount":"$amount",
                 "token":"$token",
+                "winner":"$winner",
             },
         },
     ];
@@ -59,11 +58,13 @@ pub async fn handler(
     let boost: Document = res.unwrap();
     let amount = boost.get("amount").unwrap().as_i32().unwrap() as u32;
     let token = boost.get("token").unwrap().as_str().unwrap();
+    let address = boost.get("winner").unwrap().as_str().unwrap();
+
 
     let hashed = pedersen_hash(&FieldElement::from(boost_id),
                                &pedersen_hash(&FieldElement::from(amount),
                                               &pedersen_hash(&FieldElement::from_str(token).unwrap(),
-                                                             &address)));
+                                                             &FieldElement::from_str(address).unwrap())));
 
     match ecdsa_sign(&state.conf.nft_contract.private_key, &hashed) {
         Ok(signature) => (
