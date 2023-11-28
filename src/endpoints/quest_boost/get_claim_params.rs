@@ -49,7 +49,7 @@ pub async fn handler(
     ];
 
     let collection = state.db.collection::<Document>("boosts");
-    let mut res = match collection.aggregate(pipeline, None).await {
+    let res = match collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
             cursor.try_next().await.unwrap()
         }
@@ -64,8 +64,6 @@ pub async fn handler(
                                &pedersen_hash(&FieldElement::from(amount),
                                               &pedersen_hash(&FieldElement::from_str(token).unwrap(),
                                                              &address)));
-
-    let signature = ecdsa_sign(&state.conf.nft_contract.private_key, &hashed).unwrap();
 
     match ecdsa_sign(&state.conf.nft_contract.private_key, &hashed) {
         Ok(signature) => (

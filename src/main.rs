@@ -17,7 +17,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 use tower_http::cors::{Any, CorsLayer};
-use crate::utils::{add_boost_watcher, add_leaderboard_table};
+use crate::utils::{ add_leaderboard_table, run_boosts_raffle};
 
 #[tokio::main]
 async fn main() {
@@ -50,7 +50,7 @@ async fn main() {
     }
 
     let db_instance = shared_state.db.clone();
-    add_boost_watcher(&db_instance);
+    run_boosts_raffle(&db_instance);
     add_leaderboard_table(&shared_state.db).await;
 
     let cors = CorsLayer::new().allow_headers(Any).allow_origin(Any);
