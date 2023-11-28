@@ -1,5 +1,5 @@
 use futures::TryStreamExt;
-use crate::models::{AchievementDocument, AppState, CompletedTasks, LeaderboardTable, UserExperience};
+use crate::models::{AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, UserExperience};
 use async_trait::async_trait;
 use axum::{
     body::Body,
@@ -18,7 +18,9 @@ use starknet::{
 use std::fmt::Write;
 use std::result::Result;
 use std::str::FromStr;
+use tokio::time::{sleep, Duration};
 use chrono::{Utc};
+use mongodb::bson::Document;
 #[macro_export]
 macro_rules! pub_struct {
     ($($derive:path),*; $name:ident {$($field:ident: $t:ty),* $(,)?}) => {
@@ -395,4 +397,34 @@ pub async fn add_leaderboard_table(db: &Database) {
 
     //add indexing to materialised view
     view_collection.create_index(index, None).await.unwrap();
+}
+
+
+pub async fn boost_watcher(boost_collection: Collection<BoostTable>) {
+    loop {
+        let pipeline = vec![
+            doc! {
+                "$match": {
+                    "id": 1
+                }
+            },
+        ];
+
+        let mut res = match boost_collection.aggregate(pipeline, None).await {
+            Ok(mut cursor) => {
+                cursor.try_next().await.unwrap()
+            }
+            Err(_) => return,
+        };
+
+        let boost: Document = res.unwrap();
+        println!("{:?}", boost);
+        sleep(Duration::from_secs(5)).await;
+    }
+}
+
+
+pub fn add_boost_watcher(db: &Database) {
+    let boost_collection = db.collection::<BoostTable>("boosts");
+    tokio::spawn(boost_watcher(boost_collection));
 }
