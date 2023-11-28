@@ -10,3 +10,4 @@ pub mod get_trending_quests;
 pub mod quests;
 pub mod leaderboard;
 pub mod quest_boost;
+pub mod has_completed_quest;
