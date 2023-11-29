@@ -324,8 +324,8 @@ async fn main() {
             get(endpoints::quests::focustree::introduction::claimable::handler),
         )
         .route(
-            "/quests/focustree/verify_sign_up",
-            get(endpoints::quests::focustree::engagement::verify_sign_up::handler),
+            "/quests/focustree/discord_fw_callback",
+            get(endpoints::quests::focustree::engagement::discord_fw_callback::handler),
         )
         .route(
             "/quests/focustree/verify_twitter_rw_user",
