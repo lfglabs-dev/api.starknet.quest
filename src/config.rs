@@ -71,6 +71,11 @@ pub_struct!(Clone, Deserialize;  Twitter {
     oauth2_secret: String,
 });
 
+pub_struct!(Clone, Deserialize;  QuestBoost{
+    private_key: FieldElement,
+    update_interval: u64,
+});
+
 pub_struct!(Clone, Deserialize;  Discord {
     oauth2_clientid: String,
     oauth2_secret: String,
@@ -85,8 +90,8 @@ pub enum QuizQuestionType {
 
 impl<'de> Deserialize<'de> for QuizQuestionType {
     fn deserialize<D>(deserializer: D) -> Result<QuizQuestionType, D::Error>
-    where
-        D: Deserializer<'de>,
+        where
+            D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
         match s.to_lowercase().as_str() {
@@ -144,6 +149,7 @@ pub_struct!(Clone, Deserialize;  Config {
     quizzes: HashMap<String, Quiz>,
     starkscan: Starkscan,
     achievements: Achievements,
+    quest_boost: QuestBoost,
 });
 
 pub fn load() -> Config {

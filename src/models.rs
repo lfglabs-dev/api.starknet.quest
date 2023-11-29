@@ -153,6 +153,19 @@ pub_struct!(Debug, Serialize, Deserialize; LeaderboardTable {
     timestamp:f64,
 });
 
+
+pub_struct!(Debug, Serialize, Deserialize; BoostTable {
+    amount: i32,
+    token: String,
+    expiry: i64,
+    quests: Vec<i32>,
+    claimed: bool,
+    winner: Option<String>,
+    id: i32,
+    boost_description: String,
+    img_url: String,
+});
+
 pub_struct!(Debug, Serialize, Deserialize; NftBalance {
     contract_address: String,
     token_id: String,
