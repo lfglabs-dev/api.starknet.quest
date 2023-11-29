@@ -235,7 +235,7 @@ impl CompletedTasksTrait for AppState {
                             experience.into(),
                             timestamp,
                         )
-                        .await;
+                            .await;
                     }
                     Err(_e) => {
                         get_error("Error querying quests".to_string());
@@ -318,7 +318,7 @@ impl AchievementsTrait for AppState {
                     experience.into(),
                     timestamp,
                 )
-                .await;
+                    .await;
             }
             None => {}
         }
@@ -534,6 +534,11 @@ pub async fn fetch_and_update_boosts_winner(
                                             "address": "$address"
                                         }
                                     },
+                                    doc! {
+                                        "$sample":{
+                                            "size":1
+                                        }
+                                    },
                                 ];
                                 match completed_tasks_collection
                                     .aggregate(get_users_per_quest_pipeline, None)
@@ -562,6 +567,7 @@ pub async fn fetch_and_update_boosts_winner(
                             if address_list.len() == 1 {
                                 random_index = 0;
                             }
+
                             // else select a random user
                             else {
                                 let mut rng = rand::thread_rng();
