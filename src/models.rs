@@ -29,6 +29,7 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     logo: String,
     rewards_img: String,
     rewards_title: String,
+    rewards_description: Option<String>,
     rewards_nfts: Vec<NFTItem>,
     img_card: String,
     title_card: String,
