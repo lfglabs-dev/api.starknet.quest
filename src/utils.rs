@@ -1,12 +1,19 @@
-use futures::TryStreamExt;
-use crate::models::{AchievementDocument, AppState, CompletedTasks, LeaderboardTable, UserExperience};
+use crate::models::{
+    AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, UserExperience,
+};
 use async_trait::async_trait;
 use axum::{
     body::Body,
     http::{Response as HttpResponse, StatusCode, Uri},
     response::{IntoResponse, Response},
 };
-use mongodb::{bson::doc, options::UpdateOptions, results::UpdateResult, Collection, Database, Cursor, IndexModel};
+use chrono::Utc;
+use futures::TryStreamExt;
+use mongodb::{
+    bson::doc, options::UpdateOptions, results::UpdateResult, Collection, Cursor, Database,
+    IndexModel,
+};
+use rand::distributions::{Distribution, Uniform};
 use starknet::signers::Signer;
 use starknet::{
     core::{
@@ -18,7 +25,7 @@ use starknet::{
 use std::fmt::Write;
 use std::result::Result;
 use std::str::FromStr;
-use chrono::{Utc};
+use tokio::time::{sleep, Duration};
 #[macro_export]
 macro_rules! pub_struct {
     ($($derive:path),*; $name:ident {$($field:ident: $t:ty),* $(,)?}) => {
@@ -220,8 +227,15 @@ impl CompletedTasksTrait for AppState {
                         let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                         let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
                         user_exp_collection.insert_one(document, None).await?;
-                        let view_collection: Collection<LeaderboardTable> = self.db.collection("leaderboard_table");
-                        update_leaderboard(view_collection, addr.to_string(), experience.into(), timestamp).await;
+                        let view_collection: Collection<LeaderboardTable> =
+                            self.db.collection("leaderboard_table");
+                        update_leaderboard(
+                            view_collection,
+                            addr.to_string(),
+                            experience.into(),
+                            timestamp,
+                        )
+                            .await;
                     }
                     Err(_e) => {
                         get_error("Error querying quests".to_string());
@@ -276,11 +290,11 @@ impl AchievementsTrait for AppState {
             .update_one(filter, update, options)
             .await?;
 
-
         match &result.upserted_id {
             Some(_id) => {
                 // Check if the document was modified
-                let achievement_collection: Collection<AchievementDocument> = self.db.collection("achievements");
+                let achievement_collection: Collection<AchievementDocument> =
+                    self.db.collection("achievements");
                 // Define a query using the `doc!` macro.
                 let query = doc! { "id": achievement_id };
                 let mut experience: i32 = 0;
@@ -296,8 +310,15 @@ impl AchievementsTrait for AppState {
                 let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                 let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
                 user_exp_collection.insert_one(document, None).await?;
-                let view_collection: Collection<LeaderboardTable> = self.db.collection("leaderboard_table");
-                update_leaderboard(view_collection, addr.to_string(), experience.into(), timestamp).await;
+                let view_collection: Collection<LeaderboardTable> =
+                    self.db.collection("leaderboard_table");
+                update_leaderboard(
+                    view_collection,
+                    addr.to_string(),
+                    experience.into(),
+                    timestamp,
+                )
+                    .await;
             }
             None => {}
         }
@@ -347,7 +368,12 @@ impl DeployedTimesTrait for AppState {
     }
 }
 
-pub async fn update_leaderboard(view_collection: Collection<LeaderboardTable>, address: String, experience: i64, timestamp: f64) {
+pub async fn update_leaderboard(
+    view_collection: Collection<LeaderboardTable>,
+    address: String,
+    experience: i64,
+    timestamp: f64,
+) {
     // get current experience and new experience to it
     let mut old_experience = 0;
     let filter = doc! { "_id": &*address };
@@ -356,14 +382,16 @@ pub async fn update_leaderboard(view_collection: Collection<LeaderboardTable>, a
         old_experience = doc.experience;
     }
 
-
     // update the view collection
     let filter = doc! { "_id": &*address };
-    let update = doc! { "$set": { "experience": old_experience + experience, "timestamp": timestamp } };
+    let update =
+        doc! { "$set": { "experience": old_experience + experience, "timestamp": timestamp } };
     let options = UpdateOptions::builder().upsert(true).build();
-    view_collection.update_one(filter, update, options).await.unwrap();
+    view_collection
+        .update_one(filter, update, options)
+        .await
+        .unwrap();
 }
-
 
 pub async fn add_leaderboard_table(db: &Database) {
     let view_collection_name = "leaderboard_table";
@@ -383,7 +411,8 @@ pub async fn add_leaderboard_table(db: &Database) {
         doc! { "$merge" : doc! { "into":  view_collection_name , "on": "_id",  "whenMatched": "replace", "whenNotMatched": "insert" } },
     ];
 
-    let view_collection: Collection<LeaderboardTable> = db.collection::<LeaderboardTable>(view_collection_name);
+    let view_collection: Collection<LeaderboardTable> =
+        db.collection::<LeaderboardTable>(view_collection_name);
     let source_collection = db.collection::<UserExperience>("user_exp");
 
     // create materialised view
@@ -395,4 +424,184 @@ pub async fn add_leaderboard_table(db: &Database) {
 
     //add indexing to materialised view
     view_collection.create_index(index, None).await.unwrap();
+}
+
+pub async fn fetch_and_update_boosts_winner(
+    boost_collection: Collection<BoostTable>,
+    completed_tasks_collection: Collection<CompletedTasks>,
+    interval: u64,
+) {
+    loop {
+        let pipeline = vec![doc! {
+            "$match": {
+                "expiry":{
+                    "$lt": Utc::now().timestamp_millis()
+                },
+                "winner": {
+                    "$eq": null,
+                },
+            }
+        }];
+
+        match boost_collection.aggregate(pipeline, None).await {
+            Ok(mut cursor) => {
+                while let Some(doc) = cursor.try_next().await.unwrap() {
+                    match doc.get("quests") {
+                        Some(quests_res) => {
+                            let quests = quests_res.as_array().unwrap();
+                            let mut address_list: Vec<FieldElement> = Vec::new();
+                            for quest in quests {
+                                let get_users_per_quest_pipeline = vec![
+                                    doc! {
+                                        "$lookup": doc! {
+                                            "from": "tasks",
+                                            "localField": "task_id",
+                                            "foreignField": "id",
+                                            "as": "associated_tasks"
+                                        }
+                                    },
+                                    doc! {
+                                        "$match": doc! {
+                                            "$expr": doc! {
+                                                "$eq": [
+                                                    doc! {
+                                                        "$first": "$associated_tasks.quest_id"
+                                                    },
+                                                    quest
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    doc! {
+                                        "$group": doc! {
+                                            "_id": "$address",
+                                            "tasks_list": doc! {
+                                                "$push": doc! {
+                                                    "$arrayElemAt": [
+                                                        "$associated_tasks",
+                                                        0
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    doc! {
+                                        "$unwind": "$tasks_list"
+                                    },
+                                    doc! {
+                                        "$group": doc! {
+                                            "_id": doc! {
+                                                "address": "$_id",
+                                                "quest_id": "$tasks_list.quest_id"
+                                            },
+                                            "tasks_array": doc! {
+                                                "$push": "$tasks_list"
+                                            }
+                                        }
+                                    },
+                                    doc! {
+                                        "$project": doc! {
+                                            "_id": 0,
+                                            "address": "$_id.address",
+                                            "quest_id": "$_id.quest_id",
+                                            "tasks_array": 1
+                                        }
+                                    },
+                                    doc! {
+                                        "$lookup": doc! {
+                                            "from": "tasks",
+                                            "localField": "quest_id",
+                                            "foreignField": "quest_id",
+                                            "as": "associatedTasks"
+                                        }
+                                    },
+                                    doc! {
+                                        "$match": doc! {
+                                            "$expr": doc! {
+                                                "$eq": [
+                                                    doc! {
+                                                        "$size": "$tasks_array"
+                                                    },
+                                                    doc! {
+                                                        "$size": "$associatedTasks"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    doc! {
+                                        "$project": doc! {
+                                            "address": "$address"
+                                        }
+                                    },
+                                    doc! {
+                                        "$sample":{
+                                            "size":1
+                                        }
+                                    },
+                                ];
+                                match completed_tasks_collection
+                                    .aggregate(get_users_per_quest_pipeline, None)
+                                    .await
+                                {
+                                    Ok(mut cursor) => {
+                                        while let Some(doc) = cursor.try_next().await.unwrap() {
+                                            let address =
+                                                doc.get("address").unwrap().as_str().unwrap();
+                                            let formatted_address =
+                                                FieldElement::from_str(address).unwrap();
+                                            address_list.push(formatted_address);
+                                        }
+                                    }
+                                    Err(_err) => {}
+                                }
+                            }
+
+                            // skip if no user has completed quests
+                            if address_list.len() == 0 {
+                                continue;
+                            }
+                            let random_index;
+
+                            // if length of address list is 1 then select the only user
+                            if address_list.len() == 1 {
+                                random_index = 0;
+                            }
+
+                            // else select a random user
+                            else {
+                                let mut rng = rand::thread_rng();
+                                let die = Uniform::new(0, address_list.len());
+                                random_index = die.sample(&mut rng);
+                            }
+                            let winner = &address_list[random_index].to_string();
+
+                            // save winner in database
+                            let filter = doc! { "id": doc.get("id").unwrap().as_i32().unwrap() };
+                            let update = doc! { "$set": { "winner": winner } };
+                            let options = UpdateOptions::builder().upsert(true).build();
+                            boost_collection
+                                .update_one(filter, update, options)
+                                .await
+                                .unwrap();
+                        }
+                        None => {}
+                    }
+                }
+            }
+            Err(_err) => println!("{}", _err),
+        };
+
+        sleep(Duration::from_secs(interval)).await;
+    }
+}
+
+pub fn run_boosts_raffle(db: &Database, interval: u64) {
+    let boost_collection = db.collection::<BoostTable>("boosts");
+    let completed_tasks_collection = db.collection::<CompletedTasks>("completed_tasks");
+    tokio::spawn(fetch_and_update_boosts_winner(
+        boost_collection,
+        completed_tasks_collection,
+        interval,
+    ));
 }
