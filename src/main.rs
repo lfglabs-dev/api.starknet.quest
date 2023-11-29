@@ -50,7 +50,7 @@ async fn main() {
     }
 
     let db_instance = shared_state.db.clone();
-    run_boosts_raffle(&db_instance);
+    run_boosts_raffle(&db_instance,conf.quest_boost.update_interval);
     add_leaderboard_table(&shared_state.db).await;
 
     let cors = CorsLayer::new().allow_headers(Any).allow_origin(Any);

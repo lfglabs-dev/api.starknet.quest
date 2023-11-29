@@ -429,24 +429,19 @@ pub async fn add_leaderboard_table(db: &Database) {
 pub async fn fetch_and_update_boosts_winner(
     boost_collection: Collection<BoostTable>,
     completed_tasks_collection: Collection<CompletedTasks>,
+    interval: u64,
 ) {
     loop {
-        let pipeline = vec![
-            doc! {
-                "$match": {
-                    "expiry":{
-                        "$lt": Utc::now().timestamp_millis()
-                    }
-                }
-            },
-            doc! {
-                "$match": {
-                   "winner": {
-                        "$eq": null,
-                    },
-                }
-            },
-        ];
+        let pipeline = vec![doc! {
+            "$match": {
+                "expiry":{
+                    "$lt": Utc::now().timestamp_millis()
+                },
+                "winner": {
+                    "$eq": null,
+                },
+            }
+        }];
 
         match boost_collection.aggregate(pipeline, None).await {
             Ok(mut cursor) => {
@@ -567,7 +562,7 @@ pub async fn fetch_and_update_boosts_winner(
                             if address_list.len() == 1 {
                                 random_index = 0;
                             }
-                            // if length of address list is 2 then select the only user
+                            // else select a random user
                             else {
                                 let mut rng = rand::thread_rng();
                                 let die = Uniform::new(0, address_list.len());
@@ -591,15 +586,16 @@ pub async fn fetch_and_update_boosts_winner(
             Err(_err) => println!("{}", _err),
         };
 
-        sleep(Duration::from_secs(3600)).await;
+        sleep(Duration::from_secs(interval)).await;
     }
 }
 
-pub fn run_boosts_raffle(db: &Database) {
+pub fn run_boosts_raffle(db: &Database, interval: u64) {
     let boost_collection = db.collection::<BoostTable>("boosts");
     let completed_tasks_collection = db.collection::<CompletedTasks>("completed_tasks");
     tokio::spawn(fetch_and_update_boosts_winner(
         boost_collection,
         completed_tasks_collection,
+        interval,
     ));
 }
