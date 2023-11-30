@@ -15,7 +15,7 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let pipeline = vec![doc! {
        "$match": {
                 "expiry":{
-                    "$lt": Utc::now().timestamp_millis()
+                    "$gt": Utc::now().timestamp_millis()
                 },
                 "winner": {
                     "$eq": null,
