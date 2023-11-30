@@ -31,7 +31,7 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<TwitterOAuthCallbackQuery>,
 ) -> impl IntoResponse {
-    let quest_id = 124;
+    let quest_id = 21;
     let task_id = 87;
     let guild_id = "986385497888792598";
     let authorization_code = &query.code;
@@ -48,7 +48,7 @@ pub async fn handler(
         (
             "redirect_uri",
             &format!(
-                "{}/quests/avnu/discord_fw_callback",
+                "{}/quests/focustree/discord_fw_callback",
                 state.conf.variables.api_link
             ),
         ),
