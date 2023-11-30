@@ -5,6 +5,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
+use chrono::Utc;
 use futures::StreamExt;
 use mongodb::bson::doc;
 use mongodb::bson::from_document;
@@ -12,11 +13,14 @@ use std::sync::Arc;
 
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let pipeline = vec![doc! {
-        "$match": {
-        "amount":{
-            "$eq": 1000
-        },
-    }
+       "$match": {
+                "expiry":{
+                    "$lt": Utc::now().timestamp_millis()
+                },
+                "winner": {
+                    "$eq": null,
+                },
+            }
     }];
     let collection = state.db.collection::<BoostTable>("boosts");
     match collection.aggregate(pipeline, None).await {
