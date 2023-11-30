@@ -147,7 +147,6 @@ pub_struct!(Debug, Serialize, Deserialize; LeaderboardTable {
     timestamp:f64,
 });
 
-
 pub_struct!(Debug, Serialize, Deserialize; BoostTable {
     amount: i32,
     token: String,
