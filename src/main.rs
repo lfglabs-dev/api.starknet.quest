@@ -16,8 +16,8 @@ use starknet::providers::{jsonrpc::HttpTransport, JsonRpcClient};
 use std::net::SocketAddr;
 use std::sync::Arc;
 
+use crate::utils::{add_leaderboard_table, run_boosts_raffle};
 use tower_http::cors::{Any, CorsLayer};
-use crate::utils::{ add_leaderboard_table, run_boosts_raffle};
 
 #[tokio::main]
 async fn main() {
@@ -26,7 +26,6 @@ async fn main() {
     let client_options = ClientOptions::parse(&conf.database.connection_string)
         .await
         .unwrap();
-
 
     let shared_state = Arc::new(models::AppState {
         conf: conf.clone(),
@@ -50,7 +49,7 @@ async fn main() {
     }
 
     let db_instance = shared_state.db.clone();
-    run_boosts_raffle(&db_instance,conf.quest_boost.update_interval);
+    run_boosts_raffle(&db_instance, conf.quest_boost.update_interval);
     add_leaderboard_table(&shared_state.db).await;
 
     let cors = CorsLayer::new().allow_headers(Any).allow_origin(Any);
@@ -84,6 +83,10 @@ async fn main() {
         .route(
             "/get_deployed_time",
             get(endpoints::get_deployed_time::handler),
+        )
+        .route(
+            "/get_quest_category",
+            get(endpoints::get_quest_category::handler),
         )
         .route(
             "/quests/verify_quiz",

@@ -147,7 +147,6 @@ pub_struct!(Debug, Serialize, Deserialize; LeaderboardTable {
     timestamp:f64,
 });
 
-
 pub_struct!(Debug, Serialize, Deserialize; BoostTable {
     amount: i32,
     token: String,
@@ -222,4 +221,11 @@ pub_struct!(Deserialize, Serialize, Debug; UserAchievementCategory {
     id: u32,
     completed: bool,
     verify_type: String,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; QuestCategoryDocument {
+    name: String,
+    title: String,
+    desc: String,
+    img_url: String,
 });
