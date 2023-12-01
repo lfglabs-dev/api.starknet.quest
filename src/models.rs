@@ -29,6 +29,7 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     logo: String,
     rewards_img: String,
     rewards_title: String,
+    rewards_description: Option<String>,
     rewards_nfts: Vec<NFTItem>,
     img_card: String,
     title_card: String,
@@ -65,6 +66,11 @@ pub_struct!(Serialize; RewardResponse {
 
 pub_struct!(Deserialize; VerifyQuery {
      addr: FieldElement,
+});
+
+pub_struct!(Deserialize; EmailQuery {
+    addr: FieldElement,
+    email: String,
 });
 
 pub_struct!(Deserialize; VerifyQuizQuery {
@@ -147,6 +153,18 @@ pub_struct!(Debug, Serialize, Deserialize; LeaderboardTable {
     timestamp:f64,
 });
 
+pub_struct!(Debug, Serialize, Deserialize; BoostTable {
+    amount: i32,
+    token: String,
+    expiry: i64,
+    quests: Vec<i32>,
+    claimed: bool,
+    winner: Option<String>,
+    id: i32,
+    boost_description: String,
+    img_url: String,
+});
+
 pub_struct!(Debug, Serialize, Deserialize; NftBalance {
     contract_address: String,
     token_id: String,
@@ -209,4 +227,11 @@ pub_struct!(Deserialize, Serialize, Debug; UserAchievementCategory {
     id: u32,
     completed: bool,
     verify_type: String,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; QuestCategoryDocument {
+    name: String,
+    title: String,
+    desc: String,
+    img_url: String,
 });
