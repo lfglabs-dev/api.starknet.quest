@@ -112,7 +112,7 @@ pub async fn handler(
 
     get_error_redirect(
         error_redirect_uri,
-        "You're not part of AVNU's Discord server".to_string(),
+        "You're not part of Focus Tree's Discord server".to_string(),
     )
 }
 
