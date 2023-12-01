@@ -319,15 +319,23 @@ async fn main() {
         )
         .route(
             "/quests/focustree/verify_twitter_fw",
-            get(endpoints::quests::focustree::verify_twitter_fw::handler),
+            get(endpoints::quests::focustree::introduction::verify_twitter_fw::handler),
         )
         .route(
             "/quests/focustree/verify_twitter_rt",
-            get(endpoints::quests::focustree::verify_twitter_rt::handler),
+            get(endpoints::quests::focustree::introduction::verify_twitter_rt::handler),
         )
         .route(
             "/quests/focustree/claimable",
-            get(endpoints::quests::focustree::claimable::handler),
+            get(endpoints::quests::focustree::introduction::claimable::handler),
+        )
+        .route(
+            "/quests/focustree/discord_fw_callback",
+            get(endpoints::quests::focustree::engagement::discord_fw_callback::handler),
+        )
+        .route(
+            "/quests/focustree/verify_twitter_rw_user",
+            get(endpoints::quests::focustree::engagement::verify_twitter_rt::handler),
         )
         .route(
             "/quests/element/element/verify_is_eligible",

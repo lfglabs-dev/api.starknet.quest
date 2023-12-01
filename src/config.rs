@@ -63,6 +63,7 @@ pub_struct!(Clone, Deserialize;  Quests {
     braavos: Braavos,
     element: Element,
     nostra: Pairs,
+    focustree: Api ,
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {
@@ -120,6 +121,10 @@ pub_struct!(Clone, Deserialize; Quiz {
 
 pub_struct!(Clone, Deserialize;  Starkscan {
     api_key: String,
+});
+
+pub_struct!(Clone, Deserialize;  Api {
+    api_endpoint: String,
 });
 
 pub_struct!(Clone, Deserialize;  Achievement {
