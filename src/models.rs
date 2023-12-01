@@ -161,8 +161,8 @@ pub_struct!(Debug, Serialize, Deserialize; BoostTable {
     claimed: bool,
     winner: Option<String>,
     id: i32,
-    boost_description: String,
     img_url: String,
+    name: String,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; NftBalance {

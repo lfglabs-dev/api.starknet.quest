@@ -452,6 +452,18 @@ async fn main() {
             "/boost/get_claim_params",
             get(endpoints::quest_boost::get_claim_params::handler),
         )
+        .route(
+            "/boost/get_boosts",
+            get(endpoints::quest_boost::get_boosts::handler),
+        )
+        .route(
+            "/boost/get_quests",
+            get(endpoints::quest_boost::get_quests::handler),
+        )
+        .route(
+            "/boost/get_boost",
+            get(endpoints::quest_boost::get_boost::handler),
+        )
         .with_state(shared_state)
         .layer(cors);
 
