@@ -81,12 +81,18 @@ pub async fn handler(
         .header(AUTHORIZATION, format!("Bearer {}", access_token))
         .send()
         .await;
+    println!("Response result guild: {:?}", response_result);
     let response: Vec<Guild> = match response_result {
         Ok(response) => {
             let json_result = response.json().await;
+            println!("JSON result guild: {:?}", json_result);
             match json_result {
-                Ok(json) => json,
+                Ok(json) => {
+                    println!("JSON: {:?}", json);
+                    json
+                },
                 Err(e) => {
+                    println!("Failed to get JSON response while fetching user info: {}", e);
                     return get_error_redirect(
                         error_redirect_uri,
                         format!(
@@ -98,6 +104,7 @@ pub async fn handler(
             }
         }
         Err(e) => {
+            println!("Failed to send request to get user info response : {}", e);
             return get_error_redirect(
                 error_redirect_uri,
                 format!("Failed to send request to get user info: {}", e),
@@ -106,6 +113,7 @@ pub async fn handler(
     };
 
     for guild in response {
+        println!("Guild: {:?}", guild);
         if guild.id == guild_id {
             match state.upsert_completed_task(query.state, task_id).await {
                 Ok(_) => {
