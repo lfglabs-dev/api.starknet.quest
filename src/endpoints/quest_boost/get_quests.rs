@@ -6,7 +6,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
-use futures::{StreamExt};
+use futures::StreamExt;
 use mongodb::bson::doc;
 use mongodb::bson::from_document;
 use serde::{Deserialize, Serialize};
@@ -78,29 +78,9 @@ pub async fn handler(
                     "$map": doc! {
                         "input": "$quest_list",
                         "as": "item",
-                        "in": doc! {
-                            "id": "$$item.id",
-                            "category": "$$item.category",
-                            "name": "$$item.name",
-                            "desc": "$$item.desc",
-                            "issuer": "$$item.issuer",
-                            "logo": "$$item.logo",
-                            "rewards_img": "$$item.rewards_img",
-                            "rewards_title": "$$item.rewards_title",
-                            "img_card": "$$item.img_card",
-                            "title_card": "$$item.title_card",
-                            "hidden": "$$item.hidden",
-                            "disabled": "$$item.disabled",
-                            "expiry": "$$item.expiry",
-                            "expiry_timestamp": "$$item.expiry_timestamp",
-                            "mandatory_domain": "$$item.mandatory_domain",
-                            "expired": "$$item.expired",
-                            "experience": "$$item.experience",
-                            "rewards_title": "$$item.rewards_title",
-                            "rewards_nfts": "$$item.rewards_nfts",
-                            "rewards_description": "$$item.rewards_description",
-                            "rewards_endpoint": "$$item.rewards_endpoint",
-                        }
+                        "in": {
+                            "$mergeObjects": ["$$item"],
+                        },
                     }
                 }
             }
