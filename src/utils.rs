@@ -26,6 +26,7 @@ use std::fmt::Write;
 use std::result::Result;
 use std::str::FromStr;
 use tokio::time::{sleep, Duration};
+
 #[macro_export]
 macro_rules! pub_struct {
     ($($derive:path),*; $name:ident {$($field:ident: $t:ty),* $(,)?}) => {
@@ -385,7 +386,6 @@ pub async fn update_leaderboard(
     experience: i64,
     timestamp: f64,
 ) {
-
     // get current experience and new experience to it
     let mut old_experience = 0;
     let filter = doc! { "_id": &*address };
@@ -430,12 +430,24 @@ pub async fn add_leaderboard_table(db: &Database) {
     // create materialised view
     source_collection.aggregate(pipeline, None).await.unwrap();
 
-    let index = IndexModel::builder()
+    //create multiple indexes to speed it up
+    let timestamp_only = IndexModel::builder().keys(doc! { "timestamp":1}).build();
+    view_collection
+        .create_index(timestamp_only, None)
+        .await
+        .unwrap();
+    let addrs_only = IndexModel::builder().keys(doc! { "_id":1}).build();
+    view_collection
+        .create_index(addrs_only, None)
+        .await
+        .unwrap();
+    let compound_index = IndexModel::builder()
         .keys(doc! { "experience": -1,"timestamp":1,"_id":1})
         .build();
-
-    //add indexing to materialised view
-    view_collection.create_index(index, None).await.unwrap();
+    view_collection
+        .create_index(compound_index, None)
+        .await
+        .unwrap();
 }
 
 pub async fn fetch_and_update_boosts_winner(

@@ -39,96 +39,102 @@ use axum::{
     Json,
 };
 
+use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
 use mongodb::Collection;
 use reqwest::StatusCode;
-use std::sync::Arc;
-use futures::TryStreamExt;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
-
-pub async fn get_user_rank(collection: &Collection<Document>, address: &String, start_timestamp: &i64, end_timestamp: &i64) -> Document {
+pub async fn get_user_rank(
+    collection: &Collection<Document>,
+    address: &String,
+    start_timestamp: &i64,
+    end_timestamp: &i64,
+) -> Document {
     let user_rank_pipeline = vec![
         doc! {
-        "$match": doc! {
-            "timestamp": doc! {
-                "$gte": start_timestamp,
-                "$lte": end_timestamp
-            }
-        }
-    },
-        doc! {
-        "$sort": doc! {
-            "experience": -1,
-            "timestamp": 1,
-            "_id": 1
-        }
-    },
-        doc! {
-        "$addFields": doc! {
-            "tempSortField": 1
-        }
-    },
-        doc! {
-        "$setWindowFields": doc! {
-            "sortBy": doc! {
-                "tempSortField": -1
-            },
-            "output": doc! {
-                "rank": doc! {
-                    "$documentNumber": doc! {}
+            "$match": doc! {
+                "timestamp": doc! {
+                    "$gte": start_timestamp,
+                    "$lte": end_timestamp
                 }
             }
-        }
-    },
+        },
         doc! {
-        "$facet": doc! {
-            "total_users": [
-                doc! {
-                    "$count": "total"
-                }
-            ],
-            "user_rank": [
-                doc! {
-                    "$match": doc! {
-                        "_id": address
-                    }
+            "$sort": doc! {
+                "experience": -1,
+                "timestamp": 1,
+                "_id": 1
+            }
+        },
+        doc! {
+            "$addFields": doc! {
+                "tempSortField": 1
+            }
+        },
+        doc! {
+            "$setWindowFields": doc! {
+                "sortBy": doc! {
+                    "tempSortField": -1
                 },
-                doc! {
-                    "$project": doc! {
-                        "_id": 0,
-                        "rank": "$rank"
+                "output": doc! {
+                    "rank": doc! {
+                        "$documentNumber": doc! {}
                     }
                 }
-            ]
-        }
-    },
+            }
+        },
         doc! {
-        "$project": doc! {
-            "total_users": doc! {
-                "$arrayElemAt": [
-                    "$total_users.total",
-                    0
-                ]
-            },
-            "rank": doc! {
-                "$arrayElemAt": [
-                    "$user_rank",
-                    0
+            "$facet": doc! {
+                "total_users": [
+                    doc! {
+                        "$count": "total"
+                    }
+                ],
+                "user_rank": [
+                    doc! {
+                        "$match": doc! {
+                            "_id": address
+                        }
+                    },
+                    doc! {
+                        "$project": doc! {
+                            "_id": 0,
+                            "rank": "$rank"
+                        }
+                    }
                 ]
             }
-        }
-    },
+        },
         doc! {
-        "$project": doc! {
-            "total_users": 1,
-            "rank": "$rank.rank"
-        }
-    },
+            "$project": doc! {
+                "total_users": doc! {
+                    "$arrayElemAt": [
+                        "$total_users.total",
+                        0
+                    ]
+                },
+                "rank": doc! {
+                    "$arrayElemAt": [
+                        "$user_rank",
+                        0
+                    ]
+                }
+            }
+        },
+        doc! {
+            "$project": doc! {
+                "total_users": 1,
+                "rank": "$rank.rank"
+            }
+        },
     ];
 
     // add allow disk use to view options
-    let view_options = mongodb::options::AggregateOptions::builder().allow_disk_use(true).build();
+    let view_options = mongodb::options::AggregateOptions::builder()
+        .allow_disk_use(true)
+        .build();
 
     return match collection.aggregate(user_rank_pipeline, view_options).await {
         Ok(mut cursor) => {
@@ -171,12 +177,10 @@ pub fn get_default_range(rank: i64, page_size: i64, total_users: i64) -> i64 {
     if rank <= page_size / 2 {
         lower_range = 1;
     }
-
     // if rank is in bottom half of the last page then return default range
     else if rank >= (total_users - page_size / 2) {
         lower_range = total_users - page_size;
     }
-
     // if rank is in middle then return modified range where rank will be placed in middle of page
     else {
         lower_range = rank - (page_size / 2 - 1);
@@ -208,7 +212,6 @@ mod tests {
         assert_eq!((36), get_default_range(43, 10, 46));
     }
 }
-
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetCompletedQuestsQuery {
@@ -260,7 +263,13 @@ pub async fn handler(
     let shift = query.shift;
 
     // get user rank and total users
-    let stats = get_user_rank(&users_collection, &address, &start_timestamp, &end_timestamp).await;
+    let stats = get_user_rank(
+        &users_collection,
+        &address,
+        &start_timestamp,
+        &end_timestamp,
+    )
+    .await;
     let total_users = stats.get("total_users").unwrap().as_i32().unwrap() as i64;
     let user_rank = stats.get("user_rank").unwrap().as_i32().unwrap() as i64;
 
@@ -274,7 +283,6 @@ pub async fn handler(
     if shift == 0 {
         lower_range = get_default_range(user_rank, page_size, total_users);
     }
-
     // get user position and set range if shift
     else {
         let default_lower_range = get_default_range(user_rank, page_size, total_users);
@@ -286,7 +294,6 @@ pub async fn handler(
         -> if we want to move to previous page then shift will be negative.
          */
         let shift_in_elements = shift * page_size;
-
 
         /*
         -> if lower range becomes negative then set it to 0
@@ -344,7 +351,10 @@ pub async fn handler(
         },
     ];
 
-    match users_collection.aggregate(paginated_leaderboard_pipeline, None).await {
+    match users_collection
+        .aggregate(paginated_leaderboard_pipeline, None)
+        .await
+    {
         Ok(mut cursor) => {
             let mut res = Document::new();
             let mut ranking = Vec::new();
@@ -352,11 +362,12 @@ pub async fn handler(
                 ranking.push(result);
             }
             res.insert("ranking".to_string(), ranking);
-            res.insert("first_elt_position".to_string(), if lower_range == 0 { 1 } else { lower_range });
+            res.insert(
+                "first_elt_position".to_string(),
+                if lower_range == 0 { 1 } else { lower_range },
+            );
             (StatusCode::OK, Json(res)).into_response()
         }
-        Err(_err) => {
-            get_error("Error querying ranks".to_string())
-        }
+        Err(_err) => get_error("Error querying ranks".to_string()),
     }
 }
