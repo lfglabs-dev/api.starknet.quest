@@ -40,6 +40,9 @@ pub async fn handler(
         state.conf.variables.app_link, quest_id, task_id
     );
 
+    println!("Authorization code: {}", authorization_code);
+
+
     // Exchange the authorization code for an access token
     let params = [
         ("client_id", &state.conf.discord.oauth2_clientid),
@@ -54,9 +57,16 @@ pub async fn handler(
         ),
         ("grant_type", &"authorization_code".to_string()),
     ];
+
+    println!("Params: {:?}", params);
+
     let access_token = match exchange_authorization_code(params).await {
-        Ok(token) => token,
+        Ok(token) => {
+            println!("Access token: {}", token);
+            token
+        },
         Err(e) => {
+            println!("Failed to exchange authorization code: {}", e);
             return get_error_redirect(
                 error_redirect_uri,
                 format!("Failed to exchange authorization code: {}", e),
@@ -105,7 +115,10 @@ pub async fn handler(
                     );
                     return success_redirect(redirect_uri);
                 }
-                Err(e) => return get_error_redirect(error_redirect_uri, format!("{}", e)),
+                Err(e) => {
+                    println!("Guild Error: {}", e);
+                    return get_error_redirect(error_redirect_uri, format!("{}", e))
+                },
             }
         }
     }
@@ -125,6 +138,8 @@ async fn exchange_authorization_code(
         .form(&params)
         .send()
         .await?;
+
+    println!("Response: {:?}", res);
     let json: serde_json::Value = res.json().await?;
     match json["access_token"].as_str() {
         Some(s) => Ok(s.to_string()),
