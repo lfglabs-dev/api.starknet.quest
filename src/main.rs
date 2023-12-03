@@ -401,6 +401,14 @@ async fn main() {
             get(endpoints::quests::nostra::verify_added_liquidity::handler),
         )
         .route(
+            "/quests/nimbora/verify_added_liquidity",
+            get(endpoints::quests::nostra::verify_added_liquidity::handler),
+        )
+        .route(
+            "/quests/nimbora/verify_twitter_fw",
+            get(endpoints::quests::nimbora::verify_twitter_fw::handler),
+        )
+        .route(
             "/achievements/verify_default",
             get(endpoints::achievements::verify_default::handler),
         )
