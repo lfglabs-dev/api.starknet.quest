@@ -406,7 +406,11 @@ async fn main() {
         )
         .route(
             "/quests/rango/discord_fw_callback",
-            get(endpoints::quests::rango::verify_twitter_fw::handler),
+            get(endpoints::quests::rango::discord_fw_callback::handler),
+        )
+        .route(
+            "/quests/rango/check_trade",
+            get(endpoints::quests::rango::check_trade::handler),
         )
         .route(
             "/achievements/verify_default",

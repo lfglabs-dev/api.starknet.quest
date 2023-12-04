@@ -17,6 +17,7 @@ use std::sync::Arc;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetClaimBoostQuery {
     boost_id: u32,
+    addr: FieldElement,
 }
 
 pub async fn handler(
@@ -24,6 +25,7 @@ pub async fn handler(
     Query(query): Query<GetClaimBoostQuery>,
 ) -> impl IntoResponse {
     let boost_id = query.boost_id;
+    let addr=query.addr;
     let collection = state.db.collection::<Document>("boosts");
     let res=collection.find_one(doc! {"id":boost_id},None).await.unwrap();
 
@@ -35,7 +37,7 @@ pub async fn handler(
     let boost: Document = res.unwrap();
     let amount = boost.get("amount").unwrap().as_i32().unwrap() as u32;
     let token = boost.get("token").unwrap().as_str().unwrap();
-    let address = boost.get("winner").unwrap().as_str().unwrap();
+    // let address = boost.get("winner").unwrap().as_str().unwrap();
 
     let hashed = pedersen_hash(
         &FieldElement::from(boost_id),
@@ -45,7 +47,7 @@ pub async fn handler(
                 &FieldElement::from(0 as u32),
                 &pedersen_hash(
                     &FieldElement::from_str(token).unwrap(),
-                    &FieldElement::from_str(address).unwrap(),
+                    &addr,
                 ),
             ),
         ),
@@ -54,7 +56,7 @@ pub async fn handler(
     match ecdsa_sign(&state.conf.quest_boost.private_key, &hashed) {
         Ok(signature) => (
             StatusCode::OK,
-            Json(json!({"address": address, "r": signature.r, "s": signature.s})),
+            Json(json!({"address": addr, "r": signature.r, "s": signature.s})),
         )
             .into_response(),
         Err(e) => get_error(format!("Error while generating signature: {}", e)),
