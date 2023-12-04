@@ -44,7 +44,13 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                 }
             }
         },
+        doc! {
+            "$match": {
+                "expired": false,
+            }
+        },
     ];
+
     let collection = state.db.collection::<QuestDocument>("quests");
     match collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
