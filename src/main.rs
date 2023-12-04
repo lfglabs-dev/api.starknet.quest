@@ -321,6 +321,22 @@ async fn main() {
             get(endpoints::quests::braavos::avnu::verify_twitter_rt::handler),
         )
         .route(
+            "/quests/braavos/wallet/claimable",
+            get(endpoints::quests::braavos::wallet::claimable::handler),
+        )
+        .route(
+            "/quests/braavos/wallet/verify_has_domain",
+            get(endpoints::quests::braavos::wallet::verify_has_domain::handler),
+        )
+        .route(
+            "/quests/braavos/wallet/verify_twitter_fw_braavos",
+            get(endpoints::quests::braavos::wallet::verify_twitter_fw_braavos::handler),
+        )
+        .route(
+            "/quests/braavos/wallet/verify_twitter_rt",
+            get(endpoints::quests::braavos::wallet::verify_twitter_rt::handler),
+        )
+        .route(
             "/quests/focustree/verify_twitter_fw",
             get(endpoints::quests::focustree::introduction::verify_twitter_fw::handler),
         )
