@@ -345,7 +345,7 @@ pub async fn handler(
         Some(30) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "Rango Exchange Quest NFT".into(),
+                name: "Rango Exchange Castle Bridge NFT".into(),
                 description: "A Rango Exchange Quest NFT won for successfully finishing the Quest".into(),
                 image: format!("{}/rango/bridge.webp", state.conf.variables.app_link),
                 attributes: None,
