@@ -28,7 +28,8 @@ fn get_task_id(quiz_name: &str) -> Option<u32> {
         "briq" => Some(67),
         "element_starknetid" => Some(73),
         "nostra" => Some(79),
-        "rango" => Some(23),
+        "rango" => Some(95),
+        "braavos" => Some(98),
         _ => None,
     }
 }

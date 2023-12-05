@@ -329,7 +329,19 @@ pub async fn handler(
             }),
         )
             .into_response(),
-
+      
+        Some(29) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Starknet Pro Score x Braavos Wallet Quest NFT".into(),
+                description: "This Starknet commemorative Non-Fungible Token represents the first steps into the Starknet universe. By using Braavos Wallet and becoming a Whisperer of Braavos, you are building solid foundations for your Starknet experience.".into(),
+                image: format!("{}/braavos/wallet.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+      
+      
         Some(30) => (
             StatusCode::OK,
             Json(TokenURI {

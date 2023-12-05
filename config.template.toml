@@ -844,3 +844,56 @@ options = [
     "There is no minimum amount"
 ]
 correct_answers = [*]
+
+[quizzes.braavos]
+name = "Starknet Pro Score Quiz"
+desc = "Challenge your knowledge about your Starknet Pro Score with this quiz for and learn how to reach 100%!"
+intro = "Challenge your knowledge about your Starknet Pro Score with this quiz for and learn how to reach 100%!"
+
+[[quizzes.braavos.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How does the Pro-Score system recognize your contributions to the Starknet ecosystem?"
+options = [
+    "By counting the number of Starknet-related social media posts you create.",
+    "Through the frequency of your logins to the Braavos Wallet.",
+    "By measuring the diversity and consistency of your on-chain activities in Starknet.",
+    "Based on the feedback and ratings from other community members."
+]
+correct_answers = [*]
+
+[[quizzes.braavos.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the Starknet Pro Score formula?"
+options = [
+    "Starknet Pro Score = (O + E + T) x 3",
+    "Starknet Pro Score = (O + E + T) / 3",
+    "Starknet Pro Score = O + E - T",
+    "Starknet Pro Score = O x E x T"
+]
+correct_answers = [*]
+
+[[quizzes.braavos.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is required to be eligible to claim the 'Pro Score Master' role, a prestigious distinction from the Braavos Community?"
+options = [
+    "Completing a set number of transactions on Starknet.",
+    "Participating in special Braavos Community events.",
+    "Achieving a 90% or higher Starknet Pro Score.",
+    "Being an active member for a certain period."
+]
+correct_answers = [*]
+
+[[quizzes.braavos.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the first step to begin your adventure with the Starknet Pro Score and explore the Starknet ecosystem?"
+options = [
+    "Installing the Braavos Wallet and navigating to the dApp Gallery.",
+    "Reading online forums about cryptocurrency.",
+    "Following Starknet on social media.",
+    "Attending a cryptocurrency seminar."
+]
+correct_answers = [*]
