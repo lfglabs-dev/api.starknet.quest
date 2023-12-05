@@ -845,7 +845,6 @@ options = [
 ]
 correct_answers = [*]
 
-<<<<<<< Updated upstream
 [quizzes.braavos]
 name = "Starknet Pro Score Quiz"
 desc = "Challenge your knowledge about your Starknet Pro Score with this quiz for and learn how to reach 100%!"
@@ -896,8 +895,7 @@ options = [
     "Reading online forums about cryptocurrency.",
     "Following Starknet on social media.",
     "Attending a cryptocurrency seminar."
-=======
-
+]
 
 [quizzes.rango]
 name = "Rango Quiz"
