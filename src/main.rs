@@ -413,6 +413,10 @@ async fn main() {
             get(endpoints::quests::rango::check_trade::handler),
         )
         .route(
+            "/quests/rango/claimable",
+            get(endpoints::quests::rango::claimable::handler),
+        )
+        .route(
             "/achievements/verify_default",
             get(endpoints::achievements::verify_default::handler),
         )
