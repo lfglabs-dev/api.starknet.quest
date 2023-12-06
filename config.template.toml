@@ -935,6 +935,5 @@ options = [
     "Rango is a sidechain on Starknet.",
     "Rango integrates multiple types of blockchains, including EVM-based, Cosmos, Solana, and many more.",
     "Rango focuses exclusively on a zkEVM blockchain type"
->>>>>>> Stashed changes
 ]
 correct_answers = [*]
