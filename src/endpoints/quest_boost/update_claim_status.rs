@@ -1,5 +1,5 @@
 use crate::{
-    models::{AppState, QuestDocument},
+    models::{AppState},
     utils::get_error,
 };
 use axum::{
@@ -7,7 +7,6 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
-use futures::StreamExt;
 use mongodb::bson::{doc, Document};
 use serde::Deserialize;
 use std::sync::Arc;
@@ -34,7 +33,6 @@ pub async fn handler(
     }
 
     // update boost with claimed field equal to true
-    let boost: Document = res.unwrap();
     let update = doc! {"$set": {"claimed": status}};
     collection.update_one(doc! {"id":boost_id}, update, None).await.unwrap();
     (StatusCode::OK, Json(json!({"res": true}))).into_response()
