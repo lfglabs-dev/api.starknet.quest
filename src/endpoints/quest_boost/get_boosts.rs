@@ -12,33 +12,19 @@ use mongodb::bson::from_document;
 use std::sync::Arc;
 
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    let pipeline = vec![doc! {
-       "$match": {
-                "expiry":{
-                    "$gt": Utc::now().timestamp_millis()
-                },
-                "winner": {
-                    "$eq": null,
-                },
-            }
-    }];
     let collection = state.db.collection::<BoostTable>("boosts");
-    match collection.aggregate(pipeline, None).await {
-        Ok(mut cursor) => {
-            let mut quests: Vec<BoostTable> = Vec::new();
-            while let Some(result) = cursor.next().await {
-                match result {
-                    Ok(document) => {
-                        quests.push(from_document(document).unwrap());
-                    }
-                    _ => continue,
-                }
+    let mut boosts =  match collection.find(doc! {}, None).await{
+        Ok(cursor) => cursor,
+        Err(_) => return get_error("Error querying boosts".to_string()),
+    };
+    let mut boosts_array: Vec<BoostTable> = Vec::new();
+    while let Some(result) = boosts.next().await {
+        match result {
+            Ok(document) => {
+                boosts_array.push(document.into());
             }
-            if quests.len() == 0 {
-                return get_error("No boosts found".to_string());
-            }
-            (StatusCode::OK, Json(quests)).into_response()
+            _ => continue,
         }
-        Err(_) => get_error("Error querying boosts".to_string()),
     }
+    (StatusCode::OK, Json(boosts_array)).into_response()
 }
