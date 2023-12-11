@@ -329,7 +329,7 @@ pub async fn handler(
             }),
         )
             .into_response(),
-
+      
         Some(29) => (
             StatusCode::OK,
             Json(TokenURI {
@@ -340,6 +340,17 @@ pub async fn handler(
             }),
         )
             .into_response(),
+      
+      
+        Some(30) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Rango Exchange Castle Bridge NFT".into(),
+                description: "A Rango Exchange Quest NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/rango/bridge.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
     
         _ => get_error("Error, this level is not correct".into()),
     }

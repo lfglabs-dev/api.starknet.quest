@@ -896,4 +896,44 @@ options = [
     "Following Starknet on social media.",
     "Attending a cryptocurrency seminar."
 ]
+
+[quizzes.rango]
+name = "Rango Quiz"
+desc = "Take part in our Quiz to test your knowledge about Rango, and you'll have a chance to win an exclusive Rango Castle Bridge NFT as your reward."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Rango, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.rango.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What does Rango specialize in?"
+options = [
+    "Decentralized applications ",
+    "Cross-chain swaps and aggregating bridges and DEXs",
+    "58  blockchains",
+    "Only the Lightning network "
+]
+correct_answers = [*]
+
+[[quizzes.rango.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How many connections does Rango support in Web3?"
+options = [
+    "20 Cosmos Appchains and 50 CEXes",
+    "100 blockchains and 10 DEXes.",
+    "Capital inefficiency and poor price discovery in AMMs",
+    "Lack of social media engagement "
+]
+correct_answers = [*]
+
+[[quizzes.rango.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What makes Rango Multichain?"
+options = [
+    "It only supports one type of EVM blockchain.",
+    "Rango is a sidechain on Starknet.",
+    "Rango integrates multiple types of blockchains, including EVM-based, Cosmos, Solana, and many more.",
+    "Rango focuses exclusively on a zkEVM blockchain type"
+]
 correct_answers = [*]

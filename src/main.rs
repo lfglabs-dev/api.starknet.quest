@@ -417,6 +417,22 @@ async fn main() {
             get(endpoints::quests::nostra::verify_added_liquidity::handler),
         )
         .route(
+            "/quests/rango/verify_twitter_fw",
+            get(endpoints::quests::rango::verify_twitter_fw::handler),
+        )
+        .route(
+            "/quests/rango/discord_fw_callback",
+            get(endpoints::quests::rango::discord_fw_callback::handler),
+        )
+        .route(
+            "/quests/rango/check_trade",
+            get(endpoints::quests::rango::check_trade::handler),
+        )
+        .route(
+            "/quests/rango/claimable",
+            get(endpoints::quests::rango::claimable::handler),
+        )
+        .route(
             "/achievements/verify_default",
             get(endpoints::achievements::verify_default::handler),
         )
