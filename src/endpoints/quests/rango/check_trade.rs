@@ -23,7 +23,7 @@ pub async fn handler(
         Err(e) => return get_error(format!("{}", e)),
     };
 
-    if let Some(data_response) = response.get("data") {
+    if let Some(_) = response.get("data") {
         if let Some(result) = response.get("result") {
             if result.as_bool().unwrap() {
                 return match state.upsert_completed_task(query.addr, task_id).await {
@@ -36,9 +36,9 @@ pub async fn handler(
     get_error("User has not completed the task".to_string())
 }
 
-async fn make_rango_request(endpoint: &str, apiKey: &str) -> Result<serde_json::Value, String> {
+async fn make_rango_request(endpoint: &str, api_key: &str) -> Result<serde_json::Value, String> {
     let client = reqwest::Client::new();
-    match client.get(endpoint).header("apiKey", apiKey).send().await {
+    match client.get(endpoint).header("apiKey", api_key).send().await {
         Ok(response) => match response.json::<serde_json::Value>().await {
             Ok(json) => {
                 if let Some(res) = json.get("res") {
