@@ -33,29 +33,40 @@ pub async fn handler(
                 "from": "boost_claims",
                 "localField": "id",
                 "foreignField": "id",
-                "as": "claim_status"
+                "as": "claim_detail"
             }
         },
         doc! {
             "$addFields": doc! {
                 "claimed": doc! {
-                    "$cond": doc! {
-                        "if": doc! {
-                            "$gt": [
-                                doc! {
-                                    "$size": "$claim_status"
-                                },
-                                0
-                            ]
-                        },
-                        "then": true,
-                        "else": false
+                    "$anyElementTrue": doc! {
+                        "$map": doc! {
+                            "input": "$claim_detail",
+                            "as": "claimDetail",
+                            "in": doc! {
+                                "$cond": doc! {
+                                    "if": doc! {
+                                        "$eq": [
+                                            doc! {
+                                                "$ifNull": [
+                                                    "$$claimDetail._cursor.to",
+                                                    null
+                                                ]
+                                            },
+                                            null
+                                        ]
+                                    },
+                                    "then": true,
+                                    "else": false
+                                }
+                            }
+                        }
                     }
                 }
             }
         },
         doc! {
-            "$unset": "claim_status"
+            "$unset": "claim_detail"
         },
         doc! {
             "$project":{
