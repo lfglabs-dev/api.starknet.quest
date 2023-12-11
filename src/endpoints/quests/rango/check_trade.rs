@@ -30,15 +30,10 @@ pub async fn handler(
                     Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
                     Err(e) => get_error(format!("{}", e)),
                 };
-            } else {
-                get_error("User has not completed the task".to_string())
             }
-        } else {
-            get_error("User has not completed the task".to_string())
         }
-    } else {
-        get_error("User has not completed the task".to_string())
     }
+    get_error("User has not completed the task".to_string())
 }
 
 async fn make_rango_request(endpoint: &str, apiKey: &str) -> Result<serde_json::Value, String> {
