@@ -340,6 +340,17 @@ pub async fn handler(
             }),
         )
             .into_response(),
+
+        Some(30) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "The Silver Rhino NFT".into(),
+                description: "Completing the Quest successfully makes you eligible to win a Silver Rhino NFT".into(),
+                image: format!("{}/rhino/silverRhino.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
     
         _ => get_error("Error, this level is not correct".into()),
     }
