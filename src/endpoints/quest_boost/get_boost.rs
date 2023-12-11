@@ -29,9 +29,38 @@ pub async fn handler(
             }
         },
         doc! {
+            "$lookup": doc! {
+                "from": "boost_claims",
+                "localField": "id",
+                "foreignField": "id",
+                "as": "claim_status"
+            }
+        },
+        doc! {
+            "$addFields": doc! {
+                "claimed": doc! {
+                    "$cond": doc! {
+                        "if": doc! {
+                            "$gt": [
+                                doc! {
+                                    "$size": "$claim_status"
+                                },
+                                0
+                            ]
+                        },
+                        "then": true,
+                        "else": false
+                    }
+                }
+            }
+        },
+        doc! {
+            "$unset": "claim_status"
+        },
+        doc! {
             "$project":{
             "_id":0
-        }
+            }
         },
     ];
 
