@@ -37,33 +37,27 @@ pub async fn handler(
             }
         },
         doc! {
-            "$addFields": doc! {
-                "claimed": doc! {
-                    "$anyElementTrue": doc! {
-                        "$map": doc! {
-                            "input": "$claim_detail",
-                            "as": "claimDetail",
-                            "in": doc! {
-                                "$cond": doc! {
-                                    "if": doc! {
-                                        "$eq": [
-                                            doc! {
-                                                "$ifNull": [
-                                                    "$$claimDetail._cursor.to",
-                                                    null
-                                                ]
-                                            },
-                                            null
-                                        ]
-                                    },
-                                    "then": true,
-                                    "else": false
-                                }
-                            }
+        "$addFields": doc! {
+            "claimed": doc! {
+                "$anyElementTrue": doc! {
+                    "$map": doc! {
+                        "input": "$claim_detail",
+                        "as": "claimDetail",
+                        "in": doc! {
+                        "$eq": [
+                            doc! {
+                                "$ifNull": [
+                                    "$$claimDetail._cursor.to",
+                                    null
+                                ]
+                            },
+                            null
+                        ]
                         }
                     }
                 }
             }
+        },
         },
         doc! {
             "$unset": "claim_detail"
