@@ -599,10 +599,11 @@ pub async fn fetch_and_update_boosts_winner(
                                 random_index = die.sample(&mut rng);
                             }
                             let winner = &address_list[random_index].to_string();
+                            let formatted_winner = FieldElement::from_str(winner).unwrap();
 
                             // save winner in database
                             let filter = doc! { "id": doc.get("id").unwrap().as_i32().unwrap() };
-                            let update = doc! { "$set": { "winner": winner } };
+                            let update = doc! { "$set": { "winner": to_hex(formatted_winner)  } };
                             let options = UpdateOptions::builder().upsert(true).build();
                             boost_collection
                                 .update_one(filter, update, options)

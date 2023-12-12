@@ -163,6 +163,7 @@ pub_struct!(Debug, Serialize, Deserialize; BoostTable {
     id: i32,
     img_url: String,
     name: String,
+    hidden: bool,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; NftBalance {
