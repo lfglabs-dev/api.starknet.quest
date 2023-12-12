@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let collection = state.db.collection::<BoostTable>("boosts");
-    let mut boosts =  match collection.find(doc! {}, None).await{
+    let mut boosts = match collection.find(doc! {"hidden":false}, None).await {
         Ok(cursor) => cursor,
         Err(_) => return get_error("Error querying boosts".to_string()),
     };
