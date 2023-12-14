@@ -9,3 +9,4 @@ pub mod verify_has_domain;
 pub mod verify_seniority;
 pub mod verify_tvl;
 pub mod verify_whitelisted;
+pub mod quests;
