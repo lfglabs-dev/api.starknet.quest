@@ -29,9 +29,43 @@ pub async fn handler(
             }
         },
         doc! {
+            "$lookup": doc! {
+                "from": "boost_claims",
+                "localField": "id",
+                "foreignField": "id",
+                "as": "claim_detail"
+            }
+        },
+        doc! {
+        "$addFields": doc! {
+            "claimed": doc! {
+                "$anyElementTrue": doc! {
+                    "$map": doc! {
+                        "input": "$claim_detail",
+                        "as": "claimDetail",
+                        "in": doc! {
+                        "$eq": [
+                            doc! {
+                                "$ifNull": [
+                                    "$$claimDetail._cursor.to",
+                                    null
+                                ]
+                            },
+                            null
+                        ]
+                        }
+                    }
+                }
+            }
+        },
+        },
+        doc! {
+            "$unset": "claim_detail"
+        },
+        doc! {
             "$project":{
             "_id":0
-        }
+            }
         },
     ];
 

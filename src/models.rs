@@ -158,11 +158,11 @@ pub_struct!(Debug, Serialize, Deserialize; BoostTable {
     token: String,
     expiry: i64,
     quests: Vec<i32>,
-    claimed: bool,
     winner: Option<String>,
     id: i32,
     img_url: String,
     name: String,
+    hidden: bool,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; NftBalance {
