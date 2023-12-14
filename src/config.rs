@@ -122,6 +122,10 @@ pub_struct!(Clone, Deserialize;  Starkscan {
     api_key: String,
 });
 
+pub_struct!(Clone, Deserialize; PublicApi  {
+    api_endpoint: String,
+});
+
 pub_struct!(Clone, Deserialize;  Achievement {
     contract: FieldElement,
 });
@@ -145,6 +149,7 @@ pub_struct!(Clone, Deserialize;  Config {
     starkscan: Starkscan,
     achievements: Achievements,
     quest_boost: QuestBoost,
+    rhino: PublicApi
 });
 
 pub fn load() -> Config {

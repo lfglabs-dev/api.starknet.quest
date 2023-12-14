@@ -417,9 +417,18 @@ async fn main() {
             get(endpoints::quests::nostra::verify_added_liquidity::handler),
         )
         .route(
+            "/quests/rhino/check_bridge",
+            get(endpoints::quests::rhino::check_bridge::handler),
+        )
+        .route(
             "/quests/rhino/verify_twitter_fw",
             get(endpoints::quests::rhino::verify_twitter_fw::handler),
         )
+        .route(
+            "/quests/rhino/claimable",
+            get(endpoints::quests::rhino::claimable::handler),
+        )
+
         .route(
             "/achievements/verify_default",
             get(endpoints::achievements::verify_default::handler),
