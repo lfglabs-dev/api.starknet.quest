@@ -28,10 +28,7 @@ pub async fn handler(
     let pipeline = [
         doc! {
             "$match": {
-                "winner":{
-                    "$regex": address,
-                    "$options": "i"
-                }
+                "winner":address
             }
         },
         doc! {
@@ -43,46 +40,26 @@ pub async fn handler(
             }
         },
         doc! {
-        "$addFields": doc! {
-            "claimed": doc! {
-                "$anyElementTrue": doc! {
-                    "$map": doc! {
-                        "input": "$claim_detail",
-                        "as": "claimDetail",
-                        "in": doc! {
-                        "$eq": [
-                            doc! {
-                                "$ifNull": [
-                                    "$$claimDetail._cursor.to",
-                                    null
-                                ]
-                            },
-                            null
-                        ]
-                        }
+            "$match": {
+            "claim_detail._cursor.to":{
+                    "$not":
+                    {
+                        "$eq": null
                     }
                 }
-            }
-        },
-        },
-        doc! {
-            "$unset": "claim_detail"
+            },
         },
         doc! {
-            "$project":{
-            "_id":0
-            }
-        },
-        doc! {
-        "$match": {
-          "claimed": false,
-        },
+           "$project": {
+            "_id": 0,
+            "claim_detail": 0,
+            },
         },
     ];
 
     match collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
-            let mut res=Vec::new();
+            let mut res = Vec::new();
             while let Some(result) = cursor.next().await {
                 match result {
                     Ok(document) => {
@@ -93,6 +70,9 @@ pub async fn handler(
             }
             return (StatusCode::OK, Json(res)).into_response();
         }
-        Err(_) => get_error("Error querying claims".to_string()),
+        Err(e) => {
+            println!("Error querying claims: {}", e);
+            get_error("Error querying claims".to_string())
+        }
     }
 }
