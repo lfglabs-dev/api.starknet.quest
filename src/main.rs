@@ -425,10 +425,13 @@ async fn main() {
             get(endpoints::quests::rhino::verify_twitter_fw::handler),
         )
         .route(
+            "/quests/rhino/verify_twitter_rw",
+            get(endpoints::quests::rhino::verify_twitter_rw::handler),
+        )
+        .route(
             "/quests/rhino/claimable",
             get(endpoints::quests::rhino::claimable::handler),
         )
-
           .route(
             "/quests/rango/verify_twitter_fw",
             get(endpoints::quests::rango::verify_twitter_fw::handler),
