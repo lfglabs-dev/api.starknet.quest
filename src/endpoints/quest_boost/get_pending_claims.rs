@@ -84,7 +84,9 @@ pub async fn handler(
         doc! {
             "$project": doc! {
                 "_id": 0,
-                "boost_claims": 0
+                "boost_claims": 0,
+                      "hidden":0
+
             }
         },
     ];
