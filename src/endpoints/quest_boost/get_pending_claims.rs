@@ -34,26 +34,58 @@ pub async fn handler(
         doc! {
             "$lookup": doc! {
                 "from": "boost_claims",
-                "localField": "id",
-                "foreignField": "id",
-                "as": "claim_detail"
+                "let": doc! {
+                    "localId": "$id",
+                    "localWinner": "$winner"
+                },
+                "pipeline": [
+                    doc! {
+                        "$match": doc! {
+                            "$expr": doc! {
+                                "$and": [
+                                    doc! {
+                                        "$eq": [
+                                            "$id",
+                                            "$$localId"
+                                        ]
+                                    },
+                                    doc! {
+                                        "$eq": [
+                                            "$winner",
+                                            "$$localWinner"
+                                        ]
+                                    },
+                                    doc! {
+                                        "$eq": [
+                                            "$_cursor.to",
+                                            null
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "as": "boost_claims"
             }
         },
         doc! {
-            "$match": {
-            "claim_detail._cursor.to":{
-                    "$not":
-                    {
-                        "$eq": null
-                    }
+            "$match": doc! {
+                "$expr": doc! {
+                    "$eq": [
+                        doc! {
+                            "$size": "$boost_claims"
+                        },
+                        0
+                    ]
                 }
-            },
+            }
         },
         doc! {
-           "$project": {
-            "_id": 0,
-            "claim_detail": 0,
-            },
+            "$project": doc! {
+                "_id": 0,
+                "boost_claims": 0
+            }
         },
     ];
 
