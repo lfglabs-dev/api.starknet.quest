@@ -22,7 +22,7 @@ pub async fn handler(
         &state.conf.rango.api_key,
         query.addr.to_string(),
     )
-    .await;
+        .await;
     let response = match res {
         Ok(response) => response,
         Err(e) => return get_error(format!("{}", e)),
@@ -63,10 +63,10 @@ async fn make_rango_request(
                         return Ok(json!({"res": true}));
                     }
                 }
-                Err(format!("Failed to get JSON response: {}", json))
+                Err(format!("Funds not bridged"))
             }
-            Err(e) => Err(format!("Failed to get JSON response: {}", e)),
+            Err(e) => Err(format!("Funds not bridged")),
         },
-        Err(e) => Err(format!("Failed to send request: {}", e)),
+        Err(e) => Err(format!("Funds not bridged")),
     }
 }
