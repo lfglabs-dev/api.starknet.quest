@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::models::VerifyQuery;
-use crate::utils::CompletedTasksTrait;
+use crate::utils::{CompletedTasksTrait, to_hex};
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
@@ -16,11 +16,11 @@ pub async fn handler(
     Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
     let task_id = 92;
-
+    let address_hex = to_hex(query.addr);
     let res = make_rango_request(
         &state.conf.rango.api_endpoint,
         &state.conf.rango.api_key,
-        query.addr.to_string(),
+        address_hex,
     )
         .await;
     let response = match res {
