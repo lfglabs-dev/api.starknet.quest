@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use crate::models::EmailQuery;
-use crate::utils::{CompletedTasksTrait};
+use crate::models::VerifyQuery;
+use crate::utils::CompletedTasksTrait;
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
@@ -13,11 +13,16 @@ use serde_json::json;
 
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    Query(query): Query<EmailQuery>,
+    Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
     let task_id = 92;
 
-    let res = make_rango_request(&state.conf.rango.api_endpoint, &state.conf.rango.api_key).await;
+    let res = make_rango_request(
+        &state.conf.rango.api_endpoint,
+        &state.conf.rango.api_key,
+        query.addr.to_string(),
+    )
+    .await;
     let response = match res {
         Ok(response) => response,
         Err(e) => return get_error(format!("{}", e)),
@@ -36,9 +41,21 @@ pub async fn handler(
     get_error("User has not completed the task".to_string())
 }
 
-async fn make_rango_request(endpoint: &str, api_key: &str) -> Result<serde_json::Value, String> {
+async fn make_rango_request(
+    endpoint: &str,
+    api_key: &str,
+    addr: String,
+) -> Result<serde_json::Value, String> {
     let client = reqwest::Client::new();
-    match client.get(endpoint).header("apiKey", api_key).send().await {
+    match client
+        .post(endpoint)
+        .json(&json!({
+            "address": addr,
+        }))
+        .header("apiKey", api_key)
+        .send()
+        .await
+    {
         Ok(response) => match response.json::<serde_json::Value>().await {
             Ok(json) => {
                 if let Some(res) = json.get("res") {
