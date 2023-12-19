@@ -58,15 +58,22 @@ async fn make_rango_request(
     {
         Ok(response) => match response.json::<serde_json::Value>().await {
             Ok(json) => {
-                if let Some(res) = json.get("res") {
-                    if res.as_bool().unwrap() {
-                        return Ok(json!({"res": true}));
+                let result = if let Some(data) = json.get("data") {
+                    if let Some(result) = data.get("result") {
+                        result.as_bool().unwrap()
+                    } else {
+                        false
                     }
-                }
-                Err(format!("Funds not bridged"))
+                } else {
+                    false
+                };
+                return match result {
+                    true => Ok(json!({"res": true})),
+                    false => Err(format!("Funds not bridged")),
+                };
             }
-            Err(e) => Err(format!("Funds not bridged")),
+            Err(_) => Err(format!("Funds not bridged")),
         },
-        Err(e) => Err(format!("Funds not bridged")),
+        Err(_) => Err(format!("Funds not bridged")),
     }
 }
