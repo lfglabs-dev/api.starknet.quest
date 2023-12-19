@@ -25,12 +25,12 @@ pub async fn handler(
         .await;
     let response = match res {
         Ok(response) => response,
-        Err(e) => return get_error(format!("{}", e)),
+        Err(_) => return get_error(format!("Try again later")),
     };
-
     if let Some(_) = response.get("data") {
-        if let Some(result) = response.get("result") {
-            if result.as_bool().unwrap() {
+        let data = response.get("data").unwrap();
+        if let Some(res) = data.get("result") {
+            if res.as_bool().unwrap() {
                 return match state.upsert_completed_task(query.addr, task_id).await {
                     Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
                     Err(e) => get_error(format!("{}", e)),
@@ -54,19 +54,11 @@ async fn make_rango_request(
         }))
         .header("apiKey", api_key)
         .send()
-        .await
-    {
+        .await {
         Ok(response) => match response.json::<serde_json::Value>().await {
-            Ok(json) => {
-                if let Some(res) = json.get("res") {
-                    if res.as_bool().unwrap() {
-                        return Ok(json!({"res": true}));
-                    }
-                }
-                Err(format!("Funds not bridged"))
-            }
-            Err(e) => Err(format!("Funds not bridged")),
+            Ok(json) => Ok(json),
+            Err(_) => Err(format!("Funds not bridged")),
         },
-        Err(e) => Err(format!("Funds not bridged")),
+        Err(_) => Err(format!("Funds not bridged")),
     }
 }
