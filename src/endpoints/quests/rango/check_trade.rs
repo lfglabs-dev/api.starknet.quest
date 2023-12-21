@@ -10,17 +10,30 @@ use axum::{
     Json,
 };
 use serde_json::json;
-
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
     let task_id = 92;
-    let address_hex = to_hex(query.addr);
+    let mut address_hex = to_hex(query.addr);
+
+    // remove "0x"
+    address_hex.remove(0);
+    address_hex.remove(0);
+
+    // remove leading zeroes
+    while address_hex.starts_with("0") {
+        address_hex.remove(0);
+    }
+
+    // add "0x" back
+    address_hex.insert(0, 'x');
+    address_hex.insert(0, '0');
+
     let res = make_rango_request(
         &state.conf.rango.api_endpoint,
         &state.conf.rango.api_key,
-        address_hex,
+        &address_hex,
     )
         .await;
     let response = match res {
@@ -44,7 +57,7 @@ pub async fn handler(
 async fn make_rango_request(
     endpoint: &str,
     api_key: &str,
-    addr: String,
+    addr: &str,
 ) -> Result<serde_json::Value, String> {
     let client = reqwest::Client::new();
     match client
