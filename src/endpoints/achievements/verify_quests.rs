@@ -207,7 +207,7 @@ pub async fn handler(
 
     return match tasks_collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
-            for result in cursor.try_next().await.unwrap() {
+            while let Some(result) = cursor.try_next().await.unwrap() {
                 let document = result;
                 let achieved = document.get("achieved").unwrap().clone();
                 let claimed = document.get("claimed").unwrap().clone();
@@ -219,8 +219,8 @@ pub async fn handler(
             }
             get_error("Error querying quests".to_string())
         }
-        Err(e) => {
+        Err(_) => {
             get_error("Error querying quests".to_string())
         }
-    }
+    };
 }

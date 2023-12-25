@@ -12,10 +12,9 @@ use axum::{
 };
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
-use serde_json::json;
 use starknet::core::types::FieldElement;
 use starknet::signers::{LocalWallet, SigningKey};
-use crate::models::{Reward, RewardResponse};
+use crate::models::{Reward};
 use crate::utils::get_nft;
 
 const QUEST_ID: u32 = 25;
