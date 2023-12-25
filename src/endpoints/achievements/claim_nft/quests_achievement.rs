@@ -24,26 +24,25 @@ const NFT_LEVEL: u32 = 1;
 
 fn get_number_of_quests(id: u32) -> u32 {
     return match id {
-        1 => 1,
-        2 => 3,
-        3 => 10,
-        4 => 25,
-        5 => 50,
+        23 => 1,
+        24 => 3,
+        25 => 10,
+        26 => 25,
+        27 => 50,
         _ => 0,
     };
 }
 
 fn get_task_id(id: u32) -> u32 {
     return match id {
-        1 => 1,
-        2 => 2,
-        3 => 3,
-        4 => 4,
-        5 => 5,
+        23 => 1,
+        24 => 3,
+        25 => 10,
+        26 => 25,
+        27 => 50,
         _ => 0,
     };
 }
-
 
 pub async fn handler(
     State(state): State<Arc<AppState>>,
@@ -58,9 +57,9 @@ pub async fn handler(
     let quests_threshold = get_number_of_quests(achievement_id);
 
     // check valid achievement id
-    // if !(17..=19).contains(&achievement_id) {
-    //     return get_error("Invalid achievement id".to_string());
-    // }
+    if !(23..=27).contains(&achievement_id) {
+        return get_error("Invalid achievement id".to_string());
+    }
 
     let pipeline = vec![
         doc! {
@@ -108,18 +107,39 @@ pub async fn handler(
             }
         },
         doc! {
-            "$count": "total"
-        },
+        "$group": doc! {
+            "_id": null,
+            "count": doc! {
+                "$sum": 1
+            }
+        }
+    },
+        doc! {
+        "$addFields": doc! {
+            "result": doc! {
+                "$cond": doc! {
+                    "if": doc! {
+                        "$gte": [
+                            "$count",
+                            quests_threshold
+                        ]
+                    },
+                    "then": true,
+                    "else": false
+                }
+            }
+        }
+    },
     ];
     let tasks_collection = state.db.collection::<Document>("completed_tasks");
 
     match tasks_collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
-            let mut total = 0;
+            let mut res = false;
             while let Some(result) = cursor.try_next().await.unwrap() {
-                total = result.get("total").unwrap().as_i32().unwrap() as u32;
+                res = result.get("result").unwrap().as_bool().unwrap();
             }
-            if total < quests_threshold {
+            if !res {
                 return get_error("User hasn't completed required number of tasks".into());
             }
 
@@ -127,22 +147,20 @@ pub async fn handler(
                 state.conf.nft_contract.private_key,
             ));
 
-            let task_id= get_task_id(achievement_id);
+            let task_id = get_task_id(achievement_id);
 
-            let  Ok((token_id, sig)) = get_nft(QUEST_ID, task_id, &query.addr, NFT_LEVEL, &signer).await else {
+            let Ok((token_id, sig)) = get_nft(QUEST_ID, task_id, &query.addr, NFT_LEVEL, &signer).await else {
                 return get_error("Signature failed".into());
             };
 
-            let mut rewards = vec![];
 
-            rewards.push(Reward {
+            let rewards = Reward {
                 task_id,
                 nft_contract: state.conf.nft_contract.address.clone(),
                 token_id: token_id.to_string(),
                 sig: (sig.r, sig.s),
-            });
-            (StatusCode::OK, Json(RewardResponse { rewards })).into_response()
-
+            };
+            (StatusCode::OK, Json(rewards)).into_response()
         }
         Err(_) => get_error("Error querying quests".to_string()),
     }

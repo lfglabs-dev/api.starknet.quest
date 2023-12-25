@@ -1,8 +1,9 @@
 use std::sync::Arc;
 
+use crate::utils::to_hex;
 use crate::{
     models::{AppState, VerifyAchievementQuery},
-    utils::{get_error},
+    utils::get_error,
 };
 use axum::{
     extract::{Query, State},
@@ -15,14 +16,13 @@ use mongodb::bson::{doc, Document};
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
-
 fn get_number_of_quests(id: u32) -> u32 {
     return match id {
-        1 => 1,
-        2 => 3,
-        3 => 10,
-        4 => 25,
-        5 => 50,
+        23 => 1,
+        24 => 3,
+        25 => 10,
+        26 => 25,
+        27 => 50,
         _ => 0,
     };
 }
@@ -32,6 +32,7 @@ pub async fn handler(
     Query(query): Query<VerifyAchievementQuery>,
 ) -> impl IntoResponse {
     let addr = query.addr;
+    let hex_addr = to_hex(addr);
     if addr == FieldElement::ZERO {
         return get_error("Please connect your wallet first".to_string());
     }
@@ -40,9 +41,9 @@ pub async fn handler(
     let quests_threshold = get_number_of_quests(achievement_id);
 
     // check valid achievement id
-    // if !(17..=19).contains(&achievement_id) {
-    //     return get_error("Invalid achievement id".to_string());
-    // }
+    if !(23..=27).contains(&achievement_id) {
+        return get_error("Invalid achievement id".to_string());
+    }
 
     let pipeline = vec![
         doc! {
@@ -90,23 +91,136 @@ pub async fn handler(
             }
         },
         doc! {
-            "$count": "total"
+            "$group": doc! {
+                "_id": null,
+                "count": doc! {
+                    "$sum": 1
+                }
+            }
+        },
+        doc! {
+            "$addFields": doc! {
+                "achieved": doc! {
+                    "$cond": doc! {
+                        "if": doc! {
+                            "$gte": [
+                                "$count",
+                                quests_threshold
+                            ]
+                        },
+                        "then": true,
+                        "else": false
+                    }
+                },
+                "id": achievement_id
+            }
+        },
+        doc! {
+            "$project": doc! {
+                "_id": 0,
+                "achieved": "$achieved",
+                "id": "$id"
+            }
+        },
+        doc! {
+            "$lookup": doc! {
+                "from": "achievements",
+                "localField": "id",
+                "foreignField": "id",
+                "as": "achievement"
+            }
+        },
+        doc! {
+            "$lookup": doc! {
+                "from": "claimed_achievements",
+                "let": doc! {
+                    "local_id": "$id",
+                    "local_address": &hex_addr
+                },
+                "pipeline": [
+                    doc! {
+                        "$match": doc! {
+                            "$expr": doc! {
+                                "$and": [
+                                    doc! {
+                                        "$eq": [
+                                            "$id",
+                                            "$$local_id"
+                                        ]
+                                    },
+                                    doc! {
+                                        "$eq": [
+                                            "$address",
+                                            "$$local_address"
+                                        ]
+                                    },
+                                    doc! {
+                                        "$eq": [
+                                            "$_cursor.to",
+                                            null
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "as": "claimed_achievement"
+            }
+        },
+        doc! {
+            "$project": doc! {
+                "achieved": "$achieved",
+                "claimed": doc! {
+                    "$cond": doc! {
+                        "if": doc! {
+                            "$or": [
+                                doc! {
+                                    "$gte": [
+                                        doc! {
+                                            "$size": "$claimed_achievement"
+                                        },
+                                        1
+                                    ]
+                                },
+                                doc! {
+                                    "$eq": [
+                                        "$achieved",
+                                        false
+                                    ]
+                                }
+                            ]
+                        },
+                        "then": false,
+                        "else": doc! {
+                            "$arrayElemAt": [
+                                "$achievement.claimable",
+                                0
+                            ]
+                        }
+                    }
+                }
+            }
         },
     ];
     let tasks_collection = state.db.collection::<Document>("completed_tasks");
 
-    match tasks_collection.aggregate(pipeline, None).await {
+    return match tasks_collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
-            let mut total = 0;
-            while let Some(result) = cursor.try_next().await.unwrap() {
-                total = result.get("total").unwrap().as_i32().unwrap() as u32;
+            for result in cursor.try_next().await.unwrap() {
+                let document = result;
+                let achieved = document.get("achieved").unwrap().clone();
+                let claimed = document.get("claimed").unwrap().clone();
+                let response = json!({
+                    "achieved": achieved,
+                    "claimed": claimed
+                });
+                return (StatusCode::OK, Json(response)).into_response();
             }
-            if total < quests_threshold {
-                return get_error("User hasn't completed all tasks".into());
-            }
-            (StatusCode::OK, Json(json!({"achieved": true})))
-                .into_response()
+            get_error("Error querying quests".to_string())
         }
-        Err(_) => get_error("Error querying quests".to_string()),
+        Err(e) => {
+            get_error("Error querying quests".to_string())
+        }
     }
 }
