@@ -489,6 +489,14 @@ async fn main() {
             get(endpoints::achievements::fetch_buildings::handler),
         )
         .route(
+            "/achievements/verify_quests",
+            get(endpoints::achievements::verify_quests::handler),
+        )
+        .route(
+            "/achievements/claim_nft/quest_achievement",
+            get(endpoints::achievements::claim_nft::quests_achievement::handler),
+        )
+        .route(
             "/leaderboard/get_static_info",
             get(endpoints::leaderboard::get_static_info::handler),
         )
@@ -511,6 +519,10 @@ async fn main() {
         .route(
             "/boost/get_boost",
             get(endpoints::quest_boost::get_boost::handler),
+        )
+        .route(
+            "/boost/get_pending_claims",
+            get(endpoints::quest_boost::get_pending_claims::handler),
         )
         .with_state(shared_state)
         .layer(cors);
