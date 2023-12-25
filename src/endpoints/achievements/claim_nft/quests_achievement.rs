@@ -140,7 +140,7 @@ pub async fn handler(
                 res = result.get("result").unwrap().as_bool().unwrap();
             }
             if !res {
-                return get_error("User hasn't completed required number of tasks".into());
+                return get_error("User hasn't completed required number of quests".into());
             }
 
             let signer = LocalWallet::from(SigningKey::from_secret_scalar(
