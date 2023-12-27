@@ -15,10 +15,12 @@ use axum::{
 
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
-use mongodb::Collection;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use axum::http::header;
+use axum::response::Response;
+use chrono::Utc;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetLeaderboardInfoQuery {
@@ -152,7 +154,16 @@ pub async fn handler(
     return match collection.aggregate(leaderboard_pipeline, None).await {
         Ok(mut cursor) => {
             while let Some(result) = cursor.try_next().await.unwrap() {
-                return (StatusCode::OK, Json(result)).into_response();
+
+                // Set caching response
+                let expires = Utc::now() + chrono::Duration::minutes(5);
+                let caching_response = Response::builder()
+                    .status(StatusCode::OK)
+                    .header(header::CACHE_CONTROL, "public, max-age=300")
+                    .header(header::EXPIRES, expires.to_rfc2822())
+                    .body(Json(result).to_string());
+
+                return caching_response.unwrap().into_response();
             }
             get_error("Error querying ranks".to_string())
         }
