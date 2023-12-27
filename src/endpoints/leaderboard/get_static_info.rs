@@ -53,18 +53,18 @@ pub async fn handler(
 
     let leaderboard_pipeline = vec![
         doc! {
+            "$sort": doc! {
+                "experience": -1,
+                "timestamp": 1,
+                "_id": 1
+            }
+        },
+        doc! {
             "$match": doc! {
                 "timestamp": doc! {
                     "$gte": start_timestamp,
                     "$lte": end_timestamp
                 }
-            }
-        },
-        doc! {
-            "$sort": doc! {
-                "experience": -1,
-                "timestamp": 1,
-                "_id": 1
             }
         },
         doc! {
