@@ -154,12 +154,6 @@ pub async fn handler(
                                             "$$local_address"
                                         ]
                                     },
-                                    doc! {
-                                        "$eq": [
-                                            "$_cursor.to",
-                                            null
-                                        ]
-                                    }
                                 ]
                             }
                         }

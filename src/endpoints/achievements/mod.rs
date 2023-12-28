@@ -10,4 +10,4 @@ pub mod verify_seniority;
 pub mod verify_tvl;
 pub mod verify_whitelisted;
 pub mod verify_quests;
-pub mod claim_nft;
+pub mod claim;

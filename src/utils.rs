@@ -236,7 +236,7 @@ impl CompletedTasksTrait for AppState {
                             experience.into(),
                             timestamp,
                         )
-                            .await;
+                        .await;
                     }
                     Err(_e) => {
                         get_error("Error querying quests".to_string());
@@ -265,6 +265,12 @@ pub trait AchievementsTrait {
     async fn upsert_completed_achievement(
         &self,
         addr: FieldElement,
+        achievement_id: u32,
+    ) -> Result<UpdateResult, mongodb::error::Error>;
+
+    async fn upsert_claimed_achievement(
+        &self,
+        addr: String,
         achievement_id: u32,
     ) -> Result<UpdateResult, mongodb::error::Error>;
 
@@ -319,11 +325,28 @@ impl AchievementsTrait for AppState {
                     experience.into(),
                     timestamp,
                 )
-                    .await;
+                .await;
             }
             None => {}
         }
         Ok(result)
+    }
+
+    async fn upsert_claimed_achievement(
+        &self,
+        addr: String,
+        achievement_id: u32,
+    ) -> Result<UpdateResult, mongodb::error::Error> {
+        let claimed_achievements_collection: Collection<CompletedTasks> =
+            self.db.collection("claimed_achievements");
+        let filter = doc! { "address": addr.to_string(), "id": achievement_id };
+        let update = doc! { "$setOnInsert": { "address": addr.to_string(), "id": achievement_id } };
+        let options = UpdateOptions::builder().upsert(true).build();
+
+        let result = claimed_achievements_collection
+            .update_one(filter, update, options)
+            .await;
+        result
     }
 
     async fn get_achievement(
@@ -591,7 +614,6 @@ pub async fn fetch_and_update_boosts_winner(
                             if address_list.len() == 1 {
                                 random_index = 0;
                             }
-
                             // else select a random user
                             else {
                                 let mut rng = rand::thread_rng();
@@ -630,4 +652,3 @@ pub fn run_boosts_raffle(db: &Database, interval: u64) {
         interval,
     ));
 }
-
