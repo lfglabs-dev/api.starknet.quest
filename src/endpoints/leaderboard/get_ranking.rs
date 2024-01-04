@@ -39,27 +39,26 @@ use axum::{
     Json,
 };
 
+use crate::utils::get_timestamp_from_days;
+use axum::http::{header, Response};
+use chrono::Utc;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
 use mongodb::Collection;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use axum::http::{header, Response};
-use chrono::Utc;
 
 pub async fn get_user_rank(
     collection: &Collection<Document>,
     address: &String,
-    start_timestamp: &i64,
-    end_timestamp: &i64,
+    timestamp: &i64,
 ) -> Document {
     let user_rank_pipeline = vec![
         doc! {
             "$match": doc! {
                 "timestamp": doc! {
-                    "$gte": start_timestamp,
-                    "$lte": end_timestamp
+                    "$gte": timestamp,
                 }
             }
         },
@@ -232,28 +231,24 @@ pub struct GetCompletedQuestsQuery {
     */
     shift: i64,
 
-    /*
-    start of the timestamp range
-    -> How many days back you want to start the leaderboard
-     */
-    start_timestamp: i64,
-
-    /*
-    end of the timestamp range
-    -> When do you want to end it (ideally the moment the frontend makes the request till that timestamp)
-    */
-    end_timestamp: i64,
+    duration: String,
 }
 
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetCompletedQuestsQuery>,
 ) -> impl IntoResponse {
-    let start_timestamp = query.start_timestamp;
-    let end_timestamp = query.end_timestamp;
-
-    if start_timestamp > end_timestamp {
-        return get_error("Error querying ranks".to_string());
+    let mut time_gap = 0;
+    
+    // check value of duration and set time_gap accordingly
+    if query.duration == "week" {
+        time_gap = get_timestamp_from_days(7);
+    } else if query.duration == "month" {
+        time_gap = get_timestamp_from_days(30);
+    } else if query.duration == "all" {
+        time_gap = 0;
+    } else {
+        return get_error("Invalid duration".to_string());
     }
 
     // get collection
@@ -265,13 +260,7 @@ pub async fn handler(
     let shift = query.shift;
 
     // get user rank and total users
-    let stats = get_user_rank(
-        &users_collection,
-        &address,
-        &start_timestamp,
-        &end_timestamp,
-    )
-        .await;
+    let stats = get_user_rank(&users_collection, &address, &time_gap).await;
     let total_users = stats.get("total_users").unwrap().as_i32().unwrap() as i64;
     let user_rank = stats.get("user_rank").unwrap().as_i32().unwrap() as i64;
 
@@ -315,8 +304,7 @@ pub async fn handler(
         doc! {
             "$match": doc!{
                 "timestamp": doc!{
-                    "$gte": start_timestamp,
-                    "$lte": end_timestamp
+                    "$gte": time_gap,
                 }
             }
         },
@@ -368,7 +356,7 @@ pub async fn handler(
                 "first_elt_position".to_string(),
                 if lower_range == 0 { 1 } else { lower_range },
             );
-            
+
             // Set caching response
             let expires = Utc::now() + chrono::Duration::minutes(5);
             let caching_response = Response::builder()

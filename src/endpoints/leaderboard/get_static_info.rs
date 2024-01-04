@@ -13,14 +13,15 @@ use axum::{
     Json,
 };
 
+use crate::utils::get_timestamp_from_days;
+use axum::http::header;
+use axum::response::Response;
+use chrono::Utc;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use axum::http::header;
-use axum::response::Response;
-use chrono::Utc;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetLeaderboardInfoQuery {
@@ -28,17 +29,8 @@ pub struct GetLeaderboardInfoQuery {
     user address
     */
     addr: String,
-    /*
-    start of the timestamp range
-    -> How many days back you want to start the leaderboard
-     */
-    start_timestamp: i64,
 
-    /*
-    end of the timestamp range
-    -> When do you want to end it (ideally the moment the frontend makes the request till that timestamp)
-    */
-    end_timestamp: i64,
+    duration: String,
 }
 
 pub async fn handler(
@@ -47,9 +39,18 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let addr: String = query.addr.to_string();
     let collection = state.db.collection::<Document>("leaderboard_table");
-    let start_timestamp = query.start_timestamp;
-    let end_timestamp = query.end_timestamp;
+    let mut time_gap = 0;
 
+    // check value of duration and set time_gap accordingly
+    if query.duration == "week" {
+        time_gap = get_timestamp_from_days(7);
+    } else if query.duration == "month" {
+        time_gap = get_timestamp_from_days(30);
+    } else if query.duration == "all" {
+        time_gap = 0;
+    } else {
+        return get_error("Invalid duration".to_string());
+    }
 
     let leaderboard_pipeline = vec![
         doc! {
@@ -62,8 +63,7 @@ pub async fn handler(
         doc! {
             "$match": doc! {
                 "timestamp": doc! {
-                    "$gte": start_timestamp,
-                    "$lte": end_timestamp
+                    "$gte": time_gap,
                 }
             }
         },
@@ -154,7 +154,6 @@ pub async fn handler(
     return match collection.aggregate(leaderboard_pipeline, None).await {
         Ok(mut cursor) => {
             while let Some(result) = cursor.try_next().await.unwrap() {
-
                 // Set caching response
                 let expires = Utc::now() + chrono::Duration::minutes(5);
                 let caching_response = Response::builder()
