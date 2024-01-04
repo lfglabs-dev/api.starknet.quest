@@ -127,6 +127,10 @@ pub_struct!(Clone, Deserialize;  Api {
     api_key: String,
 });
 
+pub_struct!(Clone, Deserialize;  ApiEndpoint {
+    api_endpoint: String,
+});
+
 pub_struct!(Clone, Deserialize;  Achievement {
     contract: FieldElement,
 });
@@ -151,6 +155,7 @@ pub_struct!(Clone, Deserialize;  Config {
     achievements: Achievements,
     quest_boost: QuestBoost,
     rango: Api,
+    pyramid: ApiEndpoint,
 });
 
 pub fn load() -> Config {

@@ -348,13 +348,17 @@ async fn main() {
             "/quests/braavos/pyramid/verify_twitter_fw_braavos",
             get(endpoints::quests::braavos::pyramid::verify_twitter_fw_braavos::handler),
         )
-        // .route(
-        //     "/quests/braavos/pyramid/verify_buy_or_list",
-        //     get(endpoints::quests::braavos::pyramid::verify_buy_or_list::handler),
-        // )
+        .route(
+            "/quests/braavos/pyramid/verify_buy_or_list",
+            get(endpoints::quests::braavos::pyramid::verify_buy_or_list::handler),
+        )
         .route(
             "/quests/braavos/pyramid/verify_twitter_rt",
             get(endpoints::quests::braavos::pyramid::verify_twitter_rt::handler),
+        )
+        .route(
+            "/quests/braavos/pyramid/claimable",
+            get(endpoints::quests::braavos::pyramid::claimable::handler),
         )
         .route(
             "/quests/focustree/verify_twitter_fw",
