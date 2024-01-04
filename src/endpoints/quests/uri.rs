@@ -362,7 +362,7 @@ pub async fn handler(
         )
             .into_response(),
 
-        Some(31) => (
+        Some(32) => (
             StatusCode::OK,
             Json(TokenURI {
                 name: "Starknet Pro Score x Pyramid Market Quest NFT".into(),
@@ -371,7 +371,7 @@ pub async fn handler(
                 attributes: None,
             }),
         ).into_response(),
-    
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }
