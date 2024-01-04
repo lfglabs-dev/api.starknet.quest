@@ -238,19 +238,23 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetCompletedQuestsQuery>,
 ) -> impl IntoResponse {
-    let mut time_gap = 0;
-    
-    // check value of duration and set time_gap accordingly
-    if query.duration == "week" {
-        time_gap = get_timestamp_from_days(7);
-    } else if query.duration == "month" {
-        time_gap = get_timestamp_from_days(30);
-    } else if query.duration == "all" {
-        time_gap = 0;
-    } else {
-        return get_error("Invalid duration".to_string());
-    }
 
+
+    // check value of duration and set time_gap accordingly using match and respective timestamp
+    let time_gap = match query.duration.as_str() {
+        "week" => {
+            get_timestamp_from_days(7)
+        }
+        "month" => {
+            get_timestamp_from_days(30)
+        }
+        "all" => {
+            0
+        }
+        _ => {
+            return get_error("Invalid duration".to_string());
+        }
+    };
     // get collection
     let users_collection = state.db.collection::<Document>("leaderboard_table");
 
