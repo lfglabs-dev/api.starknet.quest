@@ -5,6 +5,9 @@ port = 8080
 name = "starkship_server"
 connection_string = "xxxxxx"
 
+[rhino]
+api_endpoint="XXXXXXXXXXXX"
+
 [nft_contract]
 address = "0xXXXXXXXXXXXX"
 private_key = "1"
@@ -901,6 +904,9 @@ options = [
     "Attending a cryptocurrency seminar."
 ]
 
+correct_answers = [*]
+
+
 [quizzes.rango]
 name = "Rango Quiz"
 desc = "Take part in our Quiz to test your knowledge about Rango, and you'll have a chance to win an exclusive Rango Castle Bridge NFT as your reward."
@@ -939,5 +945,46 @@ options = [
     "Rango is a sidechain on Starknet.",
     "Rango integrates multiple types of blockchains, including EVM-based, Cosmos, Solana, and more.",
     "Rango focuses exclusively on a zkEVM blockchain type"
+    ]
+correct_answers = [*]
+    
+[quizzes.rhino]
+name = "Rhino Quiz"
+desc = "Take part in our Quiz to test your knowledge about Rhino, and you'll have a chance to win an exclusive Rhino- Silver Rhino NFT as your reward."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Rhino.fi, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.rhino.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is Rhino.fi?"
+options = [
+    "A multi-chain cryptocurrency AA wallet",
+    "An online NFT shopping platform",
+    "A frictionless multi-chain DeFi aggregator",
+    "An Onchain gaming app"
+]
+correct_answers = [*]
+
+[[quizzes.rhino.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How does StarkEx contribute to rhino.fi's decentralized trading model?"
+options = [
+    "It provides high-frequency trading capabilities. ",
+    "It enables proof-of-work consensus for faster transactions.",
+    "It offers governance and voting mechanisms.",
+    "It provides fast, low-cost, and self-custodial transactions."
+]
+correct_answers = [*]
+
+[[quizzes.rhino.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What does it mean for rhino.fi to be a self-custodial DeFi platform?"
+options = [
+    "It means they rely on a centralized entity to manage user funds.",
+    "It means users have complete control and ownership of their funds.",
+    "It means users can't recover their funds if the platform goes offline.",
+    "It means users have to give up control of their funds to trade."
 ]
 correct_answers = [*]
