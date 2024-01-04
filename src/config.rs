@@ -131,6 +131,10 @@ pub_struct!(Clone, Deserialize;  Api {
     api_key: String,
 });
 
+pub_struct!(Clone, Deserialize;  ApiEndpoint {
+    api_endpoint: String,
+});
+
 pub_struct!(Clone, Deserialize;  Achievement {
     contract: FieldElement,
 });
@@ -156,6 +160,7 @@ pub_struct!(Clone, Deserialize;  Config {
     quest_boost: QuestBoost,
     rhino: PublicApi,
     rango: Api,
+    pyramid: ApiEndpoint,
 });
 
 pub fn load() -> Config {
