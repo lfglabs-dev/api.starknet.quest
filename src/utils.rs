@@ -7,7 +7,6 @@ use axum::{
     http::{Response as HttpResponse, StatusCode, Uri},
     response::{IntoResponse, Response},
 };
-use chrono::Utc;
 use futures::TryStreamExt;
 use mongodb::{
     bson::doc, options::UpdateOptions, results::UpdateResult, Collection, Cursor, Database,
@@ -25,7 +24,9 @@ use starknet::{
 use std::fmt::Write;
 use std::result::Result;
 use std::str::FromStr;
+use chrono::{Duration as dur, Utc};
 use tokio::time::{sleep, Duration};
+
 
 #[macro_export]
 macro_rules! pub_struct {
@@ -374,6 +375,16 @@ pub trait DeployedTimesTrait {
         addr: FieldElement,
         timestamp: u32,
     ) -> Result<UpdateResult, mongodb::error::Error>;
+}
+
+pub fn get_timestamp_from_days(days: i64) -> i64 {
+    // take input as week , month and all time and return the timestamp range
+    let time_gap = if days > 0 {
+        (Utc::now() - dur::days(days)).timestamp_millis()
+    } else {
+        0
+    };
+   time_gap
 }
 
 #[async_trait]
