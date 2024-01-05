@@ -18,7 +18,7 @@ use std::sync::Arc;
 const QUEST_ID: u32 = 104;
 const TASK_IDS: &[u32] = &[104, 105, 106, 107, 108];
 const LAST_TASK: u32 = TASK_IDS[4];
-const NFT_LEVEL: u32 = 31;
+const NFT_LEVEL: u32 = 32;
 
 #[derive(Deserialize)]
 pub struct ClaimableQuery {
