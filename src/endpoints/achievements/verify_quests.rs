@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::utils::to_hex;
+use crate::utils::{to_hex, AchievementsTrait};
 use crate::{
     models::{AppState, VerifyAchievementQuery},
     utils::get_error,
@@ -154,12 +154,6 @@ pub async fn handler(
                                             "$$local_address"
                                         ]
                                     },
-                                    doc! {
-                                        "$eq": [
-                                            "$_cursor.to",
-                                            null
-                                        ]
-                                    }
                                 ]
                             }
                         }
@@ -215,12 +209,20 @@ pub async fn handler(
                     "achieved": achieved,
                     "claimed": claimed
                 });
-                return (StatusCode::OK, Json(response)).into_response();
+                if !achieved.as_bool().unwrap() {
+                    return (StatusCode::OK, Json(response)).into_response();
+                }
+
+                return match state
+                    .upsert_completed_achievement(addr, achievement_id)
+                    .await
+                {
+                    Ok(_) => (StatusCode::OK, Json(response)).into_response(),
+                    Err(e) => get_error(format!("{}", e)),
+                };
             }
             get_error("Error querying quests".to_string())
         }
-        Err(_) => {
-            get_error("Error querying quests".to_string())
-        }
+        Err(_) => get_error("Error querying quests".to_string()),
     };
 }

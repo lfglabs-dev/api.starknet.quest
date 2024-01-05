@@ -517,8 +517,8 @@ async fn main() {
             get(endpoints::achievements::verify_quests::handler),
         )
         .route(
-            "/achievements/claim_nft/quest_achievement",
-            get(endpoints::achievements::claim_nft::quests_achievement::handler),
+            "/achievements/claim/quest_achievement",
+            get(endpoints::achievements::claim::quests_achievement::handler),
         )
         .route(
             "/leaderboard/get_static_info",

@@ -12,27 +12,10 @@ use axum::{
 };
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
+use serde_json::json;
 use starknet::core::types::FieldElement;
-use starknet::signers::{LocalWallet, SigningKey};
-use crate::models::{Reward};
-use crate::utils::get_nft;
-
-const QUEST_ID: u32 = 25;
-const NFT_LEVEL: u32 = 1;
-
-
+use crate::utils::{AchievementsTrait, to_hex};
 fn get_number_of_quests(id: u32) -> u32 {
-    return match id {
-        23 => 1,
-        24 => 3,
-        25 => 10,
-        26 => 25,
-        27 => 50,
-        _ => 0,
-    };
-}
-
-fn get_task_id(id: u32) -> u32 {
     return match id {
         23 => 1,
         24 => 3,
@@ -141,25 +124,11 @@ pub async fn handler(
             if !res {
                 return get_error("User hasn't completed required number of quests".into());
             }
-
-            let signer = LocalWallet::from(SigningKey::from_secret_scalar(
-                state.conf.nft_contract.private_key,
-            ));
-
-            let task_id = get_task_id(achievement_id);
-
-            let Ok((token_id, sig)) = get_nft(QUEST_ID, task_id, &query.addr, NFT_LEVEL, &signer).await else {
-                return get_error("Signature failed".into());
-            };
-
-
-            let rewards = Reward {
-                task_id,
-                nft_contract: state.conf.nft_contract.address.clone(),
-                token_id: token_id.to_string(),
-                sig: (sig.r, sig.s),
-            };
-            (StatusCode::OK, Json(rewards)).into_response()
+            let addr_hex = to_hex(addr);
+            match state.upsert_claimed_achievement(addr_hex, achievement_id).await {
+                Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
+                Err(e) => get_error(format!("{}", e)),
+            }
         }
         Err(_) => get_error("Error querying quests".to_string()),
     }
