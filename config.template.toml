@@ -8,6 +8,9 @@ connection_string = "xxxxxx"
 [rhino]
 api_endpoint="XXXXXXXXXXXX"
 
+[pyramid]
+api_endpoint="XXXXXXXXXXXX"
+
 [nft_contract]
 address = "0xXXXXXXXXXXXX"
 private_key = "1"
