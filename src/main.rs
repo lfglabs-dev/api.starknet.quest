@@ -72,6 +72,10 @@ async fn main() {
             get(endpoints::has_completed_quest::handler),
         )
         .route(
+            "/get_completed_boosts",
+            get(endpoints::get_completed_boosts::handler),
+        )
+        .route(
             "/get_quest_participants",
             get(endpoints::get_quest_participants::handler),
         )
@@ -440,7 +444,7 @@ async fn main() {
             "/quests/nostra/verify_added_liquidity",
             get(endpoints::quests::nostra::verify_added_liquidity::handler),
         )
-          .route(
+        .route(
             "/quests/rhino/check_bridge",
             get(endpoints::quests::rhino::check_bridge::handler),
         )
@@ -456,7 +460,7 @@ async fn main() {
             "/quests/rhino/claimable",
             get(endpoints::quests::rhino::claimable::handler),
         )
-          .route(
+        .route(
             "/quests/rango/verify_twitter_fw",
             get(endpoints::quests::rango::verify_twitter_fw::handler),
         )
