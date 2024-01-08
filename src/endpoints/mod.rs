@@ -1,5 +1,4 @@
 pub mod achievements;
-pub mod get_completed_boosts;
 pub mod get_completed_quests;
 pub mod get_deployed_time;
 pub mod get_quest;

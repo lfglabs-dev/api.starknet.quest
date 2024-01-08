@@ -72,10 +72,6 @@ async fn main() {
             get(endpoints::has_completed_quest::handler),
         )
         .route(
-            "/get_completed_boosts",
-            get(endpoints::get_completed_boosts::handler),
-        )
-        .route(
             "/get_quest_participants",
             get(endpoints::get_quest_participants::handler),
         )
@@ -539,6 +535,10 @@ async fn main() {
         .route(
             "/boost/get_boosts",
             get(endpoints::quest_boost::get_boosts::handler),
+        )
+        .route(
+            "/boost/get_completed_boosts",
+            get(endpoints::quest_boost::get_completed_boosts::handler),
         )
         .route(
             "/boost/get_quests",
