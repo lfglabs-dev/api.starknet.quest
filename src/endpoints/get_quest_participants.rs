@@ -40,6 +40,8 @@ pub async fn handler(
         .collect::<Vec<i64>>()
         .await;
 
+    let tasks_count = tasks_ids.len();
+
     let pipeline = vec![
         doc! {
             "$match": {
@@ -51,6 +53,12 @@ pub async fn handler(
         doc! {
             "$group": {
                 "_id": "$address",
+                "count" : { "$sum": 1 }
+            }
+        },
+        doc! {
+            "$match": {
+                "count": tasks_count as i64
             }
         },
         doc! {
