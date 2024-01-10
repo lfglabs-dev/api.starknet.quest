@@ -23,6 +23,7 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     id: u32,
     name: String,
     desc: String,
+    additional_desc: Option<String>,
     issuer: String,
     category: String,
     rewards_endpoint: String,
