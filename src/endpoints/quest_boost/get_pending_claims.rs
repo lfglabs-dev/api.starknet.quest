@@ -50,10 +50,7 @@ pub async fn handler(
                                         ]
                                     },
                                     doc! {
-                                        "$eq": [
-                                            "$winner",
-                                            "$$localWinner"
-                                        ]
+                                        "$winner": { "$in": ["$$localWinner"] }
                                     },
                                     doc! {
                                         "$eq": [
@@ -85,8 +82,7 @@ pub async fn handler(
             "$project": doc! {
                 "_id": 0,
                 "boost_claims": 0,
-                      "hidden":0
-
+                "hidden":0
             }
         },
     ];

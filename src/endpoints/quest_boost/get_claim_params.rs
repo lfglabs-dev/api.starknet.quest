@@ -25,7 +25,7 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let boost_id = query.boost_id;
     let collection = state.db.collection::<Document>("boosts");
-    let res=collection.find_one(doc! {"id":boost_id},None).await.unwrap();
+    let res = collection.find_one(doc! {"id":boost_id}, None).await.unwrap();
 
     // if no boost found with the requested id
     if res.is_none() {
@@ -33,7 +33,8 @@ pub async fn handler(
     }
 
     let boost: Document = res.unwrap();
-    let amount = boost.get("amount").unwrap().as_i32().unwrap() as u32;
+    let num_of_winners = boost.get("num_of_winners").unwrap().as_i32().unwrap();
+    let amount = boost.get("amount").unwrap().as_i32().unwrap() / num_of_winners;
     let token = boost.get("token").unwrap().as_str().unwrap();
     let address = boost.get("winner").unwrap().as_str().unwrap();
 

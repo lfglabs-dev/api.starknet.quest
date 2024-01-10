@@ -497,16 +497,17 @@ pub async fn fetch_and_update_boosts_winner(
                 "expiry":{
                     "$lt": Utc::now().timestamp_millis()
                 },
-                "winner": {
-                    "$eq": null,
-                },
+                // "winner": {
+                //     "$eq": null,
+                // },
             }
         }];
         match boost_collection.aggregate(pipeline, None).await {
             Ok(mut cursor) => {
                 while let Some(doc) = cursor.try_next().await.unwrap() {
                     let mut num_of_winners = doc.get("num_of_winners").unwrap().as_i32().unwrap();
-
+                    let amount = doc.get("amount").unwrap().as_i32().unwrap() / num_of_winners;
+                    println!("amount {}", amount);
                     // use this variable to add some extra winners so that we have some extra winners incase anyone user repeats
                     let extra_winners = 10;
                     match doc.get("quests") {
