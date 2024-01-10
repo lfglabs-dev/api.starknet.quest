@@ -50,7 +50,7 @@ pub async fn handler(
                                         ]
                                     },
                                     doc! {
-                                        "$winner": { "$in": ["$$localWinner"] }
+                                        "$in": ["$$localWinner","$winner"],
                                     },
                                     doc! {
                                         "$eq": [
