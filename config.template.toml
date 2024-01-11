@@ -33,6 +33,8 @@ utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
 [quests.zklend]
 contract = "0xXXXXXXXXXXXX"
+utils_contract = "0xXXXXXXXXXXXX"
+pairs = ["0xXXXXXXXXXXXX"]
 [quests.ekubo]
 contract = "0xXXXXXXXXXXXX"
 [quests.myswap]
@@ -45,6 +47,16 @@ api_key = "xxxxxx"
 [quests.nostra]
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
+
+[rhino]
+api_endpoint = "xxxxx"
+
+[rango]
+api_endpoint = "xxxxx"
+api_key = "xxxxx"
+
+[pyramid]
+api_endpoint= "xxxxx"
 
 [twitter]
 oauth2_clientid = "xxxxxx"

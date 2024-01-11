@@ -54,9 +54,15 @@ pub_struct!(Clone, Deserialize;  Element {
     api_key: String,
 });
 
+pub_struct!(Clone, Deserialize;  ZkLend {
+    contract: FieldElement,
+    utils_contract: FieldElement,
+    pairs : Vec<FieldElement>,
+});
+
 pub_struct!(Clone, Deserialize;  Quests {
     sithswap: Pairs,
-    zklend: Contract,
+    zklend: ZkLend,
     jediswap: Pairs,
     ekubo: Contract,
     myswap: Contract,
