@@ -365,6 +365,30 @@ async fn main() {
             get(endpoints::quests::braavos::pyramid::claimable::handler),
         )
         .route(
+            "/quests/braavos/zklend/verify_has_domain",
+            get(endpoints::quests::braavos::zklend::verify_has_domain::handler),
+        )
+        .route(
+            "/quests/braavos/zklend/verify_twitter_fw_zklend",
+            get(endpoints::quests::braavos::zklend::verify_twitter_fw_zklend::handler),
+        )
+        .route(
+            "/quests/braavos/zklend/verify_twitter_fw_braavos",
+            get(endpoints::quests::braavos::zklend::verify_twitter_fw_braavos::handler),
+        )
+        .route(
+            "/quests/braavos/zklend/verify_added_liquidity",
+            get(endpoints::quests::braavos::zklend::verify_added_liquidity::handler),
+        )
+        .route(
+            "/quests/braavos/zklend/verify_twitter_rt",
+            get(endpoints::quests::braavos::zklend::verify_twitter_rt::handler),
+        )
+        .route(
+            "/quests/braavos/zklend/claimable",
+            get(endpoints::quests::braavos::zklend::claimable::handler),
+        )
+        .route(
             "/quests/focustree/verify_twitter_fw",
             get(endpoints::quests::focustree::introduction::verify_twitter_fw::handler),
         )
