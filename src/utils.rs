@@ -239,7 +239,7 @@ impl CompletedTasksTrait for AppState {
                             experience.into(),
                             timestamp,
                         )
-                        .await;
+                            .await;
                     }
                     Err(_e) => {
                         get_error("Error querying quests".to_string());
@@ -328,7 +328,7 @@ impl AchievementsTrait for AppState {
                     experience.into(),
                     timestamp,
                 )
-                .await;
+                    .await;
             }
             None => {}
         }
@@ -639,7 +639,7 @@ pub async fn fetch_and_update_boosts_winner(
                                 if address_list.len() < num_of_winners as usize {
                                     num_of_winners = address_list.len() as i32;
                                 }
-
+                                let mut iter_index = 0;
                                 loop {
                                     let mut rng = rand::thread_rng();
 
@@ -652,8 +652,8 @@ pub async fn fetch_and_update_boosts_winner(
                                         winner_array.push(to_hex(formatted_winner));
                                         current_winner_index += 1;
                                     }
-
-                                    if current_winner_index == (num_of_winners) as usize {
+                                    iter_index += 1;
+                                    if current_winner_index == (num_of_winners) as usize || iter_index == address_list.len() {
                                         break;
                                     }
                                 }
