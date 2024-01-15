@@ -497,9 +497,9 @@ pub async fn fetch_and_update_boosts_winner(
                 "expiry":{
                     "$lt": Utc::now().timestamp_millis()
                 },
-                // "winner": {
-                //     "$eq": null,
-                // },
+                "winner": {
+                    "$eq": null,
+                },
             }
         }];
         match boost_collection.aggregate(pipeline, None).await {
