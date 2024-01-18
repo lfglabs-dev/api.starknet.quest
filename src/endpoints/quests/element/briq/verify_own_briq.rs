@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::utils::fetch_json_from_url;
 use crate::{
     models::{AppState, VerifyQuery},
     utils::{get_error, to_hex, CompletedTasksTrait},
@@ -10,10 +11,15 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use serde_json::json;
 use starknet::core::types::FieldElement;
-use crate::utils::fetch_json_from_url;
 
+#[route(
+    get,
+    "/quests/element/briq/verify_own_briq",
+    crate::endpoints::quests::element::briq::verify_own_briq
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

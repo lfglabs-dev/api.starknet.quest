@@ -10,8 +10,14 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use serde_json::json;
 
+#[route(
+    get,
+    "/quests/focustree/verify_twitter_rw_user",
+    crate::endpoints::quests::focustree::engagement::verify_twitter_rt
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

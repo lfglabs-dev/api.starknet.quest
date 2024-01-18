@@ -12,6 +12,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 
 use crate::utils::get_timestamp_from_days;
 use axum::http::header;
@@ -33,6 +34,11 @@ pub struct GetLeaderboardInfoQuery {
     duration: String,
 }
 
+#[route(
+    get,
+    "/leaderboard/get_static_info",
+    crate::endpoints::leaderboard::get_static_info
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetLeaderboardInfoQuery>,
@@ -42,15 +48,9 @@ pub async fn handler(
 
     // check value of duration and set time_gap accordingly using match and respective timestamp
     let time_gap = match query.duration.as_str() {
-        "week" => {
-            get_timestamp_from_days(7)
-        }
-        "month" => {
-            get_timestamp_from_days(30)
-        }
-        "all" => {
-            0
-        }
+        "week" => get_timestamp_from_days(7),
+        "month" => get_timestamp_from_days(30),
+        "all" => 0,
         _ => {
             return get_error("Invalid duration".to_string());
         }

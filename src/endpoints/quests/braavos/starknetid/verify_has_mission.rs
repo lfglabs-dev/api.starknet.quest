@@ -6,6 +6,7 @@ use axum::{
     extract::{Query, State},
     response::IntoResponse,
 };
+use axum_auto_routes::route;
 use reqwest::header::{self, AUTHORIZATION};
 use serde::Deserialize;
 use starknet::core::types::FieldElement;
@@ -24,6 +25,11 @@ pub struct DiscordUser {
     username: String,
 }
 
+#[route(
+    get,
+    "/quests/braavos/starknetid/verify_has_mission",
+    crate::endpoints::quests::braavos::starknetid::verify_has_mission
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<DiscordOAuthCallbackQuery>,

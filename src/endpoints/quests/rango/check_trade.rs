@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::models::VerifyQuery;
-use crate::utils::{CompletedTasksTrait, to_hex};
+use crate::utils::{to_hex, CompletedTasksTrait};
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
@@ -9,7 +9,14 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use serde_json::json;
+
+#[route(
+    get,
+    "/quests/rango/check_trade",
+    crate::endpoints::quests::rango::check_trade
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
@@ -35,7 +42,7 @@ pub async fn handler(
         &state.conf.rango.api_key,
         &address_hex,
     )
-        .await;
+    .await;
     let response = match res {
         Ok(response) => response,
         Err(_) => return get_error(format!("Try again later")),
@@ -67,7 +74,8 @@ async fn make_rango_request(
         }))
         .header("apiKey", api_key)
         .send()
-        .await {
+        .await
+    {
         Ok(response) => match response.json::<serde_json::Value>().await {
             Ok(json) => Ok(json),
             Err(_) => Err(format!("Funds not bridged")),

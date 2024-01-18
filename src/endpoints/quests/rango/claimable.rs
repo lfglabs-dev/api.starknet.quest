@@ -6,6 +6,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::doc;
 use serde::Deserialize;
@@ -25,6 +26,11 @@ pub struct ClaimableQuery {
     addr: FieldElement,
 }
 
+#[route(
+    get,
+    "/quests/rango/claimable",
+    crate::endpoints::quests::rango::claimable
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<ClaimableQuery>,

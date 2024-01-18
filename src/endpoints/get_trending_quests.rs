@@ -7,6 +7,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
+use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::doc;
 use mongodb::bson::from_document;
@@ -19,6 +20,7 @@ pub struct NFTItem {
     level: u32,
 }
 
+#[route(get, "/get_trending_quests", crate::endpoints::get_trending_quests)]
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let pipeline = vec![
         doc! {

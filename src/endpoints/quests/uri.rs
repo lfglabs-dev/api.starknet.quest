@@ -6,6 +6,7 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
+use axum_auto_routes::route;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -28,6 +29,7 @@ pub struct LevelQuery {
     level: Option<String>,
 }
 
+#[route(get, "/quests/uri", crate::endpoints::quests::uri)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(level_query): Query<LevelQuery>,

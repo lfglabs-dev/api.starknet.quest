@@ -8,6 +8,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
+use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::doc;
 use serde::Deserialize;
@@ -19,6 +20,11 @@ pub struct GetQuestsQuery {
     addr: FieldElement,
 }
 
+#[route(
+    get,
+    "/boost/get_pending_claims",
+    crate::endpoints::quest_boost::get_pending_claims
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,

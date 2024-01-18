@@ -4,6 +4,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
+use axum_auto_routes::route;
 use futures::stream::StreamExt;
 use mongodb::bson::{doc, from_document, Document};
 use serde::{Deserialize, Serialize};
@@ -31,6 +32,7 @@ pub struct GetTasksQuery {
     addr: FieldElement,
 }
 
+#[route(get, "/get_tasks", crate::endpoints::get_tasks)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetTasksQuery>,

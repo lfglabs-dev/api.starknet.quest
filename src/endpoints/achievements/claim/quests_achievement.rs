@@ -1,8 +1,9 @@
 use std::sync::Arc;
 
+use crate::utils::{to_hex, AchievementsTrait};
 use crate::{
     models::{AppState, VerifyAchievementQuery},
-    utils::{get_error},
+    utils::get_error,
 };
 use axum::{
     extract::{Query, State},
@@ -10,11 +11,11 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
 use serde_json::json;
 use starknet::core::types::FieldElement;
-use crate::utils::{AchievementsTrait, to_hex};
 fn get_number_of_quests(id: u32) -> u32 {
     return match id {
         23 => 1,
@@ -26,6 +27,11 @@ fn get_number_of_quests(id: u32) -> u32 {
     };
 }
 
+#[route(
+    get,
+    "/achievements/claim/quest_achievement",
+    crate::endpoints::achievements::claim::quests_achievement
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyAchievementQuery>,
@@ -89,29 +95,29 @@ pub async fn handler(
             }
         },
         doc! {
-        "$group": doc! {
-            "_id": null,
-            "count": doc! {
-                "$sum": 1
-            }
-        }
-    },
-        doc! {
-        "$addFields": doc! {
-            "result": doc! {
-                "$cond": doc! {
-                    "if": doc! {
-                        "$gte": [
-                            "$count",
-                            quests_threshold
-                        ]
-                    },
-                    "then": true,
-                    "else": false
+            "$group": doc! {
+                "_id": null,
+                "count": doc! {
+                    "$sum": 1
                 }
             }
-        }
-    },
+        },
+        doc! {
+            "$addFields": doc! {
+                "result": doc! {
+                    "$cond": doc! {
+                        "if": doc! {
+                            "$gte": [
+                                "$count",
+                                quests_threshold
+                            ]
+                        },
+                        "then": true,
+                        "else": false
+                    }
+                }
+            }
+        },
     ];
     let tasks_collection = state.db.collection::<Document>("completed_tasks");
 
@@ -125,7 +131,10 @@ pub async fn handler(
                 return get_error("User hasn't completed required number of quests".into());
             }
             let addr_hex = to_hex(addr);
-            match state.upsert_claimed_achievement(addr_hex, achievement_id).await {
+            match state
+                .upsert_claimed_achievement(addr_hex, achievement_id)
+                .await
+            {
                 Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
                 Err(e) => get_error(format!("{}", e)),
             }

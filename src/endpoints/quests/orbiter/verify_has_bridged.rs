@@ -10,6 +10,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use serde_json::json;
 
 #[derive(Debug, serde::Deserialize)]
@@ -28,6 +29,11 @@ struct Response {
     data: Data,
 }
 
+#[route(
+    get,
+    "/quests/orbiter/verify_has_bridged",
+    crate::endpoints::quests::orbiter::verify_has_bridged
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

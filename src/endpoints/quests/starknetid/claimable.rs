@@ -6,6 +6,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::doc;
 use serde::Deserialize;
@@ -25,6 +26,11 @@ pub struct ClaimableQuery {
     addr: FieldElement,
 }
 
+#[route(
+    get,
+    "/quests/starknetid/claimable",
+    crate::endpoints::quests::starknetid::claimable
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<ClaimableQuery>,
@@ -79,9 +85,11 @@ pub async fn handler(
 
             let mut rewards = vec![];
 
-            let  Ok((token_id, sig)) = get_nft(QUEST_ID, LAST_TASK, &query.addr, NFT_LEVEL, &signer).await else {
+            let Ok((token_id, sig)) =
+                get_nft(QUEST_ID, LAST_TASK, &query.addr, NFT_LEVEL, &signer).await
+            else {
                 return get_error("Signature failed".into());
-               };
+            };
 
             rewards.push(Reward {
                 task_id: LAST_TASK,

@@ -5,6 +5,7 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
+use axum_auto_routes::route;
 use serde::Serialize;
 use std::sync::Arc;
 
@@ -17,6 +18,7 @@ pub struct TokenURI {
     external_link: String,
 }
 
+#[route(get, "/quests/contract_uri", crate::endpoints::quests::contract_uri)]
 pub async fn handler(State(state): State<Arc<AppState>>) -> Response {
     let response = TokenURI {
         name: "Starknet Quest".into(),

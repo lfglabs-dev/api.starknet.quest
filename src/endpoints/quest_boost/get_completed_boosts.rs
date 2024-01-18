@@ -5,6 +5,7 @@ use axum::{
     Json,
 };
 
+use axum_auto_routes::route;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
 use reqwest::StatusCode;
@@ -18,6 +19,11 @@ pub struct GetCompletedQuestsQuery {
     addr: FieldElement,
 }
 
+#[route(
+    get,
+    "/boost/get_completed_boosts",
+    crate::endpoints::quest_boost::get_completed_boosts
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetCompletedQuestsQuery>,

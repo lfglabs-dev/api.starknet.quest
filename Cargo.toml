@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 starknet = { git = "https://github.com/xJonathanLEI/starknet-rs", rev = "c974e5cb42e8d8344cee910b76005ec46b4dd3ed" }
 starknet-id = { git = "https://github.com/starknet-id/starknet-id.rs.git", rev = "2b30c2453b96789a628c86d2edebb1023fa2e77d" }
+axum_auto_routes = { git = "https://github.com/Th0rgal/axum_auto_routes.git", rev = "f9e1d2083e887cd264642359c4aa851938da6f09" }
 axum = "0.6.17"
 toml = "0.5.10"
 serde = { version = "1.0.152", features = ["derive"] }
@@ -23,3 +24,4 @@ percent-encoding = "2.3.1"
 chrono = "0.4.19"
 lazy_static = "1.4.0"
 regex = "1.10.0"
+ctor = "0.2.6"

@@ -7,6 +7,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
+use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::doc;
 use mongodb::bson::from_document;
@@ -18,6 +19,7 @@ pub struct GetQuestsQuery {
     id: u32,
 }
 
+#[route(get, "/get_quest", crate::endpoints::get_quest)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,

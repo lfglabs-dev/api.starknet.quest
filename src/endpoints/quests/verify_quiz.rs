@@ -6,6 +6,7 @@ use crate::{
     utils::{get_error, CompletedTasksTrait},
 };
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use axum_auto_routes::route;
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
@@ -35,6 +36,7 @@ fn get_task_id(quiz_name: &str) -> Option<u32> {
     }
 }
 
+#[route(post, "/quests/verify_quiz", crate::endpoints::quests::verify_quiz)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     body: Json<VerifyQuizQuery>,

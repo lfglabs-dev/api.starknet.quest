@@ -10,10 +10,16 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use futures::stream::StreamExt;
 use mongodb::bson::{doc, from_document};
 use starknet::core::types::FieldElement;
 
+#[route(
+  get,
+  "/achievements/fetch",
+  crate::endpoints::achievements::fetch
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<AchievementQuery>,

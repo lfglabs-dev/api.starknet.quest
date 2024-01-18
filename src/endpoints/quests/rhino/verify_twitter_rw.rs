@@ -10,8 +10,14 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use serde_json::json;
 
+#[route(
+    get,
+    "/quests/rhino/verify_twitter_rw",
+    crate::endpoints::quests::rhino::verify_twitter_rw
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
