@@ -55,10 +55,15 @@ async fn main() {
     add_leaderboard_table(&shared_state.db).await;
 
     let cors = CorsLayer::new().allow_headers(Any).allow_origin(Any);
-    let app = ROUTE_REGISTRY.lock().unwrap().clone().into_iter().fold(
-        Router::new().with_state(shared_state.clone()).layer(cors),
-        |acc, r| acc.merge(r.to_router(shared_state.clone())),
-    );
+    let app = ROUTE_REGISTRY
+        .lock()
+        .unwrap()
+        .clone()
+        .into_iter()
+        .fold(Router::new().with_state(shared_state.clone()), |acc, r| {
+            acc.merge(r.to_router(shared_state.clone()))
+        })
+        .layer(cors);
     let addr = SocketAddr::from(([0, 0, 0, 0], conf.server.port));
     println!("server: listening on http://0.0.0.0:{}", conf.server.port);
     axum::Server::bind(&addr)
