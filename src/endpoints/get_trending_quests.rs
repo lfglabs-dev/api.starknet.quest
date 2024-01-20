@@ -134,9 +134,6 @@ pub async fn handler(
             }
             (StatusCode::OK, Json(quests)).into_response()
         }
-        Err(e) => {
-            println!("{:?}", e);
-            get_error("Error querying quests".to_string())
-        }
+        Err(_) => get_error("Error querying quests".to_string()),
     }
 }
