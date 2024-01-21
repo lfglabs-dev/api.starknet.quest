@@ -501,6 +501,22 @@ async fn main() {
             get(endpoints::quests::rango::claimable::handler),
         )
         .route(
+            "/quests/brine/verify_twitter_fw",
+            get(endpoints::quests::brine::verify_twitter_fw::handler),
+        )
+        .route(
+            "/quests/brine/claimable",
+            get(endpoints::quests::brine::claimable::handler),
+        )
+        .route(
+            "/quests/brine/verify_deposit",
+            get(endpoints::quests::brine::verify_deposit::handler),
+        )
+        .route(
+            "/quests/brine/verify_trade",
+            get(endpoints::quests::brine::verify_trade::handler),
+        )
+        .route(
             "/achievements/verify_default",
             get(endpoints::achievements::verify_default::handler),
         )

@@ -382,6 +382,16 @@ pub async fn handler(
             }),
         ).into_response(),
 
+        Some(34) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Starknet Pro Score x zkLend Quest NFT".into(),
+                description: "This Starknet commemorative Non-Fungible Token represents the first steps into the Starknet universe. By using zkLend, the native money-market protocol on Starknet, you are building solid foundations for your Starknet experience.".into(),
+                image: format!("{}/brine/brine.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }
