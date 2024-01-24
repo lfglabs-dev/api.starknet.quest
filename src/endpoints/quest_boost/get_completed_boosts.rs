@@ -95,7 +95,7 @@ pub async fn handler(
         Ok(mut cursor) => {
             let mut boosts: Vec<u32> = Vec::new();
             while let Some(result) = cursor.try_next().await.unwrap() {
-                boosts.push(result.get("id").unwrap().as_i64().unwrap() as u32);
+                boosts.push(result.get("id").unwrap().as_i32().unwrap() as u32);
             }
             (StatusCode::OK, Json(boosts)).into_response()
         }
