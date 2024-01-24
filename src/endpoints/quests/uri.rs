@@ -384,6 +384,16 @@ pub async fn handler(
             }),
         ).into_response(),
 
+        Some(35) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Nimbora NFT name".into(),
+                description: "Nimbora NFT name".into(),
+                image: format!("{}/nimbora/nft.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }
