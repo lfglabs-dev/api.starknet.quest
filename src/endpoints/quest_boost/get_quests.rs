@@ -6,6 +6,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
+use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::doc;
 use mongodb::bson::from_document;
@@ -17,6 +18,7 @@ pub struct GetQuestForBoostQuery {
     boost_id: u32,
 }
 
+#[route(get, "/boost/get_quests", crate::endpoints::quest_boost::get_quests)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestForBoostQuery>,

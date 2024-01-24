@@ -10,9 +10,15 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
+#[route(
+    get,
+    "/achievements/verify_achieved_quests",
+    crate::endpoints::achievements::verify_achieved_quests
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyAchievementQuery>,

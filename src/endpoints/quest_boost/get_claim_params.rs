@@ -4,16 +4,17 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use std::str::FromStr;
 
-use mongodb::bson::{Bson, doc, Document};
+use crate::utils::to_hex;
+use mongodb::bson::{doc, Bson, Document};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use starknet::core::crypto::ecdsa_sign;
 use starknet::core::{crypto::pedersen_hash, types::FieldElement};
 use std::sync::Arc;
-use crate::utils::to_hex;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetClaimBoostQuery {
@@ -21,6 +22,11 @@ pub struct GetClaimBoostQuery {
     addr: FieldElement,
 }
 
+#[route(
+    get,
+    "/boost/get_claim_params",
+    crate::endpoints::quest_boost::get_claim_params
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetClaimBoostQuery>,
@@ -28,7 +34,10 @@ pub async fn handler(
     let address = to_hex(query.addr);
     let boost_id = query.boost_id;
     let collection = state.db.collection::<Document>("boosts");
-    let res = collection.find_one(doc! {"id":boost_id}, None).await.unwrap();
+    let res = collection
+        .find_one(doc! {"id":boost_id}, None)
+        .await
+        .unwrap();
 
     // if no boost found with the requested id
     if res.is_none() {
@@ -45,7 +54,10 @@ pub async fn handler(
 
     // if the user is not in the winner list
     if !winner_list.contains(&bson_value) {
-        return get_error(format!("User {} is not in the winner list", address.clone()));
+        return get_error(format!(
+            "User {} is not in the winner list",
+            address.clone()
+        ));
     }
 
     let hashed = pedersen_hash(

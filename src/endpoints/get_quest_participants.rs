@@ -5,6 +5,7 @@ use axum::{
     Json,
 };
 
+use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::{doc, Document};
 use reqwest::StatusCode;
@@ -17,6 +18,11 @@ pub struct GetQuestParticipantsQuery {
     quest_id: u32,
 }
 
+#[route(
+    get,
+    "/get_quest_participants",
+    crate::endpoints::get_quest_participants
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestParticipantsQuery>,

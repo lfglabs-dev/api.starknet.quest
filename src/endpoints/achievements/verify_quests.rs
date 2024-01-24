@@ -11,6 +11,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
 use serde_json::json;
@@ -27,6 +28,11 @@ fn get_number_of_quests(id: u32) -> u32 {
     };
 }
 
+#[route(
+    get,
+    "/achievements/verify_quests",
+    crate::endpoints::achievements::verify_quests
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyAchievementQuery>,

@@ -6,6 +6,7 @@ use axum::{
     body::Body,
     http::{Response as HttpResponse, StatusCode, Uri},
     response::{IntoResponse, Response},
+    Router,
 };
 use chrono::{Duration as dur, Utc};
 use futures::TryStreamExt;
@@ -22,9 +23,9 @@ use starknet::{
     },
     signers::LocalWallet,
 };
-use std::fmt::Write;
 use std::result::Result;
 use std::str::FromStr;
+use std::{fmt::Write, sync::Arc};
 use tokio::time::{sleep, Duration};
 
 #[macro_export]
@@ -239,7 +240,7 @@ impl CompletedTasksTrait for AppState {
                             experience.into(),
                             timestamp,
                         )
-                            .await;
+                        .await;
                     }
                     Err(_e) => {
                         get_error("Error querying quests".to_string());
@@ -328,7 +329,7 @@ impl AchievementsTrait for AppState {
                     experience.into(),
                     timestamp,
                 )
-                    .await;
+                .await;
             }
             None => {}
         }
@@ -653,7 +654,9 @@ pub async fn fetch_and_update_boosts_winner(
                                         current_winner_index += 1;
                                     }
                                     iter_index += 1;
-                                    if current_winner_index == (num_of_winners) as usize || iter_index == address_list.len() {
+                                    if current_winner_index == (num_of_winners) as usize
+                                        || iter_index == address_list.len()
+                                    {
                                         break;
                                     }
                                 }
@@ -688,4 +691,27 @@ pub fn run_boosts_raffle(db: &Database, interval: u64) {
         completed_tasks_collection,
         interval,
     ));
+}
+
+// required for axum_auto_routes
+pub trait WithState: Send {
+    fn to_router(self: Box<Self>, shared_state: Arc<AppState>) -> Router;
+
+    fn box_clone(&self) -> Box<dyn WithState>;
+}
+
+impl WithState for Router<Arc<AppState>, Body> {
+    fn to_router(self: Box<Self>, shared_state: Arc<AppState>) -> Router {
+        self.with_state(shared_state)
+    }
+
+    fn box_clone(&self) -> Box<dyn WithState> {
+        Box::new((*self).clone())
+    }
+}
+
+impl Clone for Box<dyn WithState> {
+    fn clone(&self) -> Box<dyn WithState> {
+        self.box_clone()
+    }
 }

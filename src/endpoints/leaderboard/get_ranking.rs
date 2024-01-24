@@ -38,6 +38,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 
 use crate::utils::get_timestamp_from_days;
 use axum::http::{header, Response};
@@ -234,6 +235,11 @@ pub struct GetCompletedQuestsQuery {
     duration: String,
 }
 
+#[route(
+    get,
+    "/leaderboard/get_ranking",
+    crate::endpoints::leaderboard::get_ranking
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetCompletedQuestsQuery>,

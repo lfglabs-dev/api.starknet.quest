@@ -13,6 +13,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
@@ -27,6 +28,11 @@ pub struct StarknetIdQuery {
     addr: FieldElement,
 }
 
+#[route(
+    get,
+    "/quests/tribe/verify_three_years_expiry",
+    crate::endpoints::quests::tribe::verify_three_years_expiry
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<StarknetIdQuery>,

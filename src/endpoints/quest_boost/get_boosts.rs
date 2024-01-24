@@ -5,10 +5,12 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
+use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::doc;
 use std::sync::Arc;
 
+#[route(get, "/boost/get_boosts", crate::endpoints::quest_boost::get_boosts)]
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let collection = state.db.collection::<BoostTable>("boosts");
     let mut boosts = match collection.find(doc! {"hidden":false}, None).await {

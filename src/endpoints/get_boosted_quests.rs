@@ -1,18 +1,14 @@
 use crate::{models::AppState, utils::get_error};
-use axum::{
-    extract::{State},
-    response::IntoResponse,
-    Json,
-};
+use axum::{extract::State, response::IntoResponse, Json};
 
+use axum_auto_routes::route;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
 use reqwest::StatusCode;
 use std::sync::Arc;
 
-pub async fn handler(
-    State(state): State<Arc<AppState>>,
-) -> impl IntoResponse {
+#[route(get, "/get_boosted_quests", crate::endpoints::get_boosted_quests)]
+pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let pipeline = vec![
         doc! {
             "$unwind": doc! {
