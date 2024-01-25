@@ -1004,6 +1004,11 @@ options = [
 ]
 correct_answers = [*]
 
+[quizzes.nimbora]
+name = "Nimbora Quiz"
+desc = "Test your Nimbora knowledge in our quiz for a chance to win an exclusive NFT as your reward."
+intro = "Welcome to the Nimbora quiz! Are you familiar with DeFi on Nimbora? Let's explore it together. Good luck!"
+
 [[quizzes.nimbora.questions]]
 kind = "text_choice"
 layout = "default"
