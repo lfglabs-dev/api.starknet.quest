@@ -384,6 +384,16 @@ pub async fn handler(
             }),
         ).into_response(),
 
+        Some(36) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Starknet Pro Score x Realms: Loot Survivor Quest NFT".into(),
+                description: "This Starknet commemorative Non-Fungible Token represents the first steps into the Starknet universe. By playing Loot Survivor, the first Loot adventure game exploring the Play2Die mechanic on Starknet, you are building solid foundations for your Starknet experience.".into(),
+                image: format!("{}/braavos/realms.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }
