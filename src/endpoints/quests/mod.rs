@@ -19,3 +19,4 @@ pub mod verify_quiz;
 pub mod zklend;
 pub mod rhino;
 pub mod rango;
+pub mod nimbora;

@@ -1003,3 +1003,39 @@ options = [
     "It means users have to give up control of their funds to trade."
 ]
 correct_answers = [*]
+
+[[quizzes.nimbora.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is Nimbora?"
+options = [
+    "Liquidity mining", 
+    "A traditional Layer 2 solution", 
+    "Defi pooling solution bridging Ethereum's L1 and L2 for cost-efficient DeFi interactions", 
+    "An L1 DeFi protocol without composability"
+]
+correct_answers = [*]
+
+[[quizzes.nimbora.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the benefit of Nimbora’s automatic withdrawal service?"
+options = [
+    "Manual claiming of tokens",
+    "Increased transaction fees",
+    "Hassle-free experience and minimized fees",
+    "Limited token selection"
+]
+correct_answers = [*]
+
+[[quizzes.nimbora.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the current maximum borrowing limit with Liquity?"
+options = [
+    "LUSD 1000",
+    "LUSD 500",
+    "LUSD 750",
+    "LUSD 100"
+]
+correct_answers = [*]

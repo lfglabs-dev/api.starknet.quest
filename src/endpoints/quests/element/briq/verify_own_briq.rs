@@ -30,7 +30,7 @@ pub async fn handler(
     }
 
     let url = format!(
-        "https://api.briq.construction/v1/user/data/starknet-mainnet/{}",
+        "https://api.briq.construction/v1/user/data/starknet-mainnet-dojo/{}",
         to_hex(query.addr)
     );
     match fetch_json_from_url(url).await {
@@ -41,7 +41,7 @@ pub async fn handler(
                         for set in sets_array.iter() {
                             if let serde_json::Value::String(set_str) = set {
                                 let url = format!(
-                                    "https://api.briq.construction/v1/metadata/starknet-mainnet/{}",
+                                    "https://api.briq.construction/v1/metadata/starknet-mainnet-dojo/{}",
                                     set_str
                                 );
                                 match fetch_json_from_url(url).await {
