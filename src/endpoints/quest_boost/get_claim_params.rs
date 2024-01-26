@@ -37,7 +37,7 @@ pub async fn handler(
 
     let boost: Document = res.unwrap();
     let num_of_winners = boost.get("num_of_winners").unwrap().as_i32().unwrap();
-    let decimals = boost.get("decimals").unwrap().as_i32().unwrap();
+    let decimals = boost.get("token_decimals").unwrap().as_i32().unwrap();
     let amount = boost.get("amount").unwrap().as_i32().unwrap() as u32 * 10u32.pow(decimals as u32);
     let modified_amount = amount / num_of_winners as u32;
     let token = boost.get("token").unwrap().as_str().unwrap();
