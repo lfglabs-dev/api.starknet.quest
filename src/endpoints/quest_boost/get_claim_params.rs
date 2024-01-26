@@ -37,7 +37,9 @@ pub async fn handler(
 
     let boost: Document = res.unwrap();
     let num_of_winners = boost.get("num_of_winners").unwrap().as_i32().unwrap();
-    let amount = boost.get("amount").unwrap().as_i32().unwrap() as u32 / num_of_winners as u32;
+    let decimals = boost.get("decimals").unwrap().as_i32().unwrap();
+    let amount = boost.get("amount").unwrap().as_i32().unwrap() as u32 * 10u32.pow(decimals as u32);
+    let modified_amount = amount / num_of_winners as u32;
     let token = boost.get("token").unwrap().as_str().unwrap();
 
     let winner_list = boost.get("winner").unwrap().as_array().unwrap();
@@ -51,7 +53,7 @@ pub async fn handler(
     let hashed = pedersen_hash(
         &FieldElement::from(boost_id),
         &pedersen_hash(
-            &FieldElement::from(amount),
+            &FieldElement::from(modified_amount),
             &pedersen_hash(
                 &FieldElement::from(0 as u32),
                 &pedersen_hash(

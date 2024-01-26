@@ -165,6 +165,7 @@ pub_struct!(Debug, Serialize, Deserialize; BoostTable {
     name: String,
     hidden: bool,
     num_of_winners: i64,
+    token_decimals: i64,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; NftBalance {
