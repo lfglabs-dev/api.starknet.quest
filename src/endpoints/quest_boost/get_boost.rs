@@ -12,7 +12,6 @@ use futures::StreamExt;
 use mongodb::bson::doc;
 use serde::Deserialize;
 use std::sync::Arc;
-
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {
     id: u32,
@@ -29,40 +28,6 @@ pub async fn handler(
             "$match": {
                 "id": query.id
             }
-        },
-        doc! {
-            "$lookup": doc! {
-                "from": "boost_claims",
-                "localField": "id",
-                "foreignField": "id",
-                "as": "claim_detail"
-            }
-        },
-        doc! {
-        "$addFields": doc! {
-            "claimed": doc! {
-                "$anyElementTrue": doc! {
-                    "$map": doc! {
-                        "input": "$claim_detail",
-                        "as": "claimDetail",
-                        "in": doc! {
-                        "$eq": [
-                            doc! {
-                                "$ifNull": [
-                                    "$$claimDetail._cursor.to",
-                                    null
-                                ]
-                            },
-                            null
-                        ]
-                        }
-                    }
-                }
-            }
-        },
-        },
-        doc! {
-            "$unset": "claim_detail"
         },
         doc! {
             "$project":{

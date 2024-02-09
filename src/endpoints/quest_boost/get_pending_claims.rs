@@ -33,8 +33,13 @@ pub async fn handler(
     let collection = state.db.collection::<QuestDocument>("boosts");
     let pipeline = [
         doc! {
-            "$match": {
-                "winner":address
+            "$unwind": doc! {
+                "path": "$winner"
+            }
+        },
+        doc! {
+            "$match": doc! {
+                "winner": address,
             }
         },
         doc! {
@@ -56,7 +61,10 @@ pub async fn handler(
                                         ]
                                     },
                                     doc! {
-                                        "$in": ["$$localWinner","$winner"],
+                                        "$eq": [
+                                            "$winner",
+                                            "$$localWinner"
+                                        ]
                                     },
                                     doc! {
                                         "$eq": [
@@ -88,7 +96,7 @@ pub async fn handler(
             "$project": doc! {
                 "_id": 0,
                 "boost_claims": 0,
-                "hidden":0
+                "hidden": 0
             }
         },
     ];
