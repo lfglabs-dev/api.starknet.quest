@@ -15,7 +15,7 @@ use serde_json::json;
 #[route(
     get,
     "/quests/rango/check_trade",
-    crate::endpoints::quests::rango::check_trade
+    crate::endpoints::quests::rango::quest1::check_trade
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
