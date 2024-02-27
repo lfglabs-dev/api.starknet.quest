@@ -405,5 +405,17 @@ pub async fn handler(
         ).into_response(),
 
         _ => get_error("Error, this level is not correct".into()),
+
+        Some(38) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Starknet Pro Score x Carbonable Quest NFT    ".into(),
+                description: "This Starknet commemorative Non-Fungible Token represents the first steps into the Starknet universe. By interacting with Carbonable, the first real world asset platform on Starknet, you are building solid foundations for your Starknet experience.".into(),
+                image: format!("{}/braavos/carbonable.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
+        _ => get_error("Error, this level is not correct".into()),
     }
 }
