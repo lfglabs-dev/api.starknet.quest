@@ -38,7 +38,7 @@ pub async fn handler(
     Query(query): Query<TwitterOAuthCallbackQuery>,
 ) -> impl IntoResponse {
     let quest_id = 26;
-    let task_id = 125;
+    let task_id = 124;
     let guild_id = "1079299393712300112";
     let authorization_code = &query.code;
     let error_redirect_uri = format!(

@@ -22,7 +22,7 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
-    let task_id = 124;
+    let task_id = 123;
     match state.upsert_completed_task(query.addr, task_id).await {
         Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
         Err(e) => get_error(format!("{}", e)),
