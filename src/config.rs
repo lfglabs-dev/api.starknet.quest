@@ -69,6 +69,7 @@ pub_struct!(Clone, Deserialize;  Quests {
     braavos: Braavos,
     element: Element,
     nostra: Pairs,
+    carbonable: Contract,
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {
