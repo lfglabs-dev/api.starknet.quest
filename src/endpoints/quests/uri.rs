@@ -410,6 +410,16 @@ pub async fn handler(
                 name: "Golden Castle Bridge".into(),
                 description: "A Rango Exchange Golden Castle Bridge NFT won for successfully finishing the Quest".into(),
                 image: format!("{}/rango/golden_castle_bridge.webp", state.conf.variables.app_link),
+               attributes: None,
+            }),
+        ).into_response(),
+
+        Some(38) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Starknet Pro Score x Carbonable Quest NFT    ".into(),
+                description: "This Starknet commemorative Non-Fungible Token represents the first steps into the Starknet universe. By interacting with Carbonable, the first real world asset platform on Starknet, you are building solid foundations for your Starknet experience.".into(),
+                image: format!("{}/braavos/carbonable.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
         ).into_response(),

@@ -5,3 +5,4 @@ pub mod wallet;
 pub mod pyramid;
 pub mod zklend;
 pub mod realms;
+pub mod carbonable;
