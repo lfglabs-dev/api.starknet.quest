@@ -404,8 +404,6 @@ pub async fn handler(
             }),
         ).into_response(),
 
-        _ => get_error("Error, this level is not correct".into()),
-
         Some(38) => (
             StatusCode::OK,
             Json(TokenURI {

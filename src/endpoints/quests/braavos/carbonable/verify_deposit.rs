@@ -29,13 +29,13 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let task_id = 131;
     let addr = &query.addr;
-    let mut calldata =vec![*addr];
+    let calldata =vec![*addr];
 
     let call_result = state
         .provider
         .call(
             FunctionCall {
-                contract_address: state.conf.quests.zklend.utils_contract,
+                contract_address: state.conf.quests.carbonable.contract,
                 entry_point_selector: selector!("balanceOf"),
                 calldata,
             },
