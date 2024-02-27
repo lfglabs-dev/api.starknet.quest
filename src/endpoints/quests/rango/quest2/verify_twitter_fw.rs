@@ -15,14 +15,14 @@ use serde_json::json;
 
 #[route(
     get,
-    "/quests/rango/verify_twitter_fw",
-    crate::endpoints::quests::rango::verify_twitter_fw
+    "/quests/rango/quest2/verify_twitter_fw",
+    crate::endpoints::quests::rango::quest2::verify_twitter_fw
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
-    let task_id = 93;
+    let task_id = 124;
     match state.upsert_completed_task(query.addr, task_id).await {
         Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
         Err(e) => get_error(format!("{}", e)),
