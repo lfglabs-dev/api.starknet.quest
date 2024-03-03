@@ -125,8 +125,9 @@ impl CompletedTasksTrait for AppState {
     ) -> Result<UpdateResult, mongodb::error::Error> {
         let completed_tasks_collection: Collection<CompletedTasks> =
             self.db.collection("completed_tasks");
+        let timestamp = Utc::now().timestamp_millis() as f64;
         let filter = doc! { "address": addr.to_string(), "task_id": task_id };
-        let update = doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id } };
+        let update = doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id , "timestamp":timestamp} };
         let options = UpdateOptions::builder().upsert(true).build();
 
         let result = completed_tasks_collection
@@ -229,7 +230,6 @@ impl CompletedTasksTrait for AppState {
                         // save the user_exp document in the collection
                         let user_exp_collection = self.db.collection("user_exp");
                         // add doc with address ,experience and timestamp
-                        let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                         let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
                         user_exp_collection.insert_one(document, None).await?;
                         let view_collection: Collection<LeaderboardTable> =
@@ -240,7 +240,7 @@ impl CompletedTasksTrait for AppState {
                             experience.into(),
                             timestamp,
                         )
-                        .await;
+                            .await;
                     }
                     Err(_e) => {
                         get_error("Error querying quests".to_string());
@@ -293,8 +293,9 @@ impl AchievementsTrait for AppState {
     ) -> Result<UpdateResult, mongodb::error::Error> {
         let achieved_collection: Collection<CompletedTasks> = self.db.collection("achieved");
         let filter = doc! { "addr": addr.to_string(), "achievement_id": achievement_id };
+        let timestamp = Utc::now().timestamp_millis() as f64;
         let update =
-            doc! { "$setOnInsert": { "addr": addr.to_string(), "achievement_id": achievement_id } };
+            doc! { "$setOnInsert": { "addr": addr.to_string(), "achievement_id": achievement_id , "timestamp":timestamp } };
         let options = UpdateOptions::builder().upsert(true).build();
 
         let result = achieved_collection
@@ -318,7 +319,6 @@ impl AchievementsTrait for AppState {
 
                 let user_exp_collection = self.db.collection("user_exp");
                 // add doc with address ,experience and timestamp
-                let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                 let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
                 user_exp_collection.insert_one(document, None).await?;
                 let view_collection: Collection<LeaderboardTable> =
@@ -329,7 +329,7 @@ impl AchievementsTrait for AppState {
                     experience.into(),
                     timestamp,
                 )
-                .await;
+                    .await;
             }
             None => {}
         }
