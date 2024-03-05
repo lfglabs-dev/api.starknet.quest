@@ -13,3 +13,4 @@ pub mod leaderboard;
 pub mod quest_boost;
 pub mod quests;
 pub mod get_boosted_quests;
+pub mod analytics;
