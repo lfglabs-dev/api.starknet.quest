@@ -46,12 +46,14 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
 pub_struct!(Deserialize; CompletedTasks {
     address: String,
     task_id: u32,
+    timestamp: i64,
 });
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CompletedTaskDocument {
     address: String,
     task_id: u32,
+    timestamp: i64,
 }
 
 pub_struct!(Serialize; Reward {
@@ -92,6 +94,7 @@ pub_struct!(Deserialize; VerifyAchievementQuery {
 pub_struct!(Debug, Serialize, Deserialize; AchievedDocument {
     addr: String,
     achievement_id: u32,
+    timestamp: i64,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; AchievementDocument {
