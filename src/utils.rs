@@ -295,7 +295,6 @@ impl AchievementsTrait for AppState {
         let achieved_collection: Collection<CompletedTasks> = self.db.collection("achieved");
         let created_at = Utc::now().timestamp_millis();
         let filter = doc! { "addr": addr.to_string(), "achievement_id": achievement_id };
-        let timestamp = Utc::now().timestamp_millis() as f64;
         let update =
             doc! { "$setOnInsert": { "addr": addr.to_string(), "achievement_id": achievement_id , "timestamp":created_at } };
         let options = UpdateOptions::builder().upsert(true).build();

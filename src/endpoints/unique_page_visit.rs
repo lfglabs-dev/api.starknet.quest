@@ -42,6 +42,6 @@ pub async fn handler(
     match unique_viewers_collection.update_one(filter, update, options)
         .await {
         Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
-        Err(_) => get_error("You don't own a stark domain".to_string()),
+        Err(_) => get_error("unable to detect page visit status".to_string()),
     }
 }
