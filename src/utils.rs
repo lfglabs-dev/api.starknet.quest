@@ -125,9 +125,9 @@ impl CompletedTasksTrait for AppState {
     ) -> Result<UpdateResult, mongodb::error::Error> {
         let completed_tasks_collection: Collection<CompletedTasks> =
             self.db.collection("completed_tasks");
-        let timestamp = Utc::now().timestamp_millis() as f64;
+        let created_at = Utc::now().timestamp_millis();
         let filter = doc! { "address": addr.to_string(), "task_id": task_id };
-        let update = doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id , "timestamp":timestamp} };
+        let update = doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id , "timestamp":created_at} };
         let options = UpdateOptions::builder().upsert(true).build();
 
         let result = completed_tasks_collection
@@ -292,10 +292,11 @@ impl AchievementsTrait for AppState {
         achievement_id: u32,
     ) -> Result<UpdateResult, mongodb::error::Error> {
         let achieved_collection: Collection<CompletedTasks> = self.db.collection("achieved");
+        let created_at = Utc::now().timestamp_millis();
         let filter = doc! { "addr": addr.to_string(), "achievement_id": achievement_id };
         let timestamp = Utc::now().timestamp_millis() as f64;
         let update =
-            doc! { "$setOnInsert": { "addr": addr.to_string(), "achievement_id": achievement_id , "timestamp":timestamp } };
+            doc! { "$setOnInsert": { "addr": addr.to_string(), "achievement_id": achievement_id , "timestamp":created_at } };
         let options = UpdateOptions::builder().upsert(true).build();
 
         let result = achieved_collection

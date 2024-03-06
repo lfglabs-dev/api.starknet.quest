@@ -1,5 +1,4 @@
 use mongodb::{bson, Database};
-use mongodb::bson::DateTime;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use starknet::{
@@ -54,7 +53,7 @@ pub_struct!(Deserialize; CompletedTasks {
 pub struct CompletedTaskDocument {
     address: String,
     task_id: u32,
-    timestamp: DateTime,
+    timestamp: i64,
 }
 
 pub_struct!(Serialize; Reward {
@@ -95,7 +94,7 @@ pub_struct!(Deserialize; VerifyAchievementQuery {
 pub_struct!(Debug, Serialize, Deserialize; AchievedDocument {
     addr: String,
     achievement_id: u32,
-    timestamp:DateTime,
+    timestamp:i64,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; AchievementDocument {
