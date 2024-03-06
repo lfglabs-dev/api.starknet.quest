@@ -67,7 +67,7 @@ pub async fn handler(State(state): State<Arc<AppState>>,
                     "date": "$createdDate"
                 }
             },
-            "count": doc! {
+            "participants": doc! {
                 "$sum": 1
             }
         }
