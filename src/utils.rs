@@ -230,6 +230,7 @@ impl CompletedTasksTrait for AppState {
                         // save the user_exp document in the collection
                         let user_exp_collection = self.db.collection("user_exp");
                         // add doc with address ,experience and timestamp
+                        let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                         let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
                         user_exp_collection.insert_one(document, None).await?;
                         let view_collection: Collection<LeaderboardTable> =
@@ -320,6 +321,7 @@ impl AchievementsTrait for AppState {
 
                 let user_exp_collection = self.db.collection("user_exp");
                 // add doc with address ,experience and timestamp
+                let timestamp: f64 = Utc::now().timestamp_millis() as f64;
                 let document = doc! { "address": addr.to_string(), "experience":experience, "timestamp":timestamp};
                 user_exp_collection.insert_one(document, None).await?;
                 let view_collection: Collection<LeaderboardTable> =
