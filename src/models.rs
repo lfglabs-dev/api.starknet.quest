@@ -97,6 +97,12 @@ pub_struct!(Deserialize; VerifyQuizQuery {
     user_answers_list: Vec<Vec<String>>,
 });
 
+pub_struct!(Deserialize; UniquePageVisit {
+    viewer_ip: String,
+    viewed_page_id: String,
+    timestamp: i64,
+});
+
 pub_struct!(Deserialize; AchievementQuery {
     addr: FieldElement,
 });

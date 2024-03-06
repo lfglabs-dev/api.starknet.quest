@@ -127,7 +127,8 @@ impl CompletedTasksTrait for AppState {
             self.db.collection("completed_tasks");
         let created_at = Utc::now().timestamp_millis();
         let filter = doc! { "address": addr.to_string(), "task_id": task_id };
-        let update = doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id,"timestamp":created_at } };
+        let update = doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id , "timestamp":created_at} };
+
         let options = UpdateOptions::builder().upsert(true).build();
 
         let result = completed_tasks_collection
@@ -241,7 +242,7 @@ impl CompletedTasksTrait for AppState {
                             experience.into(),
                             timestamp,
                         )
-                        .await;
+                            .await;
                     }
                     Err(_e) => {
                         get_error("Error querying quests".to_string());
@@ -296,7 +297,7 @@ impl AchievementsTrait for AppState {
         let created_at = Utc::now().timestamp_millis();
         let filter = doc! { "addr": addr.to_string(), "achievement_id": achievement_id };
         let update =
-            doc! { "$setOnInsert": { "addr": addr.to_string(), "achievement_id": achievement_id,"timestamp":created_at } };
+            doc! { "$setOnInsert": { "addr": addr.to_string(), "achievement_id": achievement_id , "timestamp":created_at } };
         let options = UpdateOptions::builder().upsert(true).build();
 
         let result = achieved_collection
@@ -331,7 +332,7 @@ impl AchievementsTrait for AppState {
                     experience.into(),
                     timestamp,
                 )
-                .await;
+                    .await;
             }
             None => {}
         }
