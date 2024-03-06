@@ -64,6 +64,7 @@ async fn main() {
             acc.merge(r.to_router(shared_state.clone()))
         })
         .layer(cors);
+
     let addr = SocketAddr::from(([0, 0, 0, 0], conf.server.port));
     println!("server: listening on http://0.0.0.0:{}", conf.server.port);
     axum::Server::bind(&addr)
