@@ -108,6 +108,8 @@ pub async fn handler(
                     "verify_redirect":0,
                 "href": 0,
                 "cta": 0,
+                "id": 0,
+                "quest_id": 0,
 
             }
         },
