@@ -128,6 +128,7 @@ impl CompletedTasksTrait for AppState {
         let created_at = Utc::now().timestamp_millis();
         let filter = doc! { "address": addr.to_string(), "task_id": task_id };
         let update = doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id , "timestamp":created_at} };
+
         let options = UpdateOptions::builder().upsert(true).build();
 
         let result = completed_tasks_collection

@@ -56,6 +56,21 @@ pub struct CompletedTaskDocument {
     timestamp: i64,
 }
 
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct QuestTaskDocument {
+    id: u32,
+    quest_id: u32,
+    name: String,
+    desc: String,
+    cta: String,
+    verify_endpoint: String,
+    verify_endpoint_type: String,
+    verify_redirect: Option<String>,
+    href: String,
+    quiz_name: Option<String>,
+}
+
 pub_struct!(Serialize; Reward {
     task_id: u32,
     nft_contract: String,
@@ -100,7 +115,7 @@ pub_struct!(Deserialize; VerifyAchievementQuery {
 pub_struct!(Debug, Serialize, Deserialize; AchievedDocument {
     addr: String,
     achievement_id: u32,
-    timestamp:i64,
+    timestamp: i64,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; AchievementDocument {
