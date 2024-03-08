@@ -81,7 +81,20 @@ pub async fn handler(
                         "input": "$quest_list",
                         "as": "item",
                         "in": {
-                            "$mergeObjects": ["$$item"],
+                            "$mergeObjects": ["$$item", doc! {
+                                "expired": {
+                                    "$cond": [
+                                        {
+                                            "$and": [
+                                                { "$gte": ["$$item.expiry", 0] },
+                                                { "$lt": ["$$item.expiry", "$$NOW"] },
+                                            ]
+                                        },
+                                        true,
+                                        false
+                                    ]
+                                }
+                            }],
                         },
                     }
                 }
