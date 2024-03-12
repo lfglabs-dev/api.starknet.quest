@@ -29,14 +29,35 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let task_id = 133;
     let addr = &query.addr;
-    let calldata = vec![*addr];
-    // get starkname from address
+    let balance_calldata = vec![*addr];
+    let balance_result = state
+        .provider
+        .call(
+            FunctionCall {
+                contract_address: state.conf.quests.nostra.staking_contract,
+                entry_point_selector: selector!("balance_of"),
+                calldata: balance_calldata,
+            },
+            BlockId::Tag(BlockTag::Latest),
+        )
+        .await;
+
+    let user_balance = match balance_result {
+        Ok(result) => result[0],
+        Err(e) => return get_error(format!("{}", e)),
+    };
+
+    if user_balance == FieldElement::ZERO {
+        return get_error("You didn't stake any STRK.".to_string());
+    }
+
+    let calldata = vec![user_balance];
     let call_result = state
         .provider
         .call(
             FunctionCall {
                 contract_address: state.conf.quests.nostra.staking_contract,
-                entry_point_selector: selector!("balanceOf"),
+                entry_point_selector: selector!("convert_to_assets"),
                 calldata,
             },
             BlockId::Tag(BlockTag::Latest),
