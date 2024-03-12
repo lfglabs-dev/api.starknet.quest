@@ -42,7 +42,7 @@ pub async fn handler(
         )
         .await;
 
-    let user_balance = match balance_result {
+    let user_balance = match &balance_result {
         Ok(result) => result[0],
         Err(e) => return get_error(format!("{}", e)),
     };
@@ -51,14 +51,13 @@ pub async fn handler(
         return get_error("You didn't stake any STRK.".to_string());
     }
 
-    let calldata = vec![user_balance];
     let call_result = state
         .provider
         .call(
             FunctionCall {
                 contract_address: state.conf.quests.nostra.staking_contract,
                 entry_point_selector: selector!("convert_to_assets"),
-                calldata,
+                calldata: balance_result.unwrap().to_vec(),
             },
             BlockId::Tag(BlockTag::Latest),
         )
