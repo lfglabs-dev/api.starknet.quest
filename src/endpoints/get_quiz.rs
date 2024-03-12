@@ -40,7 +40,7 @@ pub async fn handler(
     Query(query): Query<GetQuizQuery>,
 ) -> impl IntoResponse {
     let quizzes_from_config = &state.conf.quizzes;
-
+    println!("{:?}", query.id);
     match quizzes_from_config.get(&query.id) {
         Some(quiz) => {
             let questions: Vec<QuizQuestionResp> = quiz
