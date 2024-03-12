@@ -427,9 +427,9 @@ pub async fn handler(
         Some(39) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "Nostra - LaFamiglia Rose".into(),
-                description: "A Nostra - LaFamiglia Rose NFT won for successfully finishing the Quest".into(),
-                image: format!("{}/nostra/rose.webp", state.conf.variables.app_link),
+                name: "Nostra - Mafia Boss Cigar NFT".into(),
+                description: "A Nostra - Mafia Boss Cigar NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/nostra/cigar.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
         ).into_response(),
