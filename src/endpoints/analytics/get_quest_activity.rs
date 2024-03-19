@@ -17,9 +17,9 @@ pub struct GetQuestsQuery {
 }
 
 #[route(
-    get,
-    "/analytics/get_quest_activity",
-    crate::endpoints::analytics::get_quest_activity
+get,
+"/analytics/get_quest_activity",
+crate::endpoints::analytics::get_quest_activity
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
@@ -33,8 +33,28 @@ pub async fn handler(
             }
         },
         doc! {
+            "$lookup": doc! {
+                "from": "quests",
+                "localField": "quest_id",
+                "foreignField": "id",
+                "as": "questDetails"
+            }
+        },
+        doc! {
+            "$set": doc! {
+                "expiry": doc! {
+                    "$arrayElemAt": [
+                        "$questDetails.expiry",
+                        0
+                    ]
+                }
+            }
+        },
+        doc! {
             "$group": doc! {
-                "_id": null,
+                "_id": doc! {
+                "expiry": "$expiry"
+            },
                 "ids": doc! {
                     "$push": "$id"
                 }
@@ -43,8 +63,39 @@ pub async fn handler(
         doc! {
             "$lookup": doc! {
                 "from": "completed_tasks",
-                "localField": "ids",
-                "foreignField": "task_id",
+                "let": doc! {
+                    "localIds": "$ids",
+                    "expiry": "$_id.expiry"
+                },
+                "pipeline": [
+                    doc! {
+                        "$addFields": doc! {
+                            "refactoredTimestamp": doc! {
+                                "$toDate": "$timestamp"
+                            }
+                        }
+                    },
+                    doc! {
+                        "$match": doc! {
+                            "$expr": doc! {
+                                "$and": [
+                                    doc! {
+                                        "$in": [
+                                            "$task_id",
+                                            "$$localIds"
+                                        ]
+                                    },
+                                    doc! {
+                                        "$lt": [
+                                            "$refactoredTimestamp",
+                                            "$$expiry"
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ],
                 "as": "matching_documents"
             }
         },
@@ -138,7 +189,9 @@ pub async fn handler(
     {
         Ok(mut cursor) => {
             let mut day_wise_distribution = Vec::new();
+            println!("{:?}", cursor);
             while let Some(result) = cursor.next().await {
+                println!("{:?}", result);
                 match result {
                     Ok(document) => {
                         day_wise_distribution.push(document);

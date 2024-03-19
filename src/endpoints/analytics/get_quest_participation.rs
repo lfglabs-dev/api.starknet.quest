@@ -33,8 +33,28 @@ pub async fn handler(
             }
         },
         doc! {
+            "$lookup": doc! {
+                "from": "quests",
+                "localField": "quest_id",
+                "foreignField": "id",
+                "as": "questDetails"
+            }
+        },
+        doc! {
+            "$set": doc! {
+                "expiry": doc! {
+                    "$arrayElemAt": [
+                        "$questDetails.expiry",
+                        0
+                    ]
+                }
+            }
+        },
+        doc! {
             "$group": doc! {
-                "_id": null,
+                "_id": doc! {
+                    "expiry": "$expiry"
+                },
                 "ids": doc! {
                     "$push": "$id"
                 },
@@ -46,8 +66,39 @@ pub async fn handler(
         doc! {
             "$lookup": doc! {
                 "from": "completed_tasks",
-                "localField": "ids",
-                "foreignField": "task_id",
+                "let": doc! {
+                    "localIds": "$ids",
+                    "expiry": "$_id.expiry"
+                },
+                "pipeline": [
+                    doc! {
+                        "$addFields": doc! {
+                            "refactoredTimestamp": doc! {
+                                "$toDate": "$timestamp"
+                            }
+                        }
+                    },
+                    doc! {
+                        "$match": doc! {
+                            "$expr": doc! {
+                                "$and": [
+                                    doc! {
+                                        "$in": [
+                                            "$task_id",
+                                            "$$localIds"
+                                        ]
+                                    },
+                                    doc! {
+                                        "$lt": [
+                                            "$refactoredTimestamp",
+                                            "$$expiry"
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ],
                 "as": "matching_documents"
             }
         },
@@ -93,7 +144,7 @@ pub async fn handler(
                         "$matching_documents",
                         "$otherDetails",
                         doc! {
-                            "participants": "$count"
+                            "count": "$count"
                         }
                     ]
                 }
@@ -102,17 +153,18 @@ pub async fn handler(
         doc! {
             "$project": doc! {
                 "otherDetails": 0,
-                    "_id":0,
-                    "verify_endpoint": 0,
-                    "verify_endpoint_type": 0,
-                    "verify_redirect":0,
+                "_id":0,
+                "verify_endpoint": 0,
+                "verify_endpoint_type": 0,
+                "verify_redirect":0,
                 "href": 0,
                 "cta": 0,
                 "id": 0,
                 "quest_id": 0,
-
-            }
-        },
+                "questDetails": 0,
+                "expiry":0
+              }
+          },
     ];
 
     match state
