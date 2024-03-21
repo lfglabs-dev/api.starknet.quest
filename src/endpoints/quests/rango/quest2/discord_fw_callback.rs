@@ -16,12 +16,12 @@ use serde::Deserialize;
 use starknet::core::types::FieldElement;
 
 #[derive(Deserialize)]
-pub struct DiscordOAuthCallbackQuery {
+pub struct TwitterOAuthCallbackQuery {
     code: String,
     state: FieldElement,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
 pub struct Guild {
     id: String,
     #[allow(dead_code)]
@@ -30,16 +30,16 @@ pub struct Guild {
 
 #[route(
     get,
-    "/quests/nostra/discord_fw_callback",
-    crate::endpoints::quests::nostra::discord_fw_callback
+    "/quests/rango/quest2/discord_fw_callback",
+    crate::endpoints::quests::rango::quest2::discord_fw_callback
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    Query(query): Query<DiscordOAuthCallbackQuery>,
+    Query(query): Query<TwitterOAuthCallbackQuery>,
 ) -> impl IntoResponse {
-    let quest_id = 20;
-    let task_id = 80;
-    let guild_id = "1002209435868987463";
+    let quest_id = 26;
+    let task_id = 125;
+    let guild_id = "1079299393712300112";
     let authorization_code = &query.code;
     let error_redirect_uri = format!(
         "{}/quest/{}?task_id={}&res=false",
@@ -54,7 +54,7 @@ pub async fn handler(
         (
             "redirect_uri",
             &format!(
-                "{}/quests/nostra/discord_fw_callback",
+                "{}/quests/rango/quest2/discord_fw_callback",
                 state.conf.variables.api_link
             ),
         ),
@@ -118,7 +118,7 @@ pub async fn handler(
 
     get_error_redirect(
         error_redirect_uri,
-        "You're not part of Nostra's Discord server".to_string(),
+        "You're not part of Rango's Discord server".to_string(),
     )
 }
 

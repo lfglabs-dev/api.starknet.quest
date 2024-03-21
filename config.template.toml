@@ -49,6 +49,7 @@ api_key = "xxxxxx"
 [quests.nostra]
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
+staking_contract="0xXXXXXXXXXXXX"
 
 [rhino]
 api_endpoint = "xxxxx"
@@ -1044,5 +1045,43 @@ options = [
     "LUSD 500",
     "LUSD 750",
     "LUSD 100"
+]
+correct_answers = [*]
+
+
+[quizzes.nostra2]
+name = "Nostra Quiz"
+desc = "Take part in our Quiz to test your knowledge about Nostra, and you'll have a chance to win 250 STRK."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Nostra, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.nostra2.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is nstSTRK?"
+options = [
+    "The first liquid staking token on Starknet",
+    "A stablecoin on Nostra Money Market",
+    "A governance token for Nostra",
+]
+correct_answers = [*]
+
+[[quizzes.nostra2.questions]]
+kind = "text_choice"
+layout = "default"
+question = "Will users be able to use their Nostra Staked STRK (nstSTRK) in DeFi protocols on Starknet?"
+options = [
+    "Yes - those who integrate with nstSTRK",
+    "No - it’s impossible",
+]
+correct_answers = [*]
+
+[[quizzes.nostra2.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the total value of idle STRK tokens on Starknet waiting to be staked on Nostra?"
+options = [
+    "$951 million",
+    "$100 million",
+    "$500 million",
 ]
 correct_answers = [*]

@@ -46,12 +46,29 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
 pub_struct!(Deserialize; CompletedTasks {
     address: String,
     task_id: u32,
+    timestamp: i64,
 });
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CompletedTaskDocument {
     address: String,
     task_id: u32,
+    timestamp: i64,
+}
+
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct QuestTaskDocument {
+    id: u32,
+    quest_id: u32,
+    name: String,
+    desc: String,
+    cta: String,
+    verify_endpoint: String,
+    verify_endpoint_type: String,
+    verify_redirect: Option<String>,
+    href: String,
+    quiz_name: Option<String>,
 }
 
 pub_struct!(Serialize; Reward {
@@ -80,6 +97,12 @@ pub_struct!(Deserialize; VerifyQuizQuery {
     user_answers_list: Vec<Vec<String>>,
 });
 
+pub_struct!(Deserialize; UniquePageVisit {
+    viewer_ip: String,
+    viewed_page_id: String,
+    timestamp: i64,
+});
+
 pub_struct!(Deserialize; AchievementQuery {
     addr: FieldElement,
 });
@@ -92,6 +115,7 @@ pub_struct!(Deserialize; VerifyAchievementQuery {
 pub_struct!(Debug, Serialize, Deserialize; AchievedDocument {
     addr: String,
     achievement_id: u32,
+    timestamp: i64,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; AchievementDocument {

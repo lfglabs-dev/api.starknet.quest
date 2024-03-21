@@ -29,7 +29,7 @@ pub struct ClaimableQuery {
 #[route(
     get,
     "/quests/rango/claimable",
-    crate::endpoints::quests::rango::claimable
+    crate::endpoints::quests::rango::quest1::claimable
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

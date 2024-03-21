@@ -36,6 +36,12 @@ pub_struct!(Clone, Deserialize;  StarknetId {
     account_id: String,
 });
 
+pub_struct!(Clone, Deserialize;  Nostra {
+    utils_contract: FieldElement,
+    pairs : Vec<FieldElement>,
+    staking_contract: FieldElement,
+});
+
 pub_struct!(Clone, Deserialize;  Pairs {
     utils_contract: FieldElement,
     pairs : Vec<FieldElement>,
@@ -68,7 +74,7 @@ pub_struct!(Clone, Deserialize;  Quests {
     myswap: Contract,
     braavos: Braavos,
     element: Element,
-    nostra: Pairs,
+    nostra: Nostra,
     carbonable: Contract,
 });
 

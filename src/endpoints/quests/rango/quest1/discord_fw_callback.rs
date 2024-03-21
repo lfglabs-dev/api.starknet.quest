@@ -31,7 +31,7 @@ pub struct Guild {
 #[route(
     get,
     "/quests/rango/discord_fw_callback",
-    crate::endpoints::quests::rango::discord_fw_callback
+    crate::endpoints::quests::rango::quest1::discord_fw_callback
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
