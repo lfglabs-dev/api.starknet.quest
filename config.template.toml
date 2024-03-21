@@ -32,7 +32,7 @@ pairs = ["0xXXXXXXXXXXXX"]
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
 [quests.carbonable]
-contract = "0x014c6533fec6fd168189b49150907db533e8be3a2e69b0657ae4ec6459a94668"
+contract = "0xXXXXXXXXXXXX"
 [quests.zklend]
 contract = "0xXXXXXXXXXXXX"
 utils_contract = "0xXXXXXXXXXXXX"
