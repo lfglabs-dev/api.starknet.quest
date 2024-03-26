@@ -36,7 +36,7 @@ pub async fn handler(
         .call(
             FunctionCall {
                 contract_address: state.conf.quests.carbonable.contract,
-                entry_point_selector: selector!("balanceOf"),
+                entry_point_selector: selector!("get_claimed_value"),
                 calldata,
             },
             BlockId::Tag(BlockTag::Latest),
