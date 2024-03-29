@@ -65,7 +65,7 @@ pub async fn handler(
         let id_res = call_contract_helper(
             &state,
             state.conf.starknetid_contracts.naming_contract,
-            selector!("domain_to_token_id"),
+            selector!("domain_to_id"),
             domain_res,
         )
         .await?;
