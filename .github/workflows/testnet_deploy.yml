@@ -40,7 +40,7 @@ jobs:
             else
               echo "Repository doesn't exist, cloning..."
               mkdir -p \$REPO_PATH
-              git clone git@github.com:starknet-id/api.starknet.quest.git \$REPO_PATH
+              GIT_SSH_COMMAND='ssh -i ~/.ssh/github_read' git clone git@github.com:starknet-id/api.starknet.quest.git \$REPO_PATH
               cd \$REPO_PATH
             fi
 
