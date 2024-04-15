@@ -9,8 +9,7 @@ use axum::{
 };
 use axum_auto_routes::route;
 use futures::StreamExt;
-use mongodb::bson::doc;
-use mongodb::bson::from_document;
+use mongodb::bson::{Bson, doc, DateTime, from_document};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -23,27 +22,40 @@ pub struct NFTItem {
 
 #[route(get, "/get_quests", crate::endpoints::get_quests)]
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let current_time = chrono::Utc::now().timestamp_millis();
     let pipeline = vec![
         doc! {
-            "$match": {
+            "$match": doc! {
                 "disabled": false,
-                "hidden": false,
+               "start_time":  {
+                "$lte":current_time
+                }
             }
         },
         doc! {
-            "$addFields": {
-                "expired": {
+            "$addFields": doc! {
+                "expired": doc! {
                     "$cond": [
-                        {
+                        doc! {
                             "$and": [
-                                { "$gte": ["$expiry", 0] },
-                                { "$lt": ["$expiry", "$$NOW"] },
+                                doc! {
+                                    "$gte": [
+                                        "$expiry",
+                                        0
+                                    ]
+                                },
+                                doc! {
+                                    "$lt": [
+                                        "$expiry",
+                                        "$$NOW"
+                                    ]
+                                }
                             ]
                         },
                         true,
                         false
                     ]
-                }
+                },
             }
         },
     ];
@@ -57,8 +69,7 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                     Ok(document) => {
                         if let Ok(mut quest) = from_document::<QuestDocument>(document) {
                             if let Some(expiry) = &quest.expiry {
-                                let timestamp = expiry.timestamp_millis().to_string();
-                                quest.expiry_timestamp = Some(timestamp);
+                                quest.expiry_timestamp = Some(expiry.to_string());
                             }
                             quests.push(quest);
                         }

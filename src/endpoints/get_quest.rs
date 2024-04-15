@@ -9,11 +9,10 @@ use axum::{
 };
 use axum_auto_routes::route;
 use futures::StreamExt;
-use mongodb::bson::doc;
-use mongodb::bson::from_document;
+use mongodb::bson::{Bson, doc,from_document,DateTime};
 use serde::Deserialize;
 use std::sync::Arc;
-
+use chrono::Utc;
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {
     id: u32,
@@ -25,27 +24,40 @@ pub async fn handler(
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestDocument>("quests");
+    let current_time = chrono::Utc::now().timestamp_millis();
     let pipeline = [
         doc! {
-            "$match": {
+            "$match": doc! {
                 "disabled": false,
-                "id": query.id
+                "start_time": doc! {
+                    "$lte": current_time
+                }
             }
         },
         doc! {
-            "$addFields": {
-                "expired": {
+            "$addFields": doc! {
+                "expired": doc! {
                     "$cond": [
-                        {
+                        doc! {
                             "$and": [
-                                { "$gte": ["$expiry", 0] },
-                                { "$lt": ["$expiry", "$$NOW"] },
+                                doc! {
+                                    "$gte": [
+                                        "$expiry",
+                                        0
+                                    ]
+                                },
+                                doc! {
+                                    "$lt": [
+                                        "$expiry",
+                                        "$$NOW"
+                                    ]
+                                }
                             ]
                         },
                         true,
                         false
                     ]
-                }
+                },
             }
         },
     ];
@@ -57,8 +69,7 @@ pub async fn handler(
                     Ok(document) => {
                         if let Ok(mut quest) = from_document::<QuestDocument>(document) {
                             if let Some(expiry) = &quest.expiry {
-                                let timestamp = expiry.timestamp_millis().to_string();
-                                quest.expiry_timestamp = Some(timestamp);
+                                quest.expiry_timestamp = Some(expiry.to_string());
                             }
                             return (StatusCode::OK, Json(quest)).into_response();
                         }

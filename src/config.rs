@@ -158,6 +158,11 @@ pub_struct!(Clone, Deserialize;  Achievements {
     carbonable: Achievement,
 });
 
+pub_struct!(Clone, Deserialize;  AuthSetup {
+    secret_key: String,
+    expiry_duration: i64,
+});
+
 pub_struct!(Clone, Deserialize;  Config {
     server: Server,
     database: Database,
@@ -174,6 +179,7 @@ pub_struct!(Clone, Deserialize;  Config {
     rhino: PublicApi,
     rango: Api,
     pyramid: ApiEndpoint,
+    auth:AuthSetup,
 });
 
 pub fn load() -> Config {
