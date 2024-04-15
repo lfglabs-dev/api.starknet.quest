@@ -36,6 +36,7 @@ jobs:
               echo "Repository exists, pulling changes..."
               cd \$REPO_PATH
               sudo docker-compose down
+              git reset --hard HEAD
               git pull
             else
               echo "Repository doesn't exist, cloning..."
