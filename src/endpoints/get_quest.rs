@@ -8,11 +8,12 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
+use chrono::Utc;
 use futures::StreamExt;
-use mongodb::bson::{Bson, doc,from_document,DateTime};
+use mongodb::bson::{doc, from_document, Bson, DateTime};
 use serde::Deserialize;
 use std::sync::Arc;
-use chrono::Utc;
+
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {
     id: u32,
@@ -31,7 +32,20 @@ pub async fn handler(
                 "disabled": false,
                 "start_time": doc! {
                     "$lte": current_time
+                },
+                "id": query.id,
+                "$or": [
+                doc! {
+                    "expiry": doc! {
+                        "$eq": null
+                    }
+                },
+                doc! {
+                    "expiry": doc! {
+                        "$gte": current_time
+                    }
                 }
+            ]
             }
         },
         doc! {

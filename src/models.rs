@@ -116,7 +116,6 @@ pub_struct!(Deserialize; UpdateBoostQuery {
     expiry: i64,
     name: String,
     img_url: String,
-    remove_boost: bool,
     quest_id: i32,
 });
 
