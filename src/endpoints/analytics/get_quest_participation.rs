@@ -72,13 +72,6 @@ pub async fn handler(
                 },
                 "pipeline": [
                     doc! {
-                        "$addFields": doc! {
-                            "refactoredTimestamp": doc! {
-                                "$toDate": "$timestamp"
-                            }
-                        }
-                    },
-                    doc! {
                         "$match": doc! {
                             "$expr": doc! {
                                 "$and": [

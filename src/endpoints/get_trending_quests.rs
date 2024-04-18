@@ -30,12 +30,16 @@ pub async fn handler(
         Some(addr) => addr.to_string(),
         None => "".to_string(),
     };
+    let current_time = chrono::Utc::now().timestamp_millis();
+
     let mut pipeline = vec![
         doc! {
             "$match": {
                 "disabled": false,
-                "hidden": false,
                 "is_trending": true,
+                "start_time": doc! {
+                    "$lte": current_time
+                }
             }
         },
         doc! {

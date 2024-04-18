@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 #[derive(Debug, Serialize, Deserialize)]
+
 pub struct GetQuestParticipantsQuery {
     quest_id: u32,
 }
@@ -49,29 +50,9 @@ pub async fn handler(
 
     let pipeline = vec![
         doc! {
-            "$addFields": doc! {
-                "refactoredTimestamp": doc! {
-                    "$toDate": "$timestamp"
-                }
-            }
-        },
-        doc! {
             "$match": {
-                "$expr": doc! {
-                    "$and": [
-                        doc! {
-                            "$in": [
-                                "$task_id",
-                                tasks_ids
-                            ]
-                        },
-                        doc! {
-                            "$lt": [
-                                "$refactoredTimestamp",
-                                "$$expiry"
-                            ]
-                        }
-                    ]
+                "task_id": {
+                    "$in": tasks_ids
                 }
             }
         },
