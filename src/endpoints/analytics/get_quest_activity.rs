@@ -182,9 +182,7 @@ pub async fn handler(
     {
         Ok(mut cursor) => {
             let mut day_wise_distribution = Vec::new();
-            println!("{:?}", cursor);
             while let Some(result) = cursor.next().await {
-                println!("{:?}", result);
                 match result {
                     Ok(document) => {
                         day_wise_distribution.push(document);
