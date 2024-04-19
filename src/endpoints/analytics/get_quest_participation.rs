@@ -17,14 +17,15 @@ pub struct GetQuestsQuery {
 }
 
 #[route(
-get,
-"/analytics/get_quest_participation",
-crate::endpoints::analytics::get_quest_participation
+    get,
+    "/analytics/get_quest_participation",
+    crate::endpoints::analytics::get_quest_participation
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
+    let current_time = chrono::Utc::now().timestamp_millis();
     let quest_id = query.id;
     let day_wise_distribution = vec![
         doc! {
@@ -81,12 +82,17 @@ pub async fn handler(
                                             "$$localIds"
                                         ]
                                     },
-                                    doc! {
-                                        "$lt": [
-                                            "$refactoredTimestamp",
-                                            "$$expiry"
-                                        ]
-                                    }
+                                   doc! {
+                                    "$lte": [
+                                        "$timestamp",
+                                        doc! {
+                                            "$ifNull": [
+                                                "$$expiry",
+                                                current_time
+                                            ]
+                                        }
+                                    ]
+                                }
                                 ]
                             }
                         }
@@ -144,20 +150,20 @@ pub async fn handler(
             }
         },
         doc! {
-            "$project": doc! {
-                "otherDetails": 0,
-                "_id":0,
-                "verify_endpoint": 0,
-                "verify_endpoint_type": 0,
-                "verify_redirect":0,
-                "href": 0,
-                "cta": 0,
-                "id": 0,
-                "quest_id": 0,
-                "questDetails": 0,
-                "expiry":0
-              }
-          },
+          "$project": doc! {
+              "otherDetails": 0,
+              "_id":0,
+              "verify_endpoint": 0,
+              "verify_endpoint_type": 0,
+              "verify_redirect":0,
+              "href": 0,
+              "cta": 0,
+              "id": 0,
+              "quest_id": 0,
+              "questDetails": 0,
+              "expiry":0
+            }
+        },
     ];
 
     match state

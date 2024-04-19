@@ -25,6 +25,7 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
+    let current_time = chrono::Utc::now().timestamp_millis();
     let quest_id = query.id;
     let day_wise_distribution = vec![
         doc! {
@@ -79,11 +80,16 @@ pub async fn handler(
                                         ]
                                     },
                                     doc! {
-                                        "$lt": [
-                                            "$refactoredTimestamp",
-                                            "$$expiry"
-                                        ]
-                                    }
+                                    "$lte": [
+                                        "$timestamp",
+                                        doc! {
+                                            "$ifNull": [
+                                                "$$expiry",
+                                                current_time
+                                            ]
+                                        }
+                                    ]
+                                }
                                 ]
                             }
                         }
