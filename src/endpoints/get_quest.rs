@@ -25,16 +25,12 @@ pub async fn handler(
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestDocument>("quests");
-    let current_time = chrono::Utc::now().timestamp_millis();
 
     let pipeline = [
         doc! {
             "$match": {
                 "disabled": false,
                 "id": query.id,
-                "start_time": doc! {
-                    "$lte": current_time
-                },
             }
         },
         doc! {
