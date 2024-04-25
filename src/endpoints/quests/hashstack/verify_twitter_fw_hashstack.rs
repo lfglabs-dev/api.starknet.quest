@@ -15,14 +15,14 @@ use serde_json::json;
 
 #[route(
 get,
-"/quests/hashstack/verify_twitter_fw_braavos",
+"/quests/hashstack/verify_twitter_fw",
 crate::endpoints::quests::braavos::zklend::verify_twitter_fw_braavos
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
-    let task_id = 110;
+    let task_id = 136;
     match state.upsert_completed_task(query.addr, task_id).await {
         Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
         Err(e) => get_error(format!("{}", e)),

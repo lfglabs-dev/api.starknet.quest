@@ -38,9 +38,9 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<DiscordOAuthCallbackQuery>,
 ) -> impl IntoResponse {
-    let quest_id = 20;
-    let task_id = 80;
-    let guild_id = "1002209435868987463";
+    let quest_id = 28;
+    let task_id = 137;
+    let guild_id = "907151419650482217";
     let authorization_code = &query.code;
     let error_redirect_uri = format!(
         "{}/quest/{}?task_id={}&res=false",
@@ -55,7 +55,7 @@ pub async fn handler(
         (
             "redirect_uri",
             &format!(
-                "{}/quests/nostra/discord_fw_callback",
+                "{}/quests/hashstack/discord_fw_callback",
                 state.conf.variables.api_link
             ),
         ),
@@ -119,7 +119,7 @@ pub async fn handler(
 
     get_error_redirect(
         error_redirect_uri,
-        "You're not part of Nostra's Discord server".to_string(),
+        "You're not part of Hashstack's Discord server".to_string(),
     )
 }
 
