@@ -24,6 +24,8 @@ pub async fn handler(
     Query(query): Query<GetQuestForBoostQuery>,
 ) -> impl IntoResponse {
     let boost_id = query.boost_id;
+    let current_time = chrono::Utc::now().timestamp_millis();
+
     let pipeline = vec![
         doc! {
             "$match": doc! {
@@ -87,7 +89,7 @@ pub async fn handler(
                                         {
                                             "$and": [
                                                 { "$gte": ["$$item.expiry", 0] },
-                                                { "$lt": ["$$item.expiry", "$$NOW"] },
+                                                { "$lt": ["$$item.expiry", current_time] },
                                             ]
                                         },
                                         true,

@@ -49,7 +49,7 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                                 doc! {
                                     "$lt": [
                                         "$expiry",
-                                        "$$NOW"
+                                    current_time
                                     ]
                                 }
                             ]

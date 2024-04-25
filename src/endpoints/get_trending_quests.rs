@@ -49,7 +49,7 @@ pub async fn handler(
                         {
                             "$and": [
                                 { "$gte": ["$expiry", 0] },
-                                { "$lt": ["$expiry", "$$NOW"] },
+                                { "$lt": ["$expiry", current_time] },
                             ]
                         },
                         true,

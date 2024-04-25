@@ -25,6 +25,7 @@ pub async fn handler(
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestDocument>("quests");
+    let current_time = chrono::Utc::now().timestamp_millis();
 
     let pipeline = [
         doc! {
@@ -48,7 +49,7 @@ pub async fn handler(
                                 doc! {
                                     "$lt": [
                                         "$expiry",
-                                        "$$NOW"
+                                        current_time
                                     ]
                                 }
                             ]
