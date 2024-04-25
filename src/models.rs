@@ -1,4 +1,4 @@
-use mongodb::{bson, Database};
+use mongodb::{Database};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use starknet::{
@@ -34,13 +34,15 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     rewards_nfts: Vec<NFTItem>,
     img_card: String,
     title_card: String,
-    hidden: bool,
+    hidden: Option<bool>,
     disabled: bool,
-    expiry: Option<bson::DateTime>,
+        expiry: Option<i64>,
     expiry_timestamp: Option<String>,
     mandatory_domain: Option<String>,
     expired: Option<bool>,
     experience: i64,
+        start_time: i64,
+
 });
 
 pub_struct!(Deserialize; CompletedTasks {

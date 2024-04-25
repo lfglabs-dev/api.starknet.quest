@@ -23,11 +23,15 @@ pub struct NFTItem {
 
 #[route(get, "/get_quests", crate::endpoints::get_quests)]
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let current_time = chrono::Utc::now().timestamp_millis();
+
     let pipeline = vec![
         doc! {
             "$match": {
                 "disabled": false,
-                "hidden": false,
+                 "start_time":  {
+                "$lte":current_time
+                }
             }
         },
         doc! {
@@ -36,8 +40,18 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                     "$cond": [
                         {
                             "$and": [
-                                { "$gte": ["$expiry", 0] },
-                                { "$lt": ["$expiry", "$$NOW"] },
+                                doc! {
+                                    "$gte": [
+                                        "$expiry",
+                                        0
+                                    ]
+                                },
+                                doc! {
+                                    "$lt": [
+                                        "$expiry",
+                                        "$$NOW"
+                                    ]
+                                }
                             ]
                         },
                         true,
@@ -57,8 +71,7 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                     Ok(document) => {
                         if let Ok(mut quest) = from_document::<QuestDocument>(document) {
                             if let Some(expiry) = &quest.expiry {
-                                let timestamp = expiry.timestamp_millis().to_string();
-                                quest.expiry_timestamp = Some(timestamp);
+                                quest.expiry_timestamp = Some(expiry.to_string());
                             }
                             quests.push(quest);
                         }
