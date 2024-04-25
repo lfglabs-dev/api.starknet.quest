@@ -17,14 +17,15 @@ pub struct GetQuestsQuery {
 }
 
 #[route(
-    get,
-    "/analytics/get_quest_activity",
-    crate::endpoints::analytics::get_quest_activity
+get,
+"/analytics/get_quest_activity",
+crate::endpoints::analytics::get_quest_activity
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
+    let current_time = chrono::Utc::now().timestamp_millis();
     let quest_id = query.id;
     let day_wise_distribution = vec![
         doc! {
@@ -33,8 +34,28 @@ pub async fn handler(
             }
         },
         doc! {
+            "$lookup": doc! {
+                "from": "quests",
+                "localField": "quest_id",
+                "foreignField": "id",
+                "as": "questDetails"
+            }
+        },
+        doc! {
+            "$set": doc! {
+                "expiry": doc! {
+                    "$arrayElemAt": [
+                        "$questDetails.expiry",
+                        0
+                    ]
+                }
+            }
+        },
+        doc! {
             "$group": doc! {
-                "_id": null,
+                "_id": doc! {
+                "expiry": "$expiry"
+            },
                 "ids": doc! {
                     "$push": "$id"
                 }
@@ -43,8 +64,37 @@ pub async fn handler(
         doc! {
             "$lookup": doc! {
                 "from": "completed_tasks",
-                "localField": "ids",
-                "foreignField": "task_id",
+                "let": doc! {
+                    "localIds": "$ids",
+                    "expiry": "$_id.expiry"
+                },
+                "pipeline": [
+                    doc! {
+                        "$match": doc! {
+                            "$expr": doc! {
+                                "$and": [
+                                    doc! {
+                                        "$in": [
+                                            "$task_id",
+                                            "$$localIds"
+                                        ]
+                                    },
+                                    doc! {
+                                    "$lte": [
+                                        "$timestamp",
+                                        doc! {
+                                            "$ifNull": [
+                                                "$$expiry",
+                                                current_time
+                                            ]
+                                        }
+                                    ]
+                                }
+                                ]
+                            }
+                        }
+                    }
+                ],
                 "as": "matching_documents"
             }
         },
