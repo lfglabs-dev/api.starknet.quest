@@ -437,8 +437,8 @@ pub async fn handler(
         Some(40) => (
             StatusCode::OK,
             Json(TokenURI {
-                name: "Hashstack Empire Quest NFT ".into(),
-                description: "A Hashstack Empire Quest NFT won for successfully finishing the Quest".into(),
+                name: "Hashstack Winquest NFT ".into(),
+                description: "A Hashstack Winquest NFT won for successfully finishing the Quest".into(),
                 image: format!("{}/hashstack/hashstackEmpire.webp", state.conf.variables.app_link),
                 attributes: None,
             }),
