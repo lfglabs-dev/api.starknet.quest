@@ -50,6 +50,9 @@ api_key = "xxxxxx"
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
 staking_contract="0xXXXXXXXXXXXX"
+[quests.hashstack]
+token_address="0xXXXXXXXXXXXX"
+contract = "0xXXXXXXXXXXXX"
 
 [rhino]
 api_endpoint = "xxxxx"
