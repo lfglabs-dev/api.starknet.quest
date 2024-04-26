@@ -434,6 +434,16 @@ pub async fn handler(
             }),
         ).into_response(),
 
+        Some(40) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Hashstack Winquest NFT ".into(),
+                description: "A Hashstack Winquest NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/hashstack/hashstackEmpire.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
 
         _ => get_error("Error, this level is not correct".into()),
     }
