@@ -20,3 +20,4 @@ pub mod zklend;
 pub mod rhino;
 pub mod rango;
 pub mod nimbora;
+pub mod hashstack;

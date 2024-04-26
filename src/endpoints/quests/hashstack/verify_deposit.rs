@@ -20,33 +20,35 @@ use starknet::{
 
 #[route(
 get,
-"/quests/braavos/carbonable/verify_deposit",
-crate::endpoints::quests::braavos::carbonable::verify_deposit
+"/quests/hashstack/verify_deposit",
+crate::endpoints::quests::hashstack::verify_deposit
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
-    let task_id = 130;
+    let task_id = 138;
     let addr = &query.addr;
-    let calldata =vec![*addr];
+    let token_id = state.conf.quests.hashstack.token_address;
+    let calldata = vec![token_id, *addr];
 
     let call_result = state
         .provider
         .call(
             FunctionCall {
-                contract_address: state.conf.quests.carbonable.contract,
-                entry_point_selector: selector!("balanceOf"),
+                contract_address: state.conf.quests.hashstack.contract,
+                entry_point_selector: selector!("get_user_deposit_stats_info"),
                 calldata,
             },
             BlockId::Tag(BlockTag::Latest),
         )
         .await;
 
+
     match call_result {
         Ok(result) => {
-            if result[0] == FieldElement::ZERO {
-                get_error("You didn't invest on carbonable.".to_string())
+            if result[0] < FieldElement::from_dec_str("1000000000").unwrap() {
+                get_error("You didn't invest on hashstack.".to_string())
             } else {
                 match state.upsert_completed_task(query.addr, task_id).await {
                     Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),

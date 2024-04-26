@@ -29,7 +29,7 @@ pub struct ClaimableQuery {
 #[route(
 get,
 "/quests/hashstack/claimable",
-crate::endpoints::quests::braavos::zklend::claimable
+crate::endpoints::quests::hashstack::claimable
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

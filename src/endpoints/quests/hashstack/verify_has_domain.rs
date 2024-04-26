@@ -12,7 +12,7 @@ use std::sync::Arc;
 #[route(
 get,
 "/quests/hashstack/verify_has_domain",
-crate::endpoints::quests::braavos::carbonable::verify_has_domain
+crate::endpoints::quests::hashstack::verify_has_domain
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

@@ -16,7 +16,7 @@ use serde_json::json;
 #[route(
 get,
 "/quests/hashstack/verify_twitter_rt",
-crate::endpoints::quests::braavos::zklend::verify_twitter_rt
+crate::endpoints::quests::hashstack::verify_twitter_rw
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
