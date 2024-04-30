@@ -26,16 +26,12 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -T $SSH_USER@$SSH_HOST << EOF
             export REPO_PATH=$REPO_PATH
-
+            export GIT_SSH_COMMAND='ssh -i ~/.ssh/github_read -o IdentitiesOnly=yes'
+            
             # Configure AWS CLI
             aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
             aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
             aws configure set default.region $AWS_DEFAULT_REGION
-
-            # Configure SSH
-            echo "configuring ssh"
-            eval `ssh-agent -s`
-            ssh-add ~/.ssh/github_read
 
             if [ -d "\$REPO_PATH/.git" ]; then
               echo "Repository exists, pulling changes..."
@@ -46,7 +42,7 @@ jobs:
             else
               echo "Repository doesn't exist, cloning..."
               mkdir -p \$REPO_PATH
-              GIT_SSH_COMMAND='ssh -i ~/.ssh/github_read' git clone git@github.com:starknet-id/api.starknet.quest.git \$REPO_PATH
+              git clone git@github.com:starknet-id/api.starknet.quest.git \$REPO_PATH
               cd \$REPO_PATH
             fi
 
