@@ -32,6 +32,10 @@ jobs:
             aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
             aws configure set default.region $AWS_DEFAULT_REGION
 
+            # Configure SSH
+            eval `ssh-agent -s`
+            ssh-add ~/.ssh/github_read
+
             if [ -d "\$REPO_PATH/.git" ]; then
               echo "Repository exists, pulling changes..."
               cd \$REPO_PATH
