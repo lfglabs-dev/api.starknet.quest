@@ -33,6 +33,7 @@ jobs:
             aws configure set default.region $AWS_DEFAULT_REGION
 
             # Configure SSH
+            echo "configuring ssh"
             eval `ssh-agent -s`
             ssh-add ~/.ssh/github_read
 
