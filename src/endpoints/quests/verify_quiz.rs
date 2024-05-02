@@ -34,6 +34,7 @@ fn get_task_id(quiz_name: &str) -> Option<u32> {
         "rhino" => Some(100),
         "nimbora" => Some(89),
         "nostra2" => Some(132),
+        "haiko" => Some(140),
         _ => None,
     }
 }
