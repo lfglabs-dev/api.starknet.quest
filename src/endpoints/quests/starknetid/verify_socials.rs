@@ -58,7 +58,7 @@ pub async fn handler(
             &state,
             state.conf.starknetid_contracts.naming_contract,
             selector!("address_to_domain"),
-            vec![*addr],
+            vec![*addr, FieldElement::ZERO],
         )
         .await?;
 
