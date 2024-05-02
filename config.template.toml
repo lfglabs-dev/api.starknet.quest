@@ -53,6 +53,8 @@ api_key = "xxxxxx"
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
 staking_contract="0xXXXXXXXXXXXX"
+[quests.haiko]
+api_endpoint = "xxxxxx"
 
 [rhino]
 api_endpoint = "xxxxx"
