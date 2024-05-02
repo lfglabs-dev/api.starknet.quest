@@ -1090,3 +1090,43 @@ options = [
     "$500 million",
 ]
 correct_answers = [*]
+
+
+[quizzes.haiko]
+name = "Strategist quiz"
+desc = "Take part in our Quiz to test your knowledge about Haiko, and you'll have a chance to win 100 USDC."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Nostra, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.haiko.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is Haiko?"
+options = [
+    "An automated market making platform featuring custom strategies",
+    "A lending protocol",
+    "A stablecoin provider",
+    "An online e-commerce site",
+]
+correct_answers = [*]
+
+[[quizzes.haiko.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What key benefits to strategists offer?"
+options = [
+    "Automatically rebalances positions so they keep earning yield",
+    "Increases transaction fees",
+    "Doubles my rewards from providing liquidity",
+    "Restricts me from withdrawing liquidity",
+]
+correct_answers = [*]
+
+[[quizzes.haiko.questions]]
+kind = "text_choice"
+layout = "default"
+question = "Do I need to select a price range to deposit liquidity to a strategy"
+options = [
+    "No, the strategy does this automatically",
+    "Yes",
+]
+correct_answers = [*]
