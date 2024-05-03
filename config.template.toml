@@ -1113,7 +1113,7 @@ correct_answers = [*]
 [[quizzes.haiko.questions]]
 kind = "text_choice"
 layout = "default"
-question = "What key benefits to strategists offer?"
+question = "What key benefits do strategies offer?"
 options = [
     "Increases transaction fees",
     "Doubles my rewards from providing liquidity",
