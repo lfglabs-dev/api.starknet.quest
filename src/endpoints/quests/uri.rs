@@ -444,6 +444,16 @@ pub async fn handler(
             }),
         ).into_response(),
 
+        Some(41) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Haiko Strategist NFT ".into(),
+                description: "A Haiko Strategist NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/haiko/haikoStrategist.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
 
         _ => get_error("Error, this level is not correct".into()),
     }
