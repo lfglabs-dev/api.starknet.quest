@@ -6,9 +6,15 @@ use crate::{
     utils::{get_error, CompletedTasksTrait},
 };
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use axum_auto_routes::route;
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
+#[route(
+    post,
+    "/quests/ekubo/verify_quiz",
+    crate::endpoints::quests::ekubo::verify_quiz
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     body: Json<VerifyQuizQuery>,

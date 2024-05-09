@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::utils::fetch_json_from_url;
 use crate::{
     models::{AppState, VerifyQuery},
     utils::{get_error, to_hex, CompletedTasksTrait},
@@ -10,10 +11,15 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use serde_json::json;
 use starknet::core::types::FieldElement;
-use crate::utils::fetch_json_from_url;
 
+#[route(
+    get,
+    "/quests/element/briq/verify_own_briq",
+    crate::endpoints::quests::element::briq::verify_own_briq
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
@@ -24,7 +30,7 @@ pub async fn handler(
     }
 
     let url = format!(
-        "https://api.briq.construction/v1/user/data/starknet-mainnet/{}",
+        "https://api.briq.construction/v1/user/data/starknet-mainnet-dojo/{}",
         to_hex(query.addr)
     );
     match fetch_json_from_url(url).await {
@@ -35,7 +41,7 @@ pub async fn handler(
                         for set in sets_array.iter() {
                             if let serde_json::Value::String(set_str) = set {
                                 let url = format!(
-                                    "https://api.briq.construction/v1/metadata/starknet-mainnet/{}",
+                                    "https://api.briq.construction/v1/metadata/starknet-mainnet-dojo/{}",
                                     set_str
                                 );
                                 match fetch_json_from_url(url).await {

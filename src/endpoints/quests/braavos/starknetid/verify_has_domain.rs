@@ -6,8 +6,14 @@ use axum::{
     extract::{Query, State},
     response::IntoResponse,
 };
+use axum_auto_routes::route;
 use std::sync::Arc;
 
+#[route(
+    get,
+    "/quests/braavos/starknetid/verify_has_domain",
+    crate::endpoints::quests::braavos::starknetid::verify_has_domain
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

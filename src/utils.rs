@@ -6,8 +6,9 @@ use axum::{
     body::Body,
     http::{Response as HttpResponse, StatusCode, Uri},
     response::{IntoResponse, Response},
+    Router,
 };
-use chrono::Utc;
+use chrono::{Duration as dur, Utc};
 use futures::TryStreamExt;
 use mongodb::{
     bson::doc, options::UpdateOptions, results::UpdateResult, Collection, Cursor, Database,
@@ -22,9 +23,9 @@ use starknet::{
     },
     signers::LocalWallet,
 };
-use std::fmt::Write;
 use std::result::Result;
 use std::str::FromStr;
+use std::{fmt::Write, sync::Arc};
 use tokio::time::{sleep, Duration};
 
 #[macro_export]
@@ -44,7 +45,10 @@ pub async fn get_nft(
     nft_level: u32,
     signer: &LocalWallet,
 ) -> Result<(u64, Signature), Box<dyn std::error::Error + Send + Sync>> {
-    let token_id = nft_level as u64 + 100 * (rand::random::<u64>() % (2u64.pow(32)));
+    let token_id = match nft_level < 100 {
+        true => nft_level as u64 + 100 * (rand::random::<u64>() % (2u64.pow(32))),
+        false => (rand::random::<u64>() + nft_level as u64 * 0x2000000) * 100 + 99,
+    };
     let hashed = pedersen_hash(
         &pedersen_hash(
             &pedersen_hash(
@@ -121,8 +125,10 @@ impl CompletedTasksTrait for AppState {
     ) -> Result<UpdateResult, mongodb::error::Error> {
         let completed_tasks_collection: Collection<CompletedTasks> =
             self.db.collection("completed_tasks");
+        let created_at = Utc::now().timestamp_millis();
         let filter = doc! { "address": addr.to_string(), "task_id": task_id };
-        let update = doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id } };
+        let update = doc! { "$setOnInsert": { "address": addr.to_string(), "task_id": task_id , "timestamp":created_at} };
+
         let options = UpdateOptions::builder().upsert(true).build();
 
         let result = completed_tasks_collection
@@ -268,6 +274,12 @@ pub trait AchievementsTrait {
         achievement_id: u32,
     ) -> Result<UpdateResult, mongodb::error::Error>;
 
+    async fn upsert_claimed_achievement(
+        &self,
+        addr: String,
+        achievement_id: u32,
+    ) -> Result<UpdateResult, mongodb::error::Error>;
+
     async fn get_achievement(
         &self,
         achievement_id: u32,
@@ -282,9 +294,10 @@ impl AchievementsTrait for AppState {
         achievement_id: u32,
     ) -> Result<UpdateResult, mongodb::error::Error> {
         let achieved_collection: Collection<CompletedTasks> = self.db.collection("achieved");
+        let created_at = Utc::now().timestamp_millis();
         let filter = doc! { "addr": addr.to_string(), "achievement_id": achievement_id };
         let update =
-            doc! { "$setOnInsert": { "addr": addr.to_string(), "achievement_id": achievement_id } };
+            doc! { "$setOnInsert": { "addr": addr.to_string(), "achievement_id": achievement_id , "timestamp":created_at } };
         let options = UpdateOptions::builder().upsert(true).build();
 
         let result = achieved_collection
@@ -326,6 +339,23 @@ impl AchievementsTrait for AppState {
         Ok(result)
     }
 
+    async fn upsert_claimed_achievement(
+        &self,
+        addr: String,
+        achievement_id: u32,
+    ) -> Result<UpdateResult, mongodb::error::Error> {
+        let claimed_achievements_collection: Collection<CompletedTasks> =
+            self.db.collection("claimed_achievements");
+        let filter = doc! { "address": addr.to_string(), "id": achievement_id };
+        let update = doc! { "$setOnInsert": { "address": addr.to_string(), "id": achievement_id } };
+        let options = UpdateOptions::builder().upsert(true).build();
+
+        let result = claimed_achievements_collection
+            .update_one(filter, update, options)
+            .await;
+        result
+    }
+
     async fn get_achievement(
         &self,
         achievement_id: u32,
@@ -347,6 +377,16 @@ pub trait DeployedTimesTrait {
         addr: FieldElement,
         timestamp: u32,
     ) -> Result<UpdateResult, mongodb::error::Error>;
+}
+
+pub fn get_timestamp_from_days(days: i64) -> i64 {
+    // take input as week , month and all time and return the timestamp range
+    let time_gap = if days > 0 {
+        (Utc::now() - dur::days(days)).timestamp_millis()
+    } else {
+        0
+    };
+    time_gap
 }
 
 #[async_trait]
@@ -466,10 +506,12 @@ pub async fn fetch_and_update_boosts_winner(
                 },
             }
         }];
-
         match boost_collection.aggregate(pipeline, None).await {
             Ok(mut cursor) => {
                 while let Some(doc) = cursor.try_next().await.unwrap() {
+                    let mut num_of_winners = doc.get("num_of_winners").unwrap().as_i32().unwrap();
+                    // use this variable to add some extra winners so that we have some extra winners incase anyone user repeats
+                    let extra_winners = 10;
                     match doc.get("quests") {
                         Some(quests_res) => {
                             let quests = quests_res.as_array().unwrap();
@@ -560,7 +602,7 @@ pub async fn fetch_and_update_boosts_winner(
                                     },
                                     doc! {
                                         "$sample":{
-                                            "size":1
+                                            "size":num_of_winners+extra_winners
                                         }
                                     },
                                 ];
@@ -585,31 +627,55 @@ pub async fn fetch_and_update_boosts_winner(
                             if address_list.len() == 0 {
                                 continue;
                             }
-                            let random_index;
+                            let mut random_index;
+                            let mut winner_array: Vec<String> = Vec::new();
 
                             // if length of address list is 1 then select the only user
                             if address_list.len() == 1 {
-                                random_index = 0;
+                                let winner = &address_list[0].to_string();
+                                let formatted_winner = FieldElement::from_str(winner).unwrap();
+                                winner_array.push(to_hex(formatted_winner));
                             }
-
-                            // else select a random user
+                            // else select random users
                             else {
-                                let mut rng = rand::thread_rng();
-                                let die = Uniform::new(0, address_list.len());
-                                random_index = die.sample(&mut rng);
-                            }
-                            let winner = &address_list[random_index].to_string();
+                                let mut current_winner_index = 0;
+                                // handle case when number of winners is greater than number of users then assign all users as winners
+                                if address_list.len() < num_of_winners as usize {
+                                    num_of_winners = address_list.len() as i32;
+                                }
+                                let mut iter_index = 0;
+                                loop {
+                                    let mut rng = rand::thread_rng();
 
-                            // save winner in database
+                                    let die = Uniform::new(0, address_list.len());
+                                    random_index = die.sample(&mut rng);
+
+                                    let winner = &address_list[random_index].to_string();
+                                    let formatted_winner = FieldElement::from_str(winner).unwrap();
+                                    if !winner_array.contains(&to_hex(formatted_winner)) {
+                                        winner_array.push(to_hex(formatted_winner));
+                                        current_winner_index += 1;
+                                    }
+                                    iter_index += 1;
+                                    if current_winner_index == (num_of_winners) as usize
+                                        || iter_index == address_list.len()
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+
                             let filter = doc! { "id": doc.get("id").unwrap().as_i32().unwrap() };
-                            let update = doc! { "$set": { "winner": winner } };
+                            let update = doc! { "$set": { "winner": winner_array  } };
                             let options = UpdateOptions::builder().upsert(true).build();
                             boost_collection
                                 .update_one(filter, update, options)
                                 .await
                                 .unwrap();
                         }
-                        None => {}
+                        None => {
+                            println!("No winners found");
+                        }
                     }
                 }
             }
@@ -630,3 +696,25 @@ pub fn run_boosts_raffle(db: &Database, interval: u64) {
     ));
 }
 
+// required for axum_auto_routes
+pub trait WithState: Send {
+    fn to_router(self: Box<Self>, shared_state: Arc<AppState>) -> Router;
+
+    fn box_clone(&self) -> Box<dyn WithState>;
+}
+
+impl WithState for Router<Arc<AppState>, Body> {
+    fn to_router(self: Box<Self>, shared_state: Arc<AppState>) -> Router {
+        self.with_state(shared_state)
+    }
+
+    fn box_clone(&self) -> Box<dyn WithState> {
+        Box::new((*self).clone())
+    }
+}
+
+impl Clone for Box<dyn WithState> {
+    fn clone(&self) -> Box<dyn WithState> {
+        self.box_clone()
+    }
+}

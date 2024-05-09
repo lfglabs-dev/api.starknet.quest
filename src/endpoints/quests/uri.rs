@@ -6,6 +6,7 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
+use axum_auto_routes::route;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -28,6 +29,7 @@ pub struct LevelQuery {
     level: Option<String>,
 }
 
+#[route(get, "/quests/uri", crate::endpoints::quests::uri)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(level_query): Query<LevelQuery>,
@@ -329,7 +331,120 @@ pub async fn handler(
             }),
         )
             .into_response(),
-    
+      
+        Some(29) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Starknet Pro Score x Braavos Wallet Quest NFT".into(),
+                description: "This Starknet commemorative Non-Fungible Token represents the first steps into the Starknet universe. By using Braavos Wallet and becoming a Whisperer of Braavos, you are building solid foundations for your Starknet experience.".into(),
+                image: format!("{}/braavos/wallet.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+ 
+        Some(30) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Rango Exchange Castle Bridge NFT".into(),
+                description: "A Rango Exchange Quest NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/rango/bridge.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
+       Some(31) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "The Silver Rhino NFT".into(),
+                description: "Completing the Quest successfully makes you eligible to win a Silver Rhino NFT".into(),
+                image: format!("{}/rhino/silverRhino.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        )
+            .into_response(),
+
+        Some(32) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Starknet Pro Score x Pyramid Market Quest NFT".into(),
+                description: "This Starknet commemorative Non-Fungible Token represents the first steps into the Starknet universe. By using Pyramid NFT Marketplace, a new NFT Marketplace, you are building solid foundations for your Starknet experience.".into(),
+                image: format!("{}/braavos/pyramid.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
+        Some(33) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Starknet Pro Score x zkLend Quest NFT".into(),
+                description: "This Starknet commemorative Non-Fungible Token represents the first steps into the Starknet universe. By using zkLend, the native money-market protocol on Starknet, you are building solid foundations for your Starknet experience.".into(),
+                image: format!("{}/braavos/zklend.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
+        Some(36) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Starknet Pro Score x Realms: Loot Survivor Quest NFT".into(),
+                description: "This Starknet commemorative Non-Fungible Token represents the first steps into the Starknet universe. By playing Loot Survivor, the first Loot adventure game exploring the Play2Die mechanic on Starknet, you are building solid foundations for your Starknet experience.".into(),
+                image: format!("{}/braavos/realms.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
+        Some(35) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "The Nimbora Pool".into(),
+                description: "A Nimbora NFT won for successfully finishing the Quest. Nimbora is bridging Ethereum's Layer 1 and Layer 2 seamlessly for cost-efficient DeFi interactions with improved user experience and uncompromised pooling.".into(),
+                image: format!("{}/nimbora/pool.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
+        Some(37) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Golden Castle Bridge".into(),
+                description: "A Rango Exchange Golden Castle Bridge NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/rango/golden_castle_bridge.webp", state.conf.variables.app_link),
+               attributes: None,
+            }),
+        ).into_response(),
+
+        Some(38) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Starknet Pro Score x Carbonable Quest NFT    ".into(),
+                description: "This Starknet commemorative Non-Fungible Token represents the first steps into the Starknet universe. By interacting with Carbonable, the first real world asset platform on Starknet, you are building solid foundations for your Starknet experience.".into(),
+                image: format!("{}/braavos/carbonable.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
+        Some(39) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Nostra - Mafia Boss Cigar NFT".into(),
+                description: "A Nostra - Mafia Boss Cigar NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/nostra/cigar.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
+        Some(40) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Hashstack Winquest NFT ".into(),
+                description: "A Hashstack Winquest NFT won for successfully finishing the Quest".into(),
+                image: format!("{}/hashstack/hashstackEmpire.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
+
         _ => get_error("Error, this level is not correct".into()),
     }
 }

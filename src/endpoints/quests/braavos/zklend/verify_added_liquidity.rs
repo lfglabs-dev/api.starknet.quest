@@ -10,6 +10,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use serde_json::json;
 use starknet::{
     core::types::{BlockId, BlockTag, FieldElement, FunctionCall},
@@ -17,21 +18,26 @@ use starknet::{
     providers::Provider,
 };
 
+#[route(
+    get,
+    "/quests/braavos/zklend/verify_added_liquidity",
+    crate::endpoints::quests::braavos::zklend::verify_added_liquidity
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
-    let task_id = 81;
+    let task_id = 112;
     let addr = &query.addr;
-    let mut calldata = vec![addr.clone(), state.conf.quests.nostra.pairs.len().into()];
-    calldata.append(&mut state.conf.quests.nostra.pairs.clone());
+    let mut calldata = vec![addr.clone(), state.conf.quests.zklend.pairs.len().into()];
+    calldata.append(&mut state.conf.quests.zklend.pairs.clone());
 
     // get starkname from address
     let call_result = state
         .provider
         .call(
             FunctionCall {
-                contract_address: state.conf.quests.nostra.utils_contract,
+                contract_address: state.conf.quests.zklend.utils_contract,
                 entry_point_selector: selector!("sum_balances"),
                 calldata,
             },
@@ -42,7 +48,7 @@ pub async fn handler(
     match call_result {
         Ok(result) => {
             if result[0] == FieldElement::ZERO {
-                get_error("You didn't deposit liquidity.".to_string())
+                get_error("You didn't deposit liquidity on zkLend.".to_string())
             } else {
                 match state.upsert_completed_task(query.addr, task_id).await {
                     Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),

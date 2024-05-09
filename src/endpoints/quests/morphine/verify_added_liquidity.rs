@@ -10,6 +10,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use serde_json::json;
 use starknet::{
     core::types::{BlockId, BlockTag, FieldElement, FunctionCall},
@@ -34,6 +35,11 @@ lazy_static::lazy_static! {
     ];
 }
 
+#[route(
+    get,
+    "/quests/morphine/verify_added_liquidity",
+    crate::endpoints::quests::morphine::verify_added_liquidity
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

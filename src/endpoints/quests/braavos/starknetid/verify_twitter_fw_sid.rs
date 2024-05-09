@@ -10,8 +10,14 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use serde_json::json;
 
+#[route(
+    get,
+    "/quests/braavos/starknetid/verify_twitter_fw_sid",
+    crate::endpoints::quests::braavos::starknetid::verify_twitter_fw_sid
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

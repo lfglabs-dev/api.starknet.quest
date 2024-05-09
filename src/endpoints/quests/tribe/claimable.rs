@@ -10,6 +10,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
@@ -47,6 +48,12 @@ pub struct ClaimableQuery {
 }
 
 const QUEST_ID: u32 = 4;
+
+#[route(
+    get,
+    "/quests/tribe/claimable",
+    crate::endpoints::quests::tribe::claimable
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<ClaimableQuery>,

@@ -10,6 +10,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
@@ -24,6 +25,11 @@ pub struct StarknetIdQuery {
     addr: FieldElement,
 }
 
+#[route(
+    get,
+    "/quests/starknetid/verify_has_domain",
+    crate::endpoints::quests::starknetid::verify_has_domain
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<StarknetIdQuery>,
@@ -38,7 +44,7 @@ pub async fn handler(
             FunctionCall {
                 contract_address: state.conf.starknetid_contracts.naming_contract,
                 entry_point_selector: selector!("address_to_domain"),
-                calldata: vec![*addr],
+                calldata: vec![*addr, FieldElement::ZERO],
             },
             BlockId::Tag(BlockTag::Latest),
         )

@@ -9,13 +9,14 @@ use axum::{
     extract::{Query, State},
     response::IntoResponse,
 };
+use axum_auto_routes::route;
 use mongodb::bson::doc;
 use reqwest::header::AUTHORIZATION;
 use serde::Deserialize;
 use starknet::core::types::FieldElement;
 
 #[derive(Deserialize)]
-pub struct DiscordOAuthCallbackQuery {
+pub struct TwitterOAuthCallbackQuery {
     code: String,
     state: FieldElement,
 }
@@ -27,13 +28,18 @@ pub struct Guild {
     name: String,
 }
 
+#[route(
+    get,
+    "/quests/nimbora/discord_fw_callback",
+    crate::endpoints::quests::nimbora::discord_fw_callback
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    Query(query): Query<DiscordOAuthCallbackQuery>,
+    Query(query): Query<TwitterOAuthCallbackQuery>,
 ) -> impl IntoResponse {
-    let quest_id = 20;
-    let task_id = 80;
-    let guild_id = "1002209435868987463";
+    let quest_id = 22;
+    let task_id = 90;
+    let guild_id = "1157580917917892640";
     let authorization_code = &query.code;
     let error_redirect_uri = format!(
         "{}/quest/{}?task_id={}&res=false",
@@ -48,7 +54,7 @@ pub async fn handler(
         (
             "redirect_uri",
             &format!(
-                "{}/quests/nostra/discord_fw_callback",
+                "{}/quests/nimbora/discord_fw_callback",
                 state.conf.variables.api_link
             ),
         ),
@@ -97,6 +103,7 @@ pub async fn handler(
 
     for guild in response {
         if guild.id == guild_id {
+            print!("Checking guild: {:?}", guild);
             match state.upsert_completed_task(query.state, task_id).await {
                 Ok(_) => {
                     let redirect_uri = format!(
@@ -112,7 +119,7 @@ pub async fn handler(
 
     get_error_redirect(
         error_redirect_uri,
-        "You're not part of Nostra's Discord server".to_string(),
+        "You're not part of Nimbora's Discord server".to_string(),
     )
 }
 
@@ -143,3 +150,5 @@ async fn exchange_authorization_code(
         }
     }
 }
+
+

@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::utils::fetch_json_from_url;
 use crate::{
     models::{AchievedDocument, AppState, VerifyAchievementQuery},
     utils::{get_error, to_hex, AchievementsTrait},
@@ -10,11 +11,16 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use mongodb::bson::doc;
 use serde_json::json;
 use starknet::core::types::FieldElement;
-use crate::utils::fetch_json_from_url;
 
+#[route(
+    get,
+    "/achievements/verify_briq",
+    crate::endpoints::achievements::verify_briq
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyAchievementQuery>,
@@ -40,18 +46,18 @@ pub async fn handler(
         Ok(Some(_)) => (StatusCode::OK, Json(json!({"achieved": true}))).into_response(),
         Ok(None) => {
             let url = format!(
-                "https://api.briq.construction/v1/user/data/starknet-mainnet/{}",
+                "https://api.briq.construction/v1/user/data/starknet-mainnet-dojo/{}",
                 to_hex(addr)
             );
             match fetch_json_from_url(url).await {
                 Ok(response) => {
                     if let Some(sets) = response.get("sets") {
                         match sets {
-                            serde_json::Value::Array(sets_array ) => {
+                            serde_json::Value::Array(sets_array) => {
                                 for set in sets_array.iter() {
                                     if let serde_json::Value::String(set_str) = set {
                                         let url = format!(
-                                            "https://api.briq.construction/v1/metadata/starknet-mainnet/{}",
+                                            "https://api.briq.construction/v1/metadata/starknet-mainnet-dojo/{}",
                                             set_str
                                         );
                                         match fetch_json_from_url(url).await {

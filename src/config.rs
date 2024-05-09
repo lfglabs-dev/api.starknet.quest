@@ -36,12 +36,23 @@ pub_struct!(Clone, Deserialize;  StarknetId {
     account_id: String,
 });
 
+pub_struct!(Clone, Deserialize;  Nostra {
+    utils_contract: FieldElement,
+    pairs : Vec<FieldElement>,
+    staking_contract: FieldElement,
+});
+
 pub_struct!(Clone, Deserialize;  Pairs {
     utils_contract: FieldElement,
     pairs : Vec<FieldElement>,
 });
 
 pub_struct!(Clone, Deserialize;  Contract {
+    contract: FieldElement,
+});
+
+pub_struct!(Clone, Deserialize;  TokenAndContract {
+    token_address: FieldElement,
     contract: FieldElement,
 });
 
@@ -54,15 +65,24 @@ pub_struct!(Clone, Deserialize;  Element {
     api_key: String,
 });
 
+pub_struct!(Clone, Deserialize;  ZkLend {
+    contract: FieldElement,
+    utils_contract: FieldElement,
+    pairs : Vec<FieldElement>,
+});
+
 pub_struct!(Clone, Deserialize;  Quests {
     sithswap: Pairs,
-    zklend: Contract,
+    zklend: ZkLend,
     jediswap: Pairs,
     ekubo: Contract,
     myswap: Contract,
     braavos: Braavos,
     element: Element,
-    nostra: Pairs,
+    nostra: Nostra,
+    carbonable: Contract,
+    hashstack: TokenAndContract,
+    haiko: PublicApi
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {
@@ -122,6 +142,19 @@ pub_struct!(Clone, Deserialize;  Starkscan {
     api_key: String,
 });
 
+pub_struct!(Clone, Deserialize; PublicApi  {
+    api_endpoint: String,
+});
+
+pub_struct!(Clone, Deserialize;  Api {
+    api_endpoint: String,
+    api_key: String,
+});
+
+pub_struct!(Clone, Deserialize;  ApiEndpoint {
+    api_endpoint: String,
+});
+
 pub_struct!(Clone, Deserialize;  Achievement {
     contract: FieldElement,
 });
@@ -145,6 +178,9 @@ pub_struct!(Clone, Deserialize;  Config {
     starkscan: Starkscan,
     achievements: Achievements,
     quest_boost: QuestBoost,
+    rhino: PublicApi,
+    rango: Api,
+    pyramid: ApiEndpoint,
 });
 
 pub fn load() -> Config {

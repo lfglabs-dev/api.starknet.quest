@@ -7,6 +7,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
+use axum_auto_routes::route;
 use mongodb::bson::doc;
 use serde::Deserialize;
 use std::sync::Arc;
@@ -16,6 +17,7 @@ pub struct GetQuestsQuery {
     name: String,
 }
 
+#[route(get, "/get_quest_category", crate::endpoints::get_quest_category)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,

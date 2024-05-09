@@ -17,4 +17,8 @@ pub mod tribe;
 pub mod uri;
 pub mod verify_quiz;
 pub mod zklend;
+pub mod rhino;
+pub mod rango;
 pub mod nimbora;
+pub mod hashstack;
+pub mod haiko;

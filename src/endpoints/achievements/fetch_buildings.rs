@@ -10,9 +10,15 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use futures::stream::StreamExt;
 use mongodb::bson::{doc, from_document};
 
+#[route(
+    get,
+    "/achievements/fetch_buildings",
+    crate::endpoints::achievements::fetch_buildings
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<BuildingQuery>,

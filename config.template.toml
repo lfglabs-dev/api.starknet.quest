@@ -5,6 +5,12 @@ port = 8080
 name = "starkship_server"
 connection_string = "xxxxxx"
 
+[rhino]
+api_endpoint="XXXXXXXXXXXX"
+
+[pyramid]
+api_endpoint="XXXXXXXXXXXX"
+
 [nft_contract]
 address = "0xXXXXXXXXXXXX"
 private_key = "1"
@@ -14,6 +20,10 @@ naming_contract = "0xXXXXXXXXXXXX"
 verifier_contracts = [ "0xXXXXXXXXXXXX" ]
 identity_contract = "0xXXXXXXXXXXXX"
 
+[rango]
+api_endpoint="XXXXXXXXXXXXXXXXX"
+api_key="XXXXXXXXXXXXXXXXX"
+
 [quests]
 [quests.sithswap]
 utils_contract = "0xXXXXXXXXXXXX"
@@ -21,8 +31,15 @@ pairs = ["0xXXXXXXXXXXXX"]
 [quests.jediswap]
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
+[quests.carbonable]
+contract = "0x014c6533fec6fd168189b49150907db533e8be3a2e69b0657ae4ec6459a94668"
+[quests.hashstack]
+contract = "0x0"
+token_address = "0x0"
 [quests.zklend]
 contract = "0xXXXXXXXXXXXX"
+utils_contract = "0xXXXXXXXXXXXX"
+pairs = ["0xXXXXXXXXXXXX"]
 [quests.ekubo]
 contract = "0xXXXXXXXXXXXX"
 [quests.myswap]
@@ -35,6 +52,19 @@ api_key = "xxxxxx"
 [quests.nostra]
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
+staking_contract="0xXXXXXXXXXXXX"
+[quests.haiko]
+api_endpoint = "xxxxxx"
+
+[rhino]
+api_endpoint = "xxxxx"
+
+[rango]
+api_endpoint = "xxxxx"
+api_key = "xxxxx"
+
+[pyramid]
+api_endpoint= "xxxxx"
 
 [twitter]
 oauth2_clientid = "xxxxxx"
@@ -842,5 +872,261 @@ options = [
     "100 USDC.",
     "3000 USDC.",
     "There is no minimum amount"
+]
+correct_answers = [*]
+
+[quizzes.braavos]
+name = "Starknet Pro Score Quiz"
+desc = "Challenge your knowledge about your Starknet Pro Score with this quiz for and learn how to reach 100%!"
+intro = "Challenge your knowledge about your Starknet Pro Score with this quiz for and learn how to reach 100%!"
+
+[[quizzes.braavos.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How does the Pro-Score system recognize your contributions to the Starknet ecosystem?"
+options = [
+    "By counting the number of Starknet-related social media posts you create.",
+    "Through the frequency of your logins to the Braavos Wallet.",
+    "By measuring the diversity and consistency of your on-chain activities in Starknet.",
+    "Based on the feedback and ratings from other community members."
+]
+correct_answers = [*]
+
+[[quizzes.braavos.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the Starknet Pro Score formula?"
+options = [
+    "Starknet Pro Score = (O + E + T) x 3",
+    "Starknet Pro Score = (O + E + T) / 3",
+    "Starknet Pro Score = O + E - T",
+    "Starknet Pro Score = O x E x T"
+]
+correct_answers = [*]
+
+[[quizzes.braavos.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is required to be eligible to claim the 'Pro Score Master' role, a prestigious distinction from the Braavos Community?"
+options = [
+    "Completing a set number of transactions on Starknet.",
+    "Participating in special Braavos Community events.",
+    "Achieving a 90% or higher Starknet Pro Score.",
+    "Being an active member for a certain period."
+]
+correct_answers = [*]
+
+[[quizzes.braavos.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the first step to begin your adventure with the Starknet Pro Score and explore the Starknet ecosystem?"
+options = [
+    "Installing the Braavos Wallet and navigating to the dApp Gallery.",
+    "Reading online forums about cryptocurrency.",
+    "Following Starknet on social media.",
+    "Attending a cryptocurrency seminar."
+]
+
+correct_answers = [*]
+
+
+[quizzes.rango]
+name = "Rango Quiz"
+desc = "Take part in our Quiz to test your knowledge about Rango, and you'll have a chance to win an exclusive Rango Castle Bridge NFT as your reward."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Rango, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.rango.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What does Rango specialize in?"
+options = [
+    "Decentralized applications ",
+    "Cross-chain swaps and aggregating bridges and DEXs",
+    "On-chain based Social media platforms",
+    "Highly Liquid CEX for Hedge Funds"
+]
+correct_answers = [*]
+
+[[quizzes.rango.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How many connections does Rango support in Web3?"
+options = [
+    "20 Cosmos Appchains and 50 CEXes",
+    "100 blockchains and 10 DEXes.",
+    "58 blockchains",
+    "Only the Lightning network"
+]
+correct_answers = [*]
+
+[[quizzes.rango.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What makes Rango Multichain?"
+options = [
+    "It only supports one type of EVM blockchain.",
+    "Rango is a sidechain on Starknet.",
+    "Rango integrates multiple types of blockchains, including EVM-based, Cosmos, Solana, and more.",
+    "Rango focuses exclusively on a zkEVM blockchain type"
+    ]
+correct_answers = [*]
+    
+[quizzes.rhino]
+name = "Rhino Quiz"
+desc = "Take part in our Quiz to test your knowledge about Rhino, and you'll have a chance to win an exclusive Rhino- Silver Rhino NFT as your reward."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Rhino.fi, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.rhino.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is Rhino.fi?"
+options = [
+    "A multi-chain cryptocurrency AA wallet",
+    "An online NFT shopping platform",
+    "A frictionless multi-chain DeFi aggregator",
+    "An Onchain gaming app"
+]
+correct_answers = [*]
+
+[[quizzes.rhino.questions]]
+kind = "text_choice"
+layout = "default"
+question = "How does StarkEx contribute to rhino.fi's decentralized trading model?"
+options = [
+    "It provides high-frequency trading capabilities. ",
+    "It enables proof-of-work consensus for faster transactions.",
+    "It offers governance and voting mechanisms.",
+    "It provides fast, low-cost, and self-custodial transactions."
+]
+correct_answers = [*]
+
+[[quizzes.rhino.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What does it mean for rhino.fi to be a self-custodial DeFi platform?"
+options = [
+    "It means they rely on a centralized entity to manage user funds.",
+    "It means users have complete control and ownership of their funds.",
+    "It means users can't recover their funds if the platform goes offline.",
+    "It means users have to give up control of their funds to trade."
+]
+correct_answers = [*]
+
+[quizzes.nimbora]
+name = "Nimbora Quiz"
+desc = "Test your Nimbora knowledge in our quiz for a chance to win an exclusive NFT as your reward."
+intro = "Welcome to the Nimbora quiz! Are you familiar with DeFi on Nimbora? Let's explore it together. Good luck!"
+
+[[quizzes.nimbora.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is Nimbora?"
+options = [
+    "Liquidity mining", 
+    "A traditional Layer 2 solution", 
+    "Defi pooling solution bridging Ethereum's L1 and L2 for cost-efficient DeFi interactions", 
+    "An L1 DeFi protocol without composability"
+]
+correct_answers = [*]
+
+[[quizzes.nimbora.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the benefit of Nimbora’s automatic withdrawal service?"
+options = [
+    "Manual claiming of tokens",
+    "Increased transaction fees",
+    "Hassle-free experience and minimized fees",
+    "Limited token selection"
+]
+correct_answers = [*]
+
+[[quizzes.nimbora.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the current maximum borrowing limit with Liquity?"
+options = [
+    "LUSD 1000",
+    "LUSD 500",
+    "LUSD 750",
+    "LUSD 100"
+]
+correct_answers = [*]
+
+
+[quizzes.nostra2]
+name = "Nostra Quiz"
+desc = "Take part in our Quiz to test your knowledge about Nostra, and you'll have a chance to win 250 STRK."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Nostra, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.nostra2.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is nstSTRK?"
+options = [
+    "The first liquid staking token on Starknet",
+    "A stablecoin on Nostra Money Market",
+    "A governance token for Nostra",
+]
+correct_answers = [*]
+
+[[quizzes.nostra2.questions]]
+kind = "text_choice"
+layout = "default"
+question = "Will users be able to use their Nostra Staked STRK (nstSTRK) in DeFi protocols on Starknet?"
+options = [
+    "Yes - those who integrate with nstSTRK",
+    "No - it’s impossible",
+]
+correct_answers = [*]
+
+[[quizzes.nostra2.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the total value of idle STRK tokens on Starknet waiting to be staked on Nostra?"
+options = [
+    "$951 million",
+    "$100 million",
+    "$500 million",
+]
+correct_answers = [*]
+
+
+[quizzes.haiko]
+name = "Strategist quiz"
+desc = "Take part in our Quiz to test your knowledge about Haiko, and you'll have a chance to win 100 USDC."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Nostra, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.haiko.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is Haiko?"
+options = [
+    "An automated market making platform featuring custom strategies",
+    "A lending protocol",
+    "A stablecoin provider",
+    "An online e-commerce site",
+]
+correct_answers = [*]
+
+[[quizzes.haiko.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What key benefits to strategists offer?"
+options = [
+    "Automatically rebalances positions so they keep earning yield",
+    "Increases transaction fees",
+    "Doubles my rewards from providing liquidity",
+    "Restricts me from withdrawing liquidity",
+]
+correct_answers = [*]
+
+[[quizzes.haiko.questions]]
+kind = "text_choice"
+layout = "default"
+question = "Do I need to select a price range to deposit liquidity to a strategy"
+options = [
+    "No, the strategy does this automatically",
+    "Yes",
 ]
 correct_answers = [*]

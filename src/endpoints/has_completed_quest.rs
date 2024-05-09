@@ -5,6 +5,7 @@ use axum::{
     Json,
 };
 
+use axum_auto_routes::route;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
 use reqwest::StatusCode;
@@ -18,6 +19,7 @@ pub struct HasCompletedQuestsQuery {
     quest_id: u32,
 }
 
+#[route(get, "/has_completed_quest", crate::endpoints::has_completed_quest)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<HasCompletedQuestsQuery>,

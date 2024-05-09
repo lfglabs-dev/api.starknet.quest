@@ -10,6 +10,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use serde::Deserialize;
 use serde_json::json;
 
@@ -29,6 +30,11 @@ struct LayerswapError {
     message: String,
 }
 
+#[route(
+    get,
+    "/quests/element/layerswap/verify_has_bridged",
+    crate::endpoints::quests::element::layerswap::verify_has_bridged
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

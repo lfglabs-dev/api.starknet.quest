@@ -1,4 +1,4 @@
-use mongodb::{bson, Database};
+use mongodb::{Database};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use starknet::{
@@ -23,6 +23,7 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     id: u32,
     name: String,
     desc: String,
+    additional_desc: Option<String>,
     issuer: String,
     category: String,
     rewards_endpoint: String,
@@ -33,24 +34,43 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     rewards_nfts: Vec<NFTItem>,
     img_card: String,
     title_card: String,
-    hidden: bool,
+    hidden: Option<bool>,
     disabled: bool,
-    expiry: Option<bson::DateTime>,
+        expiry: Option<i64>,
     expiry_timestamp: Option<String>,
     mandatory_domain: Option<String>,
     expired: Option<bool>,
     experience: i64,
+        start_time: i64,
+
 });
 
 pub_struct!(Deserialize; CompletedTasks {
     address: String,
     task_id: u32,
+    timestamp: i64,
 });
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CompletedTaskDocument {
     address: String,
     task_id: u32,
+    timestamp: i64,
+}
+
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct QuestTaskDocument {
+    id: u32,
+    quest_id: u32,
+    name: String,
+    desc: String,
+    cta: String,
+    verify_endpoint: String,
+    verify_endpoint_type: String,
+    verify_redirect: Option<String>,
+    href: String,
+    quiz_name: Option<String>,
 }
 
 pub_struct!(Serialize; Reward {
@@ -79,6 +99,12 @@ pub_struct!(Deserialize; VerifyQuizQuery {
     user_answers_list: Vec<Vec<String>>,
 });
 
+pub_struct!(Deserialize; UniquePageVisit {
+    viewer_ip: String,
+    viewed_page_id: String,
+    timestamp: i64,
+});
+
 pub_struct!(Deserialize; AchievementQuery {
     addr: FieldElement,
 });
@@ -91,6 +117,7 @@ pub_struct!(Deserialize; VerifyAchievementQuery {
 pub_struct!(Debug, Serialize, Deserialize; AchievedDocument {
     addr: String,
     achievement_id: u32,
+    timestamp: i64,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; AchievementDocument {
@@ -158,11 +185,13 @@ pub_struct!(Debug, Serialize, Deserialize; BoostTable {
     token: String,
     expiry: i64,
     quests: Vec<i32>,
-    claimed: bool,
-    winner: Option<String>,
+    winner: Option<Vec<String>>,
     id: i32,
     img_url: String,
     name: String,
+    hidden: bool,
+    num_of_winners: i64,
+    token_decimals: i64,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; NftBalance {

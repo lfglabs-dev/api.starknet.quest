@@ -4,6 +4,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
+use axum_auto_routes::route;
 use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
 use starknet::core::types::FieldElement;
@@ -33,12 +34,12 @@ pub struct QuizResponse {
     questions: Vec<QuizQuestionResp>,
 }
 
+#[route(get, "/get_quiz", crate::endpoints::get_quiz)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuizQuery>,
 ) -> impl IntoResponse {
     let quizzes_from_config = &state.conf.quizzes;
-
     match quizzes_from_config.get(&query.id) {
         Some(quiz) => {
             let questions: Vec<QuizQuestionResp> = quiz

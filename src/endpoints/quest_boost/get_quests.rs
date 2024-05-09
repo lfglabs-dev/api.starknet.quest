@@ -6,6 +6,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
 };
+use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::doc;
 use mongodb::bson::from_document;
@@ -17,11 +18,14 @@ pub struct GetQuestForBoostQuery {
     boost_id: u32,
 }
 
+#[route(get, "/boost/get_quests", crate::endpoints::quest_boost::get_quests)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestForBoostQuery>,
 ) -> impl IntoResponse {
     let boost_id = query.boost_id;
+    let current_time = chrono::Utc::now().timestamp_millis();
+
     let pipeline = vec![
         doc! {
             "$match": doc! {
@@ -79,7 +83,20 @@ pub async fn handler(
                         "input": "$quest_list",
                         "as": "item",
                         "in": {
-                            "$mergeObjects": ["$$item"],
+                            "$mergeObjects": ["$$item", doc! {
+                                "expired": {
+                                    "$cond": [
+                                        {
+                                            "$and": [
+                                                { "$gte": ["$$item.expiry", 0] },
+                                                { "$lt": ["$$item.expiry", current_time] },
+                                            ]
+                                        },
+                                        true,
+                                        false
+                                    ]
+                                }
+                            }],
                         },
                     }
                 }

@@ -38,7 +38,11 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 
+use crate::utils::get_timestamp_from_days;
+use axum::http::{header, Response};
+use chrono::Utc;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
 use mongodb::Collection;
@@ -49,15 +53,13 @@ use std::sync::Arc;
 pub async fn get_user_rank(
     collection: &Collection<Document>,
     address: &String,
-    start_timestamp: &i64,
-    end_timestamp: &i64,
+    timestamp: &i64,
 ) -> Document {
     let user_rank_pipeline = vec![
         doc! {
             "$match": doc! {
                 "timestamp": doc! {
-                    "$gte": start_timestamp,
-                    "$lte": end_timestamp
+                    "$gte": timestamp,
                 }
             }
         },
@@ -230,30 +232,35 @@ pub struct GetCompletedQuestsQuery {
     */
     shift: i64,
 
-    /*
-    start of the timestamp range
-    -> How many days back you want to start the leaderboard
-     */
-    start_timestamp: i64,
-
-    /*
-    end of the timestamp range
-    -> When do you want to end it (ideally the moment the frontend makes the request till that timestamp)
-    */
-    end_timestamp: i64,
+    duration: String,
 }
 
+#[route(
+    get,
+    "/leaderboard/get_ranking",
+    crate::endpoints::leaderboard::get_ranking
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetCompletedQuestsQuery>,
 ) -> impl IntoResponse {
-    let start_timestamp = query.start_timestamp;
-    let end_timestamp = query.end_timestamp;
 
-    if start_timestamp > end_timestamp {
-        return get_error("Error querying ranks".to_string());
-    }
 
+    // check value of duration and set time_gap accordingly using match and respective timestamp
+    let time_gap = match query.duration.as_str() {
+        "week" => {
+            get_timestamp_from_days(7)
+        }
+        "month" => {
+            get_timestamp_from_days(30)
+        }
+        "all" => {
+            0
+        }
+        _ => {
+            return get_error("Invalid duration".to_string());
+        }
+    };
     // get collection
     let users_collection = state.db.collection::<Document>("leaderboard_table");
 
@@ -263,13 +270,7 @@ pub async fn handler(
     let shift = query.shift;
 
     // get user rank and total users
-    let stats = get_user_rank(
-        &users_collection,
-        &address,
-        &start_timestamp,
-        &end_timestamp,
-    )
-    .await;
+    let stats = get_user_rank(&users_collection, &address, &time_gap).await;
     let total_users = stats.get("total_users").unwrap().as_i32().unwrap() as i64;
     let user_rank = stats.get("user_rank").unwrap().as_i32().unwrap() as i64;
 
@@ -313,8 +314,7 @@ pub async fn handler(
         doc! {
             "$match": doc!{
                 "timestamp": doc!{
-                    "$gte": start_timestamp,
-                    "$lte": end_timestamp
+                    "$gte": time_gap,
                 }
             }
         },
@@ -366,7 +366,16 @@ pub async fn handler(
                 "first_elt_position".to_string(),
                 if lower_range == 0 { 1 } else { lower_range },
             );
-            (StatusCode::OK, Json(res)).into_response()
+
+            // Set caching response
+            let expires = Utc::now() + chrono::Duration::minutes(5);
+            let caching_response = Response::builder()
+                .status(StatusCode::OK)
+                .header(header::CACHE_CONTROL, "public, max-age=300")
+                .header(header::EXPIRES, expires.to_rfc2822())
+                .body(Json(res).to_string());
+
+            return caching_response.unwrap().into_response();
         }
         Err(_err) => get_error("Error querying ranks".to_string()),
     }

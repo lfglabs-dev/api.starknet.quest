@@ -8,6 +8,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use serde_json::json;
 use starknet::{
     core::types::{BlockId, BlockTag, FieldElement, FunctionCall},
@@ -19,6 +20,11 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+#[route(
+    get,
+    "/achievements/verify_has_domain",
+    crate::endpoints::achievements::verify_has_domain
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
@@ -33,7 +39,7 @@ pub async fn handler(
             FunctionCall {
                 contract_address: state.conf.starknetid_contracts.naming_contract,
                 entry_point_selector: selector!("address_to_domain"),
-                calldata: vec![*addr],
+                calldata: vec![*addr, FieldElement::ZERO],
             },
             BlockId::Tag(BlockTag::Latest),
         )
@@ -51,16 +57,17 @@ pub async fn handler(
                         FunctionCall {
                             contract_address: state.conf.starknetid_contracts.naming_contract,
                             entry_point_selector: selector!("domain_to_expiry"),
-                            calldata: vec![ FieldElement::ONE, result[1] ],
+                            calldata: vec![FieldElement::ONE, result[1]],
                         },
                         BlockId::Tag(BlockTag::Latest),
                     )
-                    .await else {
-                        return get_error("error querying expiry".to_string())
-                    };
-                let Ok(expiry) : Result<u64, _> = expiry_result[0].try_into() else {
-                        return get_error("error reading expiry".to_string())
-                    };
+                    .await
+                else {
+                    return get_error("error querying expiry".to_string());
+                };
+                let Ok(expiry): Result<u64, _> = expiry_result[0].try_into() else {
+                    return get_error("error reading expiry".to_string());
+                };
                 let now = match SystemTime::now().duration_since(UNIX_EPOCH) {
                     Ok(n) => n.as_secs(),
                     Err(_) => return get_error("system time before UNIX EPOCH".to_string()),

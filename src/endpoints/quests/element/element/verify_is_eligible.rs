@@ -10,6 +10,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use serde::Deserialize;
 use serde_json::json;
 use starknet::core::types::FieldElement;
@@ -21,6 +22,11 @@ pub struct ElementResponse {
     data: bool,
 }
 
+#[route(
+    get,
+    "/quests/element/element/verify_is_eligible",
+    crate::endpoints::quests::element::element::verify_is_eligible
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

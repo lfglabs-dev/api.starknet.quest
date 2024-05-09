@@ -6,6 +6,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::doc;
 use serde::Deserialize;
@@ -15,16 +16,21 @@ use starknet::{
 };
 use std::sync::Arc;
 
-const QUEST_ID: u32 = 20;
-const TASK_IDS: &[u32] = &[79, 80, 81];
-const LAST_TASK: u32 = TASK_IDS[2];
-const NFT_LEVEL: u32 = 27;
+const QUEST_ID: u32 = 23;
+const TASK_IDS: &[u32] = &[92, 93, 94, 95];
+const LAST_TASK: u32 = TASK_IDS[3];
+const NFT_LEVEL: u32 = 30;
 
 #[derive(Deserialize)]
 pub struct ClaimableQuery {
     addr: FieldElement,
 }
 
+#[route(
+    get,
+    "/quests/rango/claimable",
+    crate::endpoints::quests::rango::quest1::claimable
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<ClaimableQuery>,
@@ -81,7 +87,7 @@ pub async fn handler(
 
             let  Ok((token_id, sig)) = get_nft(QUEST_ID, LAST_TASK, &query.addr, NFT_LEVEL, &signer).await else {
                 return get_error("Signature failed".into());
-               };
+            };
 
             rewards.push(Reward {
                 task_id: LAST_TASK,

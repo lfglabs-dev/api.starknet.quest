@@ -1,4 +1,4 @@
-use std::sync::Arc;
+    use std::sync::Arc;
 
 use crate::{
     common::verify_quiz::verify_quiz,
@@ -6,6 +6,7 @@ use crate::{
     utils::{get_error, CompletedTasksTrait},
 };
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use axum_auto_routes::route;
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
@@ -28,11 +29,17 @@ fn get_task_id(quiz_name: &str) -> Option<u32> {
         "briq" => Some(67),
         "element_starknetid" => Some(73),
         "nostra" => Some(79),
-        "nimbora"=> Some(22),
+        "rango" => Some(95),
+        "braavos" => Some(98),
+        "rhino" => Some(100),
+        "nimbora" => Some(89),
+        "nostra2" => Some(132),
+        "haiko" => Some(140),
         _ => None,
     }
 }
 
+#[route(post, "/quests/verify_quiz", crate::endpoints::quests::verify_quiz)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     body: Json<VerifyQuizQuery>,

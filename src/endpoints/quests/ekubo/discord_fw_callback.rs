@@ -9,6 +9,7 @@ use axum::{
     extract::{Query, State},
     response::IntoResponse,
 };
+use axum_auto_routes::route;
 use mongodb::bson::doc;
 use reqwest::header::AUTHORIZATION;
 use serde::Deserialize;
@@ -27,6 +28,11 @@ pub struct Guild {
     name: String,
 }
 
+#[route(
+    get,
+    "/quests/ekubo/discord_fw_callback",
+    crate::endpoints::quests::ekubo::discord_fw_callback
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<TwitterOAuthCallbackQuery>,

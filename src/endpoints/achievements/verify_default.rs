@@ -15,6 +15,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use axum_auto_routes::route;
 use mongodb::bson::doc;
 use serde_json::json;
 use starknet::core::types::FieldElement;
@@ -41,6 +42,11 @@ fn get_args(config: Config, achievement_id: u32) -> Result<(FieldElement, u32, N
     }
 }
 
+#[route(
+    get,
+    "/achievements/verify_default",
+    crate::endpoints::achievements::verify_default
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyAchievementQuery>,

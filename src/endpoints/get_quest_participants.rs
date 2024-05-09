@@ -5,6 +5,7 @@ use axum::{
     Json,
 };
 
+use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::{doc, Document};
 use reqwest::StatusCode;
@@ -17,6 +18,11 @@ pub struct GetQuestParticipantsQuery {
     quest_id: u32,
 }
 
+#[route(
+    get,
+    "/get_quest_participants",
+    crate::endpoints::get_quest_participants
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestParticipantsQuery>,
@@ -40,6 +46,8 @@ pub async fn handler(
         .collect::<Vec<i64>>()
         .await;
 
+    let tasks_count = tasks_ids.len();
+
     let pipeline = vec![
         doc! {
             "$match": {
@@ -51,6 +59,12 @@ pub async fn handler(
         doc! {
             "$group": {
                 "_id": "$address",
+                "count" : { "$sum": 1 }
+            }
+        },
+        doc! {
+            "$match": {
+                "count": tasks_count as i64
             }
         },
         doc! {
