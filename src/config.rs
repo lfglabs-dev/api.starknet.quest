@@ -82,7 +82,8 @@ pub_struct!(Clone, Deserialize;  Quests {
     nostra: Nostra,
     carbonable: Contract,
     hashstack: TokenAndContract,
-    haiko: PublicApi
+    haiko: PublicApi,
+    nimbora: Contract
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {
