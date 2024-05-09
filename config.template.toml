@@ -1130,3 +1130,42 @@ options = [
     "Yes",
 ]
 correct_answers = [*]
+
+
+[quizzes.haiko]
+name = "Defi Pot quiz"
+desc = "Bridging Ethereum's Layer 1 and Layer 2 seamlessly for cost-efficient DeFi interactions with improved user experience and uncompromised pooling."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Nostra, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.haiko.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is Nimbora?"
+options = [
+    "Liquidity mining",
+    "L1 DeFi protocol",
+    "Starknet-based cross-chain yield strategy platform that enables users to engage with Layer 1 protocols at a fraction of the cost",
+]
+correct_answers = [*]
+
+[[quizzes.haiko.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What can you do on Nimbora?"
+options = [
+    "Earn and borrow crypto assets",
+    "Bridge",
+    "Swap",
+]
+correct_answers = [*]
+
+[[quizzes.haiko.questions]]
+kind = "text_choice"
+layout = "default"
+question = "Nimbora offers yield that is:"
+options = [
+    "Nothing special",
+    "Ok, has fixed APR",
+    "Nimbora has the highest APR on Starknet",
+]
+correct_answers = [*]
