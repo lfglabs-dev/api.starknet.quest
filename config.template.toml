@@ -55,6 +55,8 @@ pairs = ["0xXXXXXXXXXXXX"]
 staking_contract="0xXXXXXXXXXXXX"
 [quests.haiko]
 api_endpoint = "xxxxxx"
+[quests.nimbora]
+contract = "0xXXXXXXXXXXXX"
 
 [rhino]
 api_endpoint = "xxxxx"
