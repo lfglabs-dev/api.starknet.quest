@@ -1013,46 +1013,42 @@ options = [
 correct_answers = [*]
 
 [quizzes.nimbora]
-name = "Nimbora Quiz"
-desc = "Test your Nimbora knowledge in our quiz for a chance to win an exclusive NFT as your reward."
-intro = "Welcome to the Nimbora quiz! Are you familiar with DeFi on Nimbora? Let's explore it together. Good luck!"
+name = "Defi Pot quiz"
+desc = "Bridging Ethereum's Layer 1 and Layer 2 seamlessly for cost-efficient DeFi interactions with improved user experience and uncompromised pooling."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Nostra, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
 
 [[quizzes.nimbora.questions]]
 kind = "text_choice"
 layout = "default"
 question = "What is Nimbora?"
 options = [
-    "Liquidity mining", 
-    "A traditional Layer 2 solution", 
-    "Defi pooling solution bridging Ethereum's L1 and L2 for cost-efficient DeFi interactions", 
-    "An L1 DeFi protocol without composability"
+    "Liquidity mining",
+    "L1 DeFi protocol",
+    "Starknet-based cross-chain yield strategy platform that enables users to engage with Layer 1 protocols at a fraction of the cost",
 ]
 correct_answers = [*]
 
 [[quizzes.nimbora.questions]]
 kind = "text_choice"
 layout = "default"
-question = "What is the benefit of Nimbora’s automatic withdrawal service?"
+question = "What can you do on Nimbora?"
 options = [
-    "Manual claiming of tokens",
-    "Increased transaction fees",
-    "Hassle-free experience and minimized fees",
-    "Limited token selection"
+    "Earn and borrow crypto assets",
+    "Bridge",
+    "Swap",
 ]
 correct_answers = [*]
 
 [[quizzes.nimbora.questions]]
 kind = "text_choice"
 layout = "default"
-question = "What is the current maximum borrowing limit with Liquity?"
+question = "Nimbora offers yield that is:"
 options = [
-    "LUSD 1000",
-    "LUSD 500",
-    "LUSD 750",
-    "LUSD 100"
+    "Nothing special",
+    "Ok, has fixed APR",
+    "Nimbora has the highest APR on Starknet",
 ]
 correct_answers = [*]
-
 
 [quizzes.nostra2]
 name = "Nostra Quiz"
