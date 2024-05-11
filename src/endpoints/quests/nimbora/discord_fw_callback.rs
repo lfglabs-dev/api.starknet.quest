@@ -59,6 +59,7 @@ pub async fn handler(
             ),
         ),
         ("grant_type", &"authorization_code".to_string()),
+        ("scope", &"guilds".to_string()),
     ];
     let access_token = match exchange_authorization_code(params).await {
         Ok(token) => token,
@@ -124,7 +125,7 @@ pub async fn handler(
 }
 
 async fn exchange_authorization_code(
-    params: [(&str, &String); 5],
+    params: [(&str, &String); 6],
 ) -> Result<String, Box<dyn std::error::Error>> {
     let client = reqwest::Client::new();
     let res = client
