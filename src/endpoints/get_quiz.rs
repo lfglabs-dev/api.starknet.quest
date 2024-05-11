@@ -1,10 +1,12 @@
-use crate::{config::QuizQuestionType, models::AppState, utils::get_error};
+use crate::models::QuizDocument;
+use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
+use futures::StreamExt;
 use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
 use starknet::core::types::FieldElement;
@@ -39,32 +41,61 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuizQuery>,
 ) -> impl IntoResponse {
-    let quizzes_from_config = &state.conf.quizzes;
-    match quizzes_from_config.get(&query.id) {
-        Some(quiz) => {
-            let questions: Vec<QuizQuestionResp> = quiz
-                .questions
-                .iter()
-                .map(|question| QuizQuestionResp {
-                    kind: match question.kind {
-                        QuizQuestionType::TextChoice => "text_choice".to_string(),
-                        QuizQuestionType::ImageChoice => "image_choice".to_string(),
-                        QuizQuestionType::Ordering => "ordering".to_string(),
+    let id = query.id.to_string();
+    let collection = state.db.collection::<QuizDocument>("quizzes");
+    let pipeline = vec![
+        doc! {
+            "$match": doc! {
+                "id": &id
+            }
+        },
+        doc! {
+            "$lookup": doc! {
+                "from": "quiz_questions",
+                "let": doc! {
+                    "id": "$id"
+                },
+                "pipeline": [
+                    doc! {
+                        "$match": doc! {
+                            "quiz_id": &id
+                        }
                     },
-                    layout: question.layout.clone(),
-                    question: question.question.clone(),
-                    options: question.options.clone(),
-                    image_for_layout: question.image_for_layout.clone(),
-                })
-                .collect();
-            let quiz_response = QuizResponse {
-                name: quiz.name.clone(),
-                desc: quiz.desc.clone(),
-                questions,
-            };
+                    doc! {
+                        "$project": doc! {
+                            "correct_answers": 0,
+                            "quiz_id": 0,
+                            "_id": 0
+                        }
+                    }
+                ],
+                "as": "questions"
+            }
+        },
+        doc! {
+            "$project": doc! {
+                "_id": 0,
+                "id": 0
+            }
+        },
+    ];
 
-            (StatusCode::OK, Json(quiz_response)).into_response()
+    match collection.aggregate(pipeline, None).await {
+        Ok(mut cursor) => {
+            while let Some(result) = cursor.next().await {
+                match result {
+                    Ok(document) => {
+                        return (StatusCode::OK, Json(document)).into_response();
+                    }
+                    Err(e) => {
+                        return get_error(e.to_string());
+                    }
+                }
+            }
+            get_error("Quiz not found".to_string())
         }
-        None => get_error("Quiz not found".to_string()),
+        Err(e) => {
+            return get_error(e.to_string());
+        }
     }
 }

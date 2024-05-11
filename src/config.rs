@@ -123,7 +123,7 @@ impl<'de> Deserialize<'de> for QuizQuestionType {
     }
 }
 
-pub_struct!(Clone, Deserialize; QuizQuestion {
+pub_struct!(Clone, Deserialize,Debug; QuizQuestion {
     kind: QuizQuestionType,
     layout: String,
     question: String,
@@ -133,7 +133,7 @@ pub_struct!(Clone, Deserialize; QuizQuestion {
     image_for_layout: Option<String>,
 });
 
-pub_struct!(Clone, Deserialize; Quiz {
+pub_struct!(Clone, Deserialize,Debug; Quiz {
     name: String,
     desc: String,
     questions: Vec<QuizQuestion>,
