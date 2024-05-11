@@ -264,3 +264,20 @@ pub_struct!(Debug, Serialize, Deserialize; QuestCategoryDocument {
     desc: String,
     img_url: String,
 });
+
+
+pub_struct!(Clone, Deserialize,Serialize; QuizDocument {
+    id: String,
+    name: String,
+    desc: String,
+    intro:String,
+});
+
+pub_struct!(Clone, Deserialize,Serialize; QuizQuestionDocument {
+    quiz_id: String,
+    kind: String,
+    layout: String,
+    question: String,
+    options: Vec<String>,
+    correct_answers: Option<Vec<usize>>,
+});

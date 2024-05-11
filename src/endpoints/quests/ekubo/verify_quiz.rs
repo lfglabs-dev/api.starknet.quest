@@ -36,7 +36,7 @@ pub async fn handler(
         .collect();
 
     match user_answers_numbers {
-        Ok(responses) => match verify_quiz(&state.conf, body.addr, &body.quiz_name, &responses) {
+        Ok(responses) => match verify_quiz(&state.db, body.addr, &body.quiz_name, &responses).await {
             true => match state.upsert_completed_task(body.addr, task_id).await {
                 Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
                 Err(e) => get_error(format!("{}", e)),
