@@ -7,38 +7,11 @@ use crate::{
 };
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use axum_auto_routes::route;
+use futures::TryStreamExt;
+use mongodb::bson::doc;
 use serde_json::json;
 use starknet::core::types::FieldElement;
-
-fn get_task_id(quiz_name: &str) -> Option<u32> {
-    match quiz_name {
-        "carmine" => Some(40),
-        "morphine" => Some(42),
-        "zklend" => Some(53),
-        "avnu" => Some(54),
-        "sithswap" => Some(55),
-        "starknetid" => Some(56),
-        "gigabrain_1" => Some(51),
-        "gigabrain_2" => Some(57),
-        "gigabrain_3" => Some(58),
-        "aa_mastery_1" => Some(52),
-        "aa_mastery_2" => Some(59),
-        "aa_mastery_3" => Some(60),
-        "focustree" => Some(61),
-        "element" => Some(64),
-        "briq" => Some(67),
-        "element_starknetid" => Some(73),
-        "nostra" => Some(79),
-        "rango" => Some(95),
-        "braavos" => Some(98),
-        "rhino" => Some(100),
-        "nimbora" => Some(89),
-        "nostra2" => Some(132),
-        "haiko" => Some(140),
-        "ekubo" => Some(37),
-        _ => None,
-    }
-}
+use crate::models::QuestTaskDocument;
 
 #[route(post, "/quests/verify_quiz", crate::endpoints::quests::verify_quiz)]
 pub async fn handler(
@@ -49,9 +22,24 @@ pub async fn handler(
         return get_error("Please connect your wallet first".to_string());
     }
 
-    let task_id = match get_task_id(&body.quiz_name) {
-        Some(id) => id,
-        None => return get_error("Quiz name does not match".to_string()),
+    let pipeline = vec![
+        doc! {
+            "$match": doc! {
+                "quiz_name": &body.quiz_name
+            }
+        },
+    ];
+
+    let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
+    let task_id = match tasks_collection.aggregate(pipeline, None).await {
+        Ok(mut cursor) => {
+            let mut id = 0;
+            while let Some(result) = cursor.try_next().await.unwrap() {
+                id = result.get("id").unwrap().as_i32().unwrap();
+            }
+            id as u32
+        }
+        Err(_) => return get_error("Quiz name does not match".to_string()),
     };
 
     let user_answers_numbers: Result<Vec<Vec<usize>>, _> = body

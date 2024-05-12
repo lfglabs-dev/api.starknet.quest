@@ -22,3 +22,7 @@ pub mod rango;
 pub mod nimbora;
 pub mod hashstack;
 pub mod haiko;
+pub mod claimable;
+pub mod discord_fw_callback;
+pub mod verify_twitter_rw;
+pub mod verify_twitter_fw;
