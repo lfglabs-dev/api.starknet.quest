@@ -33,6 +33,9 @@ utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
 [quests.carbonable]
 contract = "0x014c6533fec6fd168189b49150907db533e8be3a2e69b0657ae4ec6459a94668"
+[quests.hashstack]
+contract = "0x0"
+token_address = "0x0"
 [quests.zklend]
 contract = "0xXXXXXXXXXXXX"
 utils_contract = "0xXXXXXXXXXXXX"
@@ -50,6 +53,10 @@ api_key = "xxxxxx"
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]
 staking_contract="0xXXXXXXXXXXXX"
+[quests.haiko]
+api_endpoint = "xxxxxx"
+[quests.nimbora]
+contract = "0xXXXXXXXXXXXX"
 
 [rhino]
 api_endpoint = "xxxxx"
@@ -1008,46 +1015,42 @@ options = [
 correct_answers = [*]
 
 [quizzes.nimbora]
-name = "Nimbora Quiz"
-desc = "Test your Nimbora knowledge in our quiz for a chance to win an exclusive NFT as your reward."
-intro = "Welcome to the Nimbora quiz! Are you familiar with DeFi on Nimbora? Let's explore it together. Good luck!"
+name = "Defi Pot quiz"
+desc = "Bridging Ethereum's Layer 1 and Layer 2 seamlessly for cost-efficient DeFi interactions with improved user experience and uncompromised pooling."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Nostra, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
 
 [[quizzes.nimbora.questions]]
 kind = "text_choice"
 layout = "default"
 question = "What is Nimbora?"
 options = [
-    "Liquidity mining", 
-    "A traditional Layer 2 solution", 
-    "Defi pooling solution bridging Ethereum's L1 and L2 for cost-efficient DeFi interactions", 
-    "An L1 DeFi protocol without composability"
+    "Liquidity mining",
+    "L1 DeFi protocol",
+    "Starknet-based cross-chain yield strategy platform that enables users to engage with Layer 1 protocols at a fraction of the cost",
 ]
 correct_answers = [*]
 
 [[quizzes.nimbora.questions]]
 kind = "text_choice"
 layout = "default"
-question = "What is the benefit of Nimbora’s automatic withdrawal service?"
+question = "What can you do on Nimbora?"
 options = [
-    "Manual claiming of tokens",
-    "Increased transaction fees",
-    "Hassle-free experience and minimized fees",
-    "Limited token selection"
+    "Earn and borrow crypto assets",
+    "Bridge",
+    "Swap",
 ]
 correct_answers = [*]
 
 [[quizzes.nimbora.questions]]
 kind = "text_choice"
 layout = "default"
-question = "What is the current maximum borrowing limit with Liquity?"
+question = "Nimbora offers yield that is:"
 options = [
-    "LUSD 1000",
-    "LUSD 500",
-    "LUSD 750",
-    "LUSD 100"
+    "Nothing special",
+    "Ok, has fixed APR",
+    "Nimbora has the highest APR on Starknet",
 ]
 correct_answers = [*]
-
 
 [quizzes.nostra2]
 name = "Nostra Quiz"
@@ -1083,5 +1086,46 @@ options = [
     "$951 million",
     "$100 million",
     "$500 million",
+]
+correct_answers = [*]
+
+
+
+[quizzes.haiko]
+name = "Strategist quiz"
+desc = "Take part in our Quiz to test your knowledge about Haiko, and you'll have a chance to win 100 USDC."
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Nostra, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.haiko.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is Haiko?"
+options = [
+    "A lending protocol",
+    "A stablecoin provider",
+    "An online e-commerce site",
+    "An automated market making platform featuring custom strategies",
+]
+correct_answers = [*]
+
+[[quizzes.haiko.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What key benefits do strategies offer?"
+options = [
+    "Increases transaction fees",
+    "Doubles my rewards from providing liquidity",
+    "Automatically rebalances positions so they keep earning yield",
+    "Restricts me from withdrawing liquidity",
+]
+correct_answers = [*]
+
+[[quizzes.haiko.questions]]
+kind = "text_choice"
+layout = "default"
+question = "Do I need to select a price range to deposit liquidity to a strategy"
+options = [
+    "No, the strategy does this automatically",
+    "Yes",
 ]
 correct_answers = [*]

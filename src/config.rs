@@ -51,6 +51,11 @@ pub_struct!(Clone, Deserialize;  Contract {
     contract: FieldElement,
 });
 
+pub_struct!(Clone, Deserialize;  TokenAndContract {
+    token_address: FieldElement,
+    contract: FieldElement,
+});
+
 pub_struct!(Clone, Deserialize;  Braavos {
     api_key_user: String,
     api_key_claimed_mission: String,
@@ -76,6 +81,9 @@ pub_struct!(Clone, Deserialize;  Quests {
     element: Element,
     nostra: Nostra,
     carbonable: Contract,
+    hashstack: TokenAndContract,
+    haiko: PublicApi,
+    nimbora: Contract
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {

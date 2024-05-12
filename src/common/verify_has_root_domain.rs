@@ -27,7 +27,7 @@ pub async fn execute_has_root_domain(
             FunctionCall {
                 contract_address: state.conf.starknetid_contracts.naming_contract,
                 entry_point_selector: selector!("address_to_domain"),
-                calldata: vec![*addr],
+                calldata: vec![*addr, FieldElement::ZERO],
             },
             BlockId::Tag(BlockTag::Latest),
         )

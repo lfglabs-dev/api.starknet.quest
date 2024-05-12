@@ -8,9 +8,9 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use chrono::Utc;
 use futures::StreamExt;
-use mongodb::bson::{doc, from_document, Bson, DateTime};
+use mongodb::bson::doc;
+use mongodb::bson::from_document;
 use serde::Deserialize;
 use std::sync::Arc;
 
@@ -26,35 +26,21 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestDocument>("quests");
     let current_time = chrono::Utc::now().timestamp_millis();
+
     let pipeline = [
         doc! {
-            "$match": doc! {
+            "$match": {
                 "disabled": false,
-                "start_time": doc! {
-                    "$lte": current_time
-                },
                 "id": query.id,
-                "$or": [
-                doc! {
-                    "expiry": doc! {
-                        "$eq": null
-                    }
-                },
-                doc! {
-                    "expiry": doc! {
-                        "$gte": current_time
-                    }
-                }
-            ]
             }
         },
         doc! {
-            "$addFields": doc! {
-                "expired": doc! {
+            "$addFields": {
+                "expired": {
                     "$cond": [
-                        doc! {
+                        {
                             "$and": [
-                                doc! {
+                               doc! {
                                     "$gte": [
                                         "$expiry",
                                         0
@@ -63,7 +49,7 @@ pub async fn handler(
                                 doc! {
                                     "$lt": [
                                         "$expiry",
-                                        "$$NOW"
+                                        current_time
                                     ]
                                 }
                             ]
@@ -71,7 +57,7 @@ pub async fn handler(
                         true,
                         false
                     ]
-                },
+                }
             }
         },
     ];

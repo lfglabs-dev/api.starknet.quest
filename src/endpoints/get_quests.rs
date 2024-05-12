@@ -9,7 +9,8 @@ use axum::{
 };
 use axum_auto_routes::route;
 use futures::StreamExt;
-use mongodb::bson::{Bson, doc, DateTime, from_document};
+use mongodb::bson::doc;
+use mongodb::bson::from_document;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -23,20 +24,21 @@ pub struct NFTItem {
 #[route(get, "/get_quests", crate::endpoints::get_quests)]
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let current_time = chrono::Utc::now().timestamp_millis();
+
     let pipeline = vec![
         doc! {
-            "$match": doc! {
+            "$match": {
                 "disabled": false,
-               "start_time":  {
+                 "start_time":  {
                 "$lte":current_time
                 }
             }
         },
         doc! {
-            "$addFields": doc! {
-                "expired": doc! {
+            "$addFields": {
+                "expired": {
                     "$cond": [
-                        doc! {
+                        {
                             "$and": [
                                 doc! {
                                     "$gte": [
@@ -47,7 +49,7 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                                 doc! {
                                     "$lt": [
                                         "$expiry",
-                                        "$$NOW"
+                                    current_time
                                     ]
                                 }
                             ]
@@ -55,7 +57,7 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                         true,
                         false
                     ]
-                },
+                }
             }
         },
     ];

@@ -9,7 +9,7 @@ use axum::{
 };
 use axum_auto_routes::route;
 use futures::StreamExt;
-use mongodb::bson::{Bson, doc, from_document, DateTime};
+use mongodb::bson::{doc, from_document};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use starknet::core::types::FieldElement;
@@ -26,19 +26,20 @@ pub async fn handler(
     Query(query): Query<GetTrendingQuestsQuery>,
 ) -> impl IntoResponse {
     // Addr might not exist
-    let current_time = chrono::Utc::now().timestamp_millis();
     let address = match query.addr {
         Some(addr) => addr.to_string(),
         None => "".to_string(),
     };
+    let current_time = chrono::Utc::now().timestamp_millis();
+
     let mut pipeline = vec![
         doc! {
             "$match": {
                 "disabled": false,
                 "is_trending": true,
-               "start_time": doc! {
-                "$lte": current_time
-            }
+                "start_time": doc! {
+                    "$lte": current_time
+                }
             }
         },
         doc! {
@@ -48,13 +49,13 @@ pub async fn handler(
                         {
                             "$and": [
                                 { "$gte": ["$expiry", 0] },
-                                { "$lt": ["$expiry", "$$NOW"] },
+                                { "$lt": ["$expiry", current_time] },
                             ]
                         },
                         true,
                         false
                     ]
-                },
+                }
             }
         },
         doc! {

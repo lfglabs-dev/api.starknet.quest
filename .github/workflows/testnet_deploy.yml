@@ -1,0 +1,55 @@
+name: Testnet deployment
+
+on:
+  push:
+    branches:
+      - testnet
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SSH_HOST: sepolia.api.starknet.quest
+      SSH_USER: ubuntu
+      REPO_PATH: '~/api.starknet.quest'
+      AWS_PATH: 'lfg-labs/api.starknet.quest/sepolia'
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: 'eu-west-3'
+    steps:
+      - name: Setting up SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Remote deployment
+        run: |
+          ssh -o StrictHostKeyChecking=no -T $SSH_USER@$SSH_HOST << EOF
+            export REPO_PATH=$REPO_PATH
+            export GIT_SSH_COMMAND='ssh -i ~/.ssh/github_read -o IdentitiesOnly=yes'
+            
+            # Configure AWS CLI
+            aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+            aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+            aws configure set default.region $AWS_DEFAULT_REGION
+
+            if [ -d "\$REPO_PATH/.git" ]; then
+              echo "Repository exists, pulling changes..."
+              cd \$REPO_PATH
+              sudo docker-compose down
+              git reset --hard HEAD
+              git pull
+            else
+              echo "Repository doesn't exist, cloning..."
+              mkdir -p \$REPO_PATH
+              git clone git@github.com:starknet-id/api.starknet.quest.git \$REPO_PATH
+              cd \$REPO_PATH
+            fi
+
+            # Use AWS CLI to copy configuration files from S3
+            sudo chown -R \$SSH_USER:\$SSH_USER \$REPO_PATH
+            sudo chmod -R 755 \$REPO_PATH
+            aws s3 cp s3://$AWS_PATH/ \$REPO_PATH --recursive
+
+            sudo docker-compose up --build -d
+          EOF

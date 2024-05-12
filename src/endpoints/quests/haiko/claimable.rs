@@ -16,10 +16,10 @@ use starknet::{
 };
 use std::sync::Arc;
 
-const QUEST_ID: u32 = 22;
-const TASK_IDS: &[u32] = &[89, 90, 91,144];
+const QUEST_ID: u32 = 29;
+const TASK_IDS: &[u32] = &[140, 141, 142, 143];
 const LAST_TASK: u32 = TASK_IDS[3];
-const NFT_LEVEL: u32 = 35;
+const NFT_LEVEL: u32 = 41;
 
 #[derive(Deserialize)]
 pub struct ClaimableQuery {
@@ -27,9 +27,9 @@ pub struct ClaimableQuery {
 }
 
 #[route(
-    get,
-    "/quests/nimbora/claimable",
-    crate::endpoints::quests::nimbora::claimable
+get,
+"/quests/haiko/claimable",
+crate::endpoints::quests::haiko::claimable
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
@@ -87,9 +87,9 @@ pub async fn handler(
 
             let Ok((token_id, sig)) =
                 get_nft(QUEST_ID, LAST_TASK, &query.addr, NFT_LEVEL, &signer).await
-            else {
-                return get_error("Signature failed".into());
-            };
+                else {
+                    return get_error("Signature failed".into());
+                };
 
             rewards.push(Reward {
                 task_id: LAST_TASK,

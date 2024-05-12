@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    models::AppState,
+    models::{AppState, VerifyQuery},
     utils::{get_error, CompletedTasksTrait},
 };
 use axum::{
@@ -11,8 +11,6 @@ use axum::{
     Json,
 };
 use axum_auto_routes::route;
-use mongodb::bson::doc;
-use serde::Deserialize;
 use serde_json::json;
 use starknet::{
     core::types::{BlockId, BlockTag, FieldElement, FunctionCall},
@@ -20,47 +18,42 @@ use starknet::{
     providers::Provider,
 };
 
-#[derive(Deserialize)]
-pub struct StarknetIdQuery {
-    addr: FieldElement,
-}
-
 #[route(
-    get,
-    "/quests/starknetid/verify_has_domain",
-    crate::endpoints::quests::starknetid::verify_has_domain
+get,
+"/quests/hashstack/verify_deposit",
+crate::endpoints::quests::hashstack::verify_deposit
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    Query(query): Query<StarknetIdQuery>,
+    Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
-    let task_id = 1;
+    let task_id = 138;
     let addr = &query.addr;
+    let token_id = state.conf.quests.hashstack.token_address;
+    let calldata = vec![token_id, *addr];
 
-    // get starkname from address
     let call_result = state
         .provider
         .call(
             FunctionCall {
-                contract_address: state.conf.starknetid_contracts.naming_contract,
-                entry_point_selector: selector!("address_to_domain"),
-                calldata: vec![*addr, FieldElement::ZERO],
+                contract_address: state.conf.quests.hashstack.contract,
+                entry_point_selector: selector!("get_user_deposit_stats_info"),
+                calldata,
             },
             BlockId::Tag(BlockTag::Latest),
         )
         .await;
 
+
     match call_result {
         Ok(result) => {
-            let domain_len = i64::from_str_radix(&FieldElement::to_string(&result[0]), 16).unwrap();
-
-            if domain_len > 0 {
+            if result[0] < FieldElement::from_dec_str("1000000000").unwrap() {
+                get_error("You didn't invest on hashstack.".to_string())
+            } else {
                 match state.upsert_completed_task(query.addr, task_id).await {
                     Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
                     Err(e) => get_error(format!("{}", e)),
                 }
-            } else {
-                get_error("You don't own a stark domain".to_string())
             }
         }
         Err(e) => get_error(format!("{}", e)),
