@@ -122,7 +122,9 @@ pub_struct!(Serialize; RewardResponse {
 });
 
 pub_struct!(Deserialize; VerifyQuery {
-     addr: FieldElement,
+    addr: FieldElement,
+    quest_id: u32,
+    task_id: u32,
 });
 
 pub_struct!(Deserialize; EmailQuery {
