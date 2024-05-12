@@ -11,7 +11,7 @@ use serde_json::json;
 use std::sync::Arc;
 
 
-#[route(put, "/admin/update_quest", crate::endpoints::admin::update_boost)]
+#[route(put, "/admin/update_quest", crate::endpoints::admin::update_quest)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     body: Json<UpdateQuestQuery>,

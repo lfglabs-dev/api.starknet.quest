@@ -17,7 +17,7 @@ pub struct RemoveBoostQuery{
     quest_id: u32,
 }
 
-#[route(post, "/admin/remove_boost", crate::endpoints::admin::remove_boost)]
+#[route(post, "/admin/quest_boost/remove_boost", crate::endpoints::admin::quest_boost::remove_boost)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     body: Json<RemoveBoostQuery>,
@@ -46,6 +46,6 @@ pub async fn handler(
             )
                 .into_response();
         }
-        Err(e) => return get_error("error removing boost".to_string()),
+        Err(_e) => return get_error("error removing boost".to_string()),
     }
 }

@@ -36,13 +36,12 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     title_card: String,
     hidden: Option<bool>,
     disabled: bool,
-        expiry: Option<i64>,
+    expiry: Option<i64>,
     expiry_timestamp: Option<String>,
     mandatory_domain: Option<String>,
     expired: Option<bool>,
     experience: i64,
-        start_time: i64,
-
+    start_time: i64,
 });
 
 pub_struct!(Deserialize; CompletedTasks {
@@ -61,7 +60,7 @@ pub struct CompletedTaskDocument {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QuestTaskDocument {
-    id: u32,
+    pub(crate) id: u32,
     quest_id: u32,
     name: String,
     desc: String,
@@ -263,4 +262,37 @@ pub_struct!(Debug, Serialize, Deserialize; QuestCategoryDocument {
     title: String,
     desc: String,
     img_url: String,
+});
+
+
+pub_struct!(Debug, Serialize, Deserialize; JWTClaims {
+    sub: String,
+    exp: usize,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; LoginDetails {
+    user: String,
+    code: String,
+});
+
+pub_struct!(Deserialize; CreateBoostQuery {
+    quest_id: i32,
+    amount: i32,
+    token: String,
+    num_of_winners: i64,
+    token_decimals: i64,
+    name: String,
+    img_url: String,
+    expiry: i64,
+});
+
+
+
+pub_struct!(Deserialize; UpdateQuestQuery {
+    id: i32,
+    name: String,
+    desc: String,
+    start_time: i64,
+    expiry: i64,
+    disabled: bool,
 });
