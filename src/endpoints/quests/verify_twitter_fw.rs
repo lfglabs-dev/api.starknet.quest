@@ -11,7 +11,7 @@ use axum::{
     Json,
 };
 use axum_auto_routes::route;
-use futures::{StreamExt, TryStreamExt};
+use futures::{ TryStreamExt};
 use mongodb::bson::doc;
 use serde_json::json;
 use crate::models::QuestTaskDocument;
@@ -31,8 +31,8 @@ pub async fn handler(
         doc! {
             "$match": doc! {
                 "quest_id": quest_id,
-                "id":task_id,
-                "type": "twitter_rw"
+                "id":task_id ,
+                "task_type": "twitter_fw"
             }
         },
     ];
@@ -42,12 +42,12 @@ pub async fn handler(
         Ok(mut cursor) => {
             while let Some(result) = cursor.try_next().await.unwrap() {
                 match state.upsert_completed_task(query.addr, task_id).await {
-                    Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
+                    Ok(_) => return (StatusCode::OK, Json(json!({"res": true}))).into_response(),
                     Err(e) => get_error(format!("{}", e)),
                 };
             }
             get_error("Error querying task".to_string())
         }
-        Err(_) => get_error("Error querying task".to_string()),
+        Err(e) => get_error(e.to_string()),
     }
 }

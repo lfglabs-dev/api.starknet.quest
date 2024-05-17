@@ -3,7 +3,7 @@ use mongodb::bson::{doc, from_document};
 use mongodb::Database;
 use crate::config::{Quiz, QuizQuestionType};
 use starknet::core::types::FieldElement;
-use crate::models::QuizDocument;
+use crate::models::QuizInsertDocument;
 
 fn match_vectors(vector1: &Vec<usize>, vector2: &Vec<usize>) -> bool {
     // Check if vectors have the same length
@@ -32,10 +32,10 @@ fn match_vectors(vector1: &Vec<usize>, vector2: &Vec<usize>) -> bool {
 pub async fn verify_quiz(
     config: &Database,
     _addr: FieldElement,
-    quiz_name: &str,
+    quiz_name: &i64,
     user_answers_list: &Vec<Vec<usize>>,
 ) -> bool {
-    let collection = config.collection::<QuizDocument>("quizzes");
+    let collection = config.collection::<QuizInsertDocument>("quizzes");
     let pipeline = vec![
         doc! {
             "$match": doc! {
@@ -81,16 +81,20 @@ pub async fn verify_quiz(
     while let Some(result) = quiz_document.next().await {
         match result {
             Ok(document) => {
+
                 let quiz: Quiz = from_document::<Quiz>(document).unwrap();
                 let mut correct_answers_count = 0;
                 for (i, user_answers) in user_answers_list.iter().enumerate() {
                     let question = &quiz.questions[i];
                     let mut user_answers_list = user_answers.clone();
+                    println!("User answers: {:?}", user_answers_list);
                     let correct_answers: bool = match question.kind {
                         QuizQuestionType::TextChoice => {
                             let mut correct_answers = question.correct_answers.clone().unwrap();
                             correct_answers.sort();
                             user_answers_list.sort();
+                            println!("Correct answers: {:?}", correct_answers);
+
                             match_vectors(&correct_answers, &user_answers)
                         }
                         QuizQuestionType::ImageChoice => {

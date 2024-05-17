@@ -6,8 +6,7 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::bson::{doc, from_document};
-use mongodb::options::FindOneOptions;
+use mongodb::bson::{doc};
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;

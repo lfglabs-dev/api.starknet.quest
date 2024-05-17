@@ -13,7 +13,6 @@ use axum::http::HeaderMap;
 use serde::Deserialize;
 use mongodb::bson::{doc, from_document};
 use jsonwebtoken::{decode, Algorithm, Validation, DecodingKey};
-use crate::endpoints::get_quests::NFTItem;
 
 pub_struct!(Deserialize; CreateQuestQuery {
     name: String,

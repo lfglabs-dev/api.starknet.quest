@@ -43,8 +43,10 @@ pub async fn handler(
             "href": format!("https://twitter.com/{}", &body.username),
             "quest_id" : &body.quest_id,
             "id": next_id,
-            "verify_endpoint": "/quests/verify_twitter_fw",
-            "verify_endpoint": "default",
+            "verify_endpoint": "quests/verify_twitter_fw",
+            "verify_endpoint_type": "default",
+            "type": "twitter_fw",
+            "cta": "Follow",
         };
 
     // insert document to boost collection

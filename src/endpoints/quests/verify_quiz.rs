@@ -35,7 +35,7 @@ pub async fn handler(
         Ok(mut cursor) => {
             let mut id = 0;
             while let Some(result) = cursor.try_next().await.unwrap() {
-                id = result.get("id").unwrap().as_i32().unwrap();
+                id = result.get("id").unwrap().as_i64().unwrap();
             }
             id as u32
         }

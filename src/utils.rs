@@ -285,7 +285,6 @@ impl CompletedTasksTrait for AppState {
             }
             None => {}
         }
-
         Ok(result)
     }
 }

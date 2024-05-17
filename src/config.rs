@@ -129,7 +129,7 @@ pub_struct!(Clone, Deserialize,Debug; QuizQuestion {
     question: String,
     options: Vec<String>,
     correct_answers: Option<Vec<usize>>,
-    correct_order: Option<Vec<usize>>,
+    correct_order: Option<Vec<String>>,
     image_for_layout: Option<String>,
 });
 

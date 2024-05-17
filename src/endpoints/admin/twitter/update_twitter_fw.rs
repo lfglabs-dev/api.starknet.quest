@@ -1,3 +1,4 @@
+use crate::models::QuestTaskDocument;
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::State,
@@ -6,11 +7,10 @@ use axum::{
 };
 use axum_auto_routes::route;
 use mongodb::bson::{doc, Document};
-use mongodb::options::{FindOneAndUpdateOptions};
+use mongodb::options::FindOneAndUpdateOptions;
+use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use serde::Deserialize;
-use crate::models::QuestTaskDocument;
 
 pub_struct!(Deserialize; UpdateTwitterFw {
     name: Option<String>,
@@ -19,7 +19,11 @@ pub_struct!(Deserialize; UpdateTwitterFw {
     id: i32,
 });
 
-#[route(put, "/admin/tasks/twitter_fw/update", crate::endpoints::admin::twitter::update_twitter_fw)]
+#[route(
+put,
+"/admin/tasks/twitter_fw/update",
+crate::endpoints::admin::twitter::update_twitter_fw
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     body: Json<UpdateTwitterFw>,
@@ -46,8 +50,11 @@ pub async fn handler(
         update_doc.insert("desc", desc);
     }
     if let Some(username) = &body.username {
-        update_doc.insert("verify_redirect",format!("https://twitter.com/intent/user?screen_name={:?}", &username));
-        update_doc.insert("href",format!("https://twitter.com/{:?}", &username));
+        update_doc.insert(
+            "verify_redirect",
+            ("https://twitter.com/intent/user?screen_name=".to_string() + username),
+        );
+        update_doc.insert("href", ("https://twitter.com/".to_string() + username));
     }
 
     // update boost

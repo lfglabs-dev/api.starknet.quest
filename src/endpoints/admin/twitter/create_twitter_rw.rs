@@ -19,7 +19,7 @@ pub_struct!(Deserialize; CreateTwitterRw {
     quest_id: i32,
 });
 
-#[route(post, "/admin/tasks/twitter_fw/update", crate::endpoints::admin::twitter::create_twitter_rw)]
+#[route(post, "/admin/tasks/twitter_rw/create", crate::endpoints::admin::twitter::create_twitter_rw)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     body: Json<CreateTwitterRw>,
@@ -43,8 +43,10 @@ pub async fn handler(
             "href": &body.post_link,
             "quest_id" : &body.quest_id,
             "id": next_id,
-            "verify_endpoint": "/quests/verify_twitter_rw",
-            "verify_endpoint": "default",
+            "verify_endpoint": "quests/verify_twitter_rw",
+            "verify_endpoint_type": "default",
+            "task_type": "twitter_rw",
+            "cta": "Retweet",
         };
 
     // insert document to boost collection

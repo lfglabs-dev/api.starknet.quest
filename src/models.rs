@@ -76,8 +76,8 @@ pub_struct!(Debug, Serialize, Deserialize; QuizInsertDocument {
 pub_struct!(Debug, Serialize, Deserialize; QuizQuestionDocument {
     id: i64,
     question: String,
-    options:Vec<String>,
-    correct_answers: Vec<String>,
+    options:Vec<usize>,
+    correct_answers: Vec<usize>,
     kind: String,
     layout: String,
     quiz_id: i64,
@@ -98,7 +98,7 @@ pub struct CompletedTaskDocument {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QuestTaskDocument {
-    pub(crate) id: u32,
+    pub(crate) id: i32,
     quest_id: u32,
     name: String,
     desc: String,
@@ -108,6 +108,7 @@ pub struct QuestTaskDocument {
     verify_redirect: Option<String>,
     href: String,
     quiz_name: Option<i64>,
+    task_type: Option<String>,
 }
 
 pub_struct!(Serialize; Reward {
@@ -134,7 +135,7 @@ pub_struct!(Deserialize; EmailQuery {
 
 pub_struct!(Deserialize; VerifyQuizQuery {
     addr: FieldElement,
-    quiz_name: String,
+    quiz_name: i64,
     user_answers_list: Vec<Vec<String>>,
 });
 
