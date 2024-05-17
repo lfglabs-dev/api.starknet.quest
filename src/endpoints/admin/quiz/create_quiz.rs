@@ -10,7 +10,7 @@ use mongodb::options::{FindOneOptions};
 use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
-use crate::models::QuestTaskDocument;
+use crate::models::{QuestTaskDocument, QuizInsertDocument};
 
 pub_struct!(Deserialize; CreateQuiz {
     name: String,
@@ -27,7 +27,7 @@ pub async fn handler(
     body: Json<CreateQuiz>,
 ) -> impl IntoResponse {
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
-    let quiz_collection = state.db.collection::<QuestTaskDocument>("quizzes");
+    let quiz_collection = state.db.collection::<QuizInsertDocument>("quizzes");
 
     // Get the last id in increasing order
     let last_id_filter = doc! {};
@@ -48,7 +48,7 @@ pub async fn handler(
     };
 
     match quiz_collection
-        .insert_one(from_document::<QuestTaskDocument>(new_quiz_document).unwrap(), None)
+        .insert_one(from_document::<QuizInsertDocument>(new_quiz_document).unwrap(), None)
         .await
     {
         Ok(res) => res,
@@ -75,7 +75,7 @@ pub async fn handler(
             "quiz_name": next_quiz_id,
         };
 
-    return  match tasks_collection
+    return match tasks_collection
         .insert_one(from_document::<QuestTaskDocument>(new_document).unwrap(), None)
         .await
     {

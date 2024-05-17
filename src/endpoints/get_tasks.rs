@@ -23,7 +23,7 @@ pub struct UserTask {
     verify_redirect: Option<String>,
     desc: String,
     completed: bool,
-    quiz_name: Option<String>,
+    quiz_name: Option<i64>,
 }
 
 #[derive(Deserialize)]

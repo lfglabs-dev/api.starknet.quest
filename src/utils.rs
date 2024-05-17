@@ -1,5 +1,6 @@
 use crate::models::{
-    AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, UserExperience,
+    AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable,
+    UserExperience,
 };
 use async_trait::async_trait;
 use axum::{
@@ -26,6 +27,7 @@ use starknet::{
 use std::result::Result;
 use std::str::FromStr;
 use std::{fmt::Write, sync::Arc};
+use serde_json::json;
 use tokio::time::{sleep, Duration};
 
 #[macro_export]
@@ -36,6 +38,38 @@ macro_rules! pub_struct {
             $(pub $field: $t),*
         }
     }
+}
+
+macro_rules! check_authorization {
+    ($headers:expr,$secret_key:expr) => {
+        match $headers.get("Authorization") {
+            Some(auth_header) => {
+                let validation = Validation::new(Algorithm::HS256);
+                let token = auth_header
+                    .to_str()
+                    .unwrap()
+                    .to_string()
+                    .split(" ")
+                    .collect::<Vec<&str>>()[1]
+                    .to_string();
+
+                match decode::<JWTClaims>(
+                    &token,
+                    &DecodingKey::from_secret($secret_key),
+                    &validation,
+                )
+                {
+                    Ok(token_data) => {
+                        token_data.claims.sub
+                    }
+                    Err(_e) => {
+                        return get_error("Invalid token".to_string());
+                    }
+                }
+            }
+            None => return get_error("missing auth header".to_string()),
+        }
+    };
 }
 
 pub async fn get_nft(
@@ -296,8 +330,7 @@ impl AchievementsTrait for AppState {
         let achieved_collection: Collection<CompletedTasks> = self.db.collection("achieved");
         let created_at = Utc::now().timestamp_millis();
         let filter = doc! { "addr": addr.to_string(), "achievement_id": achievement_id };
-        let update =
-            doc! { "$setOnInsert": { "addr": addr.to_string(), "achievement_id": achievement_id , "timestamp":created_at } };
+        let update = doc! { "$setOnInsert": { "addr": addr.to_string(), "achievement_id": achievement_id , "timestamp":created_at } };
         let options = UpdateOptions::builder().upsert(true).build();
 
         let result = achieved_collection
@@ -695,6 +728,41 @@ pub fn run_boosts_raffle(db: &Database, interval: u64) {
         interval,
     ));
 }
+
+pub async fn make_api_request(
+    endpoint: &str,
+    addr: &str,
+    api_key: Option<&str>,
+) -> bool {
+    let client = reqwest::Client::new();
+    let request_builder = client
+        .post(endpoint)
+        .json(&json!({
+            "address": addr,
+        }));
+    let key= api_key.unwrap_or("");
+    let request_builder = match key.is_empty() {
+        true =>  request_builder,
+        false => request_builder.header("apiKey", key),
+    };
+    match request_builder.send().await {
+        Ok(response) => match response.json::<serde_json::Value>().await {
+            Ok(json) => {
+                //check value of result in json
+                if let Some(data) = json.get("data") {
+                    if let Some(res) = data.get("result") {
+                        return res.as_bool().unwrap();
+                    }
+                }
+                false
+            },
+            Err(_) => false,
+        },
+        Err(_) => false,
+    };
+    false
+}
+
 
 // required for axum_auto_routes
 pub trait WithState: Send {

@@ -13,6 +13,7 @@ use std::sync::Arc;
 use serde::Deserialize;
 
 pub_struct!(Deserialize; UpdateBoostQuery {
+    id: i32,
     amount: Option<i32>,
     token: Option<String>,
     num_of_winners: Option<i64>,
@@ -21,7 +22,7 @@ pub_struct!(Deserialize; UpdateBoostQuery {
     name: Option<String>,
     img_url: Option<String>,
     remove_boost: Option<bool>,
-    quest_id: i32,
+    hidden: Option<bool>,
 });
 
 #[route(post, "/admin/quest_boost/update_boost", crate::endpoints::admin::quest_boost::update_boost)]
@@ -33,7 +34,7 @@ pub async fn handler(
 
     // filter to get existing boost
     let filter = doc! {
-        "quests": &body.quest_id,
+        "id": &body.id,
     };
     let existing_boost = &collection.find_one(filter.clone(), None).await.unwrap();
 
@@ -64,6 +65,9 @@ pub async fn handler(
     }
     if let Some(img_url) = &body.img_url {
         update_doc.insert("img_url", img_url);
+    }
+    if let Some(hidden) = &body.hidden {
+        update_doc.insert("hidden", hidden);
     }
 
     // update boost

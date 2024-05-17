@@ -1,5 +1,5 @@
 use crate::{
-    models::{AppState, QuestDocument},
+    models::{AppState, QuestDocument, JWTClaims},
     utils::get_error,
 };
 use axum::{
@@ -9,28 +9,23 @@ use axum::{
 };
 use axum_auto_routes::route;
 use futures::StreamExt;
-use mongodb::bson::{Bson, doc, DateTime, from_document};
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use mongodb::bson::{doc, from_document};
 use std::sync::Arc;
+use axum::http::HeaderMap;
+use jsonwebtoken::{decode, Algorithm, Validation, DecodingKey};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct NFTItem {
-    img: String,
-    level: u32,
-}
-
-#[route(get, "/admin/get_quests", crate::endpoints::admin::get_quests)]
-pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    let current_time = chrono::Utc::now().timestamp_millis();
+#[route(get, "/admin/get_quests", crate::endpoints::admin::quest::get_quests)]
+pub async fn handler(State(state): State<Arc<AppState>>, headers: HeaderMap) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref());
+    let collection = state.db.collection::<QuestDocument>("quests");
+    println!("User: {:?}", user);
     let pipeline = vec![
         doc! {
             "$match": doc! {
-                "issuer":"Braavos"
+                "issuer":user
             }
         },
     ];
-    let collection = state.db.collection::<QuestDocument>("quests");
 
     match collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
@@ -48,20 +43,11 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                     _ => continue,
                 }
             }
-            let mut res: HashMap<String, Vec<QuestDocument>> = HashMap::new();
-            for quest in quests {
-                let category = quest.category.clone();
-                if res.contains_key(&category) {
-                    let quests = res.get_mut(&category).unwrap();
-                    quests.push(quest);
-                } else {
-                    res.insert(category, vec![quest]);
-                }
-            }
-            if res.is_empty() {
+
+            if quests.is_empty() {
                 get_error("No quests found".to_string())
             } else {
-                (StatusCode::OK, Json(res)).into_response()
+                (StatusCode::OK, Json(quests)).into_response()
             }
         }
         Err(_) => get_error("Error querying quests".to_string()),

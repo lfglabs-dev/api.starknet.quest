@@ -1,9 +1,7 @@
-pub mod update_quest;
 pub mod login;
-pub mod update_quest_visibility;
-pub mod get_quests;
-pub mod get_quest_details;
 pub mod delete_task;
 pub mod quiz;
 pub mod twitter;
 pub mod quest_boost;
+pub mod quest;
+pub mod custom;

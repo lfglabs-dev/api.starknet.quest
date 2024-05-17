@@ -17,8 +17,8 @@ use std::sync::Arc;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct NFTItem {
-    img: String,
-    level: u32,
+    pub(crate) img: String,
+    pub(crate) level: u32,
 }
 
 #[route(get, "/get_quests", crate::endpoints::get_quests)]

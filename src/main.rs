@@ -13,7 +13,6 @@ use starknet::providers::{jsonrpc::HttpTransport, JsonRpcClient};
 use std::sync::Arc;
 use std::{net::SocketAddr, sync::Mutex};
 use utils::WithState;
-
 use crate::utils::{add_leaderboard_table, run_boosts_raffle};
 use tower_http::cors::{Any, CorsLayer};
 

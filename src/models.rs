@@ -1,4 +1,4 @@
-use mongodb::{Database};
+use mongodb::Database;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use starknet::{
@@ -44,6 +44,45 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     start_time: i64,
 });
 
+pub_struct!(Debug, Serialize, Deserialize; QuestInsertDocument {
+    id: u32,
+    name: String,
+    desc: String,
+    additional_desc: Option<String>,
+    issuer: String,
+    category: String,
+    rewards_endpoint: String,
+    logo: String,
+    rewards_img: String,
+    rewards_title: String,
+    rewards_description: Option<String>,
+    rewards_nfts: Vec<NFTItem>,
+    img_card: String,
+    title_card: String,
+    disabled: bool,
+    expiry: Option<i64>,
+    mandatory_domain: Option<String>,
+    experience: i64,
+    start_time: i64,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; QuizInsertDocument {
+    id: u32,
+    name: String,
+    desc: String,
+   intro:String,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; QuizQuestionDocument {
+    id: i64,
+    question: String,
+    options:Vec<String>,
+    correct_answers: Vec<String>,
+    kind: String,
+    layout: String,
+    quiz_id: i64,
+});
+
 pub_struct!(Deserialize; CompletedTasks {
     address: String,
     task_id: u32,
@@ -57,7 +96,6 @@ pub struct CompletedTaskDocument {
     timestamp: i64,
 }
 
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QuestTaskDocument {
     pub(crate) id: u32,
@@ -69,7 +107,7 @@ pub struct QuestTaskDocument {
     verify_endpoint_type: String,
     verify_redirect: Option<String>,
     href: String,
-    quiz_name: Option<String>,
+    quiz_name: Option<i64>,
 }
 
 pub_struct!(Serialize; Reward {
@@ -264,7 +302,6 @@ pub_struct!(Debug, Serialize, Deserialize; QuestCategoryDocument {
     img_url: String,
 });
 
-
 pub_struct!(Debug, Serialize, Deserialize; JWTClaims {
     sub: String,
     exp: usize,
@@ -284,15 +321,4 @@ pub_struct!(Deserialize; CreateBoostQuery {
     name: String,
     img_url: String,
     expiry: i64,
-});
-
-
-
-pub_struct!(Deserialize; UpdateQuestQuery {
-    id: i32,
-    name: String,
-    desc: String,
-    start_time: i64,
-    expiry: i64,
-    disabled: bool,
 });

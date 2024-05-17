@@ -1,4 +1,4 @@
-use crate::models::{BoostTable};
+use crate::models::{BoostTable, QuestDocument};
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::State,
@@ -6,30 +6,49 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::options::{FindOneOptions};
+use mongodb::bson::{doc, from_document};
+use mongodb::options::FindOneOptions;
+use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use serde::Deserialize;
-use mongodb::bson::{doc, from_document};
 
 #[derive(Deserialize)]
 pub struct CreateBoostQuery {
-    amount: Option<i32>,
-    token: Option<String>,
-    num_of_winners: Option<i64>,
-    token_decimals: Option<i64>,
-    expiry: Option<i64>,
-    name: Option<String>,
-    img_url: Option<String>,
+    amount: i32,
+    token: String,
+    num_of_winners: i64,
+    token_decimals: i64,
+    name: String,
     quest_id: i32,
+    hidden: bool,
+    expiry: i64,
+    img_url: String,
 }
 
-#[route(post, "/admin/quest_boost/create_boost", crate::endpoints::admin::quest_boost::create_boost)]
+#[route(
+    post,
+    "/admin/quest_boost/create_boost",
+    crate::endpoints::admin::quest_boost::create_boost
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     body: Json<CreateBoostQuery>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<BoostTable>("boosts");
+    let quests_collection = state.db.collection::<QuestDocument>("quests");
+
+    // filter to get existing quest
+    let filter = doc! {
+        "id": &body.quest_id,
+    };
+
+    let existing_quest = quests_collection
+        .find_one(filter.clone(), None)
+        .await
+        .unwrap();
+    if existing_quest.is_none() {
+        return get_error("quest does not exist".to_string());
+    }
 
     // Get the last id in increasing order
     let last_id_filter = doc! {};
@@ -43,17 +62,17 @@ pub async fn handler(
     }
 
     let new_document = doc! {
-            "name": &body.name,
-            "img_url": &body.img_url,
-            "amount": &body.amount,
-            "token_decimals": &body.token_decimals,
-            "token":&body.token,
-            "expiry": &body.expiry,
-            "num_of_winners": &body.num_of_winners,
-            "quests": [&body.quest_id],
-            "id": next_id,
-            "hidden": false,
-        };
+        "name": &body.name,
+        "amount": &body.amount,
+        "token_decimals": &body.token_decimals,
+        "token":&body.token,
+        "expiry": &body.expiry,
+        "num_of_winners": &body.num_of_winners,
+        "quests": [&body.quest_id],
+        "id": next_id as i64,
+        "hidden": &body.hidden,
+        "img_url": &body.img_url,
+    };
 
     // insert document to boost collection
     return match collection

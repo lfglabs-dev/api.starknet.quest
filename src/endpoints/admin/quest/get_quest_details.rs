@@ -8,9 +8,8 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use chrono::Utc;
 use futures::StreamExt;
-use mongodb::bson::{doc, from_document, Bson, DateTime};
+use mongodb::bson::{doc,};
 use serde::Deserialize;
 use std::sync::Arc;
 
@@ -22,7 +21,7 @@ pub struct GetQuestsQuery {
 #[route(
 get,
 "/admin/get_quest_details",
-crate::endpoints::admin::get_quest_details
+crate::endpoints::admin::quest::get_quest_details
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
@@ -32,7 +31,7 @@ pub async fn handler(
     let pipeline = vec![
         doc! {
         "$match": doc! {
-            "id": 107
+            "id": query.id
         }
     },
         doc! {
