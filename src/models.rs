@@ -76,11 +76,20 @@ pub_struct!(Debug, Serialize, Deserialize; QuizInsertDocument {
 pub_struct!(Debug, Serialize, Deserialize; QuizQuestionDocument {
     id: i64,
     question: String,
-    options:Vec<usize>,
-    correct_answers: Vec<usize>,
+    options:Vec<String>,
+    correct_answers: Vec<i64>,
     kind: String,
     layout: String,
     quiz_id: i64,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; NFTUri {
+    id: i64,
+    name: String,
+    description:String,
+    image: String,
+    quest_id: i64,
+    Attributes: Option<i64>
 });
 
 pub_struct!(Deserialize; CompletedTasks {

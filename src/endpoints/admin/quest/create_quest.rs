@@ -1,18 +1,18 @@
-use crate::models::{QuestDocument, JWTClaims, QuestInsertDocument};
+use crate::models::{JWTClaims, QuestDocument, QuestInsertDocument};
 use crate::{models::AppState, utils::get_error};
+use axum::http::HeaderMap;
 use axum::{
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::options::{FindOneOptions};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+use mongodb::bson::{doc, from_document};
+use mongodb::options::FindOneOptions;
+use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use axum::http::HeaderMap;
-use serde::Deserialize;
-use mongodb::bson::{doc, from_document};
-use jsonwebtoken::{decode, Algorithm, Validation, DecodingKey};
 
 pub_struct!(Deserialize; CreateQuestQuery {
     name: String,
@@ -28,7 +28,11 @@ pub_struct!(Deserialize; CreateQuestQuery {
     title_card: String,
 });
 
-#[route(post, "/admin/quest/create", crate::endpoints::admin::quest::create_quest)]
+#[route(
+    post,
+    "/admin/quest/create",
+    crate::endpoints::admin::quest::create_quest
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     body: Json<CreateQuestQuery>,
@@ -59,7 +63,7 @@ pub async fn handler(
         "desc": &body.desc,
         "disabled": &body.disabled,
         "start_time": &body.start_time,
-        "id": next_id,
+        "id": &next_id,
         "category":&body.category,
         "issuer": &user,
         "rewards_endpoint":"/quests/claimable",
@@ -72,28 +76,28 @@ pub async fn handler(
     };
 
     match &body.expiry {
-        Some(expiry) =>
-            new_document.insert("expiry", expiry),
+        Some(expiry) => new_document.insert("expiry", expiry),
         None => new_document.insert("expiry", None::<String>),
     };
 
     match user == "admin" {
-        true =>
-            new_document.insert("experience", 50),
+        true => new_document.insert("experience", 50),
         false => new_document.insert("experience", 10),
     };
 
-
     // insert document to boost collection
     return match collection
-        .insert_one(from_document::<QuestInsertDocument>(new_document).unwrap(), None)
+        .insert_one(
+            from_document::<QuestInsertDocument>(new_document).unwrap(),
+            None,
+        )
         .await
     {
         Ok(res) => {
             println!("Quest created successfully {:?}", res);
             return (
                 StatusCode::OK,
-                Json(json!({"message": "Quest created successfully"})).into_response(),
+                Json(json!({"id": format!("{}",&next_id)})).into_response(),
             )
                 .into_response();
         }

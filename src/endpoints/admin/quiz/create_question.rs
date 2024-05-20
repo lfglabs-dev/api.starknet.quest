@@ -16,7 +16,7 @@ pub_struct!(Deserialize; CreateQuizQuestion {
     quiz_id: i64,
     question: String,
     options:Vec<String>,
-    correct_answers: Vec<String>,
+    correct_answers: Vec<i64>,
 });
 
 #[route(post, "/admin/tasks/quiz/question/create", crate::endpoints::admin::quiz::create_question)]
@@ -36,24 +36,24 @@ pub async fn handler(
     if existing_quiz.is_none() {
         return get_error("quiz does not exist".to_string());
     }
-    //
-    // // Get the last id in increasing order
-    // let last_id_filter = doc! {};
-    // let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
-    // let last_quiz_question_doc = &quiz_questions_collection.find_one(last_id_filter.clone(), options.clone()).await.unwrap();
-    //
-    // let mut next_quiz_question_id = 1;
-    // if let Some(doc) = last_quiz_question_doc {
-    //     let last_id = doc.id;
-    //     next_quiz_question_id = last_id + 1;
-    // }
+
+    // Get the last id in increasing order
+    let last_id_filter = doc! {};
+    let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
+    let last_quiz_question_doc = &quiz_questions_collection.find_one(last_id_filter.clone(), options.clone()).await.unwrap();
+
+    let mut next_quiz_question_id = 1;
+    if let Some(doc) = last_quiz_question_doc {
+        let last_id = doc.id;
+        next_quiz_question_id = last_id + 1;
+    }
 
     let new_quiz_document = doc! {
             "quiz_id": &body.quiz_id,
             "question": &body.question,
             "options": &body.options,
             "correct_answers": &body.correct_answers,
-            "id": 1000 as i64,
+            "id": next_quiz_question_id,
             "kind": "text_choice",
             "layout": "default"
     };

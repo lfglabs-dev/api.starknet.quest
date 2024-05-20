@@ -6,3 +6,4 @@ pub mod quest_boost;
 pub mod quest;
 pub mod custom;
 pub mod discord;
+pub mod nft_uri;
