@@ -17,7 +17,6 @@ pub_struct!(Deserialize; CreateCustom {
     name: String,
     desc: String,
     cta: String,
-    verify_redirect: String,
     href: String,
 });
 
@@ -41,7 +40,7 @@ pub async fn handler(
     let new_document = doc! {
         "name": &body.name,
         "desc": &body.desc,
-        "verify_redirect": &body.verify_redirect,
+        "verify_redirect": &body.href,
         "href": &body.href,
         "quest_id" : &body.quest_id,
         "id": next_id,

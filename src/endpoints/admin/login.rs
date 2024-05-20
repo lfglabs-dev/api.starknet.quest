@@ -28,7 +28,6 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
-    println!("Query: {:?}",  &query.code);
     let collection = state.db.collection::<LoginDetails>("login_details");
     let pipeline = [
         doc! {

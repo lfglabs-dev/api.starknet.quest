@@ -69,7 +69,7 @@ pub async fn handler(
             "href": &body.help_link,
             "cta": &body.cta,
             "quest_id" : &body.quest_id,
-            "id": next_id,
+            "id": &next_id,
             "verify_endpoint": "/quests/verify_quiz",
             "verify_endpoint_type": "quiz",
             "quiz_name": next_quiz_id,
@@ -81,7 +81,7 @@ pub async fn handler(
     {
         Ok(_) => (
             StatusCode::OK,
-            Json(json!({"message": "Boost created successfully"})).into_response(),
+            Json(json!({"id": &next_quiz_id })).into_response(),
         )
             .into_response(),
         Err(_e) => return get_error("Error creating quiz".to_string()),

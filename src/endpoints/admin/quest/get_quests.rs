@@ -18,7 +18,6 @@ use jsonwebtoken::{decode, Algorithm, Validation, DecodingKey};
 pub async fn handler(State(state): State<Arc<AppState>>, headers: HeaderMap) -> impl IntoResponse {
     let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref());
     let collection = state.db.collection::<QuestDocument>("quests");
-    println!("User: {:?}", user);
     let pipeline = vec![
         doc! {
             "$match": doc! {

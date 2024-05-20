@@ -87,14 +87,11 @@ pub async fn verify_quiz(
                 for (i, user_answers) in user_answers_list.iter().enumerate() {
                     let question = &quiz.questions[i];
                     let mut user_answers_list = user_answers.clone();
-                    println!("User answers: {:?}", user_answers_list);
                     let correct_answers: bool = match question.kind {
                         QuizQuestionType::TextChoice => {
                             let mut correct_answers = question.correct_answers.clone().unwrap();
                             correct_answers.sort();
                             user_answers_list.sort();
-                            println!("Correct answers: {:?}", correct_answers);
-
                             match_vectors(&correct_answers, &user_answers)
                         }
                         QuizQuestionType::ImageChoice => {
