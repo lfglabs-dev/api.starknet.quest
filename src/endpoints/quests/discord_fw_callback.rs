@@ -19,39 +19,36 @@ use crate::models::QuestTaskDocument;
 #[derive(Deserialize)]
 pub struct TwitterOAuthCallbackQuery {
     code: String,
-    state: FieldElement,
-    quest_id: Option<u32>,
+    state: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct Guild {
     id: String,
     #[allow(dead_code)]
     name: String,
 }
 
-#[route(
-get,
-"/quests/discord_fw_callback",
-crate::endpoints::quests::discord_fw_callback
-)]
+#[route(get, "/quests/discord_fw_callback", crate::endpoints::quests::discord_fw_callback)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<TwitterOAuthCallbackQuery>,
 ) -> impl IntoResponse {
-    let pipeline = vec![
-        doc! {
-            "$match": doc! {
-                "": query.state.to_string()
-            }
-        },
-    ];
+    // the state is in format => "address+quest_id+task_id"
+    let state_split = query.state.split('+').collect::<Vec<&str>>();
+    let quest_id = state_split[1].parse::<u32>().unwrap();
+    let task_id = state_split[2].parse::<u32>().unwrap();
+    let addr = FieldElement::from_dec_str(state_split[0]).unwrap();
 
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
+    let task = tasks_collection
+        .find_one(doc! { "id": task_id,"quest_id":quest_id,"task_type":"discord" }, None)
+        .await
+        .unwrap()
+        .unwrap();
 
-    let quest_id = 3;
-    let task_id = 13;
-    let guild_id = "942355887270559774";
+    let guild_id = task.discord_guild_id.unwrap();
+
     let authorization_code = &query.code;
     let error_redirect_uri = format!(
         "{}/quest/{}?task_id={}&res=false",
@@ -66,7 +63,7 @@ pub async fn handler(
         (
             "redirect_uri",
             &format!(
-                "{}/quests/avnu/discord_fw_callback",
+                "{}/quests/discord_fw_callback",
                 state.conf.variables.api_link
             ),
         ),
@@ -115,7 +112,8 @@ pub async fn handler(
 
     for guild in response {
         if guild.id == guild_id {
-            match state.upsert_completed_task(query.state, task_id).await {
+            print!("Checking guild: {:?}", guild);
+            match state.upsert_completed_task(addr, task_id).await {
                 Ok(_) => {
                     let redirect_uri = format!(
                         "{}/quest/{}?task_id={}&res=true",
@@ -130,7 +128,7 @@ pub async fn handler(
 
     get_error_redirect(
         error_redirect_uri,
-        "You're not part of AVNU's Discord server".to_string(),
+        "You're not part of the Discord server".to_string(),
     )
 }
 

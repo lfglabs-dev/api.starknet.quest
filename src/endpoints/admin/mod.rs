@@ -5,3 +5,4 @@ pub mod twitter;
 pub mod quest_boost;
 pub mod quest;
 pub mod custom;
+pub mod discord;

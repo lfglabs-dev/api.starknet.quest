@@ -109,6 +109,7 @@ pub struct QuestTaskDocument {
     href: String,
     quiz_name: Option<i64>,
     task_type: Option<String>,
+    pub(crate) discord_guild_id: Option<String>,
 }
 
 pub_struct!(Serialize; Reward {
