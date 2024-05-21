@@ -1,0 +1,109 @@
+use crate::{models::AppState, utils::get_error};
+use axum::{
+    extract::{Query, State},
+    http::StatusCode,
+    response::{IntoResponse, Json},
+};
+use axum_auto_routes::route;
+use futures::stream::StreamExt;
+use mongodb::bson::{doc, from_document, Document};
+use serde::{Deserialize, Serialize};
+use starknet::core::types::FieldElement;
+use std::sync::Arc;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserTask {
+    id: i64,
+    quest_id: i64,
+    name: String,
+    href: String,
+    cta: String,
+    verify_endpoint: String,
+    verify_endpoint_type: String,
+    verify_redirect: Option<String>,
+    desc: String,
+    quiz_name: Option<i64>,
+}
+
+#[derive(Deserialize)]
+pub struct GetTasksQuery {
+    quest_id: u32,
+}
+
+#[route(get, "/admin/quest/get_tasks", crate::endpoints::admin::quest::get_tasks)]
+pub async fn handler(
+    State(state): State<Arc<AppState>>,
+    Query(query): Query<GetTasksQuery>,
+) -> impl IntoResponse {
+    println!("{:?}", &query.quest_id);
+    let pipeline = vec![
+        doc! { "$match": { "quest_id": query.quest_id } },
+        doc! {
+            "$lookup": {
+                "from": "quests",
+                "localField": "quest_id",
+                "foreignField": "id",
+                "as": "quest"
+            }
+        },
+        doc! { "$unwind": "$quest" },
+        doc! {
+            "$addFields": {
+                "sort_order": doc! {
+                    "$switch": {
+                        "branches": [
+                            {
+                                "case": doc! { "$eq": ["$verify_endpoint_type", "quiz"] },
+                                "then": 1
+                            },
+                            {
+                                "case": doc! { "$eq": ["$verify_endpoint_type", "default"] },
+                                "then": 2
+                            }
+                        ],
+                        "default": 3
+                    }
+                }
+            }
+        },
+        doc! { "$sort": { "sort_order": 1 } },
+        doc! {
+            "$project": {
+                "_id": 0,
+                "id": 1,
+                "quest_id": 1,
+                "name": 1,
+                "href": 1,
+                "cta": 1,
+                "verify_endpoint": 1,
+                "verify_redirect" : 1,
+                "verify_endpoint_type": 1,
+                "desc": 1,
+                "quiz_name": 1,
+            }
+        },
+    ];
+    let tasks_collection = state.db.collection::<Document>("tasks");
+    match tasks_collection.aggregate(pipeline, None).await {
+        Ok(mut cursor) => {
+            let mut tasks: Vec<UserTask> = Vec::new();
+            while let Some(result) = cursor.next().await {
+                match result {
+                    Ok(document) => {
+                        println!("{:?}", document);
+                        if let Ok(task) = from_document::<UserTask>(document) {
+                            tasks.push(task);
+                        }
+                    }
+                    _ => continue,
+                }
+            }
+            if tasks.is_empty() {
+                get_error("No tasks found for this quest_id".to_string())
+            } else {
+                (StatusCode::OK, Json(tasks)).into_response()
+            }
+        }
+        Err(_) => get_error("Error querying tasks".to_string()),
+    }
+}

@@ -89,7 +89,7 @@ pub_struct!(Debug, Serialize, Deserialize; NFTUri {
     description:String,
     image: String,
     quest_id: i64,
-    Attributes: Option<i64>
+    attributes: Option<i64>
 });
 
 pub_struct!(Deserialize; CompletedTasks {

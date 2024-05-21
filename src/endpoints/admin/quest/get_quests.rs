@@ -14,7 +14,7 @@ use std::sync::Arc;
 use axum::http::HeaderMap;
 use jsonwebtoken::{decode, Algorithm, Validation, DecodingKey};
 
-#[route(get, "/admin/get_quests", crate::endpoints::admin::quest::get_quests)]
+#[route(get, "/admin/quest/get_quests", crate::endpoints::admin::quest::get_quests)]
 pub async fn handler(State(state): State<Arc<AppState>>, headers: HeaderMap) -> impl IntoResponse {
     let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref());
     let collection = state.db.collection::<QuestDocument>("quests");

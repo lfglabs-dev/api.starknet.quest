@@ -12,13 +12,13 @@ use serde_json::json;
 use std::sync::Arc;
 
 pub_struct!(Deserialize; CreateCustom {
-    id: u32,
+    id: i64,
     name: Option<String>,
     desc: Option<String>,
     image: Option<String>,
 });
 
-#[route(post, "/admin/tasks/nft_uri/update", crate::endpoints::admin::custom::update_custom)]
+#[route(post, "/admin/tasks/nft_uri/update", crate::endpoints::admin::nft_uri::update_uri)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     body: Json<CreateCustom>,
@@ -36,7 +36,7 @@ pub async fn handler(
         update_doc.insert("name", name);
     }
     if let Some(desc) = &body.desc {
-        update_doc.insert("desc", desc);
+        update_doc.insert("description", desc);
     }
     if let Some(image) = &body.image {
         update_doc.insert("image", image);
