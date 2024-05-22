@@ -7,6 +7,7 @@ use starknet::{
 };
 
 use crate::config::Config;
+use crate::endpoints::quests::uri::Attribute;
 
 pub_struct!(;AppState {
     conf: Config,
@@ -83,13 +84,13 @@ pub_struct!(Debug, Serialize, Deserialize; QuizQuestionDocument {
     quiz_id: i64,
 });
 
-pub_struct!(Debug, Serialize, Deserialize; NFTUri {
+pub_struct!(Serialize, Deserialize; NFTUri {
     id: i64,
     name: String,
     description:String,
     image: String,
     quest_id: i64,
-    attributes: Option<i64>
+    attributes: Option<Attribute>
 });
 
 pub_struct!(Deserialize; CompletedTasks {

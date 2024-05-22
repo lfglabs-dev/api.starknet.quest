@@ -23,6 +23,8 @@ pub struct UserTask {
     verify_redirect: Option<String>,
     desc: String,
     quiz_name: Option<i64>,
+    task_type: Option<String>,
+    discord_guild_id: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -35,7 +37,6 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetTasksQuery>,
 ) -> impl IntoResponse {
-    println!("{:?}", &query.quest_id);
     let pipeline = vec![
         doc! { "$match": { "quest_id": query.quest_id } },
         doc! {
@@ -80,6 +81,7 @@ pub async fn handler(
                 "verify_endpoint_type": 1,
                 "desc": 1,
                 "quiz_name": 1,
+                "task_type":1,
             }
         },
     ];
@@ -90,7 +92,6 @@ pub async fn handler(
             while let Some(result) = cursor.next().await {
                 match result {
                     Ok(document) => {
-                        println!("{:?}", document);
                         if let Ok(task) = from_document::<UserTask>(document) {
                             tasks.push(task);
                         }

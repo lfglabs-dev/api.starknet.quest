@@ -94,7 +94,6 @@ pub async fn handler(
         .await
     {
         Ok(res) => {
-            println!("Quest created successfully {:?}", res);
             return (
                 StatusCode::OK,
                 Json(json!({"id": format!("{}",&next_id)})).into_response(),

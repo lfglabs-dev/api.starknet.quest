@@ -145,10 +145,6 @@ async fn exchange_authorization_code(
     match json["access_token"].as_str() {
         Some(s) => Ok(s.to_string()),
         None => {
-            println!(
-                "Failed to get 'access_token' from JSON response : {:?}",
-                json
-            );
             Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 format!(

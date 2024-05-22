@@ -21,7 +21,6 @@ pub_struct!(Deserialize; UpdateBoostQuery {
     expiry: Option<i64>,
     name: Option<String>,
     img_url: Option<String>,
-    remove_boost: Option<bool>,
     hidden: Option<bool>,
 });
 

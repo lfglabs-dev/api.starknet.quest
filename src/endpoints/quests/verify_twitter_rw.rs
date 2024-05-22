@@ -25,7 +25,6 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
-    println!("verify_twitter_rw handler called");
     let quest_id = query.quest_id;
     let task_id = query.task_id;
     let pipeline = vec![doc! {

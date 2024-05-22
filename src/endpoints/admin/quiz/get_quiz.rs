@@ -1,3 +1,5 @@
+use crate::config::Quiz;
+use crate::models::{NFTUri, QuizInsertDocument};
 use crate::{
     models::{AppState, QuestDocument},
     utils::get_error,
@@ -15,19 +17,19 @@ use std::sync::Arc;
 
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {
-    id: i32,
+    id: i64,
 }
 
 #[route(
     get,
-    "/admin/quest/get_quest",
-    crate::endpoints::admin::quest::get_quest
+    "/admin/quiz/get_quiz",
+    crate::endpoints::admin::nft_uri::get_nft_uri
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
-    let collection = state.db.collection::<QuestDocument>("quests");
+    let collection = state.db.collection::<QuizInsertDocument>("quizzes");
     let pipeline = vec![
         doc! {
             "$match": doc! {
@@ -36,38 +38,16 @@ pub async fn handler(
         },
         doc! {
             "$lookup": doc! {
-                "from": "boosts",
-                "let": doc! {
-                    "localFieldValue": "$id"
-                },
-                "pipeline": [
-                    doc! {
-                        "$match": doc! {
-                            "$expr": doc! {
-                                "$and": [
-                                    doc! {
-                                        "$in": [
-                                            "$$localFieldValue",
-                                            "$quests"
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
-                    },
-                    doc! {
-                        "$project": doc! {
-                            "_id": 0,
-                            "hidden": 0
-                        }
-                    }
-                ],
-                "as": "boosts"
-            },
+                "from": "quiz_questions",
+                "localField": "id",
+                "foreignField": "quiz_id",
+                "as": "questions"
+            }
         },
         doc! {
             "$project": doc! {
-            "_id": 0
+                "_id": 0,
+                "questions._id": 0
             }
         },
     ];
@@ -82,7 +62,7 @@ pub async fn handler(
                     _ => continue,
                 }
             }
-            get_error("Quest not found".to_string())
+            get_error("NFT Uri not found".to_string())
         }
         Err(_) => get_error("Error querying quest".to_string()),
     }

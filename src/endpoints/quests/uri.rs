@@ -20,7 +20,7 @@ pub struct TokenURI {
     attributes: Option<Vec<Attribute>>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize,Deserialize)]
 pub struct Attribute {
     trait_type: String,
     value: u32,
