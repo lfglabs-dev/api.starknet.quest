@@ -57,6 +57,8 @@ staking_contract="0xXXXXXXXXXXXX"
 api_endpoint = "xxxxxx"
 [quests.nimbora]
 contract = "0xXXXXXXXXXXXX"
+[quests.bountive]
+contract = "0xXXXXXXXXXXXX"
 
 [rhino]
 api_endpoint = "xxxxx"
@@ -1127,5 +1129,45 @@ question = "Do I need to select a price range to deposit liquidity to a strategy
 options = [
     "No, the strategy does this automatically",
     "Yes",
+]
+correct_answers = [*]
+
+[quizzes.bountive]
+name = "Jackpot Journey quiz"
+desc = "Bountive an innovative solution to save & invest your digital assets"
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Nostra, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+
+[[quizzes.bountive.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is our protocol for?"
+options = [
+    "Trading Cryptocurrencies on Starknet",
+    "Hosting Decentralized Auctions on Starknet",
+    "Decentralized no-loss prize savings protocol on Starknet",
+    "Creating NFT Marketplaces on Starknet",
+]
+correct_answers = [*]
+
+[[quizzes.bountive.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What raffles are not available on Bountive?"
+options = [
+    "Core Raffles",
+    "Scam Raffles",
+    "Sponsored Raffles",
+    "Event Raffles",
+]
+correct_answers = [*]
+
+[[quizzes.bountive.questions]]
+kind = "text_choice"
+layout = "default"
+question = "What is the killer feature of Bountive?"
+options = [
+    "High Interest Rates",
+    "No-loss",
+    "Advanced Trading Tools"
 ]
 correct_answers = [*]
