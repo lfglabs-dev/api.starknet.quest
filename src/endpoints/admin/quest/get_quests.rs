@@ -1,7 +1,8 @@
 use crate::{
-    models::{AppState, QuestDocument, JWTClaims},
+    models::{AppState, JWTClaims, QuestDocument},
     utils::get_error,
 };
+use axum::http::HeaderMap;
 use axum::{
     extract::State,
     http::StatusCode,
@@ -9,22 +10,26 @@ use axum::{
 };
 use axum_auto_routes::route;
 use futures::StreamExt;
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::{doc, from_document};
 use std::sync::Arc;
-use axum::http::HeaderMap;
-use jsonwebtoken::{decode, Algorithm, Validation, DecodingKey};
 
-#[route(get, "/admin/quest/get_quests", crate::endpoints::admin::quest::get_quests)]
+#[route(
+    get,
+    "/admin/quest/get_quests",
+    crate::endpoints::admin::quest::get_quests
+)]
 pub async fn handler(State(state): State<Arc<AppState>>, headers: HeaderMap) -> impl IntoResponse {
     let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref());
-    let collection = state.db.collection::<QuestDocument>("quests");
-    let pipeline = vec![
-        doc! {
+    let mut pipeline = vec![];
+    if user != "super_user" {
+        pipeline.push(doc! {
             "$match": doc! {
                 "issuer":user
             }
-        },
-    ];
+        });
+    }
+    let collection = state.db.collection::<QuestDocument>("quests");
 
     match collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
