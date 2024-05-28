@@ -1135,7 +1135,7 @@ correct_answers = [*]
 [quizzes.bountive]
 name = "Jackpot Journey quiz"
 desc = "Bountive an innovative solution to save & invest your digital assets"
-intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Nostra, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
+intro = "Starknet Quest Quiz Rounds, a quiz series designed to make Starknet ecosystem knowledge accessible and enjoyable for all. Test your understanding of the workings of Bountive, enjoy the experience, and earn an exclusive NFT reward by testing your knowledge about Starknet Ecosystem projects!"
 
 [[quizzes.bountive.questions]]
 kind = "text_choice"
