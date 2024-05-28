@@ -454,6 +454,16 @@ pub async fn handler(
             }),
         ).into_response(),
 
+        Some(42) => (
+            StatusCode::OK,
+            Json(TokenURI {
+                name: "Bountive Jackpot Journey NFT ".into(),
+                description: "A Bountive Jackpot Journey won for successfully finishing the Quest".into(),
+                image: format!("{}/bountive/bountiveJackpot.webp", state.conf.variables.app_link),
+                attributes: None,
+            }),
+        ).into_response(),
+
 
         _ => get_error("Error, this level is not correct".into()),
     }
