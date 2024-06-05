@@ -10,6 +10,7 @@ use mongodb::bson::{doc, Document};
 use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
+use axum::http::HeaderMap;
 
 
 pub_struct!(Deserialize; UpdateQuestQuery {
@@ -30,14 +31,21 @@ pub_struct!(Deserialize; UpdateQuestQuery {
 #[route(post, "/admin/quest/update", crate::endpoints::admin::quest::update_quest)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<UpdateQuestQuery>,
 ) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
     let collection = state.db.collection::<QuestDocument>("quests");
 
     // filter to get existing quest
-    let filter = doc! {
+    let mut filter = doc! {
         "id": &body.id,
     };
+
+    // check if user is super_user
+    if user != "super_user" {
+        filter.insert("issuer", user);
+    }
 
     let existing_quest = &collection.find_one(filter.clone(), None).await.unwrap();
     if existing_quest.is_none() {

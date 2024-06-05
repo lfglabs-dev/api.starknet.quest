@@ -10,7 +10,10 @@ use mongodb::options::{FindOneAndUpdateOptions};
 use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
-use crate::models::QuestTaskDocument;
+use crate::models::{QuestDocument, QuestTaskDocument};
+use crate::utils::verify_quest_auth;
+use axum::http::HeaderMap;
+
 
 pub_struct!(Deserialize; UpdateQuiz {
     id:u32,
@@ -22,11 +25,37 @@ pub_struct!(Deserialize; UpdateQuiz {
 #[route(post, "/admin/tasks/quiz/question/update", crate::endpoints::admin::quiz::update_question)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<UpdateQuiz>,
 ) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
+
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
 
-    // filter to get existing boost
+    let quests_collection = state.db.collection::<QuestDocument>("quests");
+
+    let pipeline=vec![
+        doc!{
+            "$match": {
+                "quiz_name": &body.quiz_id,
+            }
+        }
+    ];
+    let res=&quests_collection.find_one(pipeline, None).await.unwrap();
+    if res.is_none() {
+        return get_error("quiz does not exist".to_string());
+    }
+
+    // get the quest id
+    let quest_id = res.unwrap().id as i32;
+
+
+    let res= verify_quest_auth(user, &quests_collection, &quest_id).await;
+    if res.is_err() {
+        return get_error("Error creating task".to_string());
+    };
+
+    // filter to get existing task
     let filter = doc! {
         "id": &body.id,
     };

@@ -27,17 +27,16 @@ pub_struct!(Deserialize; CreateQuestQuery {
 });
 
 #[route(
-    post,
-    "/admin/quest/create",
-    crate::endpoints::admin::quest::create_quest
+post,
+"/admin/quest/create",
+crate::endpoints::admin::quest::create_quest
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<CreateQuestQuery>,
-    // headers: HeaderMap,
 ) -> impl IntoResponse {
-    let user = "admin";
-    // let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref());
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestInsertDocument>("quests");
 
     // Get the last id in increasing order

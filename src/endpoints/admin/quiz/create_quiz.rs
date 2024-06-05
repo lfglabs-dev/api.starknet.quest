@@ -10,7 +10,10 @@ use mongodb::options::{FindOneOptions};
 use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
-use crate::models::{QuestTaskDocument, QuizInsertDocument};
+use crate::models::{QuestDocument, QuestTaskDocument, QuizInsertDocument};
+use crate::utils::verify_quest_auth;
+use axum::http::HeaderMap;
+
 
 pub_struct!(Deserialize; CreateQuiz {
     name: String,
@@ -24,10 +27,20 @@ pub_struct!(Deserialize; CreateQuiz {
 #[route(post, "/admin/tasks/quiz/create", crate::endpoints::admin::quiz::create_quiz)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<CreateQuiz>,
 ) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
     let quiz_collection = state.db.collection::<QuizInsertDocument>("quizzes");
+
+    let quests_collection = state.db.collection::<QuestDocument>("quests");
+
+
+    let res= verify_quest_auth(user, &quests_collection, &body.quest_id).await;
+    if !res {
+        return get_error("Error creating task".to_string());
+    };
 
     // Get the last id in increasing order
     let last_id_filter = doc! {};

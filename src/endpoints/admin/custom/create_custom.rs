@@ -1,4 +1,4 @@
-use crate::models::QuestTaskDocument;
+use crate::models::{QuestDocument, QuestTaskDocument};
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::State,
@@ -11,6 +11,8 @@ use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
+use crate::utils::verify_quest_auth;
+use axum::http::HeaderMap;
 
 pub_struct!(Deserialize; CreateCustom {
     quest_id: u32,
@@ -23,13 +25,23 @@ pub_struct!(Deserialize; CreateCustom {
 #[route(post, "/admin/tasks/custom/create", crate::endpoints::admin::custom::create_custom)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<CreateCustom>,
 ) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
     // Get the last id in increasing order
     let last_id_filter = doc! {};
     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
     let last_doc = &collection.find_one(last_id_filter, options).await.unwrap();
+
+    let quests_collection = state.db.collection::<QuestDocument>("quests");
+
+
+    let res= verify_quest_auth(user, &quests_collection, &(body.quest_id as i32)).await;
+    if !res {
+        return get_error("Error creating task".to_string());
+    };
 
     let mut next_id = 1;
     if let Some(doc) = last_doc {

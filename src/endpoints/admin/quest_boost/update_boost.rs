@@ -11,6 +11,7 @@ use mongodb::options::{FindOneAndUpdateOptions};
 use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
+use axum::http::HeaderMap;
 
 pub_struct!(Deserialize; UpdateBoostQuery {
     id: i32,
@@ -27,14 +28,22 @@ pub_struct!(Deserialize; UpdateBoostQuery {
 #[route(post, "/admin/quest_boost/update_boost", crate::endpoints::admin::quest_boost::update_boost)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<UpdateBoostQuery>,
 ) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
     let collection = state.db.collection::<BoostTable>("boosts");
 
     // filter to get existing boost
-    let filter = doc! {
+    let mut filter = doc! {
         "id": &body.id,
     };
+
+    // check if user is super_user
+    if user != "super_user" {
+        filter.insert("issuer", user);
+    }
+
     let existing_boost = &collection.find_one(filter.clone(), None).await.unwrap();
 
     // create a boost if it does not exist

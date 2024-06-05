@@ -11,6 +11,7 @@ use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
+use axum::http::HeaderMap;
 
 #[derive(Deserialize)]
 pub struct CreateBoostQuery {
@@ -32,15 +33,22 @@ pub struct CreateBoostQuery {
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<CreateBoostQuery>,
 ) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
     let collection = state.db.collection::<BoostTable>("boosts");
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
     // filter to get existing quest
-    let filter = doc! {
+    let mut filter = doc! {
         "id": &body.quest_id,
     };
+
+    // check if user is super_user
+    if user != "super_user" {
+        filter.insert("issuer", user);
+    }
 
     let existing_quest = quests_collection
         .find_one(filter.clone(), None)

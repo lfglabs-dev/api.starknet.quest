@@ -12,18 +12,8 @@ fn match_vectors(vector1: &Vec<usize>, vector2: &Vec<usize>) -> bool {
     }
 
     // Check if vectors are equal element-wise
-    let mut equal = true;
-    for (elem1, elem2) in vector1.iter().zip(vector2.iter()) {
-        if elem1 != elem2 {
-            equal = false;
-            break;
-        }
-    }
-
-    if equal {
-        return true;
-    }
-    false
+    let mut equal = vector1 == vector2;
+    equal
 }
 
 // addr is currently unused, this could become the case if we generate
@@ -82,7 +72,7 @@ pub async fn verify_quiz(
         match result {
             Ok(document) => {
 
-                let quiz: Quiz = from_document::<Quiz>(document).unwrap();
+                let quiz: Quiz = document.unwrap();
                 let mut correct_answers_count = 0;
                 for (i, user_answers) in user_answers_list.iter().enumerate() {
                     let question = &quiz.questions[i];

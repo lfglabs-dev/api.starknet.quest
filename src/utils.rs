@@ -1,7 +1,4 @@
-use crate::models::{
-    AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable,
-    UserExperience,
-};
+use crate::models::{AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument, QuestTaskDocument, UserExperience};
 use async_trait::async_trait;
 use axum::{
     body::Body,
@@ -738,6 +735,80 @@ pub fn run_boosts_raffle(db: &Database, interval: u64) {
     ));
 }
 
+pub async fn verify_task_auth(
+    user: String,
+    task_collection: &Collection<QuestTaskDocument>,
+    id: &i32,
+) -> bool {
+
+    if user == "super_user" {
+        return true;
+    }
+
+    let pipeline=vec![
+        [
+            doc! {
+        "$match": doc! {
+            "id": id
+        }
+    },
+            doc! {
+        "$lookup": doc! {
+            "from": "quests",
+            "localField": "quest_id",
+            "foreignField": "id",
+            "as": "quest"
+        }
+    },
+            doc! {
+        "$project": doc! {
+            "quest.issuer": 1
+        }
+    },
+            doc! {
+        "$unwind": doc! {
+            "path": "$quest"
+        }
+    },
+            doc! {
+        "$project": doc! {
+            "issuer": "$quest.issuer"
+        }
+    }
+        ]
+    ];
+    let mut existing_quest = &task_collection.aggregate(pipeline, None).await.unwrap();
+
+    let mut issuer = String::new();
+    while let Some(doc) = existing_quest.try_next().await.unwrap() {
+        issuer = doc.get("issuer").unwrap().as_str().unwrap().to_string();
+    }
+    if issuer == user {
+        return true;
+    }
+    false
+}
+
+
+pub async fn verify_quest_auth(
+    user: String,
+    quest_collection: &Collection<QuestDocument>,
+    id: &i32,
+) -> bool {
+
+    if user == "super_user" {
+        return true;
+    }
+
+    let filter = doc! { "id": id, "issuer": user };
+
+    let mut existing_quest = &quest_collection.find_one(filter, None).await.unwrap();
+
+    match existing_quest {
+        Ok(_) => return true,
+        Err(_) => return false,
+    }
+}
 pub async fn make_api_request(
     endpoint: &str,
     addr: &str,

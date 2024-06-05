@@ -13,6 +13,8 @@ use futures::StreamExt;
 use mongodb::bson::doc;
 use serde::Deserialize;
 use std::sync::Arc;
+use axum::http::HeaderMap;
+
 
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {

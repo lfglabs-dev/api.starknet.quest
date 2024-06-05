@@ -10,7 +10,10 @@ use mongodb::options::{FindOneOptions};
 use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
-use crate::models::QuestTaskDocument;
+use crate::models::{QuestDocument, QuestTaskDocument};
+use axum::http::HeaderMap;
+use crate::utils::verify_quest_auth;
+
 
 pub_struct!(Deserialize; CreateTwitterFw {
     name: String,
@@ -21,9 +24,18 @@ pub_struct!(Deserialize; CreateTwitterFw {
 #[route(post, "/admin/tasks/domain/create", crate::endpoints::admin::domain::create_domain)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<CreateTwitterFw>,
 ) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
+    let quests_collection = state.db.collection::<QuestDocument>("quests");
+
+
+    let res= verify_quest_auth(user, &quests_collection, &body.quest_id).await;
+    if !res {
+        return get_error("Error creating task".to_string());
+    };
     // Get the last id in increasing order
     let last_id_filter = doc! {};
     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();

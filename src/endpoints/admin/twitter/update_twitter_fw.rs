@@ -11,6 +11,8 @@ use mongodb::options::FindOneAndUpdateOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
+use crate::utils::verify_task_auth;
+use axum::http::HeaderMap;
 
 pub_struct!(Deserialize; UpdateTwitterFw {
     name: Option<String>,
@@ -26,17 +28,25 @@ crate::endpoints::admin::twitter::update_twitter_fw
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<UpdateTwitterFw>,
 ) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
+
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
 
-    // filter to get existing boost
+    let res= verify_task_auth(user,  &collection,&body.id).await;
+    if !res{
+        return get_error("Error updating tasks".to_string());
+    }
+
+    // filter to get existing task
     let filter = doc! {
         "id": &body.id,
     };
     let existing_task = &collection.find_one(filter.clone(), None).await.unwrap();
 
-    // create a boost if it does not exist
+    // create a task if it does not exist
     if existing_task.is_none() {
         return get_error("Task does not exist".to_string());
     }
