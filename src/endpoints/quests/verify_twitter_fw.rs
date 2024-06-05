@@ -40,7 +40,7 @@ pub async fn handler(
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
     match tasks_collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
-            while let Some(result) = cursor.try_next().await.unwrap() {
+            while let Some(_result) = cursor.try_next().await.unwrap() {
                 match state.upsert_completed_task(query.addr, task_id).await {
                     Ok(_) => return (StatusCode::OK, Json(json!({"res": true}))).into_response(),
                     Err(e) => get_error(format!("{}", e)),

@@ -109,16 +109,16 @@ pub struct CompletedTaskDocument {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QuestTaskDocument {
     pub(crate) id: i32,
-    quest_id: u32,
-    name: String,
-    desc: String,
-    cta: String,
-    verify_endpoint: String,
-    verify_endpoint_type: String,
-    verify_redirect: Option<String>,
-    href: String,
-    quiz_name: Option<i64>,
-    task_type: Option<String>,
+    pub quest_id: u32,
+    pub name: String,
+    pub desc: String,
+    pub cta: String,
+    pub verify_endpoint: String,
+    pub verify_endpoint_type: String,
+    pub verify_redirect: Option<String>,
+    pub href: String,
+    pub quiz_name: Option<i64>,
+    pub task_type: Option<String>,
     pub(crate) discord_guild_id: Option<String>,
 }
 

@@ -1,4 +1,4 @@
-use crate::models::{NFTUri, QuestTaskDocument};
+use crate::models::{NFTUri};
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::State,

@@ -54,7 +54,7 @@ pub async fn handler(
             while let Some(result) = cursor.next().await {
                 return match result {
                     Ok(document) => {
-                        if let Ok(mut nft_uri) = from_document::<NFTUri>(document) {
+                        if let Ok(nft_uri) = from_document::<NFTUri>(document) {
                             return (StatusCode::OK,
                              Json(TokenURI {
                                  name: (&*nft_uri.name).to_string(),

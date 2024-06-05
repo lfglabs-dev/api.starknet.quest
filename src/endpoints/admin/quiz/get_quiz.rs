@@ -1,7 +1,6 @@
-use crate::config::Quiz;
-use crate::models::{NFTUri, QuizInsertDocument};
+use crate::models::{QuizInsertDocument};
 use crate::{
-    models::{AppState, QuestDocument},
+    models::{AppState},
     utils::get_error,
 };
 use axum::{
@@ -23,7 +22,7 @@ pub struct GetQuestsQuery {
 #[route(
     get,
     "/admin/quiz/get_quiz",
-    crate::endpoints::admin::nft_uri::get_nft_uri
+    crate::endpoints::admin::quiz::get_quiz,
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

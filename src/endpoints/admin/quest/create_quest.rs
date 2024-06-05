@@ -1,13 +1,11 @@
-use crate::models::{JWTClaims, QuestDocument, QuestInsertDocument};
+use crate::models::{ QuestInsertDocument};
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
 use axum::{
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::{doc, from_document};
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
@@ -93,7 +91,7 @@ pub async fn handler(
         )
         .await
     {
-        Ok(res) => {
+        Ok(_res) => {
             return (
                 StatusCode::OK,
                 Json(json!({"id": format!("{}",&next_id)})).into_response(),

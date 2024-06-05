@@ -56,26 +56,3 @@ pub async fn handler(
         }
     }
 }
-
-async fn make_rango_request(
-    endpoint: &str,
-    api_key: &str,
-    addr: &str,
-) -> Result<serde_json::Value, String> {
-    let client = reqwest::Client::new();
-    match client
-        .post(endpoint)
-        .json(&json!({
-            "address": addr,
-        }))
-        .header("apiKey", api_key)
-        .send()
-        .await
-    {
-        Ok(response) => match response.json::<serde_json::Value>().await {
-            Ok(json) => Ok(json),
-            Err(_) => Err(format!("Funds not bridged")),
-        },
-        Err(_) => Err(format!("Funds not bridged")),
-    }
-}

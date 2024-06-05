@@ -52,9 +52,9 @@ pub async fn handler(
     if let Some(username) = &body.username {
         update_doc.insert(
             "verify_redirect",
-            ("https://twitter.com/intent/user?screen_name=".to_string() + username),
+            "https://twitter.com/intent/user?screen_name=".to_string() + username,
         );
-        update_doc.insert("href", ("https://twitter.com/".to_string() + username));
+        update_doc.insert("href", "https://twitter.com/".to_string() + username);
     }
 
     // update boost

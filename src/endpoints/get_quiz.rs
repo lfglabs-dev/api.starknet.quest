@@ -1,4 +1,3 @@
-use crate::models::{QuizInsertDocument};
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
@@ -6,7 +5,7 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use futures::{StreamExt, TryStreamExt};
+use futures::{StreamExt};
 use mongodb::bson::{doc, Document};
 use serde::{Deserialize};
 use starknet::core::types::FieldElement;

@@ -1,6 +1,6 @@
 use crate::models::NFTUri;
 use crate::{
-    models::{AppState, QuestDocument},
+    models::{AppState},
     utils::get_error,
 };
 use axum::{
