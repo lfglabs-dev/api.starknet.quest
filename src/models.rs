@@ -106,13 +106,6 @@ pub struct CompletedTaskDocument {
     timestamp: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UserDocument {
-    pub name: String,
-    pub code: u64,
-}
-
-
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct QuestTaskDocument {
     pub(crate) id: i32,
