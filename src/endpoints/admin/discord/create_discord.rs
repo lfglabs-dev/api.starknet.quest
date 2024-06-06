@@ -6,7 +6,7 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::bson::{doc, from_document};
+use mongodb::bson::{doc};
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
@@ -37,23 +37,24 @@ pub async fn handler(
         next_id = last_id + 1;
     }
 
-    let new_document = doc! {
-        "name": &body.name,
-        "desc": &body.desc,
-        "href": &body.invite_link,
-        "quest_id" : &body.quest_id,
-        "id": next_id,
-        "cta": "Join now!",
-        "verify_endpoint": "quests/discord_fw_callback",
-        "verify_endpoint_type": "oauth_discord",
-        "task_type":"discord",
-        "discord_guild_id": &body.guild_id,
+    let new_document = QuestTaskDocument {
+        name: body.name.clone(),
+        desc: body.desc.clone(),
+        href: body.invite_link.clone(),
+        quest_id: body.quest_id.clone(),
+        id: next_id,
+        cta: "Join now!".to_string(),
+        verify_endpoint: "quests/discord_fw_callback".to_string(),
+        verify_endpoint_type: "oauth_discord".to_string(),
+        task_type: Some("discord".to_string()),
+        discord_guild_id: Some(body.guild_id.clone()),
+        quiz_name: None,
+        verify_redirect: None,
     };
 
     // insert document to boost collection
     return match collection
-        .insert_one(
-            from_document::<QuestTaskDocument>(new_document).unwrap(),
+        .insert_one(new_document,
             None,
         )
         .await

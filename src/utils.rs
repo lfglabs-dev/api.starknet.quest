@@ -29,6 +29,8 @@ use std::str::FromStr;
 use std::{fmt::Write, sync::Arc};
 use serde_json::json;
 use tokio::time::{sleep, Duration};
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 
 #[macro_export]
 macro_rules! pub_struct {
@@ -96,6 +98,14 @@ pub async fn get_nft(
     let sig = signer.sign_hash(&hashed).await?;
     Ok((token_id, sig))
 }
+
+
+pub fn calculate_hash(t: &String) -> u64 {
+    let mut hasher = DefaultHasher::new();
+    t.hash(&mut hasher);
+    hasher.finish()
+}
+
 
 pub fn get_error(error: String) -> Response {
     (StatusCode::INTERNAL_SERVER_ERROR, error).into_response()

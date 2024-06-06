@@ -5,7 +5,7 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::bson::{doc, from_document};
+use mongodb::bson::{doc};
 use mongodb::options::{FindOneOptions};
 use serde_json::json;
 use std::sync::Arc;
@@ -35,21 +35,24 @@ pub async fn handler(
         next_id = last_id + 1;
     }
 
-    let new_document = doc! {
-            "name": &body.name,
-            "desc": &body.desc,
-            "href": "https://app.starknet.id/",
-            "quest_id" : &body.quest_id,
-            "id": next_id,
-            "verify_endpoint": "quests/verify_domain",
-            "verify_endpoint_type": "default",
-            "task_type": "domain",
-            "cta": "Register a domain",
-        };
+    let new_document = QuestTaskDocument {
+        name: body.name.clone(),
+        desc: body.desc.clone(),
+        href: "https://app.starknet.id/".to_string(),
+        quest_id: body.quest_id.clone() as u32,
+        id: next_id,
+        verify_endpoint: "quests/verify_domain".to_string(),
+        verify_endpoint_type: "default".to_string(),
+        task_type: Some("domain".to_string()),
+        cta: "Register a domain".to_string(),
+        discord_guild_id: None,
+        quiz_name: None,
+        verify_redirect: None,
+    };
 
     // insert document to boost collection
     return match collection
-        .insert_one(from_document::<QuestTaskDocument>(new_document).unwrap(), None)
+        .insert_one(new_document, None)
         .await
     {
         Ok(_) => (

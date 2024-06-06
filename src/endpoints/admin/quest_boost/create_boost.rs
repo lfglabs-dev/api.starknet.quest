@@ -6,7 +6,7 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::bson::{doc, from_document};
+use mongodb::bson::{doc};
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
@@ -61,22 +61,23 @@ pub async fn handler(
         next_id = last_id + 1;
     }
 
-    let new_document = doc! {
-        "name": &body.name,
-        "amount": &body.amount,
-        "token_decimals": &body.token_decimals,
-        "token":&body.token,
-        "expiry": &body.expiry,
-        "num_of_winners": &body.num_of_winners,
-        "quests": [&body.quest_id],
-        "id": next_id as i64,
-        "hidden": &body.hidden,
-        "img_url": &body.img_url,
+    let new_document = BoostTable {
+        name: body.name.clone(),
+        amount: body.amount.clone(),
+        token_decimals: body.token_decimals.clone(),
+        token:body.token.clone(),
+        expiry: body.expiry.clone(),
+        num_of_winners: body.num_of_winners.clone(),
+        quests: vec![body.quest_id.clone()],
+        id: next_id,
+        hidden: body.hidden.clone(),
+        img_url: body.img_url.clone(),
+        winner:None,
     };
 
     // insert document to boost collection
     return match collection
-        .insert_one(from_document::<BoostTable>(new_document).unwrap(), None)
+        .insert_one(new_document, None)
         .await
     {
         Ok(_) => (

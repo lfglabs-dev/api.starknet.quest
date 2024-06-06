@@ -6,7 +6,7 @@ use axum::{
 };
 use axum_auto_routes::route;
 use futures::stream::StreamExt;
-use mongodb::bson::{doc, from_document, Document};
+use mongodb::bson::{doc, from_document};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -84,7 +84,7 @@ pub async fn handler(
             }
         },
     ];
-    let tasks_collection = state.db.collection::<Document>("tasks");
+    let tasks_collection = state.db.collection::<UserTask>("tasks");
     match tasks_collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
             let mut tasks: Vec<UserTask> = Vec::new();

@@ -8,3 +8,4 @@ pub mod custom;
 pub mod discord;
 pub mod nft_uri;
 pub mod domain;
+pub mod user;

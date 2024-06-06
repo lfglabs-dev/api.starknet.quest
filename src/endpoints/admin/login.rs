@@ -9,14 +9,14 @@ use axum::{
 };
 use axum_auto_routes::route;
 use futures::StreamExt;
-use mongodb::bson::doc;
-use mongodb::bson::from_document;
+use mongodb::bson::{doc,from_document};
 use serde::Deserialize;
 use std::sync::Arc;
 use chrono::Utc;
 use serde_json::json;
 use crate::models::{JWTClaims, LoginDetails};
 use jsonwebtoken::{encode, Header, EncodingKey};
+use crate::utils::calculate_hash;
 
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {
@@ -29,10 +29,11 @@ pub async fn handler(
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<LoginDetails>("login_details");
+    let hashed_code = calculate_hash(&query.code);
     let pipeline = [
         doc! {
             "$match": {
-                "code": query.code,
+                "code": hashed_code.to_string(),
             }
         },
     ];

@@ -5,7 +5,7 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::bson::{doc, from_document};
+use mongodb::bson::{doc};
 use mongodb::options::{FindOneOptions};
 use serde_json::json;
 use std::sync::Arc;
@@ -48,18 +48,18 @@ pub async fn handler(
         next_quiz_question_id = last_id + 1;
     }
 
-    let new_quiz_document = doc! {
-            "quiz_id": &body.quiz_id,
-            "question": &body.question,
-            "options": &body.options,
-            "correct_answers": &body.correct_answers,
-            "id": next_quiz_question_id,
-            "kind": "text_choice",
-            "layout": "default"
+    let new_quiz_document = QuizQuestionDocument {
+            quiz_id: body.quiz_id.clone(),
+            question: body.question.clone(),
+            options: body.options.clone(),
+            correct_answers: body.correct_answers.clone(),
+            id: next_quiz_question_id,
+            kind: "text_choice".to_string(),
+            layout: "default".to_string()
     };
 
     return match quiz_questions_collection
-        .insert_one(from_document::<QuizQuestionDocument>(new_quiz_document).unwrap(), None)
+        .insert_one(new_quiz_document, None)
         .await
     {
         Ok(_) => (

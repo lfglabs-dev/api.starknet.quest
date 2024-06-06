@@ -6,7 +6,7 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::bson::{doc, from_document};
+use mongodb::bson::{doc};
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
@@ -19,7 +19,7 @@ pub_struct!(Deserialize; CreateCustom {
     image: String,
 });
 
-#[route(post, "/admin/tasks/nft_uri/create", crate::endpoints::admin::nft_uri::create_uri)]
+#[route(post, "/admin/nft_uri/create", crate::endpoints::admin::nft_uri::create_uri)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     body: Json<CreateCustom>,
@@ -36,25 +36,26 @@ pub async fn handler(
         next_id = last_id + 1;
     }
 
-    let new_document = doc! {
-        "name": &body.name,
-        "description": &body.desc,
-        "image": &body.image,
-        "quest_id" : &body.quest_id,
-        "id": next_id,
+    let new_document = NFTUri {
+        name: body.name.clone(),
+        description: body.desc.clone(),
+        image: body.image.clone(),
+        quest_id : body.quest_id.clone() as i64,
+        id: next_id,
+        attributes: None,
     };
 
     // insert document to boost collection
     return match collection
         .insert_one(
-            from_document::<NFTUri>(new_document).unwrap(),
+            new_document,
             None,
         )
         .await
     {
         Ok(_) => (
             StatusCode::OK,
-            Json(json!({"message": "Boost created successfully"})).into_response(),
+            Json(json!({"message": "Uri created successfully"})).into_response(),
         )
             .into_response(),
         Err(_e) => get_error("Error creating boosts".to_string()),

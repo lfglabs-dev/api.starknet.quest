@@ -6,7 +6,7 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::bson::{doc, from_document};
+use mongodb::bson::{doc};
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
@@ -37,23 +37,24 @@ pub async fn handler(
         next_id = last_id + 1;
     }
 
-    let new_document = doc! {
-        "name": &body.name,
-        "desc": &body.desc,
-        "verify_redirect": &body.href,
-        "href": &body.href,
-        "quest_id" : &body.quest_id,
-        "id": next_id,
-        "cta": &body.cta,
-        "verify_endpoint": "/quests/verify_custom",
-        "verify_endpoint_type": "default",
-        "task_type":"custom"
+    let new_document = QuestTaskDocument {
+        name: body.name.clone(),
+        desc: body.desc.clone(),
+        verify_redirect: Some(body.href.clone()),
+        href: body.href.clone(),
+        quest_id : body.quest_id,
+        id: next_id,
+        cta: body.cta.clone(),
+        verify_endpoint: "/quests/verify_custom".to_string(),
+        verify_endpoint_type: "default".to_string(),
+        task_type: Some("custom".to_string()),
+        discord_guild_id: None,
+        quiz_name: None,
     };
 
     // insert document to boost collection
     return match collection
-        .insert_one(
-            from_document::<QuestTaskDocument>(new_document).unwrap(),
+        .insert_one(new_document,
             None,
         )
         .await
