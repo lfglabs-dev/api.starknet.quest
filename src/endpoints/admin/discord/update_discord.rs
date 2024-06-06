@@ -1,4 +1,4 @@
-use crate::models::QuestTaskDocument;
+use crate::models::{QuestTaskDocument,JWTClaims};
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::State,
@@ -12,6 +12,8 @@ use serde_json::json;
 use std::sync::Arc;
 use crate::utils::verify_task_auth;
 use axum::http::HeaderMap;
+use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
+
 
 pub_struct!(Deserialize; CreateCustom {
     id: u32,

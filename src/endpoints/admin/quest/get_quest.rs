@@ -1,5 +1,5 @@
 use crate::{
-    models::{AppState, QuestDocument},
+    models::{AppState, QuestDocument,JWTClaims},
     utils::get_error,
 };
 use axum::{
@@ -13,6 +13,8 @@ use mongodb::bson::doc;
 use serde::Deserialize;
 use std::sync::Arc;
 use axum::http::HeaderMap;
+use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
+
 
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {

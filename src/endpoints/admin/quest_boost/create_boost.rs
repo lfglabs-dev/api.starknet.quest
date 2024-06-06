@@ -1,4 +1,4 @@
-use crate::models::{BoostTable, QuestDocument};
+use crate::models::{BoostTable, QuestDocument,JWTClaims};
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::State,
@@ -13,6 +13,8 @@ use serde_json::json;
 use std::sync::Arc;
 use axum::http::HeaderMap;
 use crate::utils::verify_quest_auth;
+use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
+
 
 #[derive(Deserialize)]
 pub struct CreateBoostQuery {

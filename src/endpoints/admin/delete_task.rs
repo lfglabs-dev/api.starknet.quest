@@ -9,9 +9,11 @@ use mongodb::bson::{doc};
 use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
-use crate::models::QuestTaskDocument;
+use crate::models::{QuestTaskDocument,JWTClaims};
 use axum::http::HeaderMap;
 use crate::utils::verify_task_auth;
+use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
+
 
 pub_struct!(Deserialize; DeleteTask {
    id: i32,

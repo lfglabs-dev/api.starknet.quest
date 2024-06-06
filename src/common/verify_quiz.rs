@@ -12,7 +12,7 @@ fn match_vectors(vector1: &Vec<usize>, vector2: &Vec<usize>) -> bool {
     }
 
     // Check if vectors are equal element-wise
-    let mut equal = vector1 == vector2;
+    let equal = vector1 == vector2;
     equal
 }
 
@@ -62,17 +62,12 @@ pub async fn verify_quiz(
         },
     ];
 
-    let mut quiz_document = collection
-        .aggregate(pipeline, None)
-        .await
-        .unwrap();
-
+    let mut quiz_document = collection.aggregate(pipeline, None).await.unwrap();
 
     while let Some(result) = quiz_document.next().await {
         match result {
             Ok(document) => {
-
-                let quiz: Quiz = document.unwrap();
+                let quiz: Quiz = from_document(document).unwrap();
                 let mut correct_answers_count = 0;
                 for (i, user_answers) in user_answers_list.iter().enumerate() {
                     let question = &quiz.questions[i];

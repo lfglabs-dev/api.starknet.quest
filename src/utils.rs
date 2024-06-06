@@ -1,7 +1,4 @@
-use crate::models::{
-    AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument,
-    QuestTaskDocument, UserExperience,
-};
+use crate::models::{AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument, QuestTaskDocument, UserExperience};
 use async_trait::async_trait;
 use axum::{
     body::Body,
@@ -742,7 +739,7 @@ pub async fn verify_task_auth(
         return true;
     }
 
-    let pipeline = vec![[
+    let pipeline = vec![
         doc! {
             "$match": doc! {
                 "id": id
@@ -771,8 +768,8 @@ pub async fn verify_task_auth(
                 "issuer": "$quest.issuer"
             }
         },
-    ]];
-    let mut existing_quest = &task_collection.aggregate(pipeline, None).await.unwrap();
+    ];
+    let mut existing_quest = task_collection.aggregate(pipeline, None).await.unwrap();
 
     let mut issuer = String::new();
     while let Some(doc) = existing_quest.try_next().await.unwrap() {
@@ -795,12 +792,13 @@ pub async fn verify_quest_auth(
 
     let filter = doc! { "id": id, "issuer": user };
 
-    let mut existing_quest = &quest_collection.find_one(filter, None).await.unwrap();
+    let existing_quest = quest_collection.find_one(filter, None).await.unwrap();
 
     match existing_quest {
-        Ok(_) => return true,
-        Err(_) => return false,
+        Some(_) => true,
+        None => false,
     }
+
 }
 pub async fn make_api_request(endpoint: &str, addr: &str, api_key: Option<&str>) -> bool {
     let client = reqwest::Client::new();

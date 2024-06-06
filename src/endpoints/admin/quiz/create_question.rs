@@ -10,9 +10,11 @@ use mongodb::options::{FindOneOptions};
 use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
-use crate::models::{QuestDocument, QuizInsertDocument, QuizQuestionDocument};
+use crate::models::{QuestDocument, QuizInsertDocument, QuizQuestionDocument, JWTClaims};
 use axum::http::HeaderMap;
 use crate::utils::verify_quest_auth;
+use jsonwebtoken::{Validation, Algorithm, decode, DecodingKey};
+
 
 pub_struct!(Deserialize; CreateQuizQuestion {
     quiz_id: i64,
@@ -27,28 +29,26 @@ pub async fn handler(
     headers: HeaderMap,
     body: Json<CreateQuizQuestion>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let quiz_collection = state.db.collection::<QuizInsertDocument>("quizzes");
     let quiz_questions_collection = state.db.collection::<QuizQuestionDocument>("quiz_questions");
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
-    let pipeline=vec![
-        doc!{
+    let pipeline =  doc! {
             "$match": {
                 "quiz_name": &body.quiz_id,
             }
-        }
-    ];
-    let res=&quests_collection.find_one(pipeline, None).await.unwrap();
+        };
+    let res = &quests_collection.find_one(pipeline, None).await.unwrap();
     if res.is_none() {
         return get_error("quiz does not exist".to_string());
     }
 
     // get the quest id
-    let quest_id = res.unwrap().id as i32;
+    let quest_id = res.as_ref().unwrap().id as i32;
 
 
-    let res= verify_quest_auth(user, &quests_collection, &quest_id).await;
+    let res = verify_quest_auth(user, &quests_collection, &quest_id).await;
     if !res {
         return get_error("Error creating task".to_string());
     };
@@ -75,13 +75,13 @@ pub async fn handler(
     }
 
     let new_quiz_document = QuizQuestionDocument {
-            quiz_id: body.quiz_id.clone(),
-            question: body.question.clone(),
-            options: body.options.clone(),
-            correct_answers: body.correct_answers.clone(),
-            id: next_quiz_question_id,
-            kind: "text_choice".to_string(),
-            layout: "default".to_string()
+        quiz_id: body.quiz_id.clone(),
+        question: body.question.clone(),
+        options: body.options.clone(),
+        correct_answers: body.correct_answers.clone(),
+        id: next_quiz_question_id,
+        kind: "text_choice".to_string(),
+        layout: "default".to_string(),
     };
 
     return match quiz_questions_collection

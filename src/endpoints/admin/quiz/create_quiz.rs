@@ -10,9 +10,11 @@ use mongodb::options::{FindOneOptions};
 use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
-use crate::models::{QuestDocument, QuestTaskDocument, QuizInsertDocument};
+use crate::models::{QuestDocument, QuestTaskDocument, QuizInsertDocument,JWTClaims};
 use crate::utils::verify_quest_auth;
 use axum::http::HeaderMap;
+use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
+
 
 
 pub_struct!(Deserialize; CreateQuiz {

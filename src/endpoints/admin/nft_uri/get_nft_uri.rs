@@ -14,6 +14,7 @@ use mongodb::bson::doc;
 use serde::Deserialize;
 use std::sync::Arc;
 
+
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {
     id: i64,

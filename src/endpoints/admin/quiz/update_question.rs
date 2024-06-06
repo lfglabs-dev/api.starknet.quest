@@ -10,9 +10,10 @@ use mongodb::options::{FindOneAndUpdateOptions};
 use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
-use crate::models::{QuestDocument, QuestTaskDocument};
+use crate::models::{QuestDocument, QuestTaskDocument, JWTClaims};
 use crate::utils::verify_quest_auth;
 use axum::http::HeaderMap;
+use jsonwebtoken::{Validation, Algorithm, decode, DecodingKey};
 
 
 pub_struct!(Deserialize; UpdateQuiz {
@@ -28,30 +29,28 @@ pub async fn handler(
     headers: HeaderMap,
     body: Json<UpdateQuiz>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
 
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
 
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
-    let pipeline=vec![
-        doc!{
+    let pipeline = doc! {
             "$match": {
-                "quiz_name": &body.quiz_id,
+                "quiz_name": &body.id,
             }
-        }
-    ];
-    let res=&quests_collection.find_one(pipeline, None).await.unwrap();
+        };
+    let res = &quests_collection.find_one(pipeline, None).await.unwrap();
     if res.is_none() {
         return get_error("quiz does not exist".to_string());
     }
 
     // get the quest id
-    let quest_id = res.unwrap().id as i32;
+    let quest_id = res.as_ref().unwrap().id as i32;
 
 
-    let res= verify_quest_auth(user, &quests_collection, &quest_id).await;
-    if res.is_err() {
+    let res = verify_quest_auth(user, &quests_collection, &quest_id).await;
+    if res {
         return get_error("Error creating task".to_string());
     };
 

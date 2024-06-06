@@ -1,4 +1,4 @@
-use crate::models::{QuestDocument};
+use crate::models::{QuestDocument,JWTClaims};
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::State,
@@ -11,6 +11,8 @@ use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
 use axum::http::HeaderMap;
+use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
+
 
 
 pub_struct!(Deserialize; UpdateQuestQuery {

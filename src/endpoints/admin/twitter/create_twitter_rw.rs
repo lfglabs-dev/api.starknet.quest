@@ -10,9 +10,10 @@ use mongodb::options::{FindOneOptions};
 use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
-use crate::models::{QuestDocument, QuestTaskDocument};
+use crate::models::{QuestDocument, QuestTaskDocument,JWTClaims};
 use axum::http::HeaderMap;
 use crate::utils::verify_quest_auth;
+use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
 
 
 pub_struct!(Deserialize; CreateTwitterRw {

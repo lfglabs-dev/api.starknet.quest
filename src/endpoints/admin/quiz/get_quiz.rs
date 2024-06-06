@@ -1,4 +1,4 @@
-use crate::models::{QuizInsertDocument};
+use crate::models::{QuizInsertDocument,JWTClaims};
 use crate::{
     models::{AppState},
     utils::get_error,
@@ -13,6 +13,7 @@ use futures::StreamExt;
 use mongodb::bson::doc;
 use serde::Deserialize;
 use std::sync::Arc;
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use axum::http::HeaderMap;
 
 
@@ -29,7 +30,9 @@ pub struct GetQuestsQuery {
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
+    headers: HeaderMap
 ) -> impl IntoResponse {
+    let _user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref());
     let collection = state.db.collection::<QuizInsertDocument>("quizzes");
     let pipeline = vec![
         doc! {
