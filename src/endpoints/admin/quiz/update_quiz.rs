@@ -11,7 +11,11 @@ use serde_json::json;
 use std::sync::Arc;
 use mongodb::bson::Document;
 use serde::Deserialize;
-use crate::models::QuestTaskDocument;
+use crate::models::{QuestTaskDocument,JWTClaims};
+use axum::http::HeaderMap;
+use crate::utils::verify_task_auth;
+use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
+
 
 pub_struct!(Deserialize; UpdateQuiz {
     id:u32,
@@ -24,9 +28,18 @@ pub_struct!(Deserialize; UpdateQuiz {
 #[route(post, "/admin/tasks/quiz/update", crate::endpoints::admin::quiz::update_quiz)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<UpdateQuiz>,
 ) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
+
+
+    let res= verify_task_auth(user,  &tasks_collection,&(body.id as i32)).await;
+    if !res{
+        return get_error("Error updating tasks".to_string());
+    }
+
 
     // filter to get existing boost
     let filter = doc! {
@@ -69,6 +82,6 @@ pub async fn handler(
             Json(json!({"message": "updated successfully"})),
         )
             .into_response(),
-        Err(_e) => get_error("error updating boost".to_string()),
+        Err(_e) => get_error("error updating task".to_string()),
     };
 }

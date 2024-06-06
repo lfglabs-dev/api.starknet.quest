@@ -1,4 +1,4 @@
-use crate::models::QuestTaskDocument;
+use crate::models::{QuestTaskDocument,JWTClaims};
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::State,
@@ -10,6 +10,10 @@ use mongodb::bson::{doc};
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
+use crate::utils::verify_task_auth;
+use axum::http::HeaderMap;
+use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
+
 
 pub_struct!(Deserialize; CreateCustom {
     id: u32,
@@ -25,9 +29,16 @@ pub_struct!(Deserialize; CreateCustom {
 #[route(post, "/admin/tasks/custom/update", crate::endpoints::admin::custom::update_custom)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<CreateCustom>,
 ) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
+
+    let res= verify_task_auth(user,&collection,&(body.id as i32)).await;
+    if !res{
+        return get_error("Error updating tasks".to_string());
+    }
 
     // filter to get existing quest
     let filter = doc! {

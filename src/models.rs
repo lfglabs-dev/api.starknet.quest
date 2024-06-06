@@ -67,7 +67,7 @@ pub_struct!(Debug, Serialize, Deserialize; QuestInsertDocument {
     start_time: i64,
 });
 
-pub_struct!(Debug, Serialize, Deserialize; QuizInsertDocument {
+pub_struct!(Debug, Serialize, Deserialize;  QuizInsertDocument {
     id: u32,
     name: String,
     desc: String,

@@ -1,5 +1,5 @@
 use crate::{
-    models::{AppState, QuestDocument},
+    models::{AppState, QuestDocument,JWTClaims},
     utils::get_error,
 };
 use axum::{
@@ -12,6 +12,9 @@ use futures::StreamExt;
 use mongodb::bson::doc;
 use serde::Deserialize;
 use std::sync::Arc;
+use axum::http::HeaderMap;
+use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
+
 
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {
@@ -26,12 +29,15 @@ pub struct GetQuestsQuery {
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
+    headers: HeaderMap,
 ) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
     let collection = state.db.collection::<QuestDocument>("quests");
     let pipeline = vec![
         doc! {
             "$match": doc! {
-                "id": query.id
+                "id": query.id,
+                "issuer": user
             }
         },
         doc! {

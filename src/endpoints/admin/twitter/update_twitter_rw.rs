@@ -10,7 +10,11 @@ use mongodb::options::{FindOneAndUpdateOptions};
 use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
-use crate::models::QuestTaskDocument;
+use crate::models::{QuestTaskDocument,JWTClaims};
+use axum::http::HeaderMap;
+use crate::utils::verify_task_auth;
+use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
+
 
 pub_struct!(Deserialize; UpdateTwitterRw {
     name: Option<String>,
@@ -22,9 +26,18 @@ pub_struct!(Deserialize; UpdateTwitterRw {
 #[route(put, "/admin/tasks/twitter_rw/update", crate::endpoints::admin::twitter::update_twitter_rw)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<UpdateTwitterRw>,
 ) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
+
+
+    let res= verify_task_auth(user,  &collection,&body.id).await;
+    if !res{
+        return get_error("Error updating tasks".to_string());
+    }
+
 
     // filter to get existing boost
     let filter = doc! {
@@ -65,6 +78,6 @@ pub async fn handler(
             Json(json!({"message": "updated successfully"})),
         )
             .into_response(),
-        Err(_e) => get_error("error updating boost".to_string()),
+        Err(_e) => get_error("error updating task".to_string()),
     };
 }

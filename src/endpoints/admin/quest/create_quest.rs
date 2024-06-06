@@ -1,4 +1,4 @@
-use crate::models::{ QuestInsertDocument};
+use crate::models::{ QuestInsertDocument,JWTClaims};
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::State,
@@ -11,6 +11,10 @@ use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
+use axum::http::HeaderMap;
+use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
+
+
 
 pub_struct!(Deserialize; CreateQuestQuery {
     name: String,
@@ -27,17 +31,16 @@ pub_struct!(Deserialize; CreateQuestQuery {
 });
 
 #[route(
-    post,
-    "/admin/quest/create",
-    crate::endpoints::admin::quest::create_quest
+post,
+"/admin/quest/create",
+crate::endpoints::admin::quest::create_quest
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<CreateQuestQuery>,
-    // headers: HeaderMap,
 ) -> impl IntoResponse {
-    let user = "admin";
-    // let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref());
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestInsertDocument>("quests");
 
     // Get the last id in increasing order

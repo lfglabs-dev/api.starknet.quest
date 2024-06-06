@@ -1,4 +1,4 @@
-use crate::models::{BoostTable, QuestDocument};
+use crate::models::{BoostTable, QuestDocument,JWTClaims};
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::State,
@@ -11,6 +11,10 @@ use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
+use axum::http::HeaderMap;
+use crate::utils::verify_quest_auth;
+use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
+
 
 #[derive(Deserialize)]
 pub struct CreateBoostQuery {
@@ -32,23 +36,18 @@ pub struct CreateBoostQuery {
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<CreateBoostQuery>,
 ) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
     let collection = state.db.collection::<BoostTable>("boosts");
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
-    // filter to get existing quest
-    let filter = doc! {
-        "id": &body.quest_id,
-    };
 
-    let existing_quest = quests_collection
-        .find_one(filter.clone(), None)
-        .await
-        .unwrap();
-    if existing_quest.is_none() {
-        return get_error("quest does not exist".to_string());
-    }
+    let res= verify_quest_auth(user, &quests_collection, &(body.quest_id as i32)).await;
+    if !res {
+        return get_error("Error creating boost".to_string());
+    };
 
     // Get the last id in increasing order
     let last_id_filter = doc! {};

@@ -9,7 +9,11 @@ use mongodb::bson::{doc};
 use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
-use crate::models::QuestTaskDocument;
+use crate::models::{QuestTaskDocument,JWTClaims};
+use crate::utils::verify_task_auth;
+use axum::http::HeaderMap;
+use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
+
 
 pub_struct!(Deserialize; CreateTwitterFw {
     name: Option<String>,
@@ -20,9 +24,18 @@ pub_struct!(Deserialize; CreateTwitterFw {
 #[route(post, "/admin/tasks/domain/update", crate::endpoints::admin::domain::update_domain)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     body: Json<CreateTwitterFw>,
 ) -> impl IntoResponse {
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
+
+
+    let res= verify_task_auth(user,  &collection,&body.id).await;
+    if !res{
+        return get_error("Error updating tasks".to_string());
+    }
+
 
     // filter to get existing quest
     let filter = doc! {
