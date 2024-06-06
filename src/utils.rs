@@ -1,4 +1,7 @@
-use crate::models::{AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument, QuestTaskDocument, UserExperience};
+use crate::models::{
+    AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument,
+    QuestTaskDocument, UserExperience,
+};
 use async_trait::async_trait;
 use axum::{
     body::Body,
@@ -13,6 +16,7 @@ use mongodb::{
     IndexModel,
 };
 use rand::distributions::{Distribution, Uniform};
+use serde_json::json;
 use starknet::signers::Signer;
 use starknet::{
     core::{
@@ -21,13 +25,12 @@ use starknet::{
     },
     signers::LocalWallet,
 };
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 use std::result::Result;
 use std::str::FromStr;
 use std::{fmt::Write, sync::Arc};
-use serde_json::json;
 use tokio::time::{sleep, Duration};
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
 
 #[macro_export]
 macro_rules! pub_struct {
@@ -56,11 +59,8 @@ macro_rules! check_authorization {
                     &token,
                     &DecodingKey::from_secret($secret_key),
                     &validation,
-                )
-                {
-                    Ok(token_data) => {
-                        token_data.claims.sub
-                    }
+                ) {
+                    Ok(token_data) => token_data.claims.sub,
                     Err(_e) => {
                         return get_error("Invalid token".to_string());
                     }
@@ -96,13 +96,11 @@ pub async fn get_nft(
     Ok((token_id, sig))
 }
 
-
 pub fn calculate_hash(t: &String) -> u64 {
     let mut hasher = DefaultHasher::new();
     t.hash(&mut hasher);
     hasher.finish()
 }
-
 
 pub fn get_error(error: String) -> Response {
     (StatusCode::INTERNAL_SERVER_ERROR, error).into_response()
@@ -283,7 +281,7 @@ impl CompletedTasksTrait for AppState {
                             experience.into(),
                             timestamp,
                         )
-                            .await;
+                        .await;
                     }
                     Err(_e) => {
                         get_error("Error querying quests".to_string());
@@ -371,7 +369,7 @@ impl AchievementsTrait for AppState {
                     experience.into(),
                     timestamp,
                 )
-                    .await;
+                .await;
             }
             None => {}
         }
@@ -740,43 +738,40 @@ pub async fn verify_task_auth(
     task_collection: &Collection<QuestTaskDocument>,
     id: &i32,
 ) -> bool {
-
     if user == "super_user" {
         return true;
     }
 
-    let pipeline=vec![
-        [
-            doc! {
-        "$match": doc! {
-            "id": id
-        }
-    },
-            doc! {
-        "$lookup": doc! {
-            "from": "quests",
-            "localField": "quest_id",
-            "foreignField": "id",
-            "as": "quest"
-        }
-    },
-            doc! {
-        "$project": doc! {
-            "quest.issuer": 1
-        }
-    },
-            doc! {
-        "$unwind": doc! {
-            "path": "$quest"
-        }
-    },
-            doc! {
-        "$project": doc! {
-            "issuer": "$quest.issuer"
-        }
-    }
-        ]
-    ];
+    let pipeline = vec![[
+        doc! {
+            "$match": doc! {
+                "id": id
+            }
+        },
+        doc! {
+            "$lookup": doc! {
+                "from": "quests",
+                "localField": "quest_id",
+                "foreignField": "id",
+                "as": "quest"
+            }
+        },
+        doc! {
+            "$project": doc! {
+                "quest.issuer": 1
+            }
+        },
+        doc! {
+            "$unwind": doc! {
+                "path": "$quest"
+            }
+        },
+        doc! {
+            "$project": doc! {
+                "issuer": "$quest.issuer"
+            }
+        },
+    ]];
     let mut existing_quest = &task_collection.aggregate(pipeline, None).await.unwrap();
 
     let mut issuer = String::new();
@@ -789,13 +784,11 @@ pub async fn verify_task_auth(
     false
 }
 
-
 pub async fn verify_quest_auth(
     user: String,
     quest_collection: &Collection<QuestDocument>,
     id: &i32,
 ) -> bool {
-
     if user == "super_user" {
         return true;
     }
@@ -809,20 +802,14 @@ pub async fn verify_quest_auth(
         Err(_) => return false,
     }
 }
-pub async fn make_api_request(
-    endpoint: &str,
-    addr: &str,
-    api_key: Option<&str>,
-) -> bool {
+pub async fn make_api_request(endpoint: &str, addr: &str, api_key: Option<&str>) -> bool {
     let client = reqwest::Client::new();
-    let request_builder = client
-        .post(endpoint)
-        .json(&json!({
-            "address": addr,
-        }));
-    let key= api_key.unwrap_or("");
+    let request_builder = client.post(endpoint).json(&json!({
+        "address": addr,
+    }));
+    let key = api_key.unwrap_or("");
     let request_builder = match key.is_empty() {
-        true =>  request_builder,
+        true => request_builder,
         false => request_builder.header("apiKey", key),
     };
     match request_builder.send().await {
@@ -835,14 +822,13 @@ pub async fn make_api_request(
                     }
                 }
                 false
-            },
+            }
             Err(_) => false,
         },
         Err(_) => false,
     };
     false
 }
-
 
 // required for axum_auto_routes
 pub trait WithState: Send {

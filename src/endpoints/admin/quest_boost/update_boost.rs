@@ -1,4 +1,4 @@
-use crate::models::{BoostTable};
+use crate::models::{BoostTable, QuestDocument};
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::State,
@@ -12,6 +12,7 @@ use serde_json::json;
 use std::sync::Arc;
 use serde::Deserialize;
 use axum::http::HeaderMap;
+use crate::utils::verify_quest_auth;
 
 pub_struct!(Deserialize; UpdateBoostQuery {
     id: i32,
@@ -33,23 +34,18 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
     let collection = state.db.collection::<BoostTable>("boosts");
+    let collection = state.db.collection::<QuestDocument>("quests");
 
-    // filter to get existing boost
-    let mut filter = doc! {
-        "id": &body.id,
+
+    let res= verify_quest_auth(user, &collection, &(body.id as i32)).await;
+    if !res {
+        return get_error("Error updating boost".to_string());
     };
 
-    // check if user is super_user
-    if user != "super_user" {
-        filter.insert("issuer", user);
-    }
-
-    let existing_boost = &collection.find_one(filter.clone(), None).await.unwrap();
-
-    // create a boost if it does not exist
-    if existing_boost.is_none() {
-        return get_error("Error creating boosts".to_string());
-    }
+    // filter to get existing boost
+    let filter = doc! {
+        "id": &body.id,
+    };
 
     let mut update_doc = Document::new();
 

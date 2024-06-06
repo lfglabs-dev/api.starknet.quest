@@ -12,6 +12,7 @@ use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
 use axum::http::HeaderMap;
+use crate::utils::verify_quest_auth;
 
 #[derive(Deserialize)]
 pub struct CreateBoostQuery {
@@ -40,23 +41,11 @@ pub async fn handler(
     let collection = state.db.collection::<BoostTable>("boosts");
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
-    // filter to get existing quest
-    let mut filter = doc! {
-        "id": &body.quest_id,
+
+    let res= verify_quest_auth(user, &quests_collection, &(body.quest_id as i32)).await;
+    if !res {
+        return get_error("Error creating boost".to_string());
     };
-
-    // check if user is super_user
-    if user != "super_user" {
-        filter.insert("issuer", user);
-    }
-
-    let existing_quest = quests_collection
-        .find_one(filter.clone(), None)
-        .await
-        .unwrap();
-    if existing_quest.is_none() {
-        return get_error("quest does not exist".to_string());
-    }
 
     // Get the last id in increasing order
     let last_id_filter = doc! {};

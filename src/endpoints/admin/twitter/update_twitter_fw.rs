@@ -82,6 +82,6 @@ pub async fn handler(
             Json(json!({"message": "updated successfully"})),
         )
             .into_response(),
-        Err(_e) => get_error("error updating boost".to_string()),
+        Err(_e) => get_error("error updating task".to_string()),
     };
 }

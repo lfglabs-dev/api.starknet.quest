@@ -74,9 +74,9 @@ pub async fn handler(
     {
         Ok(_) => (
             StatusCode::OK,
-            Json(json!({"message": "Boost created successfully"})).into_response(),
+            Json(json!({"message": "Task created successfully"})).into_response(),
         )
             .into_response(),
-        Err(_e) => get_error("Error creating boosts".to_string()),
+        Err(_e) => get_error("Error creating task".to_string()),
     };
 }
