@@ -124,17 +124,17 @@ impl<'de> Deserialize<'de> for QuizQuestionType {
     }
 }
 
-pub_struct!(Clone, Deserialize; QuizQuestion {
+pub_struct!(Clone, Deserialize,Debug; QuizQuestion {
     kind: QuizQuestionType,
     layout: String,
     question: String,
     options: Vec<String>,
     correct_answers: Option<Vec<usize>>,
-    correct_order: Option<Vec<usize>>,
+    correct_order: Option<Vec<String>>,
     image_for_layout: Option<String>,
 });
 
-pub_struct!(Clone, Deserialize; Quiz {
+pub_struct!(Clone, Deserialize,Debug; Quiz {
     name: String,
     desc: String,
     questions: Vec<QuizQuestion>,
@@ -167,6 +167,11 @@ pub_struct!(Clone, Deserialize;  Achievements {
     carbonable: Achievement,
 });
 
+pub_struct!(Clone, Deserialize;  AuthSetup {
+    secret_key: String,
+    expiry_duration: i64,
+});
+
 pub_struct!(Clone, Deserialize;  Config {
     server: Server,
     database: Database,
@@ -183,6 +188,7 @@ pub_struct!(Clone, Deserialize;  Config {
     rhino: PublicApi,
     rango: Api,
     pyramid: ApiEndpoint,
+    auth:AuthSetup,
 });
 
 pub fn load() -> Config {

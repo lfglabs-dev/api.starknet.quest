@@ -5,6 +5,10 @@ port = 8080
 name = "starkship_server"
 connection_string = "xxxxxx"
 
+[auth]
+secret_key = "secret_key"
+expiry_duration = 0
+
 [rhino]
 api_endpoint="XXXXXXXXXXXX"
 

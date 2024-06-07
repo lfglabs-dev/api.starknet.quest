@@ -1,70 +1,84 @@
-use crate::{config::QuizQuestionType, models::AppState, utils::get_error};
+use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::bson::doc;
-use serde::{Deserialize, Serialize};
+use futures::{StreamExt};
+use mongodb::bson::{doc, Document};
+use serde::{Deserialize};
 use starknet::core::types::FieldElement;
 use std::sync::Arc;
 
 #[derive(Deserialize)]
 pub struct GetQuizQuery {
-    id: String,
+    id: i64,
     // addr could be used as entropy for sending a server side randomized order
     // let's keep on client side for now
     #[allow(dead_code)]
     addr: FieldElement,
 }
 
-pub_struct!(Clone, Serialize; QuizQuestionResp {
-    kind: String,
-    layout: String,
-    question: String,
-    options: Vec<String>,
-    image_for_layout: Option<String>
-});
-
-#[derive(Clone, Serialize)]
-pub struct QuizResponse {
-    name: String,
-    desc: String,
-    questions: Vec<QuizQuestionResp>,
-}
 
 #[route(get, "/get_quiz", crate::endpoints::get_quiz)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuizQuery>,
 ) -> impl IntoResponse {
-    let quizzes_from_config = &state.conf.quizzes;
-    match quizzes_from_config.get(&query.id) {
-        Some(quiz) => {
-            let questions: Vec<QuizQuestionResp> = quiz
-                .questions
-                .iter()
-                .map(|question| QuizQuestionResp {
-                    kind: match question.kind {
-                        QuizQuestionType::TextChoice => "text_choice".to_string(),
-                        QuizQuestionType::ImageChoice => "image_choice".to_string(),
-                        QuizQuestionType::Ordering => "ordering".to_string(),
+    let collection = state.db.collection::<Document>("quizzes");
+    let pipeline = vec![
+        doc! {
+            "$match": doc! {
+                "id": &query.id
+            }
+        },
+        doc! {
+            "$lookup": doc! {
+                "from": "quiz_questions",
+                "let": doc! {
+                    "id": "$id"
+                },
+                "pipeline": [
+                    doc! {
+                        "$match": doc! {
+                            "quiz_id": &query.id
+                        }
                     },
-                    layout: question.layout.clone(),
-                    question: question.question.clone(),
-                    options: question.options.clone(),
-                    image_for_layout: question.image_for_layout.clone(),
-                })
-                .collect();
-            let quiz_response = QuizResponse {
-                name: quiz.name.clone(),
-                desc: quiz.desc.clone(),
-                questions,
-            };
+                    doc! {
+                        "$project": doc! {
+                            "correct_answers": 0,
+                            "quiz_id": 0,
+                            "_id": 0
+                        }
+                    }
+                ],
+                "as": "questions"
+            }
+        },
+        doc! {
+            "$project": doc! {
+                "_id": 0,
+            }
+        },
+    ];
 
-            (StatusCode::OK, Json(quiz_response)).into_response()
+    match collection.aggregate(pipeline, None).await {
+        Ok(mut cursor) => {
+            while let Some(result) = cursor.next().await {
+                match result {
+                    Ok(document) => {
+                        return (StatusCode::OK, Json(document)).into_response();
+                    }
+                    Err(e) => {
+                        return get_error(e.to_string());
+                    }
+                }
+            }
+            get_error("Quiz not found".to_string())
         }
-        None => get_error("Quiz not found".to_string()),
+        Err(e) => {
+            return get_error(e.to_string());
+        }
     }
 }

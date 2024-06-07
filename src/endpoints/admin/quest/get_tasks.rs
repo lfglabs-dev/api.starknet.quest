@@ -6,15 +6,14 @@ use axum::{
 };
 use axum_auto_routes::route;
 use futures::stream::StreamExt;
-use mongodb::bson::{doc, from_document, Document};
+use mongodb::bson::{doc, from_document};
 use serde::{Deserialize, Serialize};
-use starknet::core::types::FieldElement;
 use std::sync::Arc;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UserTask {
-    id: u32,
-    quest_id: u32,
+    id: i64,
+    quest_id: i64,
     name: String,
     href: String,
     cta: String,
@@ -22,38 +21,23 @@ pub struct UserTask {
     verify_endpoint_type: String,
     verify_redirect: Option<String>,
     desc: String,
-    completed: bool,
     quiz_name: Option<i64>,
+    task_type: Option<String>,
+    discord_guild_id: Option<String>,
 }
 
 #[derive(Deserialize)]
 pub struct GetTasksQuery {
     quest_id: u32,
-    addr: FieldElement,
 }
 
-#[route(get, "/get_tasks", crate::endpoints::get_tasks)]
+#[route(get, "/admin/quest/get_tasks", crate::endpoints::admin::quest::get_tasks)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetTasksQuery>,
 ) -> impl IntoResponse {
     let pipeline = vec![
         doc! { "$match": { "quest_id": query.quest_id } },
-        doc! {
-            "$lookup": {
-                "from": "completed_tasks",
-                "let": { "task_id": "$id" },
-                "pipeline": [
-                    {
-                        "$match": {
-                            "$expr": { "$eq": [ "$task_id", "$$task_id" ] },
-                            "address": query.addr.to_string(),
-                        },
-                    },
-                ],
-                "as": "completed",
-            }
-        },
         doc! {
             "$lookup": {
                 "from": "quests",
@@ -63,7 +47,6 @@ pub async fn handler(
             }
         },
         doc! { "$unwind": "$quest" },
-        doc! { "$match": { "quest.disabled": false } },
         doc! {
             "$addFields": {
                 "sort_order": doc! {
@@ -96,12 +79,12 @@ pub async fn handler(
                 "verify_redirect" : 1,
                 "verify_endpoint_type": 1,
                 "desc": 1,
-                "completed": { "$gt": [ { "$size": "$completed" }, 0 ] },
                 "quiz_name": 1,
+                "task_type":1,
             }
         },
     ];
-    let tasks_collection = state.db.collection::<Document>("tasks");
+    let tasks_collection = state.db.collection::<UserTask>("tasks");
     match tasks_collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
             let mut tasks: Vec<UserTask> = Vec::new();

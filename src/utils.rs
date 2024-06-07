@@ -1,6 +1,4 @@
-use crate::models::{
-    AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, UserExperience,
-};
+use crate::models::{AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument, QuestTaskDocument, UserExperience};
 use async_trait::async_trait;
 use axum::{
     body::Body,
@@ -15,6 +13,7 @@ use mongodb::{
     IndexModel,
 };
 use rand::distributions::{Distribution, Uniform};
+use serde_json::json;
 use starknet::signers::Signer;
 use starknet::{
     core::{
@@ -23,6 +22,8 @@ use starknet::{
     },
     signers::LocalWallet,
 };
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 use std::result::Result;
 use std::str::FromStr;
 use std::{fmt::Write, sync::Arc};
@@ -36,6 +37,35 @@ macro_rules! pub_struct {
             $(pub $field: $t),*
         }
     }
+}
+
+macro_rules! check_authorization {
+    ($headers:expr,$secret_key:expr) => {
+        match $headers.get("Authorization") {
+            Some(auth_header) => {
+                let validation = Validation::new(Algorithm::HS256);
+                let token = auth_header
+                    .to_str()
+                    .unwrap()
+                    .to_string()
+                    .split(" ")
+                    .collect::<Vec<&str>>()[1]
+                    .to_string();
+
+                match decode::<JWTClaims>(
+                    &token,
+                    &DecodingKey::from_secret($secret_key),
+                    &validation,
+                ) {
+                    Ok(token_data) => token_data.claims.sub,
+                    Err(_e) => {
+                        return get_error("Invalid token".to_string());
+                    }
+                }
+            }
+            None => return get_error("missing auth header".to_string()),
+        }
+    };
 }
 
 pub async fn get_nft(
@@ -61,6 +91,12 @@ pub async fn get_nft(
     );
     let sig = signer.sign_hash(&hashed).await?;
     Ok((token_id, sig))
+}
+
+pub fn calculate_hash(t: &String) -> u64 {
+    let mut hasher = DefaultHasher::new();
+    t.hash(&mut hasher);
+    hasher.finish()
 }
 
 pub fn get_error(error: String) -> Response {
@@ -242,7 +278,7 @@ impl CompletedTasksTrait for AppState {
                             experience.into(),
                             timestamp,
                         )
-                            .await;
+                        .await;
                     }
                     Err(_e) => {
                         get_error("Error querying quests".to_string());
@@ -251,7 +287,6 @@ impl CompletedTasksTrait for AppState {
             }
             None => {}
         }
-
         Ok(result)
     }
 }
@@ -296,8 +331,7 @@ impl AchievementsTrait for AppState {
         let achieved_collection: Collection<CompletedTasks> = self.db.collection("achieved");
         let created_at = Utc::now().timestamp_millis();
         let filter = doc! { "addr": addr.to_string(), "achievement_id": achievement_id };
-        let update =
-            doc! { "$setOnInsert": { "addr": addr.to_string(), "achievement_id": achievement_id , "timestamp":created_at } };
+        let update = doc! { "$setOnInsert": { "addr": addr.to_string(), "achievement_id": achievement_id , "timestamp":created_at } };
         let options = UpdateOptions::builder().upsert(true).build();
 
         let result = achieved_collection
@@ -332,7 +366,7 @@ impl AchievementsTrait for AppState {
                     experience.into(),
                     timestamp,
                 )
-                    .await;
+                .await;
             }
             None => {}
         }
@@ -694,6 +728,104 @@ pub fn run_boosts_raffle(db: &Database, interval: u64) {
         completed_tasks_collection,
         interval,
     ));
+}
+
+pub async fn verify_task_auth(
+    user: String,
+    task_collection: &Collection<QuestTaskDocument>,
+    id: &i32,
+) -> bool {
+    if user == "super_user" {
+        return true;
+    }
+
+    let pipeline = vec![
+        doc! {
+            "$match": doc! {
+                "id": id
+            }
+        },
+        doc! {
+            "$lookup": doc! {
+                "from": "quests",
+                "localField": "quest_id",
+                "foreignField": "id",
+                "as": "quest"
+            }
+        },
+        doc! {
+            "$project": doc! {
+                "quest.issuer": 1
+            }
+        },
+        doc! {
+            "$unwind": doc! {
+                "path": "$quest"
+            }
+        },
+        doc! {
+            "$project": doc! {
+                "issuer": "$quest.issuer"
+            }
+        },
+    ];
+    let mut existing_quest = task_collection.aggregate(pipeline, None).await.unwrap();
+
+    let mut issuer = String::new();
+    while let Some(doc) = existing_quest.try_next().await.unwrap() {
+        issuer = doc.get("issuer").unwrap().as_str().unwrap().to_string();
+    }
+    if issuer == user {
+        return true;
+    }
+    false
+}
+
+pub async fn verify_quest_auth(
+    user: String,
+    quest_collection: &Collection<QuestDocument>,
+    id: &i32,
+) -> bool {
+    if user == "super_user" {
+        return true;
+    }
+
+    let filter = doc! { "id": id, "issuer": user };
+
+    let existing_quest = quest_collection.find_one(filter, None).await.unwrap();
+
+    match existing_quest {
+        Some(_) => true,
+        None => false,
+    }
+
+}
+pub async fn make_api_request(endpoint: &str, addr: &str, api_key: Option<&str>) -> bool {
+    let client = reqwest::Client::new();
+    let request_builder = client.post(endpoint).json(&json!({
+        "address": addr,
+    }));
+    let key = api_key.unwrap_or("");
+    let request_builder = match key.is_empty() {
+        true => request_builder,
+        false => request_builder.header("apiKey", key),
+    };
+    match request_builder.send().await {
+        Ok(response) => match response.json::<serde_json::Value>().await {
+            Ok(json) => {
+                //check value of result in json
+                if let Some(data) = json.get("data") {
+                    if let Some(res) = data.get("result") {
+                        return res.as_bool().unwrap();
+                    }
+                }
+                false
+            }
+            Err(_) => false,
+        },
+        Err(_) => false,
+    };
+    false
 }
 
 // required for axum_auto_routes

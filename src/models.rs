@@ -1,4 +1,4 @@
-use mongodb::{Database};
+use mongodb::Database;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use starknet::{
@@ -7,6 +7,7 @@ use starknet::{
 };
 
 use crate::config::Config;
+use crate::endpoints::quests::uri::Attribute;
 
 pub_struct!(;AppState {
     conf: Config,
@@ -36,13 +37,60 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     title_card: String,
     hidden: Option<bool>,
     disabled: bool,
-        expiry: Option<i64>,
+    expiry: Option<i64>,
     expiry_timestamp: Option<String>,
     mandatory_domain: Option<String>,
     expired: Option<bool>,
     experience: i64,
-        start_time: i64,
+    start_time: i64,
+});
 
+pub_struct!(Debug, Serialize, Deserialize; QuestInsertDocument {
+    id: u32,
+    name: String,
+    desc: String,
+    additional_desc: Option<String>,
+    issuer: String,
+    category: String,
+    rewards_endpoint: String,
+    logo: String,
+    rewards_img: String,
+    rewards_title: String,
+    rewards_description: Option<String>,
+    rewards_nfts: Vec<NFTItem>,
+    img_card: String,
+    title_card: String,
+    disabled: bool,
+    expiry: Option<i64>,
+    mandatory_domain: Option<String>,
+    experience: i64,
+    start_time: i64,
+});
+
+pub_struct!(Debug, Serialize, Deserialize;  QuizInsertDocument {
+    id: u32,
+    name: String,
+    desc: String,
+   intro:String,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; QuizQuestionDocument {
+    id: i64,
+    question: String,
+    options:Vec<String>,
+    correct_answers: Vec<i64>,
+    kind: String,
+    layout: String,
+    quiz_id: i64,
+});
+
+pub_struct!(Serialize, Deserialize; NFTUri {
+    id: i64,
+    name: String,
+    description:String,
+    image: String,
+    quest_id: i64,
+    attributes: Option<Attribute>
 });
 
 pub_struct!(Deserialize; CompletedTasks {
@@ -58,19 +106,24 @@ pub struct CompletedTaskDocument {
     timestamp: i64,
 }
 
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct QuestTaskDocument {
-    id: u32,
-    quest_id: u32,
-    name: String,
-    desc: String,
-    cta: String,
-    verify_endpoint: String,
-    verify_endpoint_type: String,
-    verify_redirect: Option<String>,
-    href: String,
-    quiz_name: Option<String>,
+    pub(crate) id: i32,
+    pub quest_id: u32,
+    pub name: String,
+    pub desc: String,
+    pub cta: String,
+    pub verify_endpoint: String,
+    pub href: String,
+    pub verify_endpoint_type: String,
+    #[serde(default)]
+    pub verify_redirect: Option<String>,
+    #[serde(default)]
+    pub quiz_name: Option<i64>,
+    #[serde(default)]
+    pub task_type: Option<String>,
+    #[serde(default)]
+    pub(crate) discord_guild_id: Option<String>,
 }
 
 pub_struct!(Serialize; Reward {
@@ -85,7 +138,9 @@ pub_struct!(Serialize; RewardResponse {
 });
 
 pub_struct!(Deserialize; VerifyQuery {
-     addr: FieldElement,
+    addr: FieldElement,
+    quest_id: u32,
+    task_id: u32,
 });
 
 pub_struct!(Deserialize; EmailQuery {
@@ -95,7 +150,7 @@ pub_struct!(Deserialize; EmailQuery {
 
 pub_struct!(Deserialize; VerifyQuizQuery {
     addr: FieldElement,
-    quiz_name: String,
+    quiz_name: i64,
     user_answers_list: Vec<Vec<String>>,
 });
 
@@ -263,4 +318,25 @@ pub_struct!(Debug, Serialize, Deserialize; QuestCategoryDocument {
     title: String,
     desc: String,
     img_url: String,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; JWTClaims {
+    sub: String,
+    exp: usize,
+});
+
+pub_struct!(Debug, Serialize, Deserialize; LoginDetails {
+    user: String,
+    code: String,
+});
+
+pub_struct!(Deserialize; CreateBoostQuery {
+    quest_id: i32,
+    amount: i32,
+    token: String,
+    num_of_winners: i64,
+    token_decimals: i64,
+    name: String,
+    img_url: String,
+    expiry: i64,
 });
