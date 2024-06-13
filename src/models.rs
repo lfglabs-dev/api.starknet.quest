@@ -139,6 +139,10 @@ pub_struct!(Serialize; RewardResponse {
 
 pub_struct!(Deserialize; VerifyQuery {
     addr: FieldElement,
+});
+
+pub_struct!(Deserialize; VerifyNewQuery {
+    addr: FieldElement,
     quest_id: u32,
     task_id: u32,
 });

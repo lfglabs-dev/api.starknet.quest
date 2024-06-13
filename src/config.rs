@@ -84,7 +84,8 @@ pub_struct!(Clone, Deserialize;  Quests {
     hashstack: TokenAndContract,
     haiko: PublicApi,
     nimbora: Contract,
-    bountive: Contract
+    bountive: Contract,
+    sithswap_2: ApiEndpoint,
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {

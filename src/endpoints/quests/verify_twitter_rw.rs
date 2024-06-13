@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::models::QuestTaskDocument;
+use crate::models::{QuestTaskDocument};
 use crate::{
     models::{AppState, VerifyQuery},
     utils::{get_error, CompletedTasksTrait},
@@ -23,7 +23,7 @@ use serde_json::json;
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    Query(query): Query<VerifyQuery>,
+    Query(query): Query<VerifyNewQuery>,
 ) -> impl IntoResponse {
     let quest_id = query.quest_id;
     let task_id = query.task_id;

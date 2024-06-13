@@ -21,7 +21,7 @@ use starknet::{
 #[route(
     get,
     "/quests/sithswap/verify_added_liquidity",
-    crate::endpoints::quests::sithswap::verify_added_liquidity
+    crate::endpoints::quests::sithswap::quest1::verify_added_liquidity
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
