@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::models::{QuestTaskDocument};
+use crate::models::{QuestTaskDocument, VerifyNewQuery};
 use crate::{
     models::{AppState, VerifyQuery},
     utils::{get_error, CompletedTasksTrait},
