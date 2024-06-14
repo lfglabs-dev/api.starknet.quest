@@ -31,7 +31,7 @@ pub async fn handler(
     let addr = &query.addr;
     let mut hex_addr = to_hex(*addr);
     // Define the GraphQL endpoint
-    let endpoint= &state.conf.quests.sithswap_2.api_endpoint;
+    let endpoint = &state.conf.quests.sithswap_2.api_endpoint;
 
     // remove "0x"
     hex_addr.remove(0);
@@ -63,9 +63,7 @@ pub async fn handler(
         "#,
         &hex_addr
     );
-
-    println!("Query: {}", graphql_query);
-
+    
     // Send the GraphQL query
     let response = reqwest::Client::new()
         .post(endpoint)
@@ -115,5 +113,4 @@ pub async fn handler(
     } else {
         get_error("User has not completed the task".to_string())
     }
-
 }
