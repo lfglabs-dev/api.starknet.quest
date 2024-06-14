@@ -63,6 +63,8 @@ api_endpoint = "xxxxxx"
 contract = "0xXXXXXXXXXXXX"
 [quests.bountive]
 contract = "0xXXXXXXXXXXXX"
+[quests.sithswap_2]
+api_endpoint = "xxxxxxx"
 
 [rhino]
 api_endpoint = "xxxxx"
@@ -1094,8 +1096,6 @@ options = [
     "$500 million",
 ]
 correct_answers = [*]
-
-
 
 [quizzes.haiko]
 name = "Strategist quiz"
