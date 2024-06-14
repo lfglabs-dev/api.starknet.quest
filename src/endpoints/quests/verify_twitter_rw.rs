@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::models::{QuestTaskDocument, VerifyNewQuery};
 use crate::{
-    models::{AppState, VerifyQuery},
+    models::{AppState},
     utils::{get_error, CompletedTasksTrait},
 };
 use axum::{

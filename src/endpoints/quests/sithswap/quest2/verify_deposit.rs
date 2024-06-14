@@ -90,29 +90,23 @@ pub async fn handler(
 
     // Check if the response contains the data field
     if let Some(data) = response.get("data") {
-        println!("Data: {}", data);
         // Check if the data field contains the mints field
         if let Some(mints) = data.get("mints") {
-            println!("Mints: {}", mints);
             // Iterate over the mints
             for mint in mints.as_array().unwrap() {
-                println!("Mint: {}", mint);
                 // Check if the mint contains the amountUSD field
                 if let Some(amount_usd) = mint.get("amountUSD").and_then(|v| v.as_str()) {
                     match string_to_float(amount_usd) {
                         Ok(amount_usd) => total_amount_usd += amount_usd,
-                        Err(e) => return get_error(format!("Failed to get balance"))
+                        Err(_e) => return get_error(format!("Failed to get balance"))
                     }
                 }
             }
         }
     }
 
-    println!("Total amount USD: {}", total_amount_usd);
-
-
     // Check if the total_amount_usd is greater than 10
-    if total_amount_usd > 10.0 {
+    if total_amount_usd >= 10.0 {
         // Update the completed task
         match state.upsert_completed_task(*&query.addr, task_id).await {
             Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
