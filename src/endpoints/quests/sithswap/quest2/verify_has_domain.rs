@@ -11,12 +11,12 @@ use std::sync::Arc;
 
 #[route(
 get,
-"/quests/verify_has_domain",
-crate::endpoints::quests::verify_domain
+"/quests/sithswap2/verify_has_domain",
+crate::endpoints::quests::sithswap::quest2::verify_has_domain
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    Query(query): Query<VerifyNewQuery>,
+    Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
-    verify_has_root_or_braavos_domain(state, &query.addr, 82).await
+    verify_has_root_or_braavos_domain(state, &query.addr, 149).await
 }
