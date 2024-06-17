@@ -81,6 +81,7 @@ pub async fn handler(
                 "desc": 1,
                 "quiz_name": 1,
                 "task_type":1,
+                "discord_guild_id": 1,
             }
         },
     ];

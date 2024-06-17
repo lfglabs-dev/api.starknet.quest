@@ -28,6 +28,7 @@ pub_struct!(Deserialize; UpdateQuestQuery {
     rewards_title: Option<String>,
     img_card: Option<String>,
     title_card: Option<String>,
+    issuer: Option<String>,
 });
 
 #[route(post, "/admin/quest/update", crate::endpoints::admin::quest::update_quest)]
@@ -76,6 +77,9 @@ pub async fn handler(
     }
     if let Some(logo) = &body.logo {
         update_doc.insert("logo", logo);
+    }
+    if let Some(logo) = &body.issuer {
+        update_doc.insert("issuer", logo);
     }
     if let Some(rewards_img) = &body.rewards_img {
         update_doc.insert("rewards_img", rewards_img);

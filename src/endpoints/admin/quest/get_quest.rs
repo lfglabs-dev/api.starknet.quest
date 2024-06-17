@@ -33,11 +33,10 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
     let collection = state.db.collection::<QuestDocument>("quests");
-    let pipeline = vec![
+    let mut pipeline = vec![
         doc! {
             "$match": doc! {
                 "id": query.id,
-                "issuer": user
             }
         },
         doc! {
@@ -77,6 +76,14 @@ pub async fn handler(
             }
         },
     ];
+
+    if user != "super_user" {
+        pipeline.insert(1, doc! {
+            "$match": doc! {
+                "issuer": user,
+            }
+        });
+    }
 
     match collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
