@@ -77,7 +77,7 @@ pub async fn handler(
         },
     ];
 
-    if (user != "super_user") {
+    if user != "super_user" {
         pipeline.insert(1, doc! {
             "$match": doc! {
                 "issuer": user,
