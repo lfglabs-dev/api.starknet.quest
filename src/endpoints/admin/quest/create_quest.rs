@@ -1,20 +1,18 @@
-use crate::models::{ QuestInsertDocument,JWTClaims};
+use crate::models::{JWTClaims, QuestInsertDocument};
 use crate::{models::AppState, utils::get_error};
+use axum::http::HeaderMap;
 use axum::{
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::{doc, from_document};
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use axum::http::HeaderMap;
-use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
-
-
 
 pub_struct!(Deserialize; CreateQuestQuery {
     name: String,
@@ -28,6 +26,7 @@ pub_struct!(Deserialize; CreateQuestQuery {
     rewards_title: String,
     img_card: String,
     title_card: String,
+    issuer: Option<String>,
 });
 
 #[route(
@@ -59,6 +58,14 @@ pub async fn handler(
         "level": 1,
     };
 
+    let issuer = match user == "super_user" {
+        true => {
+            let result_issuer=(&body.issuer).as_ref().unwrap();
+            result_issuer
+        },
+        false => &user
+    };
+
     let mut new_document = doc! {
         "name": &body.name,
         "desc": &body.desc,
@@ -66,7 +73,7 @@ pub async fn handler(
         "start_time": &body.start_time,
         "id": &next_id,
         "category":&body.category,
-        "issuer": &user,
+        "issuer": &issuer,
         "rewards_endpoint":"/quests/claimable",
         "rewards_title": &body.rewards_title,
         "rewards_img": &body.rewards_img,
@@ -81,7 +88,7 @@ pub async fn handler(
         None => new_document.insert("expiry", None::<String>),
     };
 
-    match user == "admin" {
+    match issuer == "Starknet ID" {
         true => new_document.insert("experience", 50),
         false => new_document.insert("experience", 10),
     };
