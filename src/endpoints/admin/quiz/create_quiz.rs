@@ -91,7 +91,6 @@ pub async fn handler(
         task_type: Some("quiz".to_string()),
         discord_guild_id: None,
         verify_redirect: None,
-
     };
 
     return match tasks_collection
