@@ -66,7 +66,7 @@ pub async fn handler(
                     _ => continue,
                 }
             }
-            get_error("NFT Uri not found".to_string())
+            get_error("Quiz not found".to_string())
         }
         Err(_) => get_error("Error querying quest".to_string()),
     }

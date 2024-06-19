@@ -22,6 +22,7 @@ pub_struct!(Deserialize; CreateCustom {
     desc: String,
     cta: String,
     href: String,
+    api: String,
 });
 
 #[route(post, "/admin/tasks/custom/create", crate::endpoints::admin::custom::create_custom)]
@@ -59,7 +60,7 @@ pub async fn handler(
         quest_id : body.quest_id,
         id: next_id,
         cta: body.cta.clone(),
-        verify_endpoint: "/quests/verify_custom".to_string(),
+        verify_endpoint: body.api.clone(),
         verify_endpoint_type: "default".to_string(),
         task_type: Some("custom".to_string()),
         discord_guild_id: None,

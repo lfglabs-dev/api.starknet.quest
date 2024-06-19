@@ -63,7 +63,6 @@ pub async fn handler(
                     doc! {
                         "$project": doc! {
                             "_id": 0,
-                            "hidden": 0
                         }
                     }
                 ],
