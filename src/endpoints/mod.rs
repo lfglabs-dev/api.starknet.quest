@@ -16,3 +16,4 @@ pub mod get_boosted_quests;
 pub mod analytics;
 pub mod unique_page_visit;
 pub mod admin;
+pub mod discover;
