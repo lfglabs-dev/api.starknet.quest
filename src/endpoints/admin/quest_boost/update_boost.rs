@@ -52,7 +52,6 @@ pub async fn handler(
     let quest_id = res.as_ref().unwrap().quests[0];
     let res = verify_quest_auth(user, &questcollection, &(quest_id as i32)).await;
 
-    println!("res: {}", res);
     if !res {
         return get_error("Error updating boost".to_string());
     };
