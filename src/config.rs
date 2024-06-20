@@ -173,10 +173,18 @@ pub_struct!(Clone, Deserialize;  AuthSetup {
     expiry_duration: i64,
 });
 
+pub_struct!(Clone, Deserialize;  ProtocolStats {
+    pairs_api_endpoint: String,
+    lending_api_endpoint: String,
+    derivates_api_endpoint: String,
+    alt_protocols_api_endpoint: String,
+});
+
 pub_struct!(Clone, Deserialize;  Config {
     server: Server,
     database: Database,
     nft_contract: NftContract,
+    discover:ProtocolStats,
     variables: Variables,
     starknetid_contracts: StarknetIdContracts,
     quests: Quests,

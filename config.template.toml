@@ -9,6 +9,12 @@ connection_string = "xxxxxx"
 secret_key = "secret_key"
 expiry_duration = 0
 
+[discover]
+pairs_api_endpoint = "XXXXXXXX"
+lending_api_endpoint = "XXXXXXXX"
+derivates_api_endpoint = "XXXXXXXX"
+alt_protocols_api_endpoint = "XXXXXXXX"
+
 [rhino]
 api_endpoint="XXXXXXXXXXXX"
 
@@ -124,9 +130,9 @@ kind = "text_choice"
 layout = "default"
 question = "What are the key features of the Ekubo Protocol?"
 options = [
-    "Decentralization and security", 
-    "Concentrated liquidity, a singleton architecture, and extensions", 
-    "High transaction fees", 
+    "Decentralization and security",
+    "Concentrated liquidity, a singleton architecture, and extensions",
+    "High transaction fees",
     "Limited liquidity options"
 ]
 correct_answers = [*]
@@ -136,9 +142,9 @@ kind = "text_choice"
 layout = "default"
 question = "What benefits come with concentrated liquidity?"
 options = [
-    "It limits liquidity provider choices", 
-    "It increases transaction fees", 
-    "It offers better pricing due to leverage within a price range", 
+    "It limits liquidity provider choices",
+    "It increases transaction fees",
+    "It offers better pricing due to leverage within a price range",
     "It restricts liquidity providers from earning yield"
 ]
 correct_answers = [*]
@@ -153,9 +159,9 @@ kind = "text_choice"
 layout = "default"
 question = "How do Morphine vaults earn extra yield?"
 options = [
-    "Liquidity mining", 
-    "Interest auto-compounding", 
-    "Intelligent liquidity management", 
+    "Liquidity mining",
+    "Interest auto-compounding",
+    "Intelligent liquidity management",
     "Debt reallocation"
 ]
 correct_answers = [*]
@@ -165,9 +171,9 @@ kind = "text_choice"
 layout = "default"
 question = "Which yield is the best to target on morphine?"
 options = [
-    "Yield with high TVL and low fees", 
-    "Yield with high TVL and high fees", 
-    "Yield with low TVL and low fees", 
+    "Yield with high TVL and low fees",
+    "Yield with high TVL and high fees",
+    "Yield with low TVL and low fees",
     "Yield with low TVL and high fees"
 ]
 correct_answers = [*]
@@ -177,9 +183,9 @@ kind = "text_choice"
 layout = "default"
 question = "What is the value of Morphine?"
 options = [
-    "Comparing all yields to find best yield", 
-    "Providing lending interest", 
-    "Swapping assets", 
+    "Comparing all yields to find best yield",
+    "Providing lending interest",
+    "Swapping assets",
     "Bridging funds"
 ]
 correct_answers = [*]
@@ -194,9 +200,9 @@ kind = "text_choice"
 layout = "default"
 question = "Which financial product does Carmine offer?"
 options = [
-    "Options", 
-    "FX", 
-    "Forwards", 
+    "Options",
+    "FX",
+    "Forwards",
     "Ethereum"
 ]
 correct_answers = [*]
@@ -206,9 +212,9 @@ kind = "text_choice"
 layout = "default"
 question = "What are call options?"
 options = [
-    "A type of smart contract to execute trades", 
-    "A financial contract that gives the holder the right to buy a specific stock at a specified price within a certain time frame", 
-    "A method for making efficient trading", 
+    "A type of smart contract to execute trades",
+    "A financial contract that gives the holder the right to buy a specific stock at a specified price within a certain time frame",
+    "A method for making efficient trading",
     "A derivative to settle in the present time"
 ]
 correct_answers = [*]
@@ -218,9 +224,9 @@ kind = "text_choice"
 layout = "default"
 question = "What is the role of liquidity providers in Carmine Option liquidity pools?"
 options = [
-    "Liquidity providers facilitate options trades", 
-    "Liquidity providers update volatility mechanisms", 
-    "Liquidity providers assume the counter-position to users' options trades", 
+    "Liquidity providers facilitate options trades",
+    "Liquidity providers update volatility mechanisms",
+    "Liquidity providers assume the counter-position to users' options trades",
     "Liquidity providers enforce exposure limits"
 ]
 correct_answers = [*]
@@ -235,9 +241,9 @@ kind = "text_choice"
 layout = "default"
 question = "What is Starknet?"
 options = [
-    "Starknet is a zkEVM scaling solution.", 
-    "Starknet is a Layer 1 blockchain separate from Ethereum.", 
-    "An Ethereum Layer 2 secured by STARK proofs.", 
+    "Starknet is a zkEVM scaling solution.",
+    "Starknet is a Layer 1 blockchain separate from Ethereum.",
+    "An Ethereum Layer 2 secured by STARK proofs.",
     "Starknet is a permissioned blockchain primarily."
 ]
 correct_answers = [*]
@@ -247,9 +253,9 @@ kind = "text_choice"
 layout = "default"
 question = "What are STARKs?"
 options = [
-    "STARKs is a cryptographic solution decreasing blockspace.", 
-    "STARKs are a mathematical mechanism to provide proof of integrity in computer tasks.", 
-    "STARKs are a widely adopted consensus algorithm for blockchain networks.", 
+    "STARKs is a cryptographic solution decreasing blockspace.",
+    "STARKs are a mathematical mechanism to provide proof of integrity in computer tasks.",
+    "STARKs are a widely adopted consensus algorithm for blockchain networks.",
     "STARKs are a collection of Smart contract execution models."
 ]
 correct_answers = [*]
@@ -277,8 +283,8 @@ layout = "default"
 question = "What are the differences between SNARKs and STARKs in the context of rollups?"
 options = [
     "SNARKs are more scalable and require no trusted setup, while STARKs lack quantum resistance.",
-    "SNARKs require a trusted setup and lack scalability, whereas STARKs are quantum-secure and scalable.", 
-    "SNARKs and STARKs are the same cryptographic technique with no differences.", 
+    "SNARKs require a trusted setup and lack scalability, whereas STARKs are quantum-secure and scalable.",
+    "SNARKs and STARKs are the same cryptographic technique with no differences.",
     "SNARKs are faster in calculations, but STARKs are more widely adopted in Web 3."
 ]
 correct_answers = [*]
@@ -370,9 +376,9 @@ kind = "text_choice"
 layout = "default"
 question = "In the context of Ethereum, what do EOA wallets stand for and what are they?"
 options = [
-    "Ethereum Operational Accounts, used for mining ETH.", 
-    "Ethereum On-chain Authentication, used for DApps.", 
-    "External Ownership Addresses, used for tracking network upgrades.", 
+    "Ethereum Operational Accounts, used for mining ETH.",
+    "Ethereum On-chain Authentication, used for DApps.",
+    "External Ownership Addresses, used for tracking network upgrades.",
     "Externally Owned Accounts, your conventional wallets for sending and receiving ETH."
 ]
 correct_answers = [*]
@@ -382,9 +388,9 @@ kind = "text_choice"
 layout = "default"
 question = "What is the primary disadvantage associated with Externally Owned Accounts (EOAs) in Ethereum?"
 options = [
-    "Their adaptability and customization options for user requirements are limited.", 
-    "They employ a 6-digit password as a means of private key protection.", 
-    "Initiating transactions doesn't necessitate the use of private keys.", 
+    "Their adaptability and customization options for user requirements are limited.",
+    "They employ a 6-digit password as a means of private key protection.",
+    "Initiating transactions doesn't necessitate the use of private keys.",
     "They lack flexibility and are pre-determined by the protocol, leading to poor UX."
 ]
 correct_answers = [*]
@@ -394,9 +400,9 @@ kind = "text_choice"
 layout = "default"
 question = "What exactly is a Smart contract wallet in the context of Starknet?"
 options = [
-    "A wallet that can lock control of user funds to smart contracts.", 
-    "A wallet describing the complexity of blockchain smart contracts.", 
-    "A wallet which is a smart contract and that is highly customizable.", 
+    "A wallet that can lock control of user funds to smart contracts.",
+    "A wallet describing the complexity of blockchain smart contracts.",
+    "A wallet which is a smart contract and that is highly customizable.",
     "A blockchain wallet consensus algorithm used for securing transactions."
 ]
 correct_answers = [*]
@@ -406,9 +412,9 @@ kind = "text_choice"
 layout = "default"
 question = "What are the main 2 smart contract wallets on Starknet? "
 options = [
-    "Phanton, Trust Wallet", 
-    "Argent, Braavos", 
-    "MetaMask, Ledger", 
+    "Phanton, Trust Wallet",
+    "Argent, Braavos",
+    "MetaMask, Ledger",
     "OKX, Binance "
 ]
 correct_answers = [*]
@@ -423,9 +429,9 @@ kind = "text_choice"
 layout = "default"
 question = "What is Signature Abstraction in the context of Smart Contract Wallets?"
 options = [
-    "It ensures comfortable user experiences by allowing multiple simultaneous transactions.", 
-    "It enables the use of any custom logic for account control or any type of device for Signatures.", 
-    "System enforces the complete ordering of transactions for security.", 
+    "It ensures comfortable user experiences by allowing multiple simultaneous transactions.",
+    "It enables the use of any custom logic for account control or any type of device for Signatures.",
+    "System enforces the complete ordering of transactions for security.",
     "The feature restricts customization of account permissions."
 ]
 correct_answers = [*]
@@ -435,9 +441,9 @@ kind = "text_choice"
 layout = "default"
 question = "What is Fee Abstraction in the context of Smart Contract Wallets?"
 options = [
-    "Fee Abstraction ensures comfortable user experiences by allowing multiple simultaneous transactions.", 
-    "Fee Abstraction restricts users to using only the network's native token for transaction fees.", 
-    "Fee Abstraction allows different tokens to be used as payment for Tx fees, not limited to the native token.", 
+    "Fee Abstraction ensures comfortable user experiences by allowing multiple simultaneous transactions.",
+    "Fee Abstraction restricts users to using only the network's native token for transaction fees.",
+    "Fee Abstraction allows different tokens to be used as payment for Tx fees, not limited to the native token.",
     "Fee Abstraction enforces complete ordering of transactions for security. "
 ]
 correct_answers = [*]
@@ -447,9 +453,9 @@ kind = "text_choice"
 layout = "default"
 question = "What does the concept of 'Multicall' offer in the context of Smart Contract Wallets."
 options = [
-    "It enables you to execute multiple transactions simultaneously, increasing gas fees.", 
-    "It allows you to bundle multiple transactions into one transaction, simplifying on-chain interactions.", 
-    "It provides a method to recover lost seed phrases for wallet security.", 
+    "It enables you to execute multiple transactions simultaneously, increasing gas fees.",
+    "It allows you to bundle multiple transactions into one transaction, simplifying on-chain interactions.",
+    "It provides a method to recover lost seed phrases for wallet security.",
     "It automates the inspection of each transaction, ensuring user control."
 ]
 correct_answers = [*]
@@ -459,8 +465,8 @@ kind = "text_choice"
 layout = "default"
 question = "How do 'Session keys' benefit users interacting on Starknet?"
 options = [
-    "They allow users to bypass transaction signing and use DApps/games without any signature.", 
-    "They eliminate the need for social recovery methods in DApps.", 
+    "They allow users to bypass transaction signing and use DApps/games without any signature.",
+    "They eliminate the need for social recovery methods in DApps.",
     "Session keys enhance usability by reducing repeated signing & enabling signature allowances",
     "They provide unlimited access to a Dapp's functions without restrictions."
 ]
@@ -476,9 +482,9 @@ kind = "text_choice"
 layout = "default"
 question = "How does Braavos Hardware Signer Work?"
 options = [
-    "It uses a special security chip in mobile devices to create and protect private keys.", 
-    "The chip generates a unique identifier (UID) that is connected with your Social Media", 
-    "Using biometric authentication like fingerprints to create an EOA.", 
+    "It uses a special security chip in mobile devices to create and protect private keys.",
+    "The chip generates a unique identifier (UID) that is connected with your Social Media",
+    "Using biometric authentication like fingerprints to create an EOA.",
     "It relies on a complex cryptographic algorithm called NIST-P256."
 ]
 correct_answers = [*]
@@ -488,9 +494,9 @@ kind = "text_choice"
 layout = "default"
 question = "What is the Argent Web Wallet, and what features does it offer?"
 options = [
-    "A physical wallet for storing cryptocurrency with a smart lock.", 
-    "A self-custodial smart wallet on your browser with various features, such as 2FA via mail.", 
-    "A browser extension for secure internet browsing.", 
+    "A physical wallet for storing cryptocurrency with a smart lock.",
+    "A self-custodial smart wallet on your browser with various features, such as 2FA via mail.",
+    "A browser extension for secure internet browsing.",
     "An online shopping platform for buying digital goods."
 ]
 correct_answers = [*]
@@ -681,9 +687,9 @@ kind = "text_choice"
 layout = "default"
 question = "How much time per day do teenagers spend on their phone on average?"
 options = [
-    "2 hours", 
-    "3 hours", 
-    "5 hours", 
+    "2 hours",
+    "3 hours",
+    "5 hours",
     "9 hours"
 ]
 correct_answers = [*]
@@ -702,7 +708,7 @@ kind = "text_choice"
 layout = "default"
 question = "What are the benefits from using Focus Tree app?"
 options = [
-    "Increase my focus and mental health while collecting NFTs.", 
+    "Increase my focus and mental health while collecting NFTs.",
     "Transforms my phone into a hoverboard.",
     "Cooks dinner for me every evening.",
     "Teaches my cat to speak fluent Spanish."
@@ -719,9 +725,9 @@ kind = "text_choice"
 layout = "default"
 question = "What are briqs?"
 options = [
-    "Tokenized real estate shares", 
-    "ERC-1155 compatible construction blocks used to build NFTs", 
-    "ERC-20 tokens used to trade DeFi", 
+    "Tokenized real estate shares",
+    "ERC-1155 compatible construction blocks used to build NFTs",
+    "ERC-20 tokens used to trade DeFi",
     "ERC-721 collectibles used as profile pictures"
 ]
 correct_answers = [*]
@@ -731,9 +737,9 @@ kind = "text_choice"
 layout = "default"
 question = "What are sets?"
 options = [
-    "ERC-721 collectibles built with briqs", 
-    "ERC-1155 tokens used to build houses", 
-    "Tokenized real estate shares", 
+    "ERC-721 collectibles built with briqs",
+    "ERC-1155 tokens used to build houses",
+    "Tokenized real estate shares",
     "ERC-20 stablecoins"
 ]
 correct_answers = [*]
@@ -743,9 +749,9 @@ kind = "text_choice"
 layout = "default"
 question = "What is the briq factory?"
 options = [
-    "A real factory, based in France, that produces physical bricks", 
-    "A secondary market to briqs", 
-    "A contract issuing briqs on the primary market, according to an emission schedule", 
+    "A real factory, based in France, that produces physical bricks",
+    "A secondary market to briqs",
+    "A contract issuing briqs on the primary market, according to an emission schedule",
     "A marketplace to buy sets"
 ]
 correct_answers = [*]
@@ -755,9 +761,9 @@ kind = "text_choice"
 layout = "default"
 question = "When was briq deployed on Starknet mainnet for the 1st time?"
 options = [
-    "December 2021", 
-    "January 2020", 
-    "November 2022", 
+    "December 2021",
+    "January 2020",
+    "November 2022",
     "June 2023"
 ]
 correct_answers = [*]
@@ -772,9 +778,9 @@ kind = "text_choice"
 layout = "default"
 question = "What is Element?"
 options = [
-    "A popular cryptocurrency exchange", 
-    "A mobile gaming app", 
-    "A community-driven aggregated marketplace for NFTs", 
+    "A popular cryptocurrency exchange",
+    "A mobile gaming app",
+    "A community-driven aggregated marketplace for NFTs",
     "A new social media platform"
 ]
 correct_answers = [*]
@@ -784,9 +790,9 @@ kind = "text_choice"
 layout = "default"
 question = " Which chain does Element NOT support currently?"
 options = [
-    "ETH", 
-    "ZkSync", 
-    "Starknet", 
+    "ETH",
+    "ZkSync",
+    "Starknet",
     "Solana"
 ]
 correct_answers = [*]
@@ -796,9 +802,9 @@ kind = "text_choice"
 layout = "default"
 question = "What is the right answer in the context of Element?"
 options = [
-    "Gas fee savings of up to 49% on NFT Trading.", 
-    "Gas increase of 35%", 
-    "Royalty payments instantly with 50% Gas", 
+    "Gas fee savings of up to 49% on NFT Trading.",
+    "Gas increase of 35%",
+    "Royalty payments instantly with 50% Gas",
     "Whale tracking for high Gas crypto trading"
 ]
 correct_answers = [*]
@@ -978,9 +984,9 @@ options = [
     "Rango is a sidechain on Starknet.",
     "Rango integrates multiple types of blockchains, including EVM-based, Cosmos, Solana, and more.",
     "Rango focuses exclusively on a zkEVM blockchain type"
-    ]
+]
 correct_answers = [*]
-    
+
 [quizzes.rhino]
 name = "Rhino Quiz"
 desc = "Take part in our Quiz to test your knowledge about Rhino, and you'll have a chance to win an exclusive Rhino- Silver Rhino NFT as your reward."
