@@ -784,7 +784,7 @@ pub async fn verify_task_auth(
 pub async fn verify_quest_auth(
     user: String,
     quest_collection: &Collection<QuestDocument>,
-    id: &i32,
+    id: &i64,
 ) -> bool {
     if user == "super_user" {
         return true;

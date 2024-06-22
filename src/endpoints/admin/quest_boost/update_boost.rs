@@ -50,7 +50,7 @@ pub async fn handler(
         return get_error("boost does not exist".to_string());
     }
     let quest_id = res.as_ref().unwrap().quests[0];
-    let res = verify_quest_auth(user, &questcollection, &(quest_id as i32)).await;
+    let res = verify_quest_auth(user, &questcollection, &(quest_id as i64)).await;
 
     if !res {
         return get_error("Error updating boost".to_string());

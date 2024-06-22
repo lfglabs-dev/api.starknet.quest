@@ -20,7 +20,7 @@ pub_struct!(Deserialize; CreateTwitterFw {
     name: String,
     desc: String,
     username: String,
-    quest_id: i32,
+    quest_id: i64,
 });
 
 #[route(post, "/admin/tasks/twitter_fw/create", crate::endpoints::admin::twitter::create_twitter_fw)]
@@ -55,7 +55,7 @@ pub async fn handler(
         desc: body.desc.clone(),
         verify_redirect: Some(format!("https://twitter.com/intent/user?screen_name={}", body.username.clone())),
         href: format!("https://twitter.com/{}", body.username.clone()),
-        quest_id: body.quest_id.clone() as u32,
+        quest_id: body.quest_id.clone(),
         id: next_id,
         verify_endpoint: "quests/verify_twitter_fw".to_string(),
         verify_endpoint_type: "default".to_string(),

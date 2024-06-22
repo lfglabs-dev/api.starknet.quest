@@ -23,7 +23,7 @@ pub_struct!(Deserialize; UpdateTwitterFw {
 });
 
 #[route(
-put,
+post,
 "/admin/tasks/twitter_fw/update",
 crate::endpoints::admin::twitter::update_twitter_fw
 )]

@@ -36,7 +36,7 @@ pub async fn handler(
 ) -> impl IntoResponse {
     // the state is in format => "address+quest_id+task_id"
     let state_split = query.state.split('+').collect::<Vec<&str>>();
-    let quest_id = state_split[1].parse::<u32>().unwrap();
+    let quest_id = state_split[1].parse::<i64>().unwrap();
     let task_id = state_split[2].parse::<u32>().unwrap();
     let addr = FieldElement::from_dec_str(state_split[0]).unwrap();
 

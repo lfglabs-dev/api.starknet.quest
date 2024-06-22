@@ -23,7 +23,7 @@ pub_struct!(Deserialize; UpdateTwitterRw {
     id: i32,
 });
 
-#[route(put, "/admin/tasks/twitter_rw/update", crate::endpoints::admin::twitter::update_twitter_rw)]
+#[route(post, "/admin/tasks/twitter_rw/update", crate::endpoints::admin::twitter::update_twitter_rw)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

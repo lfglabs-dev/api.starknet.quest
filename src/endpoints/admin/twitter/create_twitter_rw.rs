@@ -20,7 +20,7 @@ pub_struct!(Deserialize; CreateTwitterRw {
     name: String,
     desc: String,
     post_link: String,
-    quest_id: i32,
+    quest_id: i64,
 });
 
 #[route(post, "/admin/tasks/twitter_rw/create", crate::endpoints::admin::twitter::create_twitter_rw)]
@@ -55,7 +55,7 @@ pub async fn handler(
         desc: body.desc.clone(),
         verify_redirect: Some(body.post_link.clone()),
         href: body.post_link.clone(),
-        quest_id: body.quest_id.clone() as u32,
+        quest_id: body.quest_id.clone(),
         id: next_id,
         verify_endpoint: "quests/verify_twitter_rw".to_string(),
         verify_endpoint_type: "default".to_string(),
