@@ -109,7 +109,7 @@ pub struct CompletedTaskDocument {
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct QuestTaskDocument {
     pub(crate) id: i32,
-    pub quest_id: u32,
+    pub quest_id: i64,
     pub name: String,
     pub desc: String,
     pub cta: String,
@@ -143,7 +143,7 @@ pub_struct!(Deserialize; VerifyQuery {
 
 pub_struct!(Deserialize; VerifyNewQuery {
     addr: FieldElement,
-    quest_id: u32,
+    quest_id: i64,
     task_id: u32,
 });
 

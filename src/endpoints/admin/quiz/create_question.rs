@@ -50,7 +50,7 @@ pub async fn handler(
     }
 
     // get the quest id
-    let quest_id = res.as_ref().unwrap().id as i32;
+    let quest_id = res.as_ref().unwrap().id as i64;
 
     let res = verify_quest_auth(user, &quests_collection, &quest_id).await;
     if !res {

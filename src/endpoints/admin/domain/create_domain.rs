@@ -20,7 +20,7 @@ use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
 pub_struct!(Deserialize; CreateTwitterFw {
     name: String,
     desc: String,
-    quest_id: i32,
+    quest_id: i64,
 });
 
 #[route(post, "/admin/tasks/domain/create", crate::endpoints::admin::domain::create_domain)]
@@ -53,7 +53,7 @@ pub async fn handler(
         name: body.name.clone(),
         desc: body.desc.clone(),
         href: "https://app.starknet.id/".to_string(),
-        quest_id: body.quest_id.clone() as u32,
+        quest_id: body.quest_id.clone(),
         id: next_id,
         verify_endpoint: "quests/verify_domain".to_string(),
         verify_endpoint_type: "default".to_string(),

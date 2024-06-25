@@ -23,7 +23,7 @@ pub_struct!(Deserialize; CreateQuiz {
     help_link: String,
     cta: String,
     intro: String,
-    quest_id: i32,
+    quest_id: i64,
 });
 
 #[route(post, "/admin/tasks/quiz/create", crate::endpoints::admin::quiz::create_quiz)]
@@ -83,7 +83,7 @@ pub async fn handler(
         desc: body.desc.clone(),
         href: body.help_link.clone(),
         cta: body.cta.clone(),
-        quest_id: body.quest_id.clone() as u32,
+        quest_id: body.quest_id.clone(),
         id: next_id.clone(),
         verify_endpoint: "/quests/verify_quiz".to_string(),
         verify_endpoint_type: "quiz".to_string(),

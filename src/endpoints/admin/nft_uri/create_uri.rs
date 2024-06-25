@@ -17,7 +17,7 @@ use crate::utils::verify_quest_auth;
 
 
 pub_struct!(Deserialize; CreateCustom {
-    quest_id: u32,
+    quest_id: i64,
     name: String,
     desc: String,
     image: String,
@@ -35,7 +35,7 @@ pub async fn handler(
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
 
-    let res= verify_quest_auth(user, &quests_collection, &(body.quest_id as i32)).await;
+    let res= verify_quest_auth(user, &quests_collection, &(body.quest_id as i64)).await;
     if !res {
         return get_error("Error creating task".to_string());
     };

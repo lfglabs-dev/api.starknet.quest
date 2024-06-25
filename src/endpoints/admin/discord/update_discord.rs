@@ -16,7 +16,7 @@ use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
 
 
 pub_struct!(Deserialize; CreateCustom {
-    id: u32,
+    id: i64,
     name: Option<String>,
     desc: Option<String>,
     invite_link: Option<String>,

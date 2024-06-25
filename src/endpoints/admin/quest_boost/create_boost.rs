@@ -44,7 +44,7 @@ pub async fn handler(
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
 
-    let res= verify_quest_auth(user, &quests_collection, &(body.quest_id as i32)).await;
+    let res= verify_quest_auth(user, &quests_collection, &(body.quest_id as i64)).await;
     if !res {
         return get_error("Error creating boost".to_string());
     };
