@@ -1,5 +1,5 @@
 # Use the official Rust image as the base image
-FROM rust:latest
+FROM rust:1.73.0
 
 # Set the working directory
 WORKDIR .
