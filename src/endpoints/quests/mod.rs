@@ -27,3 +27,4 @@ pub mod verify_twitter_rw;
 pub mod verify_twitter_fw;
 pub mod bountive;
 pub mod sithswap;
+pub mod influence;
