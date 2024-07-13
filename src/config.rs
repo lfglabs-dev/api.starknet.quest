@@ -86,6 +86,7 @@ pub_struct!(Clone, Deserialize;  Quests {
     nimbora: Contract,
     bountive: Contract,
     sithswap_2: ApiEndpoint,
+    nimbora_2: Contract,
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {
@@ -112,8 +113,8 @@ pub enum QuizQuestionType {
 
 impl<'de> Deserialize<'de> for QuizQuestionType {
     fn deserialize<D>(deserializer: D) -> Result<QuizQuestionType, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
         match s.to_lowercase().as_str() {

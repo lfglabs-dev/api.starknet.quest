@@ -71,6 +71,8 @@ contract = "0xXXXXXXXXXXXX"
 contract = "0xXXXXXXXXXXXX"
 [quests.sithswap_2]
 api_endpoint = "xxxxxxx"
+[quests.nimbora_2]
+contract = "xxxxx"
 
 [rhino]
 api_endpoint = "xxxxx"
