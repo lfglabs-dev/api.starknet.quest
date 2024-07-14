@@ -87,7 +87,6 @@ pub_struct!(Clone, Deserialize;  Quests {
     nimbora: Contract,
     bountive: Contract,
     sithswap_2: ApiEndpoint,
-    nimbora_2: Contract,
 });
 
 pub_struct!(Clone, Deserialize;  Twitter {
