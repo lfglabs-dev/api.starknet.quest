@@ -39,11 +39,7 @@ pub async fn handler(
     // Get task in db
     let task_collection = state.db.collection("tasks");
     let task: QuestTaskDocument = task_collection
-        .find_one(
-            doc! {"id
-            ": task_id},
-            None,
-        )
+        .find_one(doc! {"id": task_id}, None)
         .await
         .unwrap()
         .unwrap();

@@ -73,7 +73,7 @@ pub async fn handler(
         cta: body.cta.clone(),
         verify_endpoint: "/quests/verify_balance".to_string(),
         verify_endpoint_type: "default".to_string(),
-        task_type: Some("custom".to_string()),
+        task_type: Some("balance".to_string()),
         discord_guild_id: None,
         quiz_name: None,
         contracts: Some(parsed_contracts),
