@@ -66,9 +66,7 @@ macro_rules! check_authorization {
                     }
                 }
             }
-            //None => return get_error("missing auth header".to_string()),
-            // Temp: return as everyone is super user
-            None => "super_user".to_string(),
+            None => return get_error("missing auth header".to_string()),
         }
     };
 }
