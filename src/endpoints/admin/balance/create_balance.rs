@@ -13,26 +13,27 @@ use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
+use starknet::core::types::FieldElement;
 use std::sync::Arc;
 
-pub_struct!(Deserialize; CreateCustom {
+pub_struct!(Deserialize; CreateBalance {
     quest_id: i64,
     name: String,
     desc: String,
-    cta: String,
+    contracts: Vec<FieldElement>,
     href: String,
-    api: String,
+    cta: String,
 });
 
 #[route(
     post,
-    "/admin/tasks/custom/create",
-    crate::endpoints::admin::custom::create_custom
+    "/admin/tasks/balance/create",
+    crate::endpoints::admin::balance::create_balance
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,
-    body: Json<CreateCustom>,
+    body: Json<CreateBalance>,
 ) -> impl IntoResponse {
     let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
@@ -57,17 +58,17 @@ pub async fn handler(
     let new_document = QuestTaskDocument {
         name: body.name.clone(),
         desc: body.desc.clone(),
-        verify_redirect: Some(body.href.clone()),
+        verify_redirect: None,
         href: body.href.clone(),
         quest_id: body.quest_id,
         id: next_id,
         cta: body.cta.clone(),
-        verify_endpoint: body.api.clone(),
+        verify_endpoint: "/quests/verify_balance".to_string(),
         verify_endpoint_type: "default".to_string(),
         task_type: Some("custom".to_string()),
         discord_guild_id: None,
         quiz_name: None,
-        contracts: None,
+        contracts: Some(body.contracts.clone()),
     };
 
     // insert document to boost collection

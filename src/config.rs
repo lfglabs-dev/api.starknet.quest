@@ -72,6 +72,7 @@ pub_struct!(Clone, Deserialize;  ZkLend {
 });
 
 pub_struct!(Clone, Deserialize;  Quests {
+    utils_contract: FieldElement,
     sithswap: Pairs,
     zklend: ZkLend,
     jediswap: Pairs,

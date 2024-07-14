@@ -1,20 +1,19 @@
+use crate::models::{JWTClaims, QuestDocument, QuestTaskDocument};
+use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
+use axum::http::HeaderMap;
 use axum::{
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::bson::{doc};
-use mongodb::options::{FindOneOptions};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+use mongodb::bson::doc;
+use mongodb::options::FindOneOptions;
+use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use serde::Deserialize;
-use crate::models::{QuestDocument, QuestTaskDocument,JWTClaims};
-use crate::utils::{verify_quest_auth};
-use axum::http::HeaderMap;
-use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
-
 
 pub_struct!(Deserialize; CreateTwitterFw {
     name: String,
@@ -23,7 +22,11 @@ pub_struct!(Deserialize; CreateTwitterFw {
     quest_id: i64,
 });
 
-#[route(post, "/admin/tasks/twitter_fw/create", crate::endpoints::admin::twitter::create_twitter_fw)]
+#[route(
+    post,
+    "/admin/tasks/twitter_fw/create",
+    crate::endpoints::admin::twitter::create_twitter_fw
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,
@@ -37,12 +40,10 @@ pub async fn handler(
     let last_doc = &collection.find_one(last_id_filter, options).await.unwrap();
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
-
-    let res= verify_quest_auth(user, &quests_collection, &body.quest_id).await;
+    let res = verify_quest_auth(user, &quests_collection, &body.quest_id).await;
     if !res {
         return get_error("Error creating task".to_string());
     };
-
 
     let mut next_id = 1;
     if let Some(doc) = last_doc {
@@ -53,7 +54,10 @@ pub async fn handler(
     let new_document = QuestTaskDocument {
         name: body.name.clone(),
         desc: body.desc.clone(),
-        verify_redirect: Some(format!("https://twitter.com/intent/user?screen_name={}", body.username.clone())),
+        verify_redirect: Some(format!(
+            "https://twitter.com/intent/user?screen_name={}",
+            body.username.clone()
+        )),
         href: format!("https://twitter.com/{}", body.username.clone()),
         quest_id: body.quest_id.clone(),
         id: next_id,
@@ -63,13 +67,11 @@ pub async fn handler(
         cta: "Follow".to_string(),
         discord_guild_id: None,
         quiz_name: None,
+        contracts: None,
     };
 
     // insert document to boost collection
-    return match collection
-        .insert_one(new_document, None)
-        .await
-    {
+    return match collection.insert_one(new_document, None).await {
         Ok(_) => (
             StatusCode::OK,
             Json(json!({"message": "Task created successfully"})).into_response(),

@@ -1,22 +1,19 @@
-use crate::{
-    models::{AppState},
-    utils::get_error,
-};
+use crate::models::{JWTClaims, LoginDetails};
+use crate::utils::calculate_hash;
+use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use futures::StreamExt;
-use mongodb::bson::{doc,from_document};
-use serde::Deserialize;
-use std::sync::Arc;
 use chrono::Utc;
+use futures::StreamExt;
+use jsonwebtoken::{encode, EncodingKey, Header};
+use mongodb::bson::{doc, from_document};
+use serde::Deserialize;
 use serde_json::json;
-use crate::models::{JWTClaims, LoginDetails};
-use jsonwebtoken::{encode, Header, EncodingKey};
-use crate::utils::calculate_hash;
+use std::sync::Arc;
 
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {
@@ -30,14 +27,11 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let collection = state.db.collection::<LoginDetails>("login_details");
     let hashed_code = calculate_hash(&query.code);
-    let pipeline = [
-        doc! {
-            "$match": {
-                "code": hashed_code.to_string(),
-            }
-        },
-    ];
-
+    let pipeline = [doc! {
+        "$match": {
+            "code": hashed_code.to_string(),
+        }
+    }];
 
     match collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
@@ -46,12 +40,19 @@ pub async fn handler(
                     Ok(document) => {
                         let secret_key = &state.conf.auth.secret_key;
                         if let Ok(login) = from_document::<LoginDetails>(document) {
-                            let new_exp = (Utc::now().timestamp_millis() + &state.conf.auth.expiry_duration) as usize;
+                            let new_exp = (Utc::now().timestamp_millis()
+                                + &state.conf.auth.expiry_duration)
+                                as usize;
                             let user_claims = JWTClaims {
                                 sub: login.user.parse().unwrap(),
                                 exp: new_exp,
                             };
-                            let token = encode(&Header::default(), &user_claims, &EncodingKey::from_secret(&secret_key.as_ref())).unwrap();
+                            let token = encode(
+                                &Header::default(),
+                                &user_claims,
+                                &EncodingKey::from_secret(&secret_key.as_ref()),
+                            )
+                            .unwrap();
                             return (StatusCode::OK, Json(json!({"token":token}))).into_response();
                         }
                     }

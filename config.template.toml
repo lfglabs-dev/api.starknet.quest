@@ -35,6 +35,7 @@ api_endpoint="XXXXXXXXXXXXXXXXX"
 api_key="XXXXXXXXXXXXXXXXX"
 
 [quests]
+utils_contract = "0x012"
 [quests.sithswap]
 utils_contract = "0xXXXXXXXXXXXX"
 pairs = ["0xXXXXXXXXXXXX"]

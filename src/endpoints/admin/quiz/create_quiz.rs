@@ -1,21 +1,19 @@
+use crate::models::{JWTClaims, QuestDocument, QuestTaskDocument, QuizInsertDocument};
+use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
+use axum::http::HeaderMap;
 use axum::{
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::bson::{doc};
-use mongodb::options::{FindOneOptions};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+use mongodb::bson::doc;
+use mongodb::options::FindOneOptions;
+use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use serde::Deserialize;
-use crate::models::{QuestDocument, QuestTaskDocument, QuizInsertDocument,JWTClaims};
-use crate::utils::verify_quest_auth;
-use axum::http::HeaderMap;
-use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
-
-
 
 pub_struct!(Deserialize; CreateQuiz {
     name: String,
@@ -26,20 +24,23 @@ pub_struct!(Deserialize; CreateQuiz {
     quest_id: i64,
 });
 
-#[route(post, "/admin/tasks/quiz/create", crate::endpoints::admin::quiz::create_quiz)]
+#[route(
+    post,
+    "/admin/tasks/quiz/create",
+    crate::endpoints::admin::quiz::create_quiz
+)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,
     body: Json<CreateQuiz>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
     let quiz_collection = state.db.collection::<QuizInsertDocument>("quizzes");
 
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
-
-    let res= verify_quest_auth(user, &quests_collection, &body.quest_id).await;
+    let res = verify_quest_auth(user, &quests_collection, &body.quest_id).await;
     if !res {
         return get_error("Error creating task".to_string());
     };
@@ -47,7 +48,10 @@ pub async fn handler(
     // Get the last id in increasing order
     let last_id_filter = doc! {};
     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
-    let last_quiz_doc = &quiz_collection.find_one(last_id_filter.clone(), options.clone()).await.unwrap();
+    let last_quiz_doc = &quiz_collection
+        .find_one(last_id_filter.clone(), options.clone())
+        .await
+        .unwrap();
 
     let mut next_quiz_id = 1;
     if let Some(doc) = last_quiz_doc {
@@ -62,16 +66,15 @@ pub async fn handler(
         intro: body.intro.clone(),
     };
 
-    match quiz_collection
-        .insert_one(new_quiz_document, None)
-        .await
-    {
+    match quiz_collection.insert_one(new_quiz_document, None).await {
         Ok(res) => res,
         Err(_e) => return get_error("Error creating quiz".to_string()),
     };
 
-
-    let last_task_doc = &tasks_collection.find_one(last_id_filter.clone(), options.clone()).await.unwrap();
+    let last_task_doc = &tasks_collection
+        .find_one(last_id_filter.clone(), options.clone())
+        .await
+        .unwrap();
     let mut next_id = 1;
     if let Some(doc) = last_task_doc {
         let last_id = doc.id;
@@ -91,12 +94,10 @@ pub async fn handler(
         task_type: Some("quiz".to_string()),
         discord_guild_id: None,
         verify_redirect: None,
+        contracts: None,
     };
 
-    return match tasks_collection
-        .insert_one(new_document, None)
-        .await
-    {
+    return match tasks_collection.insert_one(new_document, None).await {
         Ok(_) => (
             StatusCode::OK,
             Json(json!({"id": &next_quiz_id })).into_response(),
