@@ -124,6 +124,8 @@ pub struct QuestTaskDocument {
     pub task_type: Option<String>,
     #[serde(default)]
     pub(crate) discord_guild_id: Option<String>,
+    #[serde(default)]
+    pub(crate) contracts: Option<Vec<FieldElement>>,
 }
 
 pub_struct!(Serialize; Reward {
@@ -156,6 +158,11 @@ pub_struct!(Deserialize; VerifyQuizQuery {
     addr: FieldElement,
     quiz_name: i64,
     user_answers_list: Vec<Vec<String>>,
+});
+
+pub_struct!(Deserialize; VerifyBalanceQuery {
+    addr: FieldElement,
+    task_id: u32,
 });
 
 pub_struct!(Deserialize; UniquePageVisit {

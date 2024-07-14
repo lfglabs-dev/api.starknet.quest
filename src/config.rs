@@ -72,6 +72,7 @@ pub_struct!(Clone, Deserialize;  ZkLend {
 });
 
 pub_struct!(Clone, Deserialize;  Quests {
+    utils_contract: FieldElement,
     sithswap: Pairs,
     zklend: ZkLend,
     jediswap: Pairs,
@@ -112,8 +113,8 @@ pub enum QuizQuestionType {
 
 impl<'de> Deserialize<'de> for QuizQuestionType {
     fn deserialize<D>(deserializer: D) -> Result<QuizQuestionType, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
         match s.to_lowercase().as_str() {

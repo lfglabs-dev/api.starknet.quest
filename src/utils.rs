@@ -1,4 +1,7 @@
-use crate::models::{AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument, QuestTaskDocument, UserExperience};
+use crate::models::{
+    AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument,
+    QuestTaskDocument, UserExperience,
+};
 use async_trait::async_trait;
 use axum::{
     body::Body,
@@ -798,7 +801,6 @@ pub async fn verify_quest_auth(
         Some(_) => true,
         None => false,
     }
-
 }
 pub async fn make_api_request(endpoint: &str, addr: &str, api_key: Option<&str>) -> bool {
     let client = reqwest::Client::new();
