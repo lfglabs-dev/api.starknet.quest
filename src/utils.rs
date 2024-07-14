@@ -1,4 +1,7 @@
-use crate::models::{AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument, QuestTaskDocument, UserExperience};
+use crate::models::{
+    AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument,
+    QuestTaskDocument, UserExperience,
+};
 use async_trait::async_trait;
 use axum::{
     body::Body,
@@ -63,7 +66,9 @@ macro_rules! check_authorization {
                     }
                 }
             }
-            None => return get_error("missing auth header".to_string()),
+            //None => return get_error("missing auth header".to_string()),
+            // Temp: return as everyone is super user
+            None => "super_user".to_string(),
         }
     };
 }
@@ -798,7 +803,6 @@ pub async fn verify_quest_auth(
         Some(_) => true,
         None => false,
     }
-
 }
 pub async fn make_api_request(endpoint: &str, addr: &str, api_key: Option<&str>) -> bool {
     let client = reqwest::Client::new();

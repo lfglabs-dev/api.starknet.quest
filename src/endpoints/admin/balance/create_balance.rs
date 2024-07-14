@@ -14,13 +14,14 @@ use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use starknet::core::types::FieldElement;
+use std::str::FromStr;
 use std::sync::Arc;
 
 pub_struct!(Deserialize; CreateBalance {
     quest_id: i64,
     name: String,
     desc: String,
-    contracts: Vec<FieldElement>,
+    contracts: String,
     href: String,
     cta: String,
 });
@@ -55,6 +56,13 @@ pub async fn handler(
         next_id = last_id + 1;
     }
 
+    // Build a vector of FieldElement from the comma separated contracts string
+    let parsed_contracts: Vec<FieldElement> = body
+        .contracts
+        .split(",")
+        .map(|x| FieldElement::from_str(&x).unwrap())
+        .collect();
+
     let new_document = QuestTaskDocument {
         name: body.name.clone(),
         desc: body.desc.clone(),
@@ -68,7 +76,7 @@ pub async fn handler(
         task_type: Some("custom".to_string()),
         discord_guild_id: None,
         quiz_name: None,
-        contracts: Some(body.contracts.clone()),
+        contracts: Some(parsed_contracts),
     };
 
     // insert document to boost collection

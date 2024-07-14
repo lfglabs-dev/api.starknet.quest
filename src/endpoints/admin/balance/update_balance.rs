@@ -13,13 +13,14 @@ use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
 use starknet::core::types::FieldElement;
+use std::str::FromStr;
 use std::sync::Arc;
 
 pub_struct!(Deserialize; CreateBalance {
     id: i64,
     name: Option<String>,
     desc: Option<String>,
-    contracts: Option<Vec<FieldElement>>,
+    contracts: Option<String>,
     href: Option<String>,
     cta: Option<String>,
 });
@@ -67,8 +68,12 @@ pub async fn handler(
         update_doc.insert("cta", cta);
     }
     if let Some(contracts) = &body.contracts {
+        let parsed_contracts: Vec<FieldElement> = contracts
+            .split(",")
+            .map(|x| FieldElement::from_str(&x).unwrap())
+            .collect();
         let contracts_bson: Vec<mongodb::bson::Bson> =
-            contracts.iter().map(field_element_to_bson).collect();
+            parsed_contracts.iter().map(field_element_to_bson).collect();
         update_doc.insert("contracts", contracts_bson);
     }
 
