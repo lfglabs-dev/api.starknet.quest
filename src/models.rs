@@ -63,7 +63,7 @@ pub_struct!(Debug, Serialize, Deserialize; QuestInsertDocument {
     disabled: bool,
     expiry: Option<i64>,
     mandatory_domain: Option<String>,
-    experience: i64,
+    experience: i32,
     start_time: i64,
 });
 
