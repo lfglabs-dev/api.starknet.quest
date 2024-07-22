@@ -157,7 +157,7 @@ pub_struct!(Deserialize; EmailQuery {
 pub_struct!(Deserialize; VerifyQuizQuery {
     addr: FieldElement,
     quiz_name: i64,
-    user_answers_list: Vec<Vec<String>>,
+    user_answers_list: Vec<Vec<usize>>,
 });
 
 pub_struct!(Deserialize; VerifyBalanceQuery {
