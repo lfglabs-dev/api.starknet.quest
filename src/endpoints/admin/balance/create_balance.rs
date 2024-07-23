@@ -71,7 +71,7 @@ pub async fn handler(
         quest_id: body.quest_id,
         id: next_id,
         cta: body.cta.clone(),
-        verify_endpoint: "/quests/verify_balance".to_string(),
+        verify_endpoint: "quests/verify_balance".to_string(),
         verify_endpoint_type: "default".to_string(),
         task_type: Some("balance".to_string()),
         discord_guild_id: None,
