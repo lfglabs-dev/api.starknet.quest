@@ -69,7 +69,7 @@ pub async fn handler(
     match call_result {
         Ok(result) => {
             if result[0] < FieldElement::from_dec_str("3000000000000000").unwrap() {
-                get_error("You didn't invest on nimbora.".to_string())
+                get_error("You didn't invest (enough).".to_string())
             } else {
                 match state.upsert_completed_task(query.addr, task_id).await {
                     Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
