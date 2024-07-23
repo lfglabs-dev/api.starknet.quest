@@ -54,7 +54,7 @@ pub async fn handler(
     }
 
     let nft_reward = doc! {
-        "img": body.rewards_img.clone().to_string(),
+        "img": body.img_card.clone().to_string(),
         "level": 1,
     };
 
