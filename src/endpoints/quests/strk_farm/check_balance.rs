@@ -30,7 +30,6 @@ pub async fn handler(
     let res = reqwest::get(&url).await.unwrap().text().await.unwrap();
     // Res in a JSON containing the user's balance
     let json: StrkFarmAPIResponse = serde_json::from_str(&res).unwrap();
-    println!("{:?}", json);
     let usd = json["holdingsUSD"].as_f64().unwrap();
     if usd == 0.0 {
         get_error("You didn't invest on StrkFarm.".to_string())
