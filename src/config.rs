@@ -104,6 +104,44 @@ pub_struct!(Clone, Deserialize;  Discord {
     oauth2_secret: String,
 });
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum QuizQuestionType {
+    TextChoice,
+    ImageChoice,
+    Ordering,
+}
+
+impl<'de> Deserialize<'de> for QuizQuestionType {
+    fn deserialize<D>(deserializer: D) -> Result<QuizQuestionType, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        match s.to_lowercase().as_str() {
+            "text_choice" => Ok(QuizQuestionType::TextChoice),
+            "image_choice" => Ok(QuizQuestionType::ImageChoice),
+            "ordering" => Ok(QuizQuestionType::Ordering),
+            _ => Err(serde::de::Error::custom("Unexpected type")),
+        }
+    }
+}
+
+pub_struct!(Clone, Deserialize,Debug; QuizQuestion {
+    kind: QuizQuestionType,
+    layout: String,
+    question: String,
+    options: Vec<String>,
+    correct_answers: Option<Vec<usize>>,
+    correct_order: Option<Vec<String>>,
+    image_for_layout: Option<String>,
+});
+
+pub_struct!(Clone, Deserialize,Debug; Quiz {
+    name: String,
+    desc: String,
+    questions: Vec<QuizQuestion>,
+});
+
 pub_struct!(Clone, Deserialize;  Starkscan {
     api_key: String,
 });
