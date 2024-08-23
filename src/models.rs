@@ -113,6 +113,7 @@ pub struct QuestTaskDocument {
     pub name: String,
     pub desc: String,
     pub cta: String,
+    pub total_amount: Option<FieldElement>,
     pub verify_endpoint: String,
     pub href: String,
     pub verify_endpoint_type: String,
