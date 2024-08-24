@@ -55,6 +55,7 @@ pub async fn handler(
     let new_document = QuestTaskDocument {
         name: body.name.clone(),
         desc: body.desc.clone(),
+        total_amount: None,
         verify_redirect: Some(body.post_link.clone()),
         href: body.post_link.clone(),
         quest_id: body.quest_id.clone(),

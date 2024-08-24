@@ -60,6 +60,7 @@ pub async fn handler(
         verify_redirect: Some(body.href.clone()),
         href: body.href.clone(),
         quest_id: body.quest_id,
+        total_amount: None,
         id: next_id,
         cta: body.cta.clone(),
         verify_endpoint: body.api.clone(),
