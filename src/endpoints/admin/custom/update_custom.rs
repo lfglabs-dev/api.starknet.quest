@@ -26,7 +26,7 @@ pub_struct!(Deserialize; CreateCustom {
     href: Option<String>,
 });
 
-#[route(post, "/admin/tasks/custom/update", crate::endpoints::admin::custom::update_custom)]
+#[route(post, "/admin/tasks/custom/update")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

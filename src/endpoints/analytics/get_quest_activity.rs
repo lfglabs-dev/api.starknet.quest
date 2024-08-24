@@ -18,8 +18,7 @@ pub struct GetQuestsQuery {
 
 #[route(
 get,
-"/analytics/get_quest_activity",
-crate::endpoints::analytics::get_quest_activity
+"/analytics/get_quest_activity"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

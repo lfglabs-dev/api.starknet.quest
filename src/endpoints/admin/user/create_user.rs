@@ -19,7 +19,7 @@ pub_struct!(Deserialize; CreateCustom {
     password: String,
 });
 
-#[route(post, "/admin/user/create", crate::endpoints::admin::user::create_user)]
+#[route(post, "/admin/user/create")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

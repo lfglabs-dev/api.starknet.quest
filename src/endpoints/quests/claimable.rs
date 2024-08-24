@@ -5,6 +5,8 @@ use axum::{
     Json,
 };
 
+use crate::models::{Reward, RewardResponse};
+use crate::utils::get_nft;
 use axum_auto_routes::route;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
@@ -13,8 +15,6 @@ use serde::{Deserialize, Serialize};
 use starknet::core::types::FieldElement;
 use starknet::signers::{LocalWallet, SigningKey};
 use std::sync::Arc;
-use crate::models::{Reward, RewardResponse};
-use crate::utils::get_nft;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct HasCompletedQuestsQuery {
@@ -22,7 +22,7 @@ pub struct HasCompletedQuestsQuery {
     quest_id: u32,
 }
 
-#[route(get, "/quests/claimable", crate::endpoints::quests::claimable)]
+#[route(get, "/quests/claimable")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<HasCompletedQuestsQuery>,
@@ -153,11 +153,17 @@ pub async fn handler(
 
             let mut rewards = vec![];
 
-            let Ok((token_id, sig)) =
-                get_nft(quest_id, last_task as u32, &query.addr, nft_level as u32, &signer).await
-                else {
-                    return get_error("Signature failed".into());
-                };
+            let Ok((token_id, sig)) = get_nft(
+                quest_id,
+                last_task as u32,
+                &query.addr,
+                nft_level as u32,
+                &signer,
+            )
+            .await
+            else {
+                return get_error("Signature failed".into());
+            };
 
             rewards.push(Reward {
                 task_id: last_task as u32,

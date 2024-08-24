@@ -15,11 +15,7 @@ use serde_json::json;
 
 type StrkFarmAPIResponse = serde_json::Value;
 
-#[route(
-    get,
-    "/quests/strkFarm/check_balance",
-    crate::endpoints::quests::strk_farm::check_balance
-)]
+#[route(get, "/quests/strkFarm/check_balance")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

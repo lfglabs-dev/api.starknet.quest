@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::models::{QuestTaskDocument, VerifyNewQuery};
 use crate::{
-    models::{AppState},
+    models::AppState,
     utils::{get_error, CompletedTasksTrait},
 };
 use axum::{
@@ -16,11 +16,7 @@ use futures::TryStreamExt;
 use mongodb::bson::doc;
 use serde_json::json;
 
-#[route(
-    get,
-    "/quests/verify_twitter_rw",
-    crate::endpoints::quests::verify_twitter_rw
-)]
+#[route(get, "/quests/verify_twitter_rw")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyNewQuery>,

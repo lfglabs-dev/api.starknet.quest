@@ -25,8 +25,7 @@ pub_struct!(Deserialize; CreateCustom {
 
 #[route(
     post,
-    "/admin/tasks/discord/create",
-    crate::endpoints::admin::discord::create_discord
+    "/admin/tasks/discord/create"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

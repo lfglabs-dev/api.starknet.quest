@@ -31,7 +31,7 @@ pub_struct!(Deserialize; UpdateQuestQuery {
     issuer: Option<String>,
 });
 
-#[route(post, "/admin/quest/update", crate::endpoints::admin::quest::update_quest)]
+#[route(post, "/admin/quest/update")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

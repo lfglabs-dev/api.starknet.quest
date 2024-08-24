@@ -26,11 +26,7 @@ pub struct ClaimableQuery {
     addr: FieldElement,
 }
 
-#[route(
-    get,
-    "/quests/rango/quest2/claimable",
-    crate::endpoints::quests::rango::quest2::claimable
-)]
+#[route(get, "/quests/rango/quest2/claimable")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<ClaimableQuery>,
@@ -85,7 +81,9 @@ pub async fn handler(
 
             let mut rewards = vec![];
 
-            let  Ok((token_id, sig)) = get_nft(QUEST_ID, LAST_TASK, &query.addr, NFT_LEVEL, &signer).await else {
+            let Ok((token_id, sig)) =
+                get_nft(QUEST_ID, LAST_TASK, &query.addr, NFT_LEVEL, &signer).await
+            else {
                 return get_error("Signature failed".into());
             };
 

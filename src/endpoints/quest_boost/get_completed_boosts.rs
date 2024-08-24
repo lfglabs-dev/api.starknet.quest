@@ -21,8 +21,7 @@ pub struct GetCompletedQuestsQuery {
 
 #[route(
     get,
-    "/boost/get_completed_boosts",
-    crate::endpoints::quest_boost::get_completed_boosts
+    "/boost/get_completed_boosts"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

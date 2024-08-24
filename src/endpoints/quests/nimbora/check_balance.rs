@@ -18,11 +18,7 @@ use starknet::{
     providers::Provider,
 };
 
-#[route(
-get,
-"/quests/nimbora/check_balance",
-crate::endpoints::quests::nimbora::check_balance
-)]
+#[route(get, "/quests/nimbora/check_balance")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
@@ -41,7 +37,6 @@ pub async fn handler(
             BlockId::Tag(BlockTag::Latest),
         )
         .await;
-
 
     match call_result {
         Ok(result) => {

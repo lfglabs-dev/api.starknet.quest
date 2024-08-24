@@ -13,11 +13,7 @@ use axum::{
 use axum_auto_routes::route;
 use serde_json::json;
 
-#[route(
-    get,
-    "/quests/avnu/verify_swap",
-    crate::endpoints::quests::avnu::verify_swap
-)]
+#[route(get, "/quests/avnu/verify_swap")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

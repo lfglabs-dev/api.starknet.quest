@@ -24,8 +24,7 @@ pub_struct!(Deserialize; CreateQuizQuestion {
 
 #[route(
     post,
-    "/admin/tasks/quiz/question/create",
-    crate::endpoints::admin::quiz::create_question
+    "/admin/tasks/quiz/question/create"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

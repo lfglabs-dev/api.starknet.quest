@@ -32,8 +32,7 @@ fn field_element_to_bson(fe: &FieldElement) -> mongodb::bson::Bson {
 
 #[route(
     post,
-    "/admin/tasks/balance/update",
-    crate::endpoints::admin::balance::update_balance
+    "/admin/tasks/balance/update"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

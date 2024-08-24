@@ -32,7 +32,7 @@ pub struct GetTasksQuery {
     addr: FieldElement,
 }
 
-#[route(get, "/get_tasks", crate::endpoints::get_tasks)]
+#[route(get, "/get_tasks")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetTasksQuery>,

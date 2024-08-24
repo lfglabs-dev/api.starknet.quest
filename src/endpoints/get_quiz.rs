@@ -21,7 +21,7 @@ pub struct GetQuizQuery {
 }
 
 
-#[route(get, "/get_quiz", crate::endpoints::get_quiz)]
+#[route(get, "/get_quiz")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuizQuery>,

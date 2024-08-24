@@ -237,8 +237,7 @@ pub struct GetCompletedQuestsQuery {
 
 #[route(
     get,
-    "/leaderboard/get_ranking",
-    crate::endpoints::leaderboard::get_ranking
+    "/leaderboard/get_ranking"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

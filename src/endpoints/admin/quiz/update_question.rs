@@ -27,8 +27,7 @@ pub_struct!(Deserialize; UpdateQuiz {
 
 #[route(
     post,
-    "/admin/tasks/quiz/question/update",
-    crate::endpoints::admin::quiz::update_question
+    "/admin/tasks/quiz/question/update"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

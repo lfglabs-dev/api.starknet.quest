@@ -22,11 +22,7 @@ pub struct ElementResponse {
     data: bool,
 }
 
-#[route(
-    get,
-    "/quests/element/element/verify_is_eligible",
-    crate::endpoints::quests::element::element::verify_is_eligible
-)]
+#[route(get, "/quests/element/element/verify_is_eligible")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

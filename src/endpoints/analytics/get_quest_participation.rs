@@ -18,8 +18,7 @@ pub struct GetQuestsQuery {
 
 #[route(
     get,
-    "/analytics/get_quest_participation",
-    crate::endpoints::analytics::get_quest_participation
+    "/analytics/get_quest_participation"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

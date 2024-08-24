@@ -29,8 +29,7 @@ pub_struct!(Deserialize; UpdateBoostQuery {
 
 #[route(
 post,
-"/admin/quest_boost/update_boost",
-crate::endpoints::admin::quest_boost::update_boost
+"/admin/quest_boost/update_boost"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::utils::to_hex;
 use crate::{
     models::{AppState, VerifyQuery},
     utils::{get_error, CompletedTasksTrait},
@@ -12,17 +13,12 @@ use axum::{
 };
 use axum_auto_routes::route;
 use serde_json::json;
-use crate::utils::to_hex;
 
 fn string_to_float(s: &str) -> Result<f64, std::num::ParseFloatError> {
     s.parse::<f64>()
 }
 
-#[route(
-get,
-"/quests/sithswap2/verify_deposit",
-crate::endpoints::quests::sithswap::quest2::verify_deposit
-)]
+#[route(get, "/quests/sithswap2/verify_deposit")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
@@ -46,7 +42,6 @@ pub async fn handler(
     hex_addr.insert(0, 'x');
     hex_addr.insert(0, '0');
 
-
     // Define the GraphQL query
     let graphql_query = format!(
         r#"
@@ -63,7 +58,7 @@ pub async fn handler(
         "#,
         &hex_addr
     );
-    
+
     // Send the GraphQL query
     let response = reqwest::Client::new()
         .post(endpoint)
@@ -96,7 +91,7 @@ pub async fn handler(
                 if let Some(amount_usd) = mint.get("amountUSD").and_then(|v| v.as_str()) {
                     match string_to_float(amount_usd) {
                         Ok(amount_usd) => total_amount_usd += amount_usd,
-                        Err(_e) => return get_error(format!("Failed to get balance"))
+                        Err(_e) => return get_error(format!("Failed to get balance")),
                     }
                 }
             }
