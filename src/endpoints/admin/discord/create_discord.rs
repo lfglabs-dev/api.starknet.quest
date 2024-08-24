@@ -58,6 +58,7 @@ pub async fn handler(
         href: body.invite_link.clone(),
         quest_id: body.quest_id.clone(),
         id: next_id,
+        total_amount: None,
         cta: "Join now!".to_string(),
         verify_endpoint: "quests/discord_fw_callback".to_string(),
         verify_endpoint_type: "oauth_discord".to_string(),

@@ -62,9 +62,14 @@ pub async fn handler(
         )
         .await;
 
+    let required_amount = task.total_amount.unwrap_or_else(|| 
+        FieldElement::from_dec_str("3000000000000000").unwrap()
+    );
+    
     match call_result {
         Ok(result) => {
-            if result[0] < FieldElement::from_dec_str("3000000000000000").unwrap() {
+            // if result[0] < FieldElement::from_dec_str("3000000000000000").unwrap() {
+            if result[0] < required_amount {
                 get_error("You didn't invest (enough).".to_string())
             } else {
                 match state.upsert_completed_task(query.addr, task_id).await {

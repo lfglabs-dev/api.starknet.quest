@@ -53,6 +53,7 @@ pub async fn handler(
     let new_document = QuestTaskDocument {
         name: body.name.clone(),
         desc: body.desc.clone(),
+        total_amount: None,
         verify_redirect: Some(format!(
             "https://twitter.com/intent/user?screen_name={}",
             body.username.clone()

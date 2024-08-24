@@ -191,7 +191,6 @@ pub_struct!(Clone, Deserialize;  Config {
     quests: Quests,
     twitter: Twitter,
     discord: Discord,
-    quizzes: HashMap<String, Quiz>,
     starkscan: Starkscan,
     achievements: Achievements,
     quest_boost: QuestBoost,

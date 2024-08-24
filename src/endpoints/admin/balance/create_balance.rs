@@ -67,6 +67,7 @@ pub async fn handler(
         desc: body.desc.clone(),
         verify_redirect: None,
         href: body.href.clone(),
+        total_amount: None,
         quest_id: body.quest_id,
         id: next_id,
         cta: body.cta.clone(),

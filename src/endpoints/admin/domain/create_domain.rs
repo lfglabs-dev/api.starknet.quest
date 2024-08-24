@@ -52,6 +52,7 @@ pub async fn handler(
     let new_document = QuestTaskDocument {
         name: body.name.clone(),
         desc: body.desc.clone(),
+        total_amount: None,
         href: "https://app.starknet.id/".to_string(),
         quest_id: body.quest_id.clone(),
         id: next_id,
