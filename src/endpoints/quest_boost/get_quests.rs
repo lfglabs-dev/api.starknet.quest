@@ -18,7 +18,7 @@ pub struct GetQuestForBoostQuery {
     boost_id: u32,
 }
 
-#[route(get, "/boost/get_quests", crate::endpoints::quest_boost::get_quests)]
+#[route(get, "/boost/get_quests")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestForBoostQuery>,

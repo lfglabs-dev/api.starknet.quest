@@ -14,11 +14,7 @@ use axum_auto_routes::route;
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
-#[route(
-    get,
-    "/quests/sithswap/verify_twitter_fw",
-    crate::endpoints::quests::sithswap::quest1::verify_twitter_fw
-)]
+#[route(get, "/quests/sithswap/verify_twitter_fw")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

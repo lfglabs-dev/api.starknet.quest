@@ -9,11 +9,7 @@ use axum::{
 use axum_auto_routes::route;
 use std::sync::Arc;
 
-#[route(
-    get,
-    "/quests/tribe/verify_has_root_domain",
-    crate::endpoints::quests::tribe::verify_has_root_domain
-)]
+#[route(get, "/quests/tribe/verify_has_root_domain")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

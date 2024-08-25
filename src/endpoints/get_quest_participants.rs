@@ -18,11 +18,7 @@ pub struct GetQuestParticipantsQuery {
     quest_id: u32,
 }
 
-#[route(
-    get,
-    "/get_quest_participants",
-    crate::endpoints::get_quest_participants
-)]
+#[route(get, "/get_quest_participants")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestParticipantsQuery>,

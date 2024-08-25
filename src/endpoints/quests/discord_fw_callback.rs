@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::models::QuestTaskDocument;
 use crate::utils::CompletedTasksTrait;
 use crate::{
     models::AppState,
@@ -14,7 +15,6 @@ use mongodb::bson::doc;
 use reqwest::header::AUTHORIZATION;
 use serde::Deserialize;
 use starknet::core::types::FieldElement;
-use crate::models::QuestTaskDocument;
 
 #[derive(Deserialize)]
 pub struct TwitterOAuthCallbackQuery {
@@ -29,7 +29,7 @@ pub struct Guild {
     name: String,
 }
 
-#[route(get, "/quests/discord_fw_callback", crate::endpoints::quests::discord_fw_callback)]
+#[route(get, "/quests/discord_fw_callback")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<TwitterOAuthCallbackQuery>,
@@ -42,7 +42,10 @@ pub async fn handler(
 
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
     let task = tasks_collection
-        .find_one(doc! { "id": task_id,"quest_id":quest_id,"task_type":"discord" }, None)
+        .find_one(
+            doc! { "id": task_id,"quest_id":quest_id,"task_type":"discord" },
+            None,
+        )
         .await
         .unwrap()
         .unwrap();
@@ -144,14 +147,12 @@ async fn exchange_authorization_code(
     let json: serde_json::Value = res.json().await?;
     match json["access_token"].as_str() {
         Some(s) => Ok(s.to_string()),
-        None => {
-            Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!(
-                    "Failed to get 'access_token' from JSON response : {:?}",
-                    json
-                ),
-            )))
-        }
+        None => Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!(
+                "Failed to get 'access_token' from JSON response : {:?}",
+                json
+            ),
+        ))),
     }
 }

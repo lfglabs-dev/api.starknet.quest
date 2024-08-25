@@ -19,7 +19,7 @@ pub struct GetCompletedQuestsQuery {
     addr: FieldElement,
 }
 
-#[route(get, "/get_completed_quests", crate::endpoints::get_completed_quests)]
+#[route(get, "/get_completed_quests")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetCompletedQuestsQuery>,

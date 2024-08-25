@@ -31,8 +31,7 @@ pub_struct!(Deserialize; CreateQuestQuery {
 
 #[route(
 post,
-"/admin/quest/create",
-crate::endpoints::admin::quest::create_quest
+"/admin/quest/create"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

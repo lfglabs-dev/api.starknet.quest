@@ -18,11 +18,7 @@ use starknet::{
     providers::Provider,
 };
 
-#[route(
-    get,
-    "/quests/braavos/zklend/verify_added_liquidity",
-    crate::endpoints::quests::braavos::zklend::verify_added_liquidity
-)]
+#[route(get, "/quests/braavos/zklend/verify_added_liquidity")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

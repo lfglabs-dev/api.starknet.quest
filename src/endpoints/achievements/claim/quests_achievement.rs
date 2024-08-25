@@ -29,8 +29,7 @@ fn get_number_of_quests(id: u32) -> u32 {
 
 #[route(
     get,
-    "/achievements/claim/quest_achievement",
-    crate::endpoints::achievements::claim::quests_achievement
+    "/achievements/claim/quest_achievement"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

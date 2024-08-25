@@ -22,8 +22,7 @@ pub struct GetQuestsQuery {
 
 #[route(
     get,
-    "/boost/get_pending_claims",
-    crate::endpoints::quest_boost::get_pending_claims
+    "/boost/get_pending_claims"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

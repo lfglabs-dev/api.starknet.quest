@@ -23,8 +23,7 @@ pub struct GetQuestsQuery {
 
 #[route(
     get,
-    "/admin/quest/get_quest",
-    crate::endpoints::admin::quest::get_quest
+    "/admin/quest/get_quest"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

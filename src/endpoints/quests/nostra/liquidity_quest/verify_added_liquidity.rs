@@ -18,12 +18,7 @@ use starknet::{
     providers::Provider,
 };
 
-#[route(
-    get,
-    "/quests/nostra/verify_added_liquidity",
-    crate::endpoints::quests::nostra::liquidity_quest::verify_added_liquidity
-
-)]
+#[route(get, "/quests/nostra/verify_added_liquidity")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

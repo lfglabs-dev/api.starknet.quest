@@ -26,11 +26,7 @@ pub struct ClaimableQuery {
     addr: FieldElement,
 }
 
-#[route(
-    get,
-    "/quests/nostra/claimable",
-    crate::endpoints::quests::nostra::liquidity_quest::claimable
-)]
+#[route(get, "/quests/nostra/claimable")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<ClaimableQuery>,
@@ -85,9 +81,11 @@ pub async fn handler(
 
             let mut rewards = vec![];
 
-            let  Ok((token_id, sig)) = get_nft(QUEST_ID, LAST_TASK, &query.addr, NFT_LEVEL, &signer).await else {
+            let Ok((token_id, sig)) =
+                get_nft(QUEST_ID, LAST_TASK, &query.addr, NFT_LEVEL, &signer).await
+            else {
                 return get_error("Signature failed".into());
-               };
+            };
 
             rewards.push(Reward {
                 task_id: LAST_TASK,

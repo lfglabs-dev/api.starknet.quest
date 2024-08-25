@@ -18,11 +18,7 @@ use starknet::{
     providers::Provider,
 };
 
-#[route(
-get,
-"/quests/bountive/verify_deposit",
-crate::endpoints::quests::bountive::verify_deposit
-)]
+#[route(get, "/quests/bountive/verify_deposit")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
@@ -42,7 +38,6 @@ pub async fn handler(
             BlockId::Tag(BlockTag::Latest),
         )
         .await;
-
 
     match call_result {
         Ok(result) => {

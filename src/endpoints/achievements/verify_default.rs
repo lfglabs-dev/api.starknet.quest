@@ -44,8 +44,7 @@ fn get_args(config: Config, achievement_id: u32) -> Result<(FieldElement, u32, N
 
 #[route(
     get,
-    "/achievements/verify_default",
-    crate::endpoints::achievements::verify_default
+    "/achievements/verify_default"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

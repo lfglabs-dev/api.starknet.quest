@@ -28,11 +28,7 @@ pub struct StarknetIdQuery {
     addr: FieldElement,
 }
 
-#[route(
-    get,
-    "/quests/tribe/verify_three_years_expiry",
-    crate::endpoints::quests::tribe::verify_three_years_expiry
-)]
+#[route(get, "/quests/tribe/verify_three_years_expiry")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<StarknetIdQuery>,

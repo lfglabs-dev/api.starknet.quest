@@ -17,7 +17,7 @@ use starknet::{
 use std::sync::Arc;
 
 const QUEST_ID: u32 = 22;
-const TASK_IDS: &[u32] = &[89, 90, 91,144];
+const TASK_IDS: &[u32] = &[89, 90, 91, 144];
 const LAST_TASK: u32 = TASK_IDS[3];
 const NFT_LEVEL: u32 = 35;
 
@@ -26,11 +26,7 @@ pub struct ClaimableQuery {
     addr: FieldElement,
 }
 
-#[route(
-    get,
-    "/quests/nimbora/claimable",
-    crate::endpoints::quests::nimbora::claimable
-)]
+#[route(get, "/quests/nimbora/claimable")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<ClaimableQuery>,

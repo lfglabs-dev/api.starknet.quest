@@ -24,8 +24,7 @@ pub struct GetClaimBoostQuery {
 
 #[route(
     get,
-    "/boost/get_claim_params",
-    crate::endpoints::quest_boost::get_claim_params
+    "/boost/get_claim_params"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

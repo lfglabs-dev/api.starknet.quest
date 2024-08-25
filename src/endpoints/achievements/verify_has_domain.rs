@@ -22,9 +22,7 @@ use std::{
 
 #[route(
     get,
-    "/achievements/verify_has_domain",
-    crate::endpoints::achievements::verify_has_domain
-)]
+    "/achievements/verify_has_domain")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

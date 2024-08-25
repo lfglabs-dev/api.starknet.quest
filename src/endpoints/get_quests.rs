@@ -21,7 +21,7 @@ pub struct NFTItem {
     pub(crate) level: u32,
 }
 
-#[route(get, "/get_quests", crate::endpoints::get_quests)]
+#[route(get, "/get_quests")]
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let current_time = chrono::Utc::now().timestamp_millis();
 

@@ -17,7 +17,7 @@ pub struct GetQuestsQuery {
     name: String,
 }
 
-#[route(get, "/get_quest_category", crate::endpoints::get_quest_category)]
+#[route(get, "/get_quest_category")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,

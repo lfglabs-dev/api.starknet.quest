@@ -14,11 +14,7 @@ use axum::{
 use axum_auto_routes::route;
 use serde_json::json;
 
-#[route(
-get,
-"/quests/haiko/verify_deposit",
-crate::endpoints::quests::haiko::verify_deposit
-)]
+#[route(get, "/quests/haiko/verify_deposit")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
@@ -35,7 +31,13 @@ pub async fn handler(
     match fetch_json_from_url(url).await {
         Ok(response) => {
             // check if user has deposited his funds
-            let response_data = response.get("data").unwrap().get("result").unwrap().as_bool().unwrap();
+            let response_data = response
+                .get("data")
+                .unwrap()
+                .get("result")
+                .unwrap()
+                .as_bool()
+                .unwrap();
             return if response_data {
                 match state.upsert_completed_task(query.addr, task_id).await {
                     Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),

@@ -18,11 +18,7 @@ use starknet::{
     providers::Provider,
 };
 
-#[route(
-get,
-"/quests/nostra/staking_quest/verify_stake",
-crate::endpoints::quests::nostra::staking_quest::verify_stake
-)]
+#[route(get, "/quests/nostra/staking_quest/verify_stake")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

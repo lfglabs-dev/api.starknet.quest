@@ -16,8 +16,7 @@ use std::sync::Arc;
 
 #[route(
     get,
-    "/admin/quest/get_quests",
-    crate::endpoints::admin::quest::get_quests
+    "/admin/quest/get_quests"
 )]
 pub async fn handler(State(state): State<Arc<AppState>>, headers: HeaderMap) -> impl IntoResponse {
     let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref());

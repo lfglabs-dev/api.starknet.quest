@@ -14,11 +14,7 @@ use axum::{
 use axum_auto_routes::route;
 use serde_json::json;
 
-#[route(
-    get,
-    "/quests/rhino/check_bridge",
-    crate::endpoints::quests::rhino::check_bridge
-)]
+#[route(get, "/quests/rhino/check_bridge")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
