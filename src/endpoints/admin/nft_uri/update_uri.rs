@@ -21,7 +21,7 @@ pub_struct!(Deserialize; CreateCustom {
     image: Option<String>,
 });
 
-#[route(post, "/admin/nft_uri/update", crate::endpoints::admin::nft_uri::update_uri)]
+#[route(post, "/admin/nft_uri/update")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

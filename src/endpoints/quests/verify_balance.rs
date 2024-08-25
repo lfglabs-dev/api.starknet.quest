@@ -26,11 +26,7 @@ pub struct VerifyBalanceQuery {
     pub task_id: u32,
 }
 
-#[route(
-    get,
-    "/quests/verify_balance",
-    crate::endpoints::quests::verify_balance
-)]
+#[route(get, "/quests/verify_balance")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyBalanceQuery>,

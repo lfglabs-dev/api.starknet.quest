@@ -13,7 +13,7 @@ use mongodb::bson::doc;
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
-#[route(post, "/quests/verify_quiz", crate::endpoints::quests::verify_quiz)]
+#[route(post, "/quests/verify_quiz")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     body: Json<VerifyQuizQuery>,

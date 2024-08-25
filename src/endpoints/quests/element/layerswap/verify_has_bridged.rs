@@ -30,11 +30,7 @@ struct LayerswapError {
     message: String,
 }
 
-#[route(
-    get,
-    "/quests/element/layerswap/verify_has_bridged",
-    crate::endpoints::quests::element::layerswap::verify_has_bridged
-)]
+#[route(get, "/quests/element/layerswap/verify_has_bridged")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

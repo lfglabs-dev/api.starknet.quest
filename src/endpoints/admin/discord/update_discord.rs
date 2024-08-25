@@ -23,7 +23,7 @@ pub_struct!(Deserialize; CreateCustom {
     guild_id: Option<String>,
 });
 
-#[route(post, "/admin/tasks/discord/update", crate::endpoints::admin::discord::update_discord)]
+#[route(post, "/admin/tasks/discord/update")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

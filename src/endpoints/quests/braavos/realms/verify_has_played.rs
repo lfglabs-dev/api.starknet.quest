@@ -13,11 +13,7 @@ use axum::{
 use axum_auto_routes::route;
 use serde_json::json;
 
-#[route(
-    get,
-    "/quests/braavos/realms/verify_has_played",
-    crate::endpoints::quests::braavos::realms::verify_has_played
-)]
+#[route(get, "/quests/braavos/realms/verify_has_played")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

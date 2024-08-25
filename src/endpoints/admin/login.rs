@@ -20,7 +20,7 @@ pub struct GetQuestsQuery {
     code: String,
 }
 
-#[route(get, "/admin/login", crate::endpoints::admin::login)]
+#[route(get, "/admin/login")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,

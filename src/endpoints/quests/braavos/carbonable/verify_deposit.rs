@@ -18,18 +18,14 @@ use starknet::{
     providers::Provider,
 };
 
-#[route(
-    get,
-    "/quests/braavos/carbonable/verify_deposit",
-    crate::endpoints::quests::braavos::carbonable::verify_deposit
-)]
+#[route(get, "/quests/braavos/carbonable/verify_deposit")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
     let task_id = 130;
     let addr = &query.addr;
-    let calldata =vec![*addr];
+    let calldata = vec![*addr];
 
     let call_result = state
         .provider

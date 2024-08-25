@@ -16,8 +16,7 @@ use starknet::core::types::FieldElement;
 
 #[route(
     get,
-    "/achievements/verify_avnu",
-    crate::endpoints::achievements::verify_avnu
+    "/achievements/verify_avnu"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

@@ -9,11 +9,7 @@ use axum::{
 use axum_auto_routes::route;
 use std::sync::Arc;
 
-#[route(
-get,
-"/quests/sithswap2/verify_has_domain",
-crate::endpoints::quests::sithswap::quest2::verify_has_domain
-)]
+#[route(get, "/quests/sithswap2/verify_has_domain")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

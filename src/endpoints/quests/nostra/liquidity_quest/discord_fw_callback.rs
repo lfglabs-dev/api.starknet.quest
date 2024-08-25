@@ -28,12 +28,7 @@ pub struct Guild {
     name: String,
 }
 
-#[route(
-    get,
-    "/quests/nostra/discord_fw_callback",
-    crate::endpoints::quests::nostra::liquidity_quest::discord_fw_callback
-
-)]
+#[route(get, "/quests/nostra/discord_fw_callback")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<DiscordOAuthCallbackQuery>,

@@ -26,11 +26,7 @@ pub struct ClaimableQuery {
     addr: FieldElement,
 }
 
-#[route(
-    get,
-    "/quests/element/layerswap/claimable",
-    crate::endpoints::quests::element::layerswap::claimable
-)]
+#[route(get, "/quests/element/layerswap/claimable")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<ClaimableQuery>,

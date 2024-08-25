@@ -36,8 +36,7 @@ pub struct GetLeaderboardInfoQuery {
 
 #[route(
     get,
-    "/leaderboard/get_static_info",
-    crate::endpoints::leaderboard::get_static_info
+    "/leaderboard/get_static_info"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

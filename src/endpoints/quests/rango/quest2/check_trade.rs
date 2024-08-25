@@ -12,11 +12,7 @@ use axum::{
 use axum_auto_routes::route;
 use serde_json::json;
 
-#[route(
-    get,
-    "/quests/rango/quest2/check_trade",
-    crate::endpoints::quests::rango::quest2::check_trade
-)]
+#[route(get, "/quests/rango/quest2/check_trade")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

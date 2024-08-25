@@ -15,11 +15,7 @@ use axum_auto_routes::route;
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
-#[route(
-    get,
-    "/quests/element/briq/verify_own_briq",
-    crate::endpoints::quests::element::briq::verify_own_briq
-)]
+#[route(get, "/quests/element/briq/verify_own_briq")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

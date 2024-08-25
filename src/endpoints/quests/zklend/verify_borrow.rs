@@ -18,11 +18,7 @@ use starknet::{
     providers::Provider,
 };
 
-#[route(
-    get,
-    "/quests/zklend/verify_borrow",
-    crate::endpoints::quests::zklend::verify_borrow
-)]
+#[route(get, "/quests/zklend/verify_borrow")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

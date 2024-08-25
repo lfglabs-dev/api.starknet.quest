@@ -28,12 +28,7 @@ pub struct Guild {
     name: String,
 }
 
-#[route(
-get,
-"/quests/influence/discord_fw_callback",
-crate::endpoints::quests::influence::discord_fw_callback
-
-)]
+#[route(get, "/quests/influence/discord_fw_callback")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<DiscordOAuthCallbackQuery>,

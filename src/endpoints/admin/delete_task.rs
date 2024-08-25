@@ -19,7 +19,7 @@ pub_struct!(Deserialize; DeleteTask {
    id: i32,
 });
 
-#[route(post, "/admin/tasks/remove_task", crate::endpoints::admin::delete_task)]
+#[route(post, "/admin/tasks/remove_task")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

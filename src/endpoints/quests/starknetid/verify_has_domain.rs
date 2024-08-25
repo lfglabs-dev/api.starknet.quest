@@ -25,11 +25,7 @@ pub struct StarknetIdQuery {
     addr: FieldElement,
 }
 
-#[route(
-    get,
-    "/quests/starknetid/verify_has_domain",
-    crate::endpoints::quests::starknetid::verify_has_domain
-)]
+#[route(get, "/quests/starknetid/verify_has_domain")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<StarknetIdQuery>,

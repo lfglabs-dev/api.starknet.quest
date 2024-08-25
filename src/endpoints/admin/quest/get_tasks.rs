@@ -31,7 +31,7 @@ pub struct GetTasksQuery {
     quest_id: u32,
 }
 
-#[route(get, "/admin/quest/get_tasks", crate::endpoints::admin::quest::get_tasks)]
+#[route(get, "/admin/quest/get_tasks")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetTasksQuery>,

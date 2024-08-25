@@ -13,7 +13,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use serde_json::Value;
 
-#[route(get, "/discover/defi/get_alt_protocol_stats", crate::endpoints::discover::defi::get_alt_protocol_stats)]
+#[route(get, "/discover/defi/get_alt_protocol_stats")]
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let endpoint = &state.conf.discover.alt_protocols_api_endpoint;
     let client = reqwest::Client::new();

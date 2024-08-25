@@ -20,7 +20,7 @@ pub struct GetTrendingQuestsQuery {
     addr: Option<FieldElement>,
 }
 
-#[route(get, "/get_trending_quests", crate::endpoints::get_trending_quests)]
+#[route(get, "/get_trending_quests")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetTrendingQuestsQuery>,
