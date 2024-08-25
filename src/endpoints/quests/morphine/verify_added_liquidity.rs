@@ -35,11 +35,7 @@ lazy_static::lazy_static! {
     ];
 }
 
-#[route(
-    get,
-    "/quests/morphine/verify_added_liquidity",
-    crate::endpoints::quests::morphine::verify_added_liquidity
-)]
+#[route(get, "/quests/morphine/verify_added_liquidity")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

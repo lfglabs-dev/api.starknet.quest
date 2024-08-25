@@ -1,7 +1,5 @@
-use crate::{
-    models::{AppState},
-    utils::get_error,
-};
+use crate::models::UniquePageVisit;
+use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -9,22 +7,21 @@ use axum::{
     Json,
 };
 use axum_auto_routes::route;
-use mongodb::bson::doc;
-use serde::Deserialize;
-use std::sync::Arc;
-use chrono::Utc;
-use mongodb::Collection;
-use mongodb::options::UpdateOptions;
-use serde_json::json;
-use crate::models::UniquePageVisit;
 use axum_client_ip::InsecureClientIp;
+use chrono::Utc;
+use mongodb::bson::doc;
+use mongodb::options::UpdateOptions;
+use mongodb::Collection;
+use serde::Deserialize;
+use serde_json::json;
+use std::sync::Arc;
 
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {
     page_id: String,
 }
 
-#[route(get, "/unique_page_visit", crate::endpoints::unique_page_visit)]
+#[route(get, "/unique_page_visit")]
 pub async fn handler(
     insecure_ip: InsecureClientIp,
     State(state): State<Arc<AppState>>,
@@ -39,8 +36,10 @@ pub async fn handler(
     let update = doc! { "$setOnInsert": { "viewer_ip": addr.to_string(), "viewed_page_id": &id,"timestamp":created_at } };
     let options = UpdateOptions::builder().upsert(true).build();
 
-    match unique_viewers_collection.update_one(filter, update, options)
-        .await {
+    match unique_viewers_collection
+        .update_one(filter, update, options)
+        .await
+    {
         Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
         Err(_) => get_error("unable to detect page visit status".to_string()),
     }

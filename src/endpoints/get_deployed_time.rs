@@ -19,7 +19,7 @@ pub struct GetDeployedTimeQuery {
     addr: FieldElement,
 }
 
-#[route(get, "/get_deployed_time", crate::endpoints::get_deployed_time)]
+#[route(get, "/get_deployed_time")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetDeployedTimeQuery>,

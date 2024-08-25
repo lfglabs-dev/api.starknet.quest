@@ -28,11 +28,7 @@ pub struct Guild {
     name: String,
 }
 
-#[route(
-    get,
-    "/quests/rango/discord_fw_callback",
-    crate::endpoints::quests::rango::quest1::discord_fw_callback
-)]
+#[route(get, "/quests/rango/discord_fw_callback")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<TwitterOAuthCallbackQuery>,

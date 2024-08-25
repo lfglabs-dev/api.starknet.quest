@@ -13,11 +13,7 @@ use axum::{
 use axum_auto_routes::route;
 use serde_json::json;
 
-#[route(
-    get,
-    "/quests/braavos/pyramid/verify_twitter_fw_pyramid",
-    crate::endpoints::quests::braavos::pyramid::verify_twitter_fw_pyramid
-)]
+#[route(get, "/quests/braavos/pyramid/verify_twitter_fw_pyramid")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

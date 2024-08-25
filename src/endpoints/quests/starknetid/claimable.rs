@@ -26,11 +26,7 @@ pub struct ClaimableQuery {
     addr: FieldElement,
 }
 
-#[route(
-    get,
-    "/quests/starknetid/claimable",
-    crate::endpoints::quests::starknetid::claimable
-)]
+#[route(get, "/quests/starknetid/claimable")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<ClaimableQuery>,

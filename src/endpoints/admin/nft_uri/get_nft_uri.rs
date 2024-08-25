@@ -22,8 +22,7 @@ pub struct GetQuestsQuery {
 
 #[route(
     get,
-    "/admin/nft_uri/get_nft_uri",
-    crate::endpoints::admin::nft_uri::get_nft_uri
+    "/admin/nft_uri/get_nft_uri"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

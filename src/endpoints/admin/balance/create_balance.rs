@@ -28,8 +28,7 @@ pub_struct!(Deserialize; CreateBalance {
 
 #[route(
     post,
-    "/admin/tasks/balance/create",
-    crate::endpoints::admin::balance::create_balance
+    "/admin/tasks/balance/create"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

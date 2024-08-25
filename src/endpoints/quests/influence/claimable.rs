@@ -26,11 +26,7 @@ pub struct ClaimableQuery {
     addr: FieldElement,
 }
 
-#[route(
-get,
-"/quests/influence/claimable",
-crate::endpoints::quests::influence::claimable
-)]
+#[route(get, "/quests/influence/claimable")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<ClaimableQuery>,
@@ -87,9 +83,9 @@ pub async fn handler(
 
             let Ok((token_id, sig)) =
                 get_nft(QUEST_ID, LAST_TASK, &query.addr, NFT_LEVEL, &signer).await
-                else {
-                    return get_error("Signature failed".into());
-                };
+            else {
+                return get_error("Signature failed".into());
+            };
 
             rewards.push(Reward {
                 task_id: LAST_TASK,

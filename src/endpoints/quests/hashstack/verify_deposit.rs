@@ -18,11 +18,7 @@ use starknet::{
     providers::Provider,
 };
 
-#[route(
-get,
-"/quests/hashstack/verify_deposit",
-crate::endpoints::quests::hashstack::verify_deposit
-)]
+#[route(get, "/quests/hashstack/verify_deposit")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
@@ -43,7 +39,6 @@ pub async fn handler(
             BlockId::Tag(BlockTag::Latest),
         )
         .await;
-
 
     match call_result {
         Ok(result) => {

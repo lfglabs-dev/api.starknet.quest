@@ -16,8 +16,7 @@ use mongodb::bson::{doc, from_document};
 
 #[route(
     get,
-    "/achievements/fetch_buildings",
-    crate::endpoints::achievements::fetch_buildings
+    "/achievements/fetch_buildings"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

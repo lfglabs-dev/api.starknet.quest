@@ -24,8 +24,7 @@ pub_struct!(Deserialize; UpdateTwitterFw {
 
 #[route(
 post,
-"/admin/tasks/twitter_fw/update",
-crate::endpoints::admin::twitter::update_twitter_fw
+"/admin/tasks/twitter_fw/update"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

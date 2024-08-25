@@ -31,8 +31,7 @@ pub struct CreateBoostQuery {
 
 #[route(
     post,
-    "/admin/quest_boost/create_boost",
-    crate::endpoints::admin::quest_boost::create_boost
+    "/admin/quest_boost/create_boost"
 )]
 pub async fn handler(
     State(state): State<Arc<AppState>>,

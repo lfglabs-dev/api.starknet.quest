@@ -1,7 +1,8 @@
 use std::sync::Arc;
 
+use crate::models::{QuestTaskDocument, VerifyNewQuery};
 use crate::{
-    models::{AppState},
+    models::AppState,
     utils::{get_error, CompletedTasksTrait},
 };
 use axum::{
@@ -11,31 +12,24 @@ use axum::{
     Json,
 };
 use axum_auto_routes::route;
-use futures::{ TryStreamExt};
+use futures::TryStreamExt;
 use mongodb::bson::doc;
 use serde_json::json;
-use crate::models::{QuestTaskDocument, VerifyNewQuery};
 
-#[route(
-get,
-"/quests/verify_twitter_fw",
-crate::endpoints::quests::verify_twitter_fw
-)]
+#[route(get, "/quests/verify_twitter_fw")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyNewQuery>,
 ) -> impl IntoResponse {
     let quest_id = query.quest_id;
     let task_id = query.task_id;
-    let pipeline = vec![
-        doc! {
-            "$match": doc! {
-                "quest_id": quest_id,
-                "id":task_id ,
-                "task_type": "twitter_fw"
-            }
-        },
-    ];
+    let pipeline = vec![doc! {
+        "$match": doc! {
+            "quest_id": quest_id,
+            "id":task_id ,
+            "task_type": "twitter_fw"
+        }
+    }];
 
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
     match tasks_collection.aggregate(pipeline, None).await {

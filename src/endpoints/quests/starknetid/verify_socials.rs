@@ -38,11 +38,7 @@ async fn call_contract_helper(
     result.map_err(|e| format!("{}", e))
 }
 
-#[route(
-    get,
-    "/quests/starknetid/verify_socials",
-    crate::endpoints::quests::starknetid::verify_socials
-)]
+#[route(get, "/quests/starknetid/verify_socials")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

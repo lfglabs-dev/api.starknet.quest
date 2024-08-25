@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::models::VerifyQuery;
-use crate::utils::{to_hex, CompletedTasksTrait, make_api_request};
+use crate::utils::{make_api_request, to_hex, CompletedTasksTrait};
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
@@ -12,11 +12,7 @@ use axum::{
 use axum_auto_routes::route;
 use serde_json::json;
 
-#[route(
-get,
-"/quests/rango/check_trade",
-crate::endpoints::quests::rango::quest1::check_trade
-)]
+#[route(get, "/quests/rango/check_trade")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
@@ -42,7 +38,7 @@ pub async fn handler(
         &address_hex,
         Some(&state.conf.rango.api_key),
     )
-        .await;
+    .await;
 
     match res {
         true => {
@@ -51,8 +47,6 @@ pub async fn handler(
                 Err(e) => get_error(format!("{}", e)),
             };
         }
-        false => {
-            get_error("User has not completed the task".to_string())
-        }
+        false => get_error("User has not completed the task".to_string()),
     }
 }

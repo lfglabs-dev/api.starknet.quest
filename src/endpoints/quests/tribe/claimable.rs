@@ -49,11 +49,7 @@ pub struct ClaimableQuery {
 
 const QUEST_ID: u32 = 4;
 
-#[route(
-    get,
-    "/quests/tribe/claimable",
-    crate::endpoints::quests::tribe::claimable
-)]
+#[route(get, "/quests/tribe/claimable")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<ClaimableQuery>,

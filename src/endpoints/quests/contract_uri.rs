@@ -18,7 +18,7 @@ pub struct TokenURI {
     external_link: String,
 }
 
-#[route(get, "/quests/contract_uri", crate::endpoints::quests::contract_uri)]
+#[route(get, "/quests/contract_uri")]
 pub async fn handler(State(state): State<Arc<AppState>>) -> Response {
     let response = TokenURI {
         name: "Starknet Quest".into(),

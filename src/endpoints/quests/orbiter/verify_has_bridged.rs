@@ -29,11 +29,7 @@ struct Response {
     data: Data,
 }
 
-#[route(
-    get,
-    "/quests/orbiter/verify_has_bridged",
-    crate::endpoints::quests::orbiter::verify_has_bridged
-)]
+#[route(get, "/quests/orbiter/verify_has_bridged")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

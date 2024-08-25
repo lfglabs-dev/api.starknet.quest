@@ -7,7 +7,7 @@ use mongodb::bson::{doc, Document};
 use reqwest::StatusCode;
 use std::sync::Arc;
 
-#[route(get, "/get_boosted_quests", crate::endpoints::get_boosted_quests)]
+#[route(get, "/get_boosted_quests")]
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let pipeline = vec![
         doc! {

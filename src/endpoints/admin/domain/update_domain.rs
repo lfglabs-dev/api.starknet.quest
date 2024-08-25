@@ -21,7 +21,7 @@ pub_struct!(Deserialize; CreateTwitterFw {
     id: i32,
 });
 
-#[route(post, "/admin/tasks/domain/update", crate::endpoints::admin::domain::update_domain)]
+#[route(post, "/admin/tasks/domain/update")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,
