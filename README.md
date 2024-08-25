@@ -4,7 +4,7 @@ API for Starknet Quest Client project built in Rust
 
 ## About
 
-API Starknet Quest provides the backend infrastructure for Starnet Quest Client an app which helps protocs attract and retain users by creating gamified quests experiences on Starknet.
+API Starknet Quest provides the backend infrastructure for Starknet Quest Client, an app which helps protocols attract and retain users by creating gamified quests experiences on Starknet.
 
 ## Prerequisites
 
