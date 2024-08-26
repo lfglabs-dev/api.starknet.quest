@@ -4,6 +4,20 @@ use std::collections::HashMap;
 use std::env;
 use std::fs;
 
+pub_struct!(Clone, Deserialize; Watchtower {
+    enabled : bool,
+    endpoint: String,
+    app_id: String,
+    token: String,
+    types: WatchtowerTypes,
+});
+
+pub_struct!(Clone, Deserialize; WatchtowerTypes {
+    info: String,
+    warning: String,
+    severe: String,
+});
+
 pub_struct!(Clone, Deserialize; Server { port: u16 });
 
 pub_struct!(Clone, Deserialize; Database {
@@ -193,6 +207,7 @@ pub_struct!(Clone, Deserialize;  Config {
     discord: Discord,
     starkscan: Starkscan,
     achievements: Achievements,
+    watchtower: Watchtower,
     quest_boost: QuestBoost,
     rhino: PublicApi,
     rango: Api,

@@ -15,10 +15,7 @@ use axum_auto_routes::route;
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
-#[route(
-    get,
-    "/achievements/batched/verify_tvl_batched"
-)]
+#[route(get, "/achievements/batched/verify_tvl_batched")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyAchievementBatchedQuery>,

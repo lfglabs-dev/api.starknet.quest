@@ -20,9 +20,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-#[route(
-    get,
-    "/achievements/verify_has_domain")]
+#[route(get, "/achievements/verify_has_domain")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,

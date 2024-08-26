@@ -26,10 +26,7 @@ pub_struct!(Deserialize; CreateBalance {
     cta: String,
 });
 
-#[route(
-    post,
-    "/admin/tasks/balance/create"
-)]
+#[route(post, "/admin/tasks/balance/create")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

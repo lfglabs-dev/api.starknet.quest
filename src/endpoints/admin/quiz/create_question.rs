@@ -1,4 +1,6 @@
-use crate::models::{JWTClaims, QuestDocument, QuestTaskDocument, QuizInsertDocument, QuizQuestionDocument};
+use crate::models::{
+    JWTClaims, QuestDocument, QuestTaskDocument, QuizInsertDocument, QuizQuestionDocument,
+};
 use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
 use axum::http::HeaderMap;
@@ -22,10 +24,7 @@ pub_struct!(Deserialize; CreateQuizQuestion {
     correct_answers: Vec<i64>,
 });
 
-#[route(
-    post,
-    "/admin/tasks/quiz/question/create"
-)]
+#[route(post, "/admin/tasks/quiz/question/create")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,
@@ -38,7 +37,6 @@ pub async fn handler(
         .collection::<QuizQuestionDocument>("quiz_questions");
     let quests_collection = state.db.collection::<QuestDocument>("quests");
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
-
 
     let pipeline = doc! {
         "quiz_name": &body.quiz_id,

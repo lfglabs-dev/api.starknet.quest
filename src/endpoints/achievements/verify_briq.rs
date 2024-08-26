@@ -16,10 +16,7 @@ use mongodb::bson::doc;
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
-#[route(
-    get,
-    "/achievements/verify_briq"
-)]
+#[route(get, "/achievements/verify_briq")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyAchievementQuery>,

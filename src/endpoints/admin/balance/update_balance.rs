@@ -30,10 +30,7 @@ fn field_element_to_bson(fe: &FieldElement) -> mongodb::bson::Bson {
     mongodb::bson::Bson::String(fe.to_string())
 }
 
-#[route(
-    post,
-    "/admin/tasks/balance/update"
-)]
+#[route(post, "/admin/tasks/balance/update")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

@@ -1,21 +1,20 @@
+use crate::models::{JWTClaims, QuestTaskDocument, QuizInsertDocument};
+use crate::utils::verify_task_auth;
 use crate::{models::AppState, utils::get_error};
+use axum::http::HeaderMap;
 use axum::{
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::bson::{doc};
-use mongodb::options::{FindOneAndUpdateOptions};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+use mongodb::bson::doc;
+use mongodb::bson::Document;
+use mongodb::options::FindOneAndUpdateOptions;
+use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use mongodb::bson::Document;
-use serde::Deserialize;
-use crate::models::{QuestTaskDocument, JWTClaims, QuizInsertDocument};
-use axum::http::HeaderMap;
-use crate::utils::verify_task_auth;
-use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
-
 
 pub_struct!(Deserialize; UpdateQuiz {
     id:u32,
@@ -33,13 +32,12 @@ pub async fn handler(
     headers: HeaderMap,
     body: Json<UpdateQuiz>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
     let quiz_collection = state.db.collection::<QuizInsertDocument>("quizzes");
 
-
-    let res= verify_task_auth(user,  &tasks_collection,&(body.id as i32)).await;
-    if !res{
+    let res = verify_task_auth(user, &tasks_collection, &(body.id as i32)).await;
+    if !res {
         return get_error("Error updating tasks".to_string());
     }
 
@@ -47,7 +45,10 @@ pub async fn handler(
     let filter = doc! {
         "id": &body.quiz_id,
     };
-    let existing_quiz = &quiz_collection.find_one(filter.clone(), None).await.unwrap();
+    let existing_quiz = &quiz_collection
+        .find_one(filter.clone(), None)
+        .await
+        .unwrap();
 
     // create a quiz if it does not exist
     if existing_quiz.is_none() {
@@ -82,7 +83,6 @@ pub async fn handler(
             .into_response(),
         Err(_e) => get_error("error updating task".to_string()),
     };
-
 
     let mut update_doc = Document::new();
 

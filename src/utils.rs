@@ -1,3 +1,4 @@
+use crate::logger::Logger;
 use crate::models::{
     AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument,
     QuestTaskDocument, UserExperience,
@@ -531,6 +532,7 @@ pub async fn fetch_and_update_boosts_winner(
     boost_collection: Collection<BoostTable>,
     completed_tasks_collection: Collection<CompletedTasks>,
     interval: u64,
+    logger: Logger,
 ) {
     loop {
         let pipeline = vec![doc! {
@@ -711,25 +713,26 @@ pub async fn fetch_and_update_boosts_winner(
                                 .unwrap();
                         }
                         None => {
-                            println!("No winners found");
+                            logger.info("No winners found");
                         }
                     }
                 }
             }
-            Err(_err) => println!("{}", _err),
+            Err(_err) => logger.info(_err.to_string()),
         };
 
         sleep(Duration::from_secs(interval)).await;
     }
 }
 
-pub fn run_boosts_raffle(db: &Database, interval: u64) {
+pub fn run_boosts_raffle(db: &Database, interval: u64, logger: Logger) {
     let boost_collection = db.collection::<BoostTable>("boosts");
     let completed_tasks_collection = db.collection::<CompletedTasks>("completed_tasks");
     tokio::spawn(fetch_and_update_boosts_winner(
         boost_collection,
         completed_tasks_collection,
         interval,
+        logger,
     ));
 }
 

@@ -1,20 +1,19 @@
+use crate::models::{JWTClaims, QuestTaskDocument};
+use crate::utils::verify_task_auth;
 use crate::{models::AppState, utils::get_error};
+use axum::http::HeaderMap;
 use axum::{
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::{doc, Document};
-use mongodb::options::{FindOneAndUpdateOptions};
+use mongodb::options::FindOneAndUpdateOptions;
+use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use serde::Deserialize;
-use crate::models::{QuestTaskDocument,JWTClaims};
-use axum::http::HeaderMap;
-use crate::utils::verify_task_auth;
-use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
-
 
 pub_struct!(Deserialize; UpdateTwitterRw {
     name: Option<String>,
@@ -29,15 +28,13 @@ pub async fn handler(
     headers: HeaderMap,
     body: Json<UpdateTwitterRw>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
 
-
-    let res= verify_task_auth(user,  &collection,&body.id).await;
-    if !res{
+    let res = verify_task_auth(user, &collection, &body.id).await;
+    if !res {
         return get_error("Error updating tasks".to_string());
     }
-
 
     // filter to get existing boost
     let filter = doc! {

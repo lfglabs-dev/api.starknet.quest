@@ -5,9 +5,9 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use futures::{StreamExt};
+use futures::StreamExt;
 use mongodb::bson::{doc, Document};
-use serde::{Deserialize};
+use serde::Deserialize;
 use starknet::core::types::FieldElement;
 use std::sync::Arc;
 
@@ -19,7 +19,6 @@ pub struct GetQuizQuery {
     #[allow(dead_code)]
     addr: FieldElement,
 }
-
 
 #[route(get, "/get_quiz")]
 pub async fn handler(
