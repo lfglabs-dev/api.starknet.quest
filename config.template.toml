@@ -13,6 +13,7 @@ expiry_duration = 0
 endpoint = "https://api.watchtower.starknet.id/service/add_message"
 app_id = "XXXXXXXXXXXXXXXXX"
 token = "XXXXXXXXXXXXXXXXX"
+enabled = true
 [watchtower.types]
 info = "goerli/info"
 warning = "goerli/warning"
