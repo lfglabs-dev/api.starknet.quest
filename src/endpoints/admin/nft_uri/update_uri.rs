@@ -1,18 +1,17 @@
-use crate::models::{NFTUri,JWTClaims};
+use crate::models::{JWTClaims, NFTUri};
 use crate::{models::AppState, utils::get_error};
+use axum::http::HeaderMap;
 use axum::{
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::bson::{doc};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use axum::http::HeaderMap;
-use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
-
 
 pub_struct!(Deserialize; CreateCustom {
     id: i64,
@@ -52,12 +51,8 @@ pub async fn handler(
         "$set": update_doc
     };
 
-
     // insert document to boost collection
-    return match collection
-        .find_one_and_update(filter, update, None)
-        .await
-    {
+    return match collection.find_one_and_update(filter, update, None).await {
         Ok(_) => (
             StatusCode::OK,
             Json(json!({"message": "Task updated successfully"})).into_response(),

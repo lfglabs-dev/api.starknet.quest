@@ -27,10 +27,7 @@ pub_struct!(Deserialize; UpdateBoostQuery {
     hidden: Option<bool>,
 });
 
-#[route(
-post,
-"/admin/quest_boost/update_boost"
-)]
+#[route(post, "/admin/quest_boost/update_boost")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

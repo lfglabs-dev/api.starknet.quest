@@ -1,3 +1,5 @@
+use crate::config;
+use crate::logger::Logger;
 use std::sync::Arc;
 
 use crate::utils::CompletedTasksTrait;
@@ -123,6 +125,8 @@ pub async fn handler(
 async fn exchange_authorization_code(
     params: [(&str, &String); 6],
 ) -> Result<String, Box<dyn std::error::Error>> {
+    let conf = config::load();
+    let logger = Logger::new(&conf.watchtower);
     let client = reqwest::Client::new();
     let res = client
         .post("https://discord.com/api/oauth2/token")
@@ -133,10 +137,10 @@ async fn exchange_authorization_code(
     match json["access_token"].as_str() {
         Some(s) => Ok(s.to_string()),
         None => {
-            println!(
+            logger.info(format!(
                 "Failed to get 'access_token' from JSON response : {:?}",
                 json
-            );
+            ));
             Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 format!(

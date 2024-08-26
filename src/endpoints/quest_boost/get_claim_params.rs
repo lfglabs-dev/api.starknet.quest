@@ -22,10 +22,7 @@ pub struct GetClaimBoostQuery {
     addr: FieldElement,
 }
 
-#[route(
-    get,
-    "/boost/get_claim_params"
-)]
+#[route(get, "/boost/get_claim_params")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetClaimBoostQuery>,
@@ -46,10 +43,11 @@ pub async fn handler(
     let boost: Document = res.unwrap();
     let num_of_winners = boost.get("num_of_winners").unwrap().as_i32().unwrap();
     let decimals = boost.get("token_decimals").unwrap().as_i32().unwrap();
-    let amount: u128 = boost.get("amount").unwrap().as_i32().unwrap() as u128 * 10u128.pow(decimals as u32);
+    let amount: u128 =
+        boost.get("amount").unwrap().as_i32().unwrap() as u128 * 10u128.pow(decimals as u32);
     let modified_amount = amount / num_of_winners as u128;
     let token = boost.get("token").unwrap().as_str().unwrap();
-    
+
     let winner_list = boost.get("winner").unwrap().as_array().unwrap();
     let bson_value: Bson = Bson::String(address.clone());
 

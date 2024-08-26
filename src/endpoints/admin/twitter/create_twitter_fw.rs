@@ -22,10 +22,7 @@ pub_struct!(Deserialize; CreateTwitterFw {
     quest_id: i64,
 });
 
-#[route(
-    post,
-    "/admin/tasks/twitter_fw/create"
-)]
+#[route(post, "/admin/tasks/twitter_fw/create")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

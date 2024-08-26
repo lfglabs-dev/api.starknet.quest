@@ -16,10 +16,7 @@ pub struct GetQuestsQuery {
     id: u32,
 }
 
-#[route(
-get,
-"/analytics/get_unique_visitors"
-)]
+#[route(get, "/analytics/get_unique_visitors")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,

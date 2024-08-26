@@ -1,3 +1,5 @@
+use crate::config;
+use crate::logger::Logger;
 use std::sync::Arc;
 
 use crate::models::QuestTaskDocument;
@@ -34,6 +36,8 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<TwitterOAuthCallbackQuery>,
 ) -> impl IntoResponse {
+    let conf = config::load();
+    let logger = Logger::new(&conf.watchtower);
     // the state is in format => "address+quest_id+task_id"
     let state_split = query.state.split('+').collect::<Vec<&str>>();
     let quest_id = state_split[1].parse::<i64>().unwrap();
@@ -115,7 +119,7 @@ pub async fn handler(
 
     for guild in response {
         if guild.id == guild_id {
-            print!("Checking guild: {:?}", guild);
+            logger.info(format!("Checking guild: {:?}", guild));
             match state.upsert_completed_task(addr, task_id).await {
                 Ok(_) => {
                     let redirect_uri = format!(

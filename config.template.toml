@@ -9,6 +9,15 @@ connection_string = "xxxxxx"
 secret_key = "secret_key"
 expiry_duration = 0
 
+[watchtower]
+endpoint = "https://api.watchtower.starknet.id/service/add_message"
+app_id = "XXXXXXXXXXXXXXXXX"
+token = "XXXXXXXXXXXXXXXXX"
+[watchtower.types]
+info = "goerli/info"
+warning = "goerli/warning"
+severe = "goerli/severe"
+
 [discover]
 pairs_api_endpoint = "XXXXXXXX"
 lending_api_endpoint = "XXXXXXXX"

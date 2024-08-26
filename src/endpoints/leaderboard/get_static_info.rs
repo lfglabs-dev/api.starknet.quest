@@ -34,10 +34,7 @@ pub struct GetLeaderboardInfoQuery {
     duration: String,
 }
 
-#[route(
-    get,
-    "/leaderboard/get_static_info"
-)]
+#[route(get, "/leaderboard/get_static_info")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetLeaderboardInfoQuery>,

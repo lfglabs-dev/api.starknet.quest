@@ -1,7 +1,8 @@
 use crate::{
-    models::{AppState, QuestDocument,JWTClaims},
+    models::{AppState, JWTClaims, QuestDocument},
     utils::get_error,
 };
+use axum::http::HeaderMap;
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -9,28 +10,23 @@ use axum::{
 };
 use axum_auto_routes::route;
 use futures::StreamExt;
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::doc;
 use serde::Deserialize;
 use std::sync::Arc;
-use axum::http::HeaderMap;
-use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
-
 
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {
     id: i32,
 }
 
-#[route(
-    get,
-    "/admin/quest/get_quest"
-)]
+#[route(get, "/admin/quest/get_quest")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestDocument>("quests");
     let mut pipeline = vec![
         doc! {
@@ -76,11 +72,14 @@ pub async fn handler(
     ];
 
     if user != "super_user" {
-        pipeline.insert(1, doc! {
-            "$match": doc! {
-                "issuer": user,
-            }
-        });
+        pipeline.insert(
+            1,
+            doc! {
+                "$match": doc! {
+                    "issuer": user,
+                }
+            },
+        );
     }
 
     match collection.aggregate(pipeline, None).await {

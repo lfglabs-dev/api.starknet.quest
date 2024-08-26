@@ -1,20 +1,19 @@
-use crate::models::{NFTUri,JWTClaims, QuestDocument};
+use crate::models::{JWTClaims, NFTUri, QuestDocument};
+use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
+use axum::http::HeaderMap;
 use axum::{
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use mongodb::bson::{doc};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
-use axum::http::HeaderMap;
-use crate::utils::verify_quest_auth;
-
 
 pub_struct!(Deserialize; CreateCustom {
     quest_id: i64,
@@ -34,8 +33,7 @@ pub async fn handler(
 
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
-
-    let res= verify_quest_auth(user, &quests_collection, &(body.quest_id as i64)).await;
+    let res = verify_quest_auth(user, &quests_collection, &(body.quest_id as i64)).await;
     if !res {
         return get_error("Error creating task".to_string());
     };
@@ -55,19 +53,13 @@ pub async fn handler(
         name: body.name.clone(),
         description: body.desc.clone(),
         image: body.image.clone(),
-        quest_id : body.quest_id.clone() as i64,
+        quest_id: body.quest_id.clone() as i64,
         id: next_id,
         attributes: None,
     };
 
     // insert document to boost collection
-    return match collection
-        .insert_one(
-            new_document,
-            None,
-        )
-        .await
-    {
+    return match collection.insert_one(new_document, None).await {
         Ok(_) => (
             StatusCode::OK,
             Json(json!({"message": "Uri created successfully"})).into_response(),

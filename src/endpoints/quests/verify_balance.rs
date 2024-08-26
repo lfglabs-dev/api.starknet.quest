@@ -62,10 +62,10 @@ pub async fn handler(
         )
         .await;
 
-    let required_amount = task.total_amount.unwrap_or_else(|| 
-        FieldElement::from_dec_str("3000000000000000").unwrap()
-    );
-    
+    let required_amount = task
+        .total_amount
+        .unwrap_or_else(|| FieldElement::from_dec_str("3000000000000000").unwrap());
+
     match call_result {
         Ok(result) => {
             // if result[0] < FieldElement::from_dec_str("3000000000000000").unwrap() {

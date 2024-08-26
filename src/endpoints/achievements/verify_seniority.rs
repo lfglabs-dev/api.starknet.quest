@@ -16,10 +16,7 @@ use chrono::{NaiveDateTime, Utc};
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
-#[route(
-    get,
-    "/achievements/verify_seniority"
-)]
+#[route(get, "/achievements/verify_seniority")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyAchievementQuery>,

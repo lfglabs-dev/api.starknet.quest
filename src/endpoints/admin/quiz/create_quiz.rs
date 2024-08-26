@@ -24,10 +24,7 @@ pub_struct!(Deserialize; CreateQuiz {
     quest_id: i64,
 });
 
-#[route(
-    post,
-    "/admin/tasks/quiz/create"
-)]
+#[route(post, "/admin/tasks/quiz/create")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

@@ -1,9 +1,9 @@
+use crate::config::{Quiz, QuizQuestionType};
+use crate::models::QuizInsertDocument;
 use futures::StreamExt;
 use mongodb::bson::{doc, from_document};
 use mongodb::Database;
-use crate::config::{Quiz, QuizQuestionType};
 use starknet::core::types::FieldElement;
-use crate::models::QuizInsertDocument;
 
 fn match_vectors(vector1: &Vec<usize>, vector2: &Vec<usize>) -> bool {
     // Check if vectors have the same length

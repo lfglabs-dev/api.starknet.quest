@@ -1,19 +1,17 @@
-use crate::models::{QuestDocument,JWTClaims};
+use crate::models::{JWTClaims, QuestDocument};
 use crate::{models::AppState, utils::get_error};
+use axum::http::HeaderMap;
 use axum::{
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::{doc, Document};
+use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use serde::Deserialize;
-use axum::http::HeaderMap;
-use jsonwebtoken::{Validation,Algorithm,decode,DecodingKey};
-
-
 
 pub_struct!(Deserialize; UpdateQuestQuery {
     id: i32,
@@ -37,7 +35,7 @@ pub async fn handler(
     headers: HeaderMap,
     body: Json<UpdateQuestQuery>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref())  as String;
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestDocument>("quests");
 
     // filter to get existing quest
@@ -84,9 +82,9 @@ pub async fn handler(
     if let Some(rewards_img) = &body.rewards_img {
         update_doc.insert("rewards_img", rewards_img);
         let nft_reward = doc! {
-        "img": &body.rewards_img.clone(),
-        "level": 1,
-    };
+            "img": &body.rewards_img.clone(),
+            "level": 1,
+        };
         update_doc.insert("rewards_nfts", vec![nft_reward]);
     }
     if let Some(rewards_title) = &body.rewards_title {
@@ -99,16 +97,12 @@ pub async fn handler(
         update_doc.insert("title_card", title_card);
     }
 
-
     // update quest query
     let update = doc! {
         "$set": update_doc
     };
 
-    return match collection
-        .find_one_and_update(filter, update, None)
-        .await
-    {
+    return match collection.find_one_and_update(filter, update, None).await {
         Ok(_) => (
             StatusCode::OK,
             Json(json!({"message": "updated successfully"})),

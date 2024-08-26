@@ -27,10 +27,7 @@ fn get_number_of_quests(id: u32) -> u32 {
     };
 }
 
-#[route(
-    get,
-    "/achievements/claim/quest_achievement"
-)]
+#[route(get, "/achievements/claim/quest_achievement")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyAchievementQuery>,

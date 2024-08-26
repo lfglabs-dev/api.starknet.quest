@@ -1,7 +1,4 @@
-use crate::{
-    models::{AppState},
-    utils::get_error,
-};
+use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::State,
     http::StatusCode,
@@ -9,9 +6,9 @@ use axum::{
 };
 use axum_auto_routes::route;
 use mongodb::bson::doc;
+use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
-use serde_json::Value;
 
 #[route(get, "/discover/defi/get_pair_stats")]
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
@@ -46,7 +43,7 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                 return (StatusCode::OK, Json(new_map)).into_response();
             }
             Err(_) => get_error(format!("Try again later")),
-        }
+        },
         Err(_) => get_error(format!("Try again later")),
     };
 
