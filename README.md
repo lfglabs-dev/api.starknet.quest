@@ -87,7 +87,9 @@ quest_server: starting v0.1.0
 database: connected
 server: listening on http://0.0.0.0:8080
 ```
-Otherwise refer the to the Troubleshooting guide below.
+If you have a different output, refer the to the Troubleshooting guide below.
+
+If you wish to test admin endpoints, you need to add the admin manually to the database.
 
 ## Troubleshooting
 
@@ -136,3 +138,23 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ```
 
 This means you didn't add the `connection_string` in the `config.toml` file. To fix this, you'll need to add the `connection_string` to the `config.toml` file. Please refer to the second step of the section Running the Project for further instructions on how to add the `connection_string`.
+
+If you get the following output:
+
+```bash
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.41s
+     Running `target\debug\quest_server.exe`
+quest_server: starting v0.1.0
+thread 'main' panicked at src\config.rs:218:13:
+error: unable to deserialize config. newline in string found at line 6 column 63
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: process didn't exit successfully: `target\debug\quest_server.exe` (exit code: 101)
+```
+
+This means you probably forgot the following character in the `config.toml` file: ". To fix this, you'll need to check that the fields you modified while creating the `config.toml` file have their opening and closing character. As an example, it should look like this:
+
+`connection_string = "mongodb://quests:password@localhost:27017"`
+
+and NOT like this
+
+`connection_string = "mongodb://quests:password@localhost:27017`
