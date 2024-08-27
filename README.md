@@ -30,7 +30,7 @@ docker --version
 ```
 If you don't have Docker installed, please go to the [Docker installation page](https://docs.docker.com/get-started/get-docker/) for further instructions.
 
-## Installaction Instructions
+## Installation Instructions
 
 Fork the repository and clone the forked repository to your local system
 
@@ -38,7 +38,7 @@ Fork the repository and clone the forked repository to your local system
 git clone https://github.com/<your-user>/api.starknet.quest.git
 ```
 
-## Build instructions
+## Build Instructions
 
 To build the project use the following command in a terminal
 
@@ -54,7 +54,7 @@ If you wish to create an optimized binary without debug information run the foll
 cargo build --release
 ```
 
-## Running the project
+## Running the Project
 
 To run the project successfully you'll need to do the following steps:
 1. Deploy `db-docker-compose.yml` file to use MongoDB database
