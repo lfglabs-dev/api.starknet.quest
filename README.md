@@ -56,11 +56,38 @@ cargo build --release
 
 ## Running the project
 
+To run the project successfully you'll need to do the following steps:
 1. Deploy `db-docker-compose.yml` file to use MongoDB database
-2. Create `config.toml` file using the `config.template.toml` file
-3. Replace `connection_string` in `config.toml` with the proper connection string to the MongoDB database, if default credentials in `db-docker-compose.yml` file are used the connection string is: mongodb://quests:password@localhost:27017
-4. Starknet RPC_URL -> can be from lava or alchemy
-5. Starkscan API KEY create one
+Once inside the directory of the project, you need to run the following command:
+```bash
+docker-compose -f db-docker-compose.yml up -d
+```
+The command above will create a container running the MongoDB database, however the information you add to the database isn't persistent, you'll need to modify the db-docker-compose.yml file to include a volume. For more information regarding Docker-compose files and volumes go the this [page](https://docs.docker.com/engine/storage/volumes/).
 
-once the config.toml file is done, use cargo run to start testing
+2. Create `config.toml` file using the `config.template.toml` file
+To run the project successfully you need to create a `config.toml` file using the `config.template.toml` file. You can copy the file and modify the following fields accordingly:
+
+- connection_string, if the `db-docker-compose.yml` isn't changed the connection string would be: mongodb://quests:password@localhost:27017
+- secret_key, this is the secret used for the JWT token. You can change it or leave as is.
+- expiry_duration, this is the expiry duration of the JWT token. You should change it according to your needs the time is stored in miliseconds.
+- rpc_url, this is to interact with the blockchain you can use a public RPC such as [Lava](https://www.lavanet.xyz/get-started/starknet) or a private node provider such as [Alchemy](https://www.alchemy.com) or [Infura](https://www.infura.io)
+
+3. Run the project 
+Once the `config.toml` file is created properly, you're going to be able to run the project using the following command
+
+```bash
+cargo run
+```
+If you've setup everything correctly, you should see the following output
+
+```bash
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 59.57s
+     Running `target/debug/quest_server`
+quest_server: starting v0.1.0
+database: connected
+server: listening on http://0.0.0.0:8080
+```
+Otherwise refer the to the Troubleshooting guide below.
+
+## Troubleshooting
 
