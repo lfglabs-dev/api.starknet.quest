@@ -23,10 +23,7 @@ pub_struct!(Deserialize; CreateCustom {
     guild_id: String,
 });
 
-#[route(
-    post,
-    "/admin/tasks/discord/create"
-)]
+#[route(post, "/admin/tasks/discord/create")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

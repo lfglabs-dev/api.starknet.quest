@@ -3,32 +3,55 @@ mod utils;
 mod common;
 mod config;
 mod endpoints;
+mod logger;
 mod models;
 
+use crate::utils::{add_leaderboard_table, run_boosts_raffle};
 use axum::{http::StatusCode, Router};
 use axum_auto_routes::route;
 use mongodb::{bson::doc, options::ClientOptions, Client};
 use reqwest::Url;
+use serde_derive::Serialize;
 use starknet::providers::{jsonrpc::HttpTransport, JsonRpcClient};
-use std::sync::Arc;
+use std::{borrow::Cow, sync::Arc};
 use std::{net::SocketAddr, sync::Mutex};
-use utils::WithState;
-use crate::utils::{add_leaderboard_table, run_boosts_raffle};
 use tower_http::cors::{Any, CorsLayer};
+use utils::WithState;
 
 lazy_static::lazy_static! {
     pub static ref ROUTE_REGISTRY: Mutex<Vec<Box<dyn WithState>>> = Mutex::new(Vec::new());
 }
 
+#[derive(Serialize)]
+struct LogData<'a> {
+    token: &'a str,
+    log: LogPayload<'a>,
+}
+
+#[derive(Serialize)]
+struct LogPayload<'a> {
+    app_id: &'a str,
+    r#type: &'a str,
+    message: Cow<'a, str>,
+    timestamp: i64,
+}
+
 #[tokio::main]
 async fn main() {
-    println!("quest_server: starting v{}", env!("CARGO_PKG_VERSION"));
     let conf = config::load();
+    let logger = logger::Logger::new(&conf.watchtower);
+
+    logger.info(format!(
+        "quest_server: starting v{}",
+        env!("CARGO_PKG_VERSION")
+    ));
+
     let client_options = ClientOptions::parse(&conf.database.connection_string)
         .await
         .unwrap();
 
     let shared_state = Arc::new(models::AppState {
+        logger: logger.clone(),
         conf: conf.clone(),
         provider: JsonRpcClient::new(HttpTransport::new(
             Url::parse(&conf.variables.rpc_url).unwrap(),
@@ -43,14 +66,18 @@ async fn main() {
         .await
         .is_err()
     {
-        println!("error: unable to connect to database");
+        logger.async_severe("Unable to connect to database").await;
         return;
     } else {
-        println!("database: connected");
+        logger.info("Connected to database");
     }
 
     let db_instance = shared_state.db.clone();
-    run_boosts_raffle(&db_instance, conf.quest_boost.update_interval);
+    run_boosts_raffle(
+        &db_instance,
+        conf.quest_boost.update_interval,
+        logger.clone(),
+    );
     add_leaderboard_table(&shared_state.db).await;
 
     let cors = CorsLayer::new().allow_headers(Any).allow_origin(Any);
@@ -65,7 +92,10 @@ async fn main() {
         .layer(cors);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], conf.server.port));
-    println!("server: listening on http://0.0.0.0:{}", conf.server.port);
+    logger.info(format!(
+        "server: listening on http://0.0.0.0:{}",
+        conf.server.port
+    ));
     axum::Server::bind(&addr)
         .serve(app.into_make_service_with_connect_info::<SocketAddr>())
         .await

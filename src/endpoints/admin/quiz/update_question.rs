@@ -25,10 +25,7 @@ pub_struct!(Deserialize; UpdateQuiz {
     correct_answers: Option<Vec<i64>>,
 });
 
-#[route(
-    post,
-    "/admin/tasks/quiz/question/update"
-)]
+#[route(post, "/admin/tasks/quiz/question/update")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

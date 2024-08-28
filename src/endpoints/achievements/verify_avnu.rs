@@ -14,10 +14,7 @@ use axum_auto_routes::route;
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
-#[route(
-    get,
-    "/achievements/verify_avnu"
-)]
+#[route(get, "/achievements/verify_avnu")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyAchievementQuery>,

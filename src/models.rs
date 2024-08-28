@@ -6,13 +6,14 @@ use starknet::{
     providers::{jsonrpc::HttpTransport, JsonRpcClient},
 };
 
-use crate::config::Config;
 use crate::endpoints::quests::uri::Attribute;
+use crate::{config::Config, logger::Logger};
 
 pub_struct!(;AppState {
     conf: Config,
     provider: JsonRpcClient<HttpTransport>,
     db: Database,
+    logger: Logger,
 });
 
 pub_struct!(Debug, Serialize, Deserialize; NFTItem {

@@ -29,10 +29,7 @@ pub_struct!(Deserialize; CreateQuestQuery {
     issuer: Option<String>,
 });
 
-#[route(
-post,
-"/admin/quest/create"
-)]
+#[route(post, "/admin/quest/create")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,
@@ -59,10 +56,10 @@ pub async fn handler(
 
     let issuer = match user == "super_user" {
         true => {
-            let result_issuer=(&body.issuer).as_ref().unwrap();
+            let result_issuer = (&body.issuer).as_ref().unwrap();
             result_issuer
-        },
-        false => &user
+        }
+        false => &user,
     };
 
     let mut new_document = doc! {

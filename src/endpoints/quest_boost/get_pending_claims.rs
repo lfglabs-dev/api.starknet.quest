@@ -1,3 +1,5 @@
+use crate::config;
+use crate::logger::Logger;
 use crate::utils::to_hex;
 use crate::{
     models::{AppState, QuestDocument},
@@ -20,14 +22,13 @@ pub struct GetQuestsQuery {
     addr: FieldElement,
 }
 
-#[route(
-    get,
-    "/boost/get_pending_claims"
-)]
+#[route(get, "/boost/get_pending_claims")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
+    let conf = config::load();
+    let logger = Logger::new(&conf.watchtower);
     let address = to_hex(query.addr);
     let collection = state.db.collection::<QuestDocument>("boosts");
     let pipeline = [
@@ -114,7 +115,7 @@ pub async fn handler(
             return (StatusCode::OK, Json(res)).into_response();
         }
         Err(e) => {
-            println!("Error querying claims: {}", e);
+            logger.info(format!("Error querying claims: {}", e));
             get_error("Error querying claims".to_string())
         }
     }

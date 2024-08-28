@@ -1,4 +1,8 @@
 pub mod achievements;
+pub mod admin;
+pub mod analytics;
+pub mod discover;
+pub mod get_boosted_quests;
 pub mod get_completed_quests;
 pub mod get_deployed_time;
 pub mod get_quest;
@@ -12,8 +16,4 @@ pub mod has_completed_quest;
 pub mod leaderboard;
 pub mod quest_boost;
 pub mod quests;
-pub mod get_boosted_quests;
-pub mod analytics;
 pub mod unique_page_visit;
-pub mod admin;
-pub mod discover;

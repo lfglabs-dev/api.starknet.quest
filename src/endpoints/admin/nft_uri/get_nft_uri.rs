@@ -1,8 +1,5 @@
 use crate::models::NFTUri;
-use crate::{
-    models::{AppState},
-    utils::get_error,
-};
+use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -14,16 +11,12 @@ use mongodb::bson::doc;
 use serde::Deserialize;
 use std::sync::Arc;
 
-
 #[derive(Deserialize)]
 pub struct GetQuestsQuery {
     id: i64,
 }
 
-#[route(
-    get,
-    "/admin/nft_uri/get_nft_uri"
-)]
+#[route(get, "/admin/nft_uri/get_nft_uri")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,

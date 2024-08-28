@@ -19,10 +19,7 @@ pub struct GetCompletedQuestsQuery {
     addr: FieldElement,
 }
 
-#[route(
-    get,
-    "/boost/get_completed_boosts"
-)]
+#[route(get, "/boost/get_completed_boosts")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetCompletedQuestsQuery>,

@@ -24,10 +24,7 @@ pub_struct!(Deserialize; CreateCustom {
     api: String,
 });
 
-#[route(
-    post,
-    "/admin/tasks/custom/create"
-)]
+#[route(post, "/admin/tasks/custom/create")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,

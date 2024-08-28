@@ -15,10 +15,7 @@ use futures::stream::StreamExt;
 use mongodb::bson::{doc, from_document};
 use starknet::core::types::FieldElement;
 
-#[route(
-  get,
-  "/achievements/fetch"
-)]
+#[route(get, "/achievements/fetch")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<AchievementQuery>,
