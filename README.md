@@ -65,12 +65,13 @@ docker-compose -f db-docker-compose.yml up -d
 The command above will create a container running the MongoDB database, however the information you add to the database isn't persistent, you'll need to modify the db-docker-compose.yml file to include a volume. For more information regarding Docker-compose files and volumes go the this [page](https://docs.docker.com/engine/storage/volumes/).
 
 2. Create `config.toml` file using the `config.template.toml` file.
-To run the project successfully you need to create a `config.toml` file using the `config.template.toml` file. You can copy the file and modify the following fields accordingly:
+Create a `config.toml` file by copying and modifying the `config.template.toml` file. Make sure you update the following fields as required to run the project successfully:
 
 - `connection_string`, this is the string to connect to the database. If the `db-docker-compose.yml` isn't changed the connection string would be: `mongodb://quests:password@localhost:27017`
 - `secret_key`, this is the secret used for the JWT token. You can change it or leave as is.
 - `expiry_duration`, this is the expiry duration of the JWT token. You should change it according to your needs the time is stored in miliseconds.
-- `rpc_url`, this is to interact with the blockchain you can use a public RPC such as [Lava](https://www.lavanet.xyz/get-started/starknet) or a private node provider such as [Alchemy](https://www.alchemy.com) or [Infura](https://www.infura.io)
+- `rpc_url`, this is to interact with the blockchain you can use a public RPC such as [Lava](https://www.lavanet.xyz/get-started/starknet) or a private node provider such as [Alchemy](https://www.alchemy.com) or [Infura](https://www.infura.io). Alchemy and Infura require an account to get a private RPC, while Lava is completely public.
+- In the section of `[watchtower]`, set `enabled` to false. If you wish to setup the watchtower correctly, you can check the Watchtower repositories for further information. [Watchtower frontend](https://github.com/starknet-id/watchtower.starknet.id) and [Watchtower backend](https://github.com/starknet-id/watchtower_server) 
 
 3. Run the project. 
 Once the `config.toml` file is created properly, you're going to be able to run the project using the following command
@@ -158,3 +159,14 @@ This means you probably forgot the following character in the `config.toml` file
 and NOT like this
 
 `connection_string = "mongodb://quests:password@localhost:27017`
+
+If you get the following output:
+
+```bash
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.53s
+     Running `target/debug/quest_server`
+INFO: quest_server: starting v0.1.0
+Failed to post log: "Invalid token or token expired"
+```
+
+This means that you didn't setup the credentials for Watchtower. To fix this, you'll need to set the `enabled` field in `[watchtower]` to false in the `config.toml` file. Please refer the second step of the section Running the Project for further instructions if you wish to keep the `[watchtower]` enabled.
