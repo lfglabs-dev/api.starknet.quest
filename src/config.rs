@@ -1,6 +1,5 @@
 use serde::{self, Deserialize, Deserializer};
 use starknet::core::types::FieldElement;
-use std::collections::HashMap;
 use std::env;
 use std::fs;
 
@@ -44,10 +43,10 @@ pub_struct!(Clone, Deserialize; StarknetIdContracts {
     identity_contract: FieldElement,
 });
 
-pub_struct!(Clone, Deserialize;  NamingContract { address: String });
+pub_struct!(Clone, Deserialize;  NamingContract { String });
 
 pub_struct!(Clone, Deserialize;  StarknetId {
-    account_id: String,
+    String,
 });
 
 pub_struct!(Clone, Deserialize;  Nostra {

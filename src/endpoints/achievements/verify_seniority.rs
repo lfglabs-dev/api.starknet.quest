@@ -33,7 +33,7 @@ pub async fn handler(
 
     match execute_has_deployed_time(state.clone(), &query.addr).await {
         Ok(timestamp) => {
-            let dt = NaiveDateTime::from_timestamp_opt(timestamp as i64, 0).unwrap();
+            let dt = NaiveDateTime::from_timestamp(timestamp as i64, 0).unwrap();
             let current_time = Utc::now().naive_utc();
             let duration = current_time - dt;
             let days_passed = duration.num_days();
