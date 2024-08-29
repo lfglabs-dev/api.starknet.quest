@@ -12,7 +12,8 @@ use axum::{
     Json,
 };
 use axum_auto_routes::route;
-use chrono::{NaiveDateTime, Utc};
+use chrono::{TimeZone, Utc};
+use chrono::Datelike;
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
@@ -33,10 +34,10 @@ pub async fn handler(
 
     match execute_has_deployed_time(state.clone(), &query.addr).await {
         Ok(timestamp) => {
-            let dt = NaiveDateTime::from_timestamp_opt(timestamp as i64, 0).unwrap();
-            let current_time = Utc::now().naive_utc();
-            let duration = current_time - dt;
-            let days_passed = duration.num_days();
+            let timestamp_u64 = 1657113606;
+            let date_time = Utc.timestamp_opt(timestamp_u64 as i64, 0).unwrap();
+            let duration = date_time ;
+            let days_passed = duration.num_days_from_ce();
             if (achievement_id == 14 && days_passed >= 90)
                 || (achievement_id == 15 && days_passed >= 180)
                 || (achievement_id == 16 && days_passed >= 365)
