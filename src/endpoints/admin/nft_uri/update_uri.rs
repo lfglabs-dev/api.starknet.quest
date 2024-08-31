@@ -1,35 +1,41 @@
-use crate::models::{JWTClaims, NFTUri};
+use crate::models::NFTUri;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
 use axum::{
-    extract::State,
-    http::StatusCode,
-    response::{IntoResponse, Json},
+    extract::{Extension, Json},
+    http::{HeaderMap, StatusCode},
+    response::IntoResponse,
+    Router,
+    routing::post,
 };
-use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+use crate::models::JWTClaims;
+
 use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
+use jsonwebtoken::decode;
+use jsonwebtoken::DecodingKey;
+use jsonwebtoken::Validation;
+use jsonwebtoken::Algorithm;
 
-pub_struct!(Deserialize; CreateCustom {
+#[derive(Deserialize)]
+pub struct CreateCustom {
     id: i64,
     name: Option<String>,
     desc: Option<String>,
     image: Option<String>,
-});
+}
 
-#[route(post, "/admin/nft_uri/update")]
-pub async fn handler(
-    State(state): State<Arc<AppState>>,
+// Define the route handler
+async fn update_nft_uri_handler(
+    Extension(state): Extension<Arc<AppState>>, // Use Extension to extract state
     headers: HeaderMap,
     body: Json<CreateCustom>,
 ) -> impl IntoResponse {
     let _user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<NFTUri>("nft_uri");
 
-    // filter to get existing quest
+    // Filter to get existing quest
     let filter = doc! {
         "id": &body.id,
     };
@@ -46,18 +52,23 @@ pub async fn handler(
         update_doc.insert("image", image);
     }
 
-    // update quest query
+    // Update quest query
     let update = doc! {
         "$set": update_doc
     };
 
-    // insert document to boost collection
-    return match collection.find_one_and_update(filter, update, None).await {
+    // Insert document to boost collection
+    match collection.find_one_and_update(filter, update, None).await {
         Ok(_) => (
             StatusCode::OK,
             Json(json!({"message": "Task updated successfully"})).into_response(),
         )
-            .into_response(),
-        Err(_e) => get_error("Error updating tasks".to_string()),
-    };
+        .into_response(),
+        Err(_) => get_error("Error updating tasks".to_string()),
+    }
+}
+
+// Define the router for this module
+pub fn update_nft_uri_router() -> Router {
+    Router::new().route("/nft_uri", post(update_nft_uri_handler))
 }

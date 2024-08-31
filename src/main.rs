@@ -4,25 +4,22 @@ mod common;
 mod config;
 mod endpoints;
 mod logger;
-mod middleware;
 mod models;
+mod middleware;
 
-use crate::endpoints::admin::login::handler as login_handler;
-use crate::endpoints::admin::user::create_user::handler as register_handler;
-use crate::middleware::auth_middleware;
 use crate::utils::{add_leaderboard_table, run_boosts_raffle};
-use axum::routing::post;
-use axum::{http::StatusCode, middleware::from_fn, Router};
+use axum::{http::StatusCode, Router};
 use axum_auto_routes::route;
+use middleware::auth_middleware;
 use mongodb::{bson::doc, options::ClientOptions, Client};
 use reqwest::Url;
 use serde_derive::Serialize;
 use starknet::providers::{jsonrpc::HttpTransport, JsonRpcClient};
 use std::{borrow::Cow, sync::Arc};
 use std::{net::SocketAddr, sync::Mutex};
-use tower::ServiceBuilder;
 use tower_http::cors::{Any, CorsLayer};
 use utils::WithState;
+
 
 lazy_static::lazy_static! {
     pub static ref ROUTE_REGISTRY: Mutex<Vec<Box<dyn WithState>>> = Mutex::new(Vec::new());
@@ -87,39 +84,25 @@ async fn main() {
     add_leaderboard_table(&shared_state.db).await;
 
     let cors = CorsLayer::new().allow_headers(Any).allow_origin(Any);
+     // Admin router with middleware
+    let admin_router = endpoints::admin::admin_routes()
+        .layer(axum::middleware::from_fn(auth_middleware)); // Apply middleware to /admin routes
 
-    // Create public routes: Please take note of this...
-    let public_routes = Router::new()
-        .route("/login", post(login_handler))
-        .route("/register", post(register_handler))
-        .with_state(shared_state.clone());
-
-    // Apply middleware using ServiceBuilder
-    let protected_routes = ROUTE_REGISTRY
+    // Main router without middleware
+    let main_router = ROUTE_REGISTRY
         .lock()
         .unwrap()
         .clone()
         .into_iter()
         .fold(Router::new().with_state(shared_state.clone()), |acc, r| {
             acc.merge(r.to_router(shared_state.clone()))
-        })
-        .layer(
-            ServiceBuilder::new().layer(from_fn(auth_middleware)),
-        );
+        });
 
-    // Combine the public and protected routes
-    let app = public_routes.merge(protected_routes).layer(cors);
-
-    // let app = ROUTE_REGISTRY
-    //     .lock()
-    //     .unwrap()
-    //     .clone()
-    //     .into_iter()
-    //     .fold(Router::new().with_state(shared_state.clone()), |acc, r| {
-    //         acc.merge(r.to_router(shared_state.clone()))
-    //     })
-    //     .layer(cors)
-    //     .layer(axum::middleware::from_fn(auth_middleware));  
+    // Combine the routers
+    let app = Router::new()
+        .nest("/admin", admin_router)
+        .merge(main_router)
+        .layer(cors);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], conf.server.port));
     logger.info(format!(

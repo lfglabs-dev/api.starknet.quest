@@ -1,14 +1,18 @@
+// src/middleware.rs
+
 use axum::{
-    http::{header::AUTHORIZATION, Request, StatusCode},
+    http::{Request, StatusCode},
     middleware::Next,
     response::Response,
 };
-use jsonwebtoken::{decode, DecodingKey, Validation};
 use serde::Deserialize;
+use jsonwebtoken::{decode, DecodingKey, Validation};
+
+use crate::config;
 
 #[derive(Debug, Deserialize)]
-struct JWTClaims {
-    sub: String, // You can add more fields as needed
+pub struct JWTClaims {
+    sub: String,
 }
 
 pub async fn auth_middleware<B>(
@@ -16,47 +20,32 @@ pub async fn auth_middleware<B>(
     next: Next<B>,
 ) -> Result<Response, (StatusCode, String)> {
     let headers = req.headers();
-    let secret_key = b"your_secret_key"; // Replace with the actual secret key (sorry for this)
+    let conf = config::load();
+    let secret_key = &conf.auth.secret_key; 
 
-    match headers.get(AUTHORIZATION) {
-        Some(auth_header) => {
-            let auth_str = auth_header.to_str().unwrap_or("");
-            let mut parts = auth_str.split_whitespace();
+    let auth_header = headers
+        .get(axum::http::header::AUTHORIZATION)
+        .and_then(|h| h.to_str().ok());
 
-            if let Some("Bearer") = parts.next() {
-                if let Some(token) = parts.next() {
-                    match decode::<JWTClaims>(
-                        token,
-                        &DecodingKey::from_secret(secret_key),
-                        &Validation::new(jsonwebtoken::Algorithm::HS256),
-                    ) {
-                        Ok(_token_data) => {
-                            // Token is valid, then i proceed to the next middleware || handler
-                            Ok(next.run(req).await)
-                        }
-                        Err(_) => {
-                            // Token is invalid -> Throw error
-                            Err((StatusCode::UNAUTHORIZED, "Invalid token".to_string()))
-                        }
-                    }
-                } else {
-                    // Missing token after "Bearer" -> take note.
-                    Err((StatusCode::UNAUTHORIZED, "Missing token".to_string()))
+    if let Some(auth_header) = auth_header {
+        let mut parts = auth_header.split_whitespace();
+        if let Some("Bearer") = parts.next() {
+            if let Some(token) = parts.next() {
+                match decode::<JWTClaims>(
+                    token,
+                    &DecodingKey::from_secret(secret_key.as_bytes()),
+                    &Validation::new(jsonwebtoken::Algorithm::HS256),
+                ) {
+                    Ok(_token_data) => Ok(next.run(req).await),
+                    Err(_) => Err((StatusCode::UNAUTHORIZED, "Invalid token".to_string())),
                 }
             } else {
-                // Incorrect authorization header format
-                Err((
-                    StatusCode::UNAUTHORIZED,
-                    "Invalid Authorization header format".to_string(),
-                ))
+                Err((StatusCode::UNAUTHORIZED, "Missing token".to_string()))
             }
+        } else {
+            Err((StatusCode::UNAUTHORIZED, "Invalid Authorization header format".to_string()))
         }
-        None => {
-            // Authorization header is missing
-            Err((
-                StatusCode::UNAUTHORIZED,
-                "Missing Authorization header".to_string(),
-            ))
-        }
+    } else {
+        Err((StatusCode::UNAUTHORIZED, "Missing Authorization header".to_string()))
     }
 }

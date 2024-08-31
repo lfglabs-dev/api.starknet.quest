@@ -3,17 +3,20 @@ use crate::utils::verify_task_auth;
 use crate::{models::AppState, utils::get_error};
 use axum::http::HeaderMap;
 use axum::{
-    extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
+    routing::post,
+    Extension, Router,
 };
-use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::{doc, Document};
 use mongodb::options::FindOneAndUpdateOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
+use jsonwebtoken::decode;
+use jsonwebtoken::DecodingKey;
+use jsonwebtoken::Validation;
+use jsonwebtoken::Algorithm;
 
 pub_struct!(Deserialize; UpdateTwitterFw {
     name: Option<String>,
@@ -22,14 +25,12 @@ pub_struct!(Deserialize; UpdateTwitterFw {
     id: i32,
 });
 
-#[route(post, "/admin/tasks/twitter_fw/update")]
-pub async fn handler(
-    State(state): State<Arc<AppState>>,
+async fn twitter_update_handler(
+    Extension(state): Extension<Arc<AppState>>,
     headers: HeaderMap,
     body: Json<UpdateTwitterFw>,
 ) -> impl IntoResponse {
     let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
-
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
 
     let res = verify_task_auth(user, &collection, &body.id).await;
@@ -37,13 +38,9 @@ pub async fn handler(
         return get_error("Error updating tasks".to_string());
     }
 
-    // filter to get existing task
-    let filter = doc! {
-        "id": &body.id,
-    };
+    let filter = doc! { "id": &body.id };
     let existing_task = &collection.find_one(filter.clone(), None).await.unwrap();
 
-    // create a task if it does not exist
     if existing_task.is_none() {
         return get_error("Task does not exist".to_string());
     }
@@ -64,10 +61,7 @@ pub async fn handler(
         update_doc.insert("href", "https://twitter.com/".to_string() + username);
     }
 
-    // update boost
-    let update = doc! {
-        "$set": update_doc
-    };
+    let update = doc! { "$set": update_doc };
     let options = FindOneAndUpdateOptions::default();
 
     return match collection
@@ -81,4 +75,8 @@ pub async fn handler(
             .into_response(),
         Err(_e) => get_error("error updating task".to_string()),
     };
+}
+
+pub fn update_twitter_router() -> Router {
+    Router::new().route("/twitter", post(twitter_update_handler))
 }

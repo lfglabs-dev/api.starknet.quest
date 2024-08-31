@@ -1,20 +1,22 @@
-use crate::models::{JWTClaims, QuestTaskDocument};
-use crate::utils::verify_task_auth;
-use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
-use axum::{
-    extract::State,
-    http::StatusCode,
-    response::{IntoResponse, Json},
-};
-use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+use crate::models::JWTClaims;
+use jsonwebtoken::decode;
+use jsonwebtoken::DecodingKey;
+use jsonwebtoken::Validation;
+use jsonwebtoken::Algorithm;
+use axum::response::IntoResponse;
+use axum::{routing::post, Router};
+use crate::models::{AppState, QuestTaskDocument};
+use crate::utils::{get_error, verify_task_auth};
 use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
+use axum::extract::{Json, Extension};
+use axum::http::{HeaderMap, StatusCode};
 use std::sync::Arc;
 
-pub_struct!(Deserialize; CreateCustom {
+// Define the request body structure
+#[derive(Deserialize)]
+pub struct UpdateCustom {
     id: i64,
     name: Option<String>,
     desc: Option<String>,
@@ -23,13 +25,13 @@ pub_struct!(Deserialize; CreateCustom {
     verify_endpoint_type: Option<String>,
     verify_redirect: Option<String>,
     href: Option<String>,
-});
+}
 
-#[route(post, "/admin/tasks/custom/update")]
-pub async fn handler(
-    State(state): State<Arc<AppState>>,
+// Define the route handler
+async fn update_handler(
+    Extension(state): Extension<Arc<AppState>>, // Extract state using Extension
     headers: HeaderMap,
-    body: Json<CreateCustom>,
+    body: Json<UpdateCustom>,
 ) -> impl IntoResponse {
     let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
@@ -39,7 +41,7 @@ pub async fn handler(
         return get_error("Error updating tasks".to_string());
     }
 
-    // filter to get existing quest
+    // Filter to get the existing quest
     let filter = doc! {
         "id": &body.id,
     };
@@ -68,18 +70,23 @@ pub async fn handler(
         update_doc.insert("verify_endpoint_type", verify_endpoint_type);
     }
 
-    // update quest query
+    // Update quest query
     let update = doc! {
         "$set": update_doc
     };
 
-    // insert document to boost collection
-    return match collection.find_one_and_update(filter, update, None).await {
+    // Update document in the collection
+    match collection.find_one_and_update(filter, update, None).await {
         Ok(_) => (
             StatusCode::OK,
             Json(json!({"message": "Task updated successfully"})).into_response(),
         )
             .into_response(),
-        Err(_e) => get_error("Error updating tasks".to_string()),
-    };
+        Err(_) => get_error("Error updating tasks".to_string()),
+    }
+}
+
+// Define the router for this module
+pub fn update_custom_router() -> Router {
+    Router::new().route("tasks/custom/update", post(update_handler))
 }

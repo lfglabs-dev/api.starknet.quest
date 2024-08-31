@@ -1,14 +1,10 @@
 use crate::models::{JWTClaims, QuestDocument, QuestTaskDocument};
 use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
-use axum::{
-    extract::State,
-    http::StatusCode,
-    response::{IntoResponse, Json},
-};
-use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+use axum::{routing::post, Router};
+use axum::extract::{Json, Extension};
+use axum::http::{HeaderMap, StatusCode};
+use axum::response::IntoResponse;
 use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
@@ -16,35 +12,42 @@ use serde_json::json;
 use starknet::core::types::FieldElement;
 use std::str::FromStr;
 use std::sync::Arc;
+use jsonwebtoken::decode;
+use jsonwebtoken::DecodingKey;
+use jsonwebtoken::Validation;
+use jsonwebtoken::Algorithm;
 
-pub_struct!(Deserialize; CreateBalance {
+// Define the request body structure
+#[derive(Deserialize)]
+pub struct CreateBalance {
     quest_id: i64,
     name: String,
     desc: String,
     contracts: String,
     href: String,
     cta: String,
-});
+}
 
-#[route(post, "/admin/tasks/balance/create")]
-pub async fn handler(
-    State(state): State<Arc<AppState>>,
+// Define the route handler
+async fn create_balance_handler(
+    Extension(state): Extension<Arc<AppState>>, // Extract state using Extension
     headers: HeaderMap,
     body: Json<CreateBalance>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
+    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref());
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
+
     // Get the last id in increasing order
     let last_id_filter = doc! {};
     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
-    let last_doc = &collection.find_one(last_id_filter, options).await.unwrap();
+    let last_doc = collection.find_one(last_id_filter, options).await.unwrap();
 
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
     let res = verify_quest_auth(user, &quests_collection, &(body.quest_id as i64)).await;
     if !res {
         return get_error("Error creating task".to_string());
-    };
+    }
 
     let mut next_id = 1;
     if let Some(doc) = last_doc {
@@ -52,7 +55,7 @@ pub async fn handler(
         next_id = last_id + 1;
     }
 
-    // Build a vector of FieldElement from the comma separated contracts string
+    // Build a vector of FieldElement from the comma-separated contracts string
     let parsed_contracts: Vec<FieldElement> = body
         .contracts
         .split(",")
@@ -76,13 +79,18 @@ pub async fn handler(
         contracts: Some(parsed_contracts),
     };
 
-    // insert document to boost collection
-    return match collection.insert_one(new_document, None).await {
+    // Insert document into collection
+    match collection.insert_one(new_document, None).await {
         Ok(_) => (
             StatusCode::OK,
             Json(json!({"message": "Task created successfully"})).into_response(),
         )
             .into_response(),
-        Err(_e) => get_error("Error creating tasks".to_string()),
-    };
+        Err(_) => get_error("Error creating tasks".to_string()),
+    }
+}
+
+// Define the router for this module
+pub fn create_balance_router() -> Router {
+    Router::new().route("/tasks", post(create_balance_handler))
 }
