@@ -1,105 +1,99 @@
-use crate::models::{JWTClaims, QuestDocument, QuestTaskDocument, QuizInsertDocument};
-use crate::utils::verify_quest_auth;
-use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
-use axum::{
-    extract::State,
-    http::StatusCode,
-    response::{IntoResponse, Json},
+use crate::{
+    models::{AppState, QuestDocument, QuestTaskDocument, QuizInsertDocument},
+    utils::get_error,
 };
-use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
-use mongodb::bson::doc;
-use mongodb::options::FindOneOptions;
+use axum::{
+    extract::{Json, Extension},
+    http::StatusCode,
+    response::IntoResponse,
+    routing::post,
+    Router,
+};
+use mongodb::{
+    bson::doc,
+    options::FindOneOptions,
+};
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
 
-pub_struct!(Deserialize; CreateQuiz {
+#[derive(Deserialize)]
+pub struct CreateQuiz {
     name: String,
     desc: String,
     help_link: String,
     cta: String,
     intro: String,
     quest_id: i64,
-});
+}
 
-#[route(post, "/admin/tasks/quiz/create")]
 pub async fn handler(
-    State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
-    body: Json<CreateQuiz>,
+    Extension(state): Extension<Arc<AppState>>,
+    Json(body): Json<CreateQuiz>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
     let quiz_collection = state.db.collection::<QuizInsertDocument>("quizzes");
-
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
-    let res = verify_quest_auth(user, &quests_collection, &body.quest_id).await;
-    if !res {
-        return get_error("Error creating task".to_string());
-    };
+    // Verify if the quest exists
+    let quest_exists = quests_collection.find_one(doc! { "id": body.quest_id }, None).await.is_ok();
+    if !quest_exists {
+        return get_error("Quest does not exist".to_string());
+    }
 
-    // Get the last id in increasing order
+    // Get the last quiz ID in increasing order
     let last_id_filter = doc! {};
     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
-    let last_quiz_doc = &quiz_collection
-        .find_one(last_id_filter.clone(), options.clone())
-        .await
-        .unwrap();
-
-    let mut next_quiz_id = 1;
-    if let Some(doc) = last_quiz_doc {
-        let last_id = doc.id;
-        next_quiz_id = last_id + 1;
-    }
+    let last_quiz_doc = quiz_collection.find_one(last_id_filter.clone(), options.clone()).await.unwrap();
+    let next_quiz_id = match last_quiz_doc {
+        Some(doc) => doc.id + 1,
+        None => 1,
+    };
 
     let new_quiz_document = QuizInsertDocument {
         name: body.name.clone(),
         desc: body.desc.clone(),
-        id: next_quiz_id.clone(),
+        id: next_quiz_id,
         intro: body.intro.clone(),
     };
 
-    match quiz_collection.insert_one(new_quiz_document, None).await {
-        Ok(res) => res,
-        Err(_e) => return get_error("Error creating quiz".to_string()),
-    };
-
-    let last_task_doc = &tasks_collection
-        .find_one(last_id_filter.clone(), options.clone())
-        .await
-        .unwrap();
-    let mut next_id = 1;
-    if let Some(doc) = last_task_doc {
-        let last_id = doc.id;
-        next_id = last_id + 1;
+    if quiz_collection.insert_one(new_quiz_document, None).await.is_err() {
+        return get_error("Error creating quiz".to_string());
     }
 
-    let new_document = QuestTaskDocument {
+    // Get the last task ID in increasing order
+    let last_task_doc = tasks_collection.find_one(last_id_filter, options).await.unwrap();
+    let next_task_id = match last_task_doc {
+        Some(doc) => doc.id + 1,
+        None => 1,
+    };
+
+    let new_task_document = QuestTaskDocument {
         name: body.name.clone(),
         desc: body.desc.clone(),
         href: body.help_link.clone(),
         total_amount: None,
         cta: body.cta.clone(),
-        quest_id: body.quest_id.clone(),
-        id: next_id.clone(),
+        quest_id: body.quest_id,
+        id: next_task_id,
         verify_endpoint: "/quests/verify_quiz".to_string(),
         verify_endpoint_type: "quiz".to_string(),
-        quiz_name: Some(next_quiz_id.clone() as i64),
+        quiz_name: Some(next_quiz_id as i64),
         task_type: Some("quiz".to_string()),
         discord_guild_id: None,
         verify_redirect: None,
         contracts: None,
     };
 
-    return match tasks_collection.insert_one(new_document, None).await {
+    match tasks_collection.insert_one(new_task_document, None).await {
         Ok(_) => (
             StatusCode::OK,
-            Json(json!({"id": &next_quiz_id })).into_response(),
-        )
-            .into_response(),
-        Err(_e) => return get_error("Error creating quiz".to_string()),
-    };
+            Json(json!({"id": next_quiz_id})),
+        ).into_response(),
+        Err(_) => get_error("Error creating quiz".to_string()),
+    }
+}
+
+pub fn create_quiz_routes() -> Router {
+    Router::new().route("/create_quiz", post(handler))
 }

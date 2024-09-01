@@ -1,11 +1,12 @@
 use crate::models::{JWTClaims, LoginDetails};
 use crate::utils::calculate_hash;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
 use axum::{
-    extract::State,
-    http::StatusCode,
+    extract::{Extension, State},
+    http::{HeaderMap, StatusCode},
     response::{IntoResponse, Json},
+    routing::post,
+    Router,
 };
 use axum_auto_routes::route;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
@@ -21,7 +22,7 @@ pub_struct!(Deserialize; CreateCustom {
 
 #[route(post, "/admin/user/create")]
 pub async fn handler(
-    State(state): State<Arc<AppState>>,
+    Extension(state): Extension<Arc<AppState>>,
     headers: HeaderMap,
     body: Json<CreateCustom>,
 ) -> impl IntoResponse {
@@ -39,13 +40,16 @@ pub async fn handler(
         code: hashed_password.to_string(),
     };
 
-    // insert document to boost collection
-    return match collection.insert_one(new_document, None).await {
+    match collection.insert_one(new_document, None).await {
         Ok(_) => (
             StatusCode::OK,
             Json(json!({"message": "User added successfully"})).into_response(),
         )
             .into_response(),
         Err(_e) => get_error("Error creating user".to_string()),
-    };
+    }
+}
+
+pub fn create_user_routes() -> Router {
+    Router::new().route("/create_user", post(handler))
 }

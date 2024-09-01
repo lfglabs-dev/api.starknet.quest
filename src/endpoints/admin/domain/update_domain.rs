@@ -72,5 +72,5 @@ async fn update_domain_task_handler(
 
 // Define the router for this module
 pub fn update_domain_router() -> Router {
-    Router::new().route("/tasks", post(update_domain_task_handler))
+    Router::new().route("/update_domain", post(update_domain_task_handler))
 }

@@ -77,6 +77,6 @@ async fn twitter_update_handler(
     };
 }
 
-pub fn update_twitter_router() -> Router {
-    Router::new().route("/twitter", post(twitter_update_handler))
+pub fn update_twitter_fw_router() -> Router {
+    Router::new().route("/update_twitter_fw", post(twitter_update_handler))
 }

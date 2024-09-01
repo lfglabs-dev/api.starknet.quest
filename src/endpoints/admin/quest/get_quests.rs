@@ -1,27 +1,34 @@
 use crate::{
-    models::{AppState, JWTClaims, QuestDocument},
+    models::{AppState, QuestDocument},
     utils::get_error,
 };
-use axum::http::HeaderMap;
 use axum::{
-    extract::State,
-    http::StatusCode,
+    extract::{Extension, State},
+    http::{StatusCode, HeaderMap},
     response::{IntoResponse, Json},
+    routing::get,
+    Router,
 };
-use axum_auto_routes::route;
 use futures::StreamExt;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::{doc, from_document};
 use std::sync::Arc;
 
-#[route(get, "/admin/quest/get_quests")]
-pub async fn handler(State(state): State<Arc<AppState>>, headers: HeaderMap) -> impl IntoResponse {
+use crate::models::JWTClaims;
+use jsonwebtoken::decode;
+use jsonwebtoken::DecodingKey;
+use jsonwebtoken::Validation;
+use jsonwebtoken::Algorithm;
+
+pub async fn handler(
+    Extension(state): Extension<Arc<AppState>>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
     let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref());
     let mut pipeline = vec![];
     if user != "super_user" {
         pipeline.push(doc! {
             "$match": doc! {
-                "issuer":user
+                "issuer": user
             }
         });
     }
@@ -52,4 +59,8 @@ pub async fn handler(State(state): State<Arc<AppState>>, headers: HeaderMap) -> 
         }
         Err(_) => get_error("Error querying quests".to_string()),
     }
+}
+
+pub fn get_quests_routes() -> Router {
+    Router::new().route("/get_quests", get(handler))
 }

@@ -78,6 +78,6 @@ async fn twitter_create_handler(
     };
 }
 
-pub fn create_twitter_router() -> Router {
-    Router::new().route("/tasks", post(twitter_create_handler))
+pub fn create_twitter_fw_router() -> Router {
+    Router::new().route("/create_twitter_fw", post(twitter_create_handler))
 }

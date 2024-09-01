@@ -34,20 +34,12 @@ async fn create_balance_handler(
     headers: HeaderMap,
     body: Json<CreateBalance>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref());
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
 
     // Get the last id in increasing order
     let last_id_filter = doc! {};
     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
     let last_doc = collection.find_one(last_id_filter, options).await.unwrap();
-
-    let quests_collection = state.db.collection::<QuestDocument>("quests");
-
-    let res = verify_quest_auth(user, &quests_collection, &(body.quest_id as i64)).await;
-    if !res {
-        return get_error("Error creating task".to_string());
-    }
 
     let mut next_id = 1;
     if let Some(doc) = last_doc {
@@ -92,5 +84,5 @@ async fn create_balance_handler(
 
 // Define the router for this module
 pub fn create_balance_router() -> Router {
-    Router::new().route("/tasks", post(create_balance_handler))
+    Router::new().route("/create_balance", post(create_balance_handler))
 }

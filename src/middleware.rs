@@ -37,10 +37,10 @@ pub async fn auth_middleware<B>(
                     &Validation::new(jsonwebtoken::Algorithm::HS256),
                 ) {
                     Ok(_token_data) => Ok(next.run(req).await),
-                    Err(_) => Err((StatusCode::UNAUTHORIZED, "Invalid token".to_string())),
+                    Err(_) => Err((StatusCode::UNAUTHORIZED, "Invalid token was provided".to_string())),
                 }
             } else {
-                Err((StatusCode::UNAUTHORIZED, "Missing token".to_string()))
+                Err((StatusCode::UNAUTHORIZED, "Missing token was provided".to_string()))
             }
         } else {
             Err((StatusCode::UNAUTHORIZED, "Invalid Authorization header format".to_string()))

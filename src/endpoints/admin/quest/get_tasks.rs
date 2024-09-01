@@ -1,10 +1,11 @@
 use crate::{models::AppState, utils::get_error};
 use axum::{
-    extract::{Query, State},
+    extract::{Query, Extension},
     http::StatusCode,
     response::{IntoResponse, Json},
+    routing::get,
+    Router,
 };
-use axum_auto_routes::route;
 use futures::stream::StreamExt;
 use mongodb::bson::{doc, from_document};
 use serde::{Deserialize, Serialize};
@@ -31,9 +32,8 @@ pub struct GetTasksQuery {
     quest_id: u32,
 }
 
-#[route(get, "/admin/quest/get_tasks")]
 pub async fn handler(
-    State(state): State<Arc<AppState>>,
+    Extension(state): Extension<Arc<AppState>>,
     Query(query): Query<GetTasksQuery>,
 ) -> impl IntoResponse {
     let pipeline = vec![
@@ -80,11 +80,12 @@ pub async fn handler(
                 "verify_endpoint_type": 1,
                 "desc": 1,
                 "quiz_name": 1,
-                "task_type":1,
+                "task_type": 1,
                 "discord_guild_id": 1,
             }
         },
     ];
+
     let tasks_collection = state.db.collection::<UserTask>("tasks");
     match tasks_collection.aggregate(pipeline, None).await {
         Ok(mut cursor) => {
@@ -107,4 +108,8 @@ pub async fn handler(
         }
         Err(_) => get_error("Error querying tasks".to_string()),
     }
+}
+
+pub fn get_tasks_routes() -> Router {
+    Router::new().route("/get_tasks", get(handler))
 }

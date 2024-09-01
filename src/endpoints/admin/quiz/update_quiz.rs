@@ -1,121 +1,102 @@
-use crate::models::{JWTClaims, QuestTaskDocument, QuizInsertDocument};
-use crate::utils::verify_task_auth;
+use crate::models::{QuestTaskDocument, QuizInsertDocument};
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
 use axum::{
-    extract::State,
+    extract::{Extension, Json},
     http::StatusCode,
-    response::{IntoResponse, Json},
+    response::IntoResponse,
+    routing::post,
+    Router
 };
-use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
-use mongodb::bson::doc;
-use mongodb::bson::Document;
+use mongodb::bson::{doc, Document};
 use mongodb::options::FindOneAndUpdateOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
 
-pub_struct!(Deserialize; UpdateQuiz {
-    id:u32,
-    quiz_id:u32,
+#[derive(Deserialize)]
+pub struct UpdateQuiz {
+    id: u32,
+    quiz_id: u32,
     name: Option<String>,
     desc: Option<String>,
     help_link: Option<String>,
     cta: Option<String>,
     intro: Option<String>,
-});
+}
 
-#[route(post, "/admin/tasks/quiz/update")]
 pub async fn handler(
-    State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
+    Extension(state): Extension<Arc<AppState>>,
     body: Json<UpdateQuiz>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
-    let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
     let quiz_collection = state.db.collection::<QuizInsertDocument>("quizzes");
+    let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
 
-    let res = verify_task_auth(user, &tasks_collection, &(body.id as i32)).await;
-    if !res {
-        return get_error("Error updating tasks".to_string());
-    }
-
-    // filter to get existing quiz
-    let filter = doc! {
-        "id": &body.quiz_id,
+    // Check if the quiz exists
+    let quiz_filter = doc! {
+        "id": body.quiz_id,
     };
-    let existing_quiz = &quiz_collection
-        .find_one(filter.clone(), None)
-        .await
-        .unwrap();
-
-    // create a quiz if it does not exist
+    let existing_quiz = quiz_collection.find_one(quiz_filter.clone(), None).await.unwrap();
     if existing_quiz.is_none() {
         return get_error("No quiz found".to_string());
     }
 
+    // Update quiz
     let mut quiz_update_doc = Document::new();
-
     if let Some(name) = &body.name {
         quiz_update_doc.insert("name", name);
     }
     if let Some(desc) = &body.desc {
         quiz_update_doc.insert("desc", desc);
     }
-    if let Some(cta) = &body.intro {
-        quiz_update_doc.insert("intro", cta);
+    if let Some(intro) = &body.intro {
+        quiz_update_doc.insert("intro", intro);
     }
 
-    // update quiz
-    let update = doc! {
+    let quiz_update = doc! {
         "$set": quiz_update_doc
     };
-    let options = FindOneAndUpdateOptions::default();
-    match quiz_collection
-        .find_one_and_update(filter, update, options)
+    let quiz_update_options = FindOneAndUpdateOptions::default();
+    if let Err(_) = quiz_collection
+        .find_one_and_update(quiz_filter, quiz_update, quiz_update_options)
         .await
     {
-        Ok(_) => (
-            StatusCode::OK,
-            Json(json!({"message": "updated successfully"})),
-        )
-            .into_response(),
-        Err(_e) => get_error("error updating task".to_string()),
+        return get_error("Error updating quiz".to_string());
+    }
+
+    // Update task
+    let task_filter = doc! {
+        "id": body.id,
     };
-
-    let mut update_doc = Document::new();
-
+    let mut task_update_doc = Document::new();
     if let Some(name) = &body.name {
-        update_doc.insert("name", name);
+        task_update_doc.insert("name", name);
     }
     if let Some(desc) = &body.desc {
-        update_doc.insert("desc", desc);
+        task_update_doc.insert("desc", desc);
     }
-    if let Some(href) = &body.help_link {
-        update_doc.insert("href", href);
+    if let Some(help_link) = &body.help_link {
+        task_update_doc.insert("href", help_link);
     }
     if let Some(cta) = &body.cta {
-        update_doc.insert("cta", cta);
+        task_update_doc.insert("cta", cta);
     }
 
-    // update quiz
     let task_update = doc! {
-        "$set": update_doc
+        "$set": task_update_doc
     };
-    let task_filter = doc! {
-        "id": &body.id,
-    };
-    let options = FindOneAndUpdateOptions::default();
-    return match tasks_collection
-        .find_one_and_update(task_filter, task_update, options)
+    let task_update_options = FindOneAndUpdateOptions::default();
+    match tasks_collection
+        .find_one_and_update(task_filter, task_update, task_update_options)
         .await
     {
         Ok(_) => (
             StatusCode::OK,
-            Json(json!({"message": "updated successfully"})),
-        )
-            .into_response(),
-        Err(_e) => get_error("error updating task".to_string()),
-    };
+            Json(json!({"message": "Updated successfully"})),
+        ).into_response(),
+        Err(_) => get_error("Error updating task".to_string()),
+    }
+}
+
+pub fn update_quiz_routes() -> Router {
+    Router::new().route("/update_quiz", post(handler))
 }

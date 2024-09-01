@@ -68,5 +68,5 @@ async fn create_handler(
 
 // Define the router for this module
 pub fn create_custom_router() -> Router {
-    Router::new().route("/task", post(create_handler))
+    Router::new().route("/create_custom", post(create_handler))
 }

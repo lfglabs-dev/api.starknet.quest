@@ -82,5 +82,5 @@ async fn create_domain_task_handler(
 
 // Define the router for this module
 pub fn create_domain_router() -> Router {
-    Router::new().route("/tasks", post(create_domain_task_handler))
+    Router::new().route("/create_domain", post(create_domain_task_handler))
 }

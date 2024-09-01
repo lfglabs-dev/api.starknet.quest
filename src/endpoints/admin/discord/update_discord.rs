@@ -32,14 +32,9 @@ async fn update_discord_task_handler(
     headers: HeaderMap,
     body: Json<UpdateDiscordTask>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
 
-    let res = verify_task_auth(user, &collection, &(body.id as i32)).await;
-    if !res {
-        return get_error("Error updating tasks".to_string());
-    }
-
+   
     // Filter to get the existing task
     let filter = doc! {
         "id": body.id,
@@ -78,5 +73,5 @@ async fn update_discord_task_handler(
 
 // Define the router for this module
 pub fn update_discord_router() -> Router {
-    Router::new().route("/tasks", post(update_discord_task_handler))
+    Router::new().route("/update_discord", post(update_discord_task_handler))
 }

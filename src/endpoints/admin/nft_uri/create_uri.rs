@@ -33,14 +33,7 @@ async fn create_nft_uri_handler(
     headers: HeaderMap,
     body: Json<CreateCustom>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
-    let collection = state.db.collection::<NFTUri>("nft_uri");
-    let quests_collection = state.db.collection::<QuestDocument>("quests");
-
-    let res = verify_quest_auth(user, &quests_collection, &body.quest_id).await;
-    if !res {
-        return get_error("Error creating task".to_string());
-    };
+     let collection = state.db.collection::<NFTUri>("nft_uri");
 
     // Get the last id in increasing order
     let last_id_filter = doc! {};
@@ -75,5 +68,5 @@ async fn create_nft_uri_handler(
 
 // Define the router for this module
 pub fn create_nft_uri_router() -> Router {
-    Router::new().route("/nft_uri", post(create_nft_uri_handler))
+    Router::new().route("/create_nft_uri", post(create_nft_uri_handler))
 }

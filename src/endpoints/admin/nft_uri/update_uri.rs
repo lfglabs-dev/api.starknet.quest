@@ -32,7 +32,6 @@ async fn update_nft_uri_handler(
     headers: HeaderMap,
     body: Json<CreateCustom>,
 ) -> impl IntoResponse {
-    let _user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<NFTUri>("nft_uri");
 
     // Filter to get existing quest
@@ -70,5 +69,5 @@ async fn update_nft_uri_handler(
 
 // Define the router for this module
 pub fn update_nft_uri_router() -> Router {
-    Router::new().route("/nft_uri", post(update_nft_uri_handler))
+    Router::new().route("/update_nft_uri", post(update_nft_uri_handler))
 }

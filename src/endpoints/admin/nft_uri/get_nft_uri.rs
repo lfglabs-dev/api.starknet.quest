@@ -29,15 +29,8 @@ async fn get_nft_uri_handler(
     headers: HeaderMap,
     Query(params): Query<GetNFTUriParams>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<NFTUri>("nft_uri");
-    let quests_collection = state.db.collection::<QuestDocument>("quests");
-
-    let res = verify_quest_auth(user, &quests_collection, &params.quest_id).await;
-    if !res {
-        return get_error("Error retrieving task".to_string());
-    };
-
+    
     let filter = doc! { "quest_id": params.quest_id };
     match collection.find_one(filter, None).await {
         Ok(Some(document)) => (
@@ -51,5 +44,5 @@ async fn get_nft_uri_handler(
 }
 
 pub fn get_nft_uri_router() -> Router {
-    Router::new().route("/nft_uri", get(get_nft_uri_handler))
+    Router::new().route("/get_nft_uri", get(get_nft_uri_handler))
 }

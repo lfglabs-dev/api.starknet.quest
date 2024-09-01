@@ -1,14 +1,15 @@
-use crate::models::{JWTClaims, QuizInsertDocument};
-use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
+use crate::{
+    models::{AppState, QuizInsertDocument},
+    utils::get_error,
+};
 use axum::{
-    extract::{Query, State},
+    extract::{Extension, Query},
     http::StatusCode,
     response::{IntoResponse, Json},
+    routing::get,
+    Router,
 };
-use axum_auto_routes::route;
 use futures::StreamExt;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::doc;
 use serde::Deserialize;
 use std::sync::Arc;
@@ -18,13 +19,10 @@ pub struct GetQuestsQuery {
     id: i64,
 }
 
-#[route(get, "/admin/quiz/get_quiz")]
 pub async fn handler(
-    State(state): State<Arc<AppState>>,
+    Extension(state): Extension<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
-    headers: HeaderMap,
 ) -> impl IntoResponse {
-    let _user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref());
     let collection = state.db.collection::<QuizInsertDocument>("quizzes");
     let pipeline = vec![
         doc! {
@@ -55,11 +53,15 @@ pub async fn handler(
                     Ok(document) => {
                         return (StatusCode::OK, Json(document)).into_response();
                     }
-                    _ => continue,
+                    Err(_) => continue,
                 }
             }
             get_error("Quiz not found".to_string())
         }
-        Err(_) => get_error("Error querying quest".to_string()),
+        Err(_) => get_error("Error querying quiz".to_string()),
     }
+}
+
+pub fn get_quiz_routes() -> Router {
+    Router::new().route("/get_quiz", get(handler))
 }
