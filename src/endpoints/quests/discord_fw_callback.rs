@@ -36,8 +36,7 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<TwitterOAuthCallbackQuery>,
 ) -> impl IntoResponse {
-    let conf = config::load();
-    let logger = Logger::new(&conf.watchtower);
+    let logger = state.logger.clone();
     // the state is in format => "address+quest_id+task_id"
     let state_split = query.state.split('+').collect::<Vec<&str>>();
     let quest_id = state_split[1].parse::<i64>().unwrap();
