@@ -1,22 +1,15 @@
-use crate::models::{JWTClaims, QuestDocument, QuestTaskDocument};
-use crate::utils::verify_quest_auth;
+use crate::models::QuestTaskDocument;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
-    routing::post,
-    Extension, Router,
+    extract::State
 };
 use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use jsonwebtoken::decode;
-use jsonwebtoken::DecodingKey;
-use jsonwebtoken::Validation;
-use jsonwebtoken::Algorithm;
 
 pub_struct!(Deserialize; CreateTwitterFw {
     name: String,
@@ -25,22 +18,14 @@ pub_struct!(Deserialize; CreateTwitterFw {
     quest_id: i64,
 });
 
-async fn twitter_create_handler(
-    Extension(state): Extension<Arc<AppState>>,
-    headers: HeaderMap,
+pub async fn handler(
+    State(state): State<Arc<AppState>>,
     body: Json<CreateTwitterFw>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
     let last_id_filter = doc! {};
     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
     let last_doc = &collection.find_one(last_id_filter, options).await.unwrap();
-    let quests_collection = state.db.collection::<QuestDocument>("quests");
-
-    let res = verify_quest_auth(user, &quests_collection, &body.quest_id).await;
-    if !res {
-        return get_error("Error creating task".to_string());
-    };
 
     let mut next_id = 1;
     if let Some(doc) = last_doc {
@@ -78,6 +63,3 @@ async fn twitter_create_handler(
     };
 }
 
-pub fn create_twitter_fw_router() -> Router {
-    Router::new().route("/create_twitter_fw", post(twitter_create_handler))
-}

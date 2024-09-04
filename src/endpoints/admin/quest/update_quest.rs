@@ -3,23 +3,14 @@ use crate::{
     utils::get_error,
 };
 use axum::{
-    extract::{Extension, Json},
-    http::{HeaderMap, StatusCode},
+    extract::{State, Json},
+    http::StatusCode,
     response::IntoResponse,
-    routing::post,
-    Router,
 };
 use mongodb::bson::{doc, Document};
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-
-use crate::models::JWTClaims;
-use jsonwebtoken::decode;
-use jsonwebtoken::Algorithm;
-use jsonwebtoken::DecodingKey;
-use jsonwebtoken::Validation;
-
 #[derive(Deserialize)]
 pub struct UpdateQuestQuery {
     id: i32,
@@ -38,20 +29,18 @@ pub struct UpdateQuestQuery {
 }
 
 pub async fn handler(
-    Extension(state): Extension<Arc<AppState>>,
-    headers: HeaderMap,
+    State(state): State<Arc<AppState>>,
     Json(body): Json<UpdateQuestQuery>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestDocument>("quests");
 
-    let mut filter = doc! {
+    let filter = doc! {
         "id": body.id,
     };
 
-    if user != "super_user" {
-        filter.insert("issuer", user);
-    }
+    // if user != "super_user" {
+    //     filter.insert("issuer", user);
+    // }
 
     let existing_quest = collection.find_one(filter.clone(), None).await.unwrap();
     if existing_quest.is_none() {
@@ -116,8 +105,4 @@ pub async fn handler(
             .into_response(),
         Err(_) => get_error("error updating quest".to_string()),
     }
-}
-
-pub fn update_quest_routes() -> Router {
-    Router::new().route("/update_quest", post(handler))
 }

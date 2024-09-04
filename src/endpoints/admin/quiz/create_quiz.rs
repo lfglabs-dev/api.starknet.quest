@@ -3,11 +3,9 @@ use crate::{
     utils::get_error,
 };
 use axum::{
-    extract::{Json, Extension},
+    extract::{Json, State},
     http::StatusCode,
-    response::IntoResponse,
-    routing::post,
-    Router,
+    response::IntoResponse
 };
 use mongodb::{
     bson::doc,
@@ -28,7 +26,7 @@ pub struct CreateQuiz {
 }
 
 pub async fn handler(
-    Extension(state): Extension<Arc<AppState>>,
+    State(state): State<Arc<AppState>>,
     Json(body): Json<CreateQuiz>,
 ) -> impl IntoResponse {
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
@@ -92,8 +90,4 @@ pub async fn handler(
         ).into_response(),
         Err(_) => get_error("Error creating quiz".to_string()),
     }
-}
-
-pub fn create_quiz_routes() -> Router {
-    Router::new().route("/create_quiz", post(handler))
 }

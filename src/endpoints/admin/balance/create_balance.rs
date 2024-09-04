@@ -1,9 +1,7 @@
-use crate::models::{JWTClaims, QuestDocument, QuestTaskDocument};
-use crate::utils::verify_quest_auth;
+use crate::models::QuestTaskDocument;
 use crate::{models::AppState, utils::get_error};
-use axum::{routing::post, Router};
-use axum::extract::{Json, Extension};
-use axum::http::{HeaderMap, StatusCode};
+use axum::extract::{Json, State};
+use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
@@ -12,10 +10,6 @@ use serde_json::json;
 use starknet::core::types::FieldElement;
 use std::str::FromStr;
 use std::sync::Arc;
-use jsonwebtoken::decode;
-use jsonwebtoken::DecodingKey;
-use jsonwebtoken::Validation;
-use jsonwebtoken::Algorithm;
 
 // Define the request body structure
 #[derive(Deserialize)]
@@ -29,10 +23,9 @@ pub struct CreateBalance {
 }
 
 // Define the route handler
-async fn create_balance_handler(
-    Extension(state): Extension<Arc<AppState>>, // Extract state using Extension
-    headers: HeaderMap,
-    body: Json<CreateBalance>,
+pub async fn handler(
+    State(state): State<Arc<AppState>>, // Extract state using Extension
+    Json(body ): Json<CreateBalance>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
 
@@ -80,9 +73,4 @@ async fn create_balance_handler(
             .into_response(),
         Err(_) => get_error("Error creating tasks".to_string()),
     }
-}
-
-// Define the router for this module
-pub fn create_balance_router() -> Router {
-    Router::new().route("/create_balance", post(create_balance_handler))
 }

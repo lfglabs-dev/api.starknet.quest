@@ -1,23 +1,15 @@
-use crate::models::{QuestDocument, QuestTaskDocument};
-use crate::utils::verify_quest_auth;
+use crate::models::QuestTaskDocument;
 use crate::{models::AppState, utils::get_error};
-use axum::routing::post;
-use crate::models::JWTClaims;
 use axum::{
-    extract::{Extension, Json},
-    http::{HeaderMap, StatusCode},
+    extract::{State, Json},
+    http::StatusCode,
     response::IntoResponse,
-    Router,
 };
 use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use jsonwebtoken::decode;
-use jsonwebtoken::DecodingKey;
-use jsonwebtoken::Validation;
-use jsonwebtoken::Algorithm;
 
 #[derive(Deserialize)]
 pub struct CreateDomainTask {
@@ -27,20 +19,11 @@ pub struct CreateDomainTask {
 }
 
 // Define the route handler
-async fn create_domain_task_handler(
-    Extension(state): Extension<Arc<AppState>>, // Extract state using Extension
-    headers: HeaderMap,
-    body: Json<CreateDomainTask>,
+pub async fn handler(
+    State(state): State<Arc<AppState>>, // Extract state using Extension
+    Json(body): Json<CreateDomainTask>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
-    let quests_collection = state.db.collection::<QuestDocument>("quests");
-
-    let res = verify_quest_auth(user, &quests_collection, &body.quest_id).await;
-    if !res {
-        return get_error("Error creating task".to_string());
-    };
-
     // Get the last id in increasing order
     let last_id_filter = doc! {};
     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
@@ -78,9 +61,4 @@ async fn create_domain_task_handler(
             .into_response(),
         Err(_) => get_error("Error creating task".to_string()),
     }
-}
-
-// Define the router for this module
-pub fn create_domain_router() -> Router {
-    Router::new().route("/create_domain", post(create_domain_task_handler))
 }

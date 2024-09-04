@@ -1,12 +1,11 @@
 use axum::response::IntoResponse;
-use axum::{routing::post, Router};
 use crate::models::{AppState, QuestTaskDocument};
 use crate::utils::get_error;
 use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
-use axum::extract::{Json, Extension};
+use axum::extract::{Json, State};
 use axum::http::StatusCode;
 use std::sync::Arc;
 
@@ -22,9 +21,9 @@ pub struct CreateCustom {
 }
 
 // Define the route handler
-async fn create_handler(
-    Extension(state): Extension<Arc<AppState>>, // Extract state using Extension
-    body: Json<CreateCustom>,
+pub async fn handler(
+    State(state): State<Arc<AppState>>, // Extract state using Extension
+    Json(body): Json<CreateCustom>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
 
@@ -66,7 +65,3 @@ async fn create_handler(
     }
 }
 
-// Define the router for this module
-pub fn create_custom_router() -> Router {
-    Router::new().route("/create_custom", post(create_handler))
-}

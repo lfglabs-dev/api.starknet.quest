@@ -1,13 +1,11 @@
 use crate::models::{
-    JWTClaims, QuestDocument, QuestTaskDocument, QuizInsertDocument, QuizQuestionDocument,
+    QuestTaskDocument, QuizInsertDocument, QuizQuestionDocument,
 };
 use crate::{models::AppState, utils::get_error};
 use axum::{
-    extract::{Extension, State},
+    extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
-    routing::post,
-    Router
 };
 use mongodb::bson::{doc, Document};
 use mongodb::options::FindOneAndUpdateOptions;
@@ -25,7 +23,7 @@ pub struct UpdateQuiz {
 }
 
 pub async fn handler(
-    Extension(state): Extension<Arc<AppState>>,
+    State(state): State<Arc<AppState>>,
     body: Json<UpdateQuiz>,
 ) -> impl IntoResponse {
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
@@ -75,8 +73,4 @@ pub async fn handler(
         ).into_response(),
         Err(_e) => get_error("error updating task".to_string()),
     }
-}
-
-pub fn update_question_routes() -> Router {
-    Router::new().route("/update_question", post(handler))
 }

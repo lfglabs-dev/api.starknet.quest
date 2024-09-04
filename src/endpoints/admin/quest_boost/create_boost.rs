@@ -1,13 +1,9 @@
-use crate::models::{BoostTable, QuestDocument};
-use crate::utils::verify_quest_auth;
+use crate::models::BoostTable;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
 use axum::{
-    extract::Extension,
+    extract::State,
     http::StatusCode,
-    response::{IntoResponse, Json},
-    routing::post,
-    Router,
+    response::{IntoResponse, Json}
 };
 use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
@@ -28,10 +24,9 @@ pub struct CreateBoostQuery {
     img_url: String,
 }
 
-async fn create_boost_handler(
-    Extension(state): Extension<Arc<AppState>>,
-    headers: HeaderMap,
-    body: Json<CreateBoostQuery>,
+pub async fn handler(
+    State(state): State<Arc<AppState>>,
+    Json(body): Json<CreateBoostQuery>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<BoostTable>("boosts");
 
@@ -66,8 +61,4 @@ async fn create_boost_handler(
         ).into_response(),
         Err(_e) => get_error("Error creating boosts".to_string()),
     }
-}
-
-pub fn create_boost_router() -> Router {
-    Router::new().route("/create_quest_boost", post(create_boost_handler))
 }

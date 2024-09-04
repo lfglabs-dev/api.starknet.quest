@@ -1,16 +1,8 @@
 use crate::models::QuestTaskDocument;
-use crate::utils::verify_task_auth;
 use crate::{models::AppState, utils::get_error};
-use axum::routing::post;
-use crate::models::JWTClaims;
-use jsonwebtoken::decode;
-use jsonwebtoken::DecodingKey;
-use jsonwebtoken::Validation;
-use jsonwebtoken::Algorithm;
-use axum::Router;
 use axum::{
-    extract::{Extension, Json},
-    http::{HeaderMap, StatusCode},
+    extract::{State, Json},
+    http::StatusCode,
     response::IntoResponse, 
 };
 
@@ -27,18 +19,11 @@ pub struct UpdateDomainTask {
 }
 
 // Define the route handler
-async fn update_domain_task_handler(
-    Extension(state): Extension<Arc<AppState>>, // Extract state using Extension
-    headers: HeaderMap,
-    body: Json<UpdateDomainTask>,
+pub async fn handler(
+    State(state): State<Arc<AppState>>, // Extract state using Extension
+    Json(body): Json<UpdateDomainTask>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
-
-    let res = verify_task_auth(user, &collection, &body.id).await;
-    if !res {
-        return get_error("Error updating tasks".to_string());
-    }
 
     // Filter to get the existing task
     let filter = doc! {
@@ -70,7 +55,3 @@ async fn update_domain_task_handler(
     }
 }
 
-// Define the router for this module
-pub fn update_domain_router() -> Router {
-    Router::new().route("/update_domain", post(update_domain_task_handler))
-}

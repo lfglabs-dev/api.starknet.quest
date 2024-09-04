@@ -2,11 +2,9 @@ use crate::models::QuestTaskDocument;
 
 use crate::{models::AppState, utils::get_error};
 use axum::{
-    extract::Extension,
-    http::{HeaderMap, StatusCode},
-    response::{IntoResponse, Json},
-    routing::post,
-    Router,
+    extract::State,
+    http::StatusCode,
+    response::{IntoResponse, Json}
 };
 use mongodb::bson::doc;
 use serde::Deserialize;
@@ -18,8 +16,7 @@ pub_struct!(Deserialize; DeleteTask {
 });
 
 pub async fn handler(
-    Extension(state): Extension<Arc<AppState>>,
-    headers: HeaderMap,
+    State(state): State<Arc<AppState>>,
     body: Json<DeleteTask>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
@@ -41,8 +38,4 @@ pub async fn handler(
         },
         Err(_) => get_error("Error deleting task".to_string()),
     }
-}
-
-pub fn delete_task_routes() -> Router {
-    Router::new().route("/remove_task", post(handler))
 }

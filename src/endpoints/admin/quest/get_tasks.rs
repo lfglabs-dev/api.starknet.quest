@@ -1,10 +1,8 @@
 use crate::{models::AppState, utils::get_error};
 use axum::{
-    extract::{Query, Extension},
+    extract::{Query, State},
     http::StatusCode,
     response::{IntoResponse, Json},
-    routing::get,
-    Router,
 };
 use futures::stream::StreamExt;
 use mongodb::bson::{doc, from_document};
@@ -33,7 +31,7 @@ pub struct GetTasksQuery {
 }
 
 pub async fn handler(
-    Extension(state): Extension<Arc<AppState>>,
+    State(state): State<Arc<AppState>>,
     Query(query): Query<GetTasksQuery>,
 ) -> impl IntoResponse {
     let pipeline = vec![
@@ -108,8 +106,4 @@ pub async fn handler(
         }
         Err(_) => get_error("Error querying tasks".to_string()),
     }
-}
-
-pub fn get_tasks_routes() -> Router {
-    Router::new().route("/get_tasks", get(handler))
 }

@@ -1,23 +1,15 @@
-use crate::models::{NFTUri, QuestDocument};
-use crate::utils::verify_quest_auth;
+use crate::models::NFTUri;
 use crate::{models::AppState, utils::get_error};
 use axum::{
-    extract::{Extension, Json},
-    http::{HeaderMap, StatusCode},
+    extract::{State, Json},
+    http::StatusCode,
     response::IntoResponse,
-    Router,
-    routing::post,
 };
-use crate::models::JWTClaims;
 use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use jsonwebtoken::decode;
-use jsonwebtoken::DecodingKey;
-use jsonwebtoken::Validation;
-use jsonwebtoken::Algorithm;
 
 #[derive(Deserialize)]
 pub struct CreateCustom {
@@ -28,10 +20,9 @@ pub struct CreateCustom {
 }
 
 // Define the route handler
-async fn create_nft_uri_handler(
-    Extension(state): Extension<Arc<AppState>>, // Use Extension to extract state
-    headers: HeaderMap,
-    body: Json<CreateCustom>,
+pub async fn handler(
+    State(state): State<Arc<AppState>>, // Use Extension to extract state
+    Json(body): Json<CreateCustom>,
 ) -> impl IntoResponse {
      let collection = state.db.collection::<NFTUri>("nft_uri");
 
@@ -64,9 +55,4 @@ async fn create_nft_uri_handler(
         .into_response(),
         Err(_) => get_error("Error creating boosts".to_string()),
     }
-}
-
-// Define the router for this module
-pub fn create_nft_uri_router() -> Router {
-    Router::new().route("/create_nft_uri", post(create_nft_uri_handler))
 }

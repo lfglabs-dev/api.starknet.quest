@@ -1,17 +1,11 @@
-use crate::models::JWTClaims;
-use jsonwebtoken::decode;
-use jsonwebtoken::DecodingKey;
-use jsonwebtoken::Validation;
-use jsonwebtoken::Algorithm;
 use axum::response::IntoResponse;
-use axum::{routing::post, Router};
 use crate::models::{AppState, QuestTaskDocument};
-use crate::utils::{get_error, verify_task_auth};
+use crate::utils::get_error;
 use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
-use axum::extract::{Json, Extension};
-use axum::http::{HeaderMap, StatusCode};
+use axum::extract::{Json, State};
+use axum::http::StatusCode;
 use std::sync::Arc;
 
 // Define the request body structure
@@ -28,10 +22,9 @@ pub struct UpdateCustom {
 }
 
 // Define the route handler
-async fn update_handler(
-    Extension(state): Extension<Arc<AppState>>, // Extract state using Extension
-    headers: HeaderMap,
-    body: Json<UpdateCustom>,
+pub async fn handler(
+    State(state): State<Arc<AppState>>, // Extract state using Extension
+    Json(body): Json<UpdateCustom>,
 ) -> impl IntoResponse {
    let collection = state.db.collection::<QuestTaskDocument>("tasks");
 
@@ -78,9 +71,4 @@ async fn update_handler(
             .into_response(),
         Err(_) => get_error("Error updating tasks".to_string()),
     }
-}
-
-// Define the router for this module
-pub fn update_custom_router() -> Router {
-    Router::new().route("/update_custom", post(update_handler))
 }

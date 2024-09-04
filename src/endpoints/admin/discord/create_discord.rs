@@ -1,20 +1,13 @@
-use crate::models::{JWTClaims, QuestDocument, QuestTaskDocument};
-use crate::utils::verify_quest_auth;
+use crate::models::QuestTaskDocument;
 use crate::{models::AppState, utils::get_error};
-use axum::{routing::post, Router};
-use axum::extract::{Json, Extension};
-use axum::http::{HeaderMap, StatusCode};
+use axum::extract::{Json, State};
+use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use jsonwebtoken::decode;
-use jsonwebtoken::DecodingKey;
-use jsonwebtoken::Validation;
-use jsonwebtoken::Algorithm;
-
 // Define the request body structure
 #[derive(Deserialize)]
 pub struct CreateCustom {
@@ -26,10 +19,9 @@ pub struct CreateCustom {
 }
 
 // Define the route handler
-async fn create_discord_task_handler(
-    Extension(state): Extension<Arc<AppState>>, // Extract state using Extension
-    headers: HeaderMap,
-    body: Json<CreateCustom>,
+pub async fn handler(
+    State(state): State<Arc<AppState>>, // Extract state using Extension
+    Json(body): Json<CreateCustom>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
 
@@ -37,9 +29,6 @@ async fn create_discord_task_handler(
     let last_id_filter = doc! {};
     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
     let last_doc = &collection.find_one(last_id_filter, options).await.unwrap();
-
-    let quests_collection = state.db.collection::<QuestDocument>("quests");
-
   
     let mut next_id = 1;
     if let Some(doc) = last_doc {
@@ -73,9 +62,4 @@ async fn create_discord_task_handler(
             .into_response(),
         Err(_) => get_error("Error creating task".to_string()),
     }
-}
-
-// Define the router for this module
-pub fn create_discord_router() -> Router {
-    Router::new().route("/create_discord", post(create_discord_task_handler))
 }

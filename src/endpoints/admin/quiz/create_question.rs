@@ -1,15 +1,13 @@
 use crate::{
     models::{
-        AppState, JWTClaims, QuestDocument, QuestTaskDocument, QuizInsertDocument, QuizQuestionDocument,
+        AppState, QuestTaskDocument, QuizInsertDocument, QuizQuestionDocument,
     },
     utils::get_error,
 };
 use axum::{
-    extract::{Json, Extension},
-    http::{StatusCode, HeaderMap},
-    response::IntoResponse,
-    routing::post,
-    Router,
+    extract::{Json, State},
+    http::StatusCode,
+    response::IntoResponse
 };
 use mongodb::{
     bson::doc,
@@ -28,8 +26,7 @@ pub struct CreateQuizQuestion {
 }
 
 pub async fn handler(
-    Extension(state): Extension<Arc<AppState>>,
-    headers: HeaderMap,
+    State(state): State<Arc<AppState>>,
     Json(body): Json<CreateQuizQuestion>,
 ) -> impl IntoResponse {
     let quiz_collection = state.db.collection::<QuizInsertDocument>("quizzes");
@@ -83,8 +80,4 @@ pub async fn handler(
         ).into_response(),
         Err(_) => get_error("Error creating task".to_string()),
     }
-}
-
-pub fn create_question_routes() -> Router {
-    Router::new().route("/create_question", post(handler))
 }

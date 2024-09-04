@@ -3,8 +3,7 @@ use crate::models::AppState;
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Json},
-    routing::post,
-    Extension, Router,
+    extract::State
 };
 use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
@@ -19,8 +18,8 @@ pub_struct!(Deserialize; CreateTwitterRw {
     quest_id: i64,
 });
 
-async fn create_twitter_retweet_task(
-    Extension(state): Extension<Arc<AppState>>,
+pub async fn handler(
+    State(state): State<Arc<AppState>>,
     body: Json<CreateTwitterRw>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
@@ -62,8 +61,4 @@ async fn create_twitter_retweet_task(
             Json(json!({"error": "Error creating task"})).into_response(),
         ),
     }
-}
-
-pub fn create_twitter_rw_router() -> Router {
-    Router::new().route("/create_twitter_rw", post(create_twitter_retweet_task))
 }

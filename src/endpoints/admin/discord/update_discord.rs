@@ -1,21 +1,14 @@
-use crate::models::{JWTClaims, QuestTaskDocument};
-use crate::utils::verify_task_auth;
+use crate::models::QuestTaskDocument;
 use crate::{models::AppState, utils::get_error};
 use axum::{
-    extract::{Extension, Json},
-    http::{HeaderMap, StatusCode},
+    extract::{State, Json},
+    http::StatusCode,
     response::IntoResponse,
-    routing::post,
-    Router,
 };
 use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use jsonwebtoken::decode;
-use jsonwebtoken::DecodingKey;
-use jsonwebtoken::Validation;
-use jsonwebtoken::Algorithm;
 
 #[derive(Deserialize)]
 pub struct UpdateDiscordTask {
@@ -27,10 +20,9 @@ pub struct UpdateDiscordTask {
 }
 
 // Define the route handler
-async fn update_discord_task_handler(
-    Extension(state): Extension<Arc<AppState>>, // Extract state using Extension
-    headers: HeaderMap,
-    body: Json<UpdateDiscordTask>,
+pub async fn handler(
+    State(state): State<Arc<AppState>>, // Extract state using Extension
+    Json(body): Json<UpdateDiscordTask>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
 
@@ -71,7 +63,3 @@ async fn update_discord_task_handler(
     }
 }
 
-// Define the router for this module
-pub fn update_discord_router() -> Router {
-    Router::new().route("/update_discord", post(update_discord_task_handler))
-}

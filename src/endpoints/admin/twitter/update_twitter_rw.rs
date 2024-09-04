@@ -1,13 +1,10 @@
-use crate::models::{JWTClaims, QuestTaskDocument};
+use crate::models::QuestTaskDocument;
 use crate::utils::get_error;
-use crate::{models::AppState};
-use axum::http::HeaderMap;
+use crate::models::AppState;
 use axum::{
-    extract::Extension,
+    extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
-    routing::post,
-    Router,
 };
 use mongodb::bson::{doc, Document};
 use mongodb::options::FindOneAndUpdateOptions;
@@ -22,9 +19,8 @@ pub_struct!(Deserialize; UpdateTwitterRw {
     id: i32,
 });
 
-async fn update_twitter_rw_handler(
-    Extension(state): Extension<Arc<AppState>>,
-    headers: HeaderMap,
+pub async fn handler(
+    State(state): State<Arc<AppState>>,
     body: Json<UpdateTwitterRw>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
@@ -62,8 +58,4 @@ async fn update_twitter_rw_handler(
         ).into_response(),
         Err(_e) => get_error("Error updating task".to_string()),
     }
-}
-
-pub fn update_twitter_rw_router() -> Router {
-    Router::new().route("/update_twitter_rw", post(update_twitter_rw_handler))
 }

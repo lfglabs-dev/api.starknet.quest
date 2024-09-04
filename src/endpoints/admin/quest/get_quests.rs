@@ -3,35 +3,23 @@ use crate::{
     utils::get_error,
 };
 use axum::{
-    extract::{Extension, State},
-    http::{StatusCode, HeaderMap},
+    extract::State,
+    http::StatusCode,
     response::{IntoResponse, Json},
-    routing::get,
-    Router,
 };
 use futures::StreamExt;
 use mongodb::bson::{doc, from_document};
 use std::sync::Arc;
 
-use crate::models::JWTClaims;
-use jsonwebtoken::decode;
-use jsonwebtoken::DecodingKey;
-use jsonwebtoken::Validation;
-use jsonwebtoken::Algorithm;
-
 pub async fn handler(
-    Extension(state): Extension<Arc<AppState>>,
-    headers: HeaderMap,
+    State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref());
     let mut pipeline = vec![];
-    if user != "super_user" {
-        pipeline.push(doc! {
-            "$match": doc! {
-                "issuer": user
-            }
-        });
-    }
+    pipeline.push(doc! {
+        "$match": doc! {
+            "issuer": "super_user"
+        }
+    });
     let collection = state.db.collection::<QuestDocument>("quests");
 
     match collection.aggregate(pipeline, None).await {
@@ -61,6 +49,3 @@ pub async fn handler(
     }
 }
 
-pub fn get_quests_routes() -> Router {
-    Router::new().route("/get_quests", get(handler))
-}

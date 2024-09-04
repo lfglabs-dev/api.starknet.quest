@@ -3,9 +3,7 @@ use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Extension, Json},
     http::StatusCode,
-    response::IntoResponse,
-    routing::post,
-    Router
+    response::IntoResponse
 };
 use mongodb::bson::{doc, Document};
 use mongodb::options::FindOneAndUpdateOptions;
@@ -95,8 +93,4 @@ pub async fn handler(
         ).into_response(),
         Err(_) => get_error("Error updating task".to_string()),
     }
-}
-
-pub fn update_quiz_routes() -> Router {
-    Router::new().route("/update_quiz", post(handler))
 }

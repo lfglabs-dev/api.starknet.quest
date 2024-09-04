@@ -1,13 +1,9 @@
-use crate::models::{BoostTable, QuestDocument};
-use crate::utils::verify_quest_auth;
+use crate::models::BoostTable;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
 use axum::{
-    extract::Extension,
+    extract::State,
     http::StatusCode,
-    response::{IntoResponse, Json},
-    routing::post,
-    Router,
+    response::{IntoResponse, Json}
 };
 use mongodb::bson::{doc, Document};
 use mongodb::options::FindOneAndUpdateOptions;
@@ -28,10 +24,9 @@ pub struct UpdateBoostQuery {
     hidden: Option<bool>,
 }
 
-async fn update_boost_handler(
-    Extension(state): Extension<Arc<AppState>>,
-    headers: HeaderMap,
-    body: Json<UpdateBoostQuery>,
+pub async fn handler(
+    State(state): State<Arc<AppState>>,
+    Json(body): Json<UpdateBoostQuery>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<BoostTable>("boosts");
 
@@ -42,7 +37,6 @@ async fn update_boost_handler(
     if existing_boost.is_none() {
         return get_error("Boost does not exist".to_string());
     }
-
 
     let mut update_doc = Document::new();
 
@@ -82,8 +76,4 @@ async fn update_boost_handler(
             .into_response(),
         Err(_e) => get_error("Error updating boost".to_string()),
     }
-}
-
-pub fn update_boost_router() -> Router {
-    Router::new().route("/update_quest_boost", post(update_boost_handler))
 }

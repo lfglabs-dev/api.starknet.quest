@@ -3,11 +3,9 @@ use crate::{
     utils::get_error,
 };
 use axum::{
-    extract::{Extension, Query},
+    extract::{State, Query},
     http::StatusCode,
-    response::{IntoResponse, Json},
-    routing::get,
-    Router,
+    response::{IntoResponse, Json}
 };
 use futures::StreamExt;
 use mongodb::bson::doc;
@@ -20,7 +18,7 @@ pub struct GetQuestsQuery {
 }
 
 pub async fn handler(
-    Extension(state): Extension<Arc<AppState>>,
+    State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuizInsertDocument>("quizzes");
@@ -60,8 +58,4 @@ pub async fn handler(
         }
         Err(_) => get_error("Error querying quiz".to_string()),
     }
-}
-
-pub fn get_quiz_routes() -> Router {
-    Router::new().route("/get_quiz", get(handler))
 }

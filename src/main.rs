@@ -6,11 +6,12 @@ mod endpoints;
 mod logger;
 mod models;
 mod middleware;
+mod router;
 
 use crate::utils::{add_leaderboard_table, run_boosts_raffle};
 use axum::{http::StatusCode, Router};
 use axum_auto_routes::route;
-use middleware::auth_middleware;
+// use middleware::auth_middleware;
 use mongodb::{bson::doc, options::ClientOptions, Client};
 use reqwest::Url;
 use serde_derive::Serialize;
@@ -19,7 +20,6 @@ use std::{borrow::Cow, sync::Arc};
 use std::{net::SocketAddr, sync::Mutex};
 use tower_http::cors::{Any, CorsLayer};
 use utils::WithState;
-
 
 lazy_static::lazy_static! {
     pub static ref ROUTE_REGISTRY: Mutex<Vec<Box<dyn WithState>>> = Mutex::new(Vec::new());
@@ -84,9 +84,9 @@ async fn main() {
     add_leaderboard_table(&shared_state.db).await;
 
     let cors = CorsLayer::new().allow_headers(Any).allow_origin(Any);
-     // Admin router with middleware
-    let admin_router = endpoints::admin::admin_routes()
-        .layer(axum::middleware::from_fn(auth_middleware)); // Apply middleware to /admin routes
+    
+    // Admin router with middleware
+    let admin_router = router::admin_router::router(shared_state.clone());
 
     // Main router without middleware
     let main_router = ROUTE_REGISTRY
@@ -100,7 +100,7 @@ async fn main() {
 
     // Combine the routers
     let app = Router::new()
-        .nest("/admin", admin_router)
+        .merge(admin_router)
         .merge(main_router)
         .layer(cors);
 

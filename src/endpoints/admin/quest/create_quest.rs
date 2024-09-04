@@ -1,11 +1,9 @@
-use crate::models::{JWTClaims, QuestInsertDocument};
+use crate::models::QuestInsertDocument;
 use crate::{models::AppState, utils::get_error};
 use axum::{
-    extract::Extension,
+    extract::State,
     http::{HeaderMap, StatusCode},
     response::{IntoResponse, Json},
-    routing::post,
-    Router,
 };
 use mongodb::bson::{doc, from_document};
 use mongodb::options::FindOneOptions;
@@ -29,8 +27,8 @@ pub struct CreateQuestQuery {
     issuer: Option<String>,
 }
 
-async fn handler(
-    Extension(state): Extension<Arc<AppState>>,
+pub async fn handler(
+    State(state): State<Arc<AppState>>,
     headers: HeaderMap,
     body: Json<CreateQuestQuery>,
 ) -> impl IntoResponse {
@@ -93,7 +91,3 @@ async fn handler(
     }
 }
 
-// Export the router function
-pub fn create_quest_router() -> Router {
-    Router::new().route("/create_quest", post(handler))
-}

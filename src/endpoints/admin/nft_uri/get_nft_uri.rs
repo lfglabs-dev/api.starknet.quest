@@ -1,32 +1,23 @@
-use crate::models::{NFTUri, QuestDocument};
-use crate::utils::verify_quest_auth;
-use crate::models::JWTClaims;
+use crate::models::NFTUri;
 use crate::{models::AppState, utils::get_error};
 use axum::Json;
 use axum::{
-    extract::{Extension, Query},
-    http::{HeaderMap, StatusCode},
+    extract::{State, Query},
+    http::StatusCode,
     response::IntoResponse,
-    Router,
-    routing::get,
 };
 use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
-use jsonwebtoken::decode;
-use jsonwebtoken::DecodingKey;
-use jsonwebtoken::Validation;
-use jsonwebtoken::Algorithm;
 
 #[derive(Deserialize)]
 pub struct GetNFTUriParams {
     quest_id: i64,
 }
 
-async fn get_nft_uri_handler(
-    Extension(state): Extension<Arc<AppState>>,
-    headers: HeaderMap,
+pub async fn handler(
+    State(state): State<Arc<AppState>>,
     Query(params): Query<GetNFTUriParams>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<NFTUri>("nft_uri");
@@ -43,6 +34,3 @@ async fn get_nft_uri_handler(
     }
 }
 
-pub fn get_nft_uri_router() -> Router {
-    Router::new().route("/get_nft_uri", get(get_nft_uri_handler))
-}
