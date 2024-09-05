@@ -1,12 +1,12 @@
-use crate::{
-    models::{AppState, QuizInsertDocument},
-    utils::get_error,
-};
+use crate::models::QuizInsertDocument;
+use crate::{models::AppState, utils::get_error};
+use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::{State, Query},
+    extract::{Query, State},
     http::StatusCode,
-    response::{IntoResponse, Json}
+    response::{IntoResponse, Json},
 };
+use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::doc;
 use serde::Deserialize;
@@ -17,6 +17,7 @@ pub struct GetQuestsQuery {
     id: i64,
 }
 
+#[route(get, "/admin/quiz/get_quiz", auth_middleware)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
@@ -51,11 +52,11 @@ pub async fn handler(
                     Ok(document) => {
                         return (StatusCode::OK, Json(document)).into_response();
                     }
-                    Err(_) => continue,
+                    _ => continue,
                 }
             }
             get_error("Quiz not found".to_string())
         }
-        Err(_) => get_error("Error querying quiz".to_string()),
+        Err(_) => get_error("Error querying quest".to_string()),
     }
 }

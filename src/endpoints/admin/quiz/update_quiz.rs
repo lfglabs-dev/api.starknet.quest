@@ -1,96 +1,119 @@
 use crate::models::{QuestTaskDocument, QuizInsertDocument};
+use crate::utils::verify_task_auth;
 use crate::{models::AppState, utils::get_error};
+use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::{Extension, Json},
+    extract::{Extension, State},
     http::StatusCode,
-    response::IntoResponse
+    response::{IntoResponse, Json},
 };
-use mongodb::bson::{doc, Document};
+use axum_auto_routes::route;
+use mongodb::bson::doc;
+use mongodb::bson::Document;
 use mongodb::options::FindOneAndUpdateOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
 
-#[derive(Deserialize)]
-pub struct UpdateQuiz {
-    id: u32,
-    quiz_id: u32,
+pub_struct!(Deserialize; UpdateQuiz {
+    id:u32,
+    quiz_id:u32,
     name: Option<String>,
     desc: Option<String>,
     help_link: Option<String>,
     cta: Option<String>,
     intro: Option<String>,
-}
+});
 
+#[route(post, "/admin/tasks/quiz/update", auth_middleware)]
 pub async fn handler(
-    Extension(state): Extension<Arc<AppState>>,
+    State(state): State<Arc<AppState>>,
+    Extension(sub): Extension<String>,
     body: Json<UpdateQuiz>,
 ) -> impl IntoResponse {
-    let quiz_collection = state.db.collection::<QuizInsertDocument>("quizzes");
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
+    let quiz_collection = state.db.collection::<QuizInsertDocument>("quizzes");
 
-    // Check if the quiz exists
-    let quiz_filter = doc! {
-        "id": body.quiz_id,
+    let res = verify_task_auth(sub, &tasks_collection, &(body.id as i32)).await;
+    if !res {
+        return get_error("Error updating tasks".to_string());
+    }
+
+    // filter to get existing quiz
+    let filter = doc! {
+        "id": &body.quiz_id,
     };
-    let existing_quiz = quiz_collection.find_one(quiz_filter.clone(), None).await.unwrap();
+    let existing_quiz = &quiz_collection
+        .find_one(filter.clone(), None)
+        .await
+        .unwrap();
+
+    // create a quiz if it does not exist
     if existing_quiz.is_none() {
         return get_error("No quiz found".to_string());
     }
 
-    // Update quiz
     let mut quiz_update_doc = Document::new();
+
     if let Some(name) = &body.name {
         quiz_update_doc.insert("name", name);
     }
     if let Some(desc) = &body.desc {
         quiz_update_doc.insert("desc", desc);
     }
-    if let Some(intro) = &body.intro {
-        quiz_update_doc.insert("intro", intro);
+    if let Some(cta) = &body.intro {
+        quiz_update_doc.insert("intro", cta);
     }
 
-    let quiz_update = doc! {
+    // update quiz
+    let update = doc! {
         "$set": quiz_update_doc
     };
-    let quiz_update_options = FindOneAndUpdateOptions::default();
-    if let Err(_) = quiz_collection
-        .find_one_and_update(quiz_filter, quiz_update, quiz_update_options)
-        .await
-    {
-        return get_error("Error updating quiz".to_string());
-    }
-
-    // Update task
-    let task_filter = doc! {
-        "id": body.id,
-    };
-    let mut task_update_doc = Document::new();
-    if let Some(name) = &body.name {
-        task_update_doc.insert("name", name);
-    }
-    if let Some(desc) = &body.desc {
-        task_update_doc.insert("desc", desc);
-    }
-    if let Some(help_link) = &body.help_link {
-        task_update_doc.insert("href", help_link);
-    }
-    if let Some(cta) = &body.cta {
-        task_update_doc.insert("cta", cta);
-    }
-
-    let task_update = doc! {
-        "$set": task_update_doc
-    };
-    let task_update_options = FindOneAndUpdateOptions::default();
-    match tasks_collection
-        .find_one_and_update(task_filter, task_update, task_update_options)
+    let options = FindOneAndUpdateOptions::default();
+    match quiz_collection
+        .find_one_and_update(filter, update, options)
         .await
     {
         Ok(_) => (
             StatusCode::OK,
-            Json(json!({"message": "Updated successfully"})),
-        ).into_response(),
-        Err(_) => get_error("Error updating task".to_string()),
+            Json(json!({"message": "updated successfully"})),
+        )
+            .into_response(),
+        Err(_e) => get_error("error updating task".to_string()),
+    };
+
+    let mut update_doc = Document::new();
+
+    if let Some(name) = &body.name {
+        update_doc.insert("name", name);
     }
+    if let Some(desc) = &body.desc {
+        update_doc.insert("desc", desc);
+    }
+    if let Some(href) = &body.help_link {
+        update_doc.insert("href", href);
+    }
+    if let Some(cta) = &body.cta {
+        update_doc.insert("cta", cta);
+    }
+
+    // update quiz
+    let task_update = doc! {
+        "$set": update_doc
+    };
+    let task_filter = doc! {
+        "id": &body.id,
+    };
+    let options = FindOneAndUpdateOptions::default();
+    return match tasks_collection
+        .find_one_and_update(task_filter, task_update, options)
+        .await
+    {
+        Ok(_) => (
+            StatusCode::OK,
+            Json(json!({"message": "updated successfully"})),
+        )
+            .into_response(),
+        Err(_e) => get_error("error updating task".to_string()),
+    };
 }

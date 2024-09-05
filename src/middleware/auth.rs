@@ -1,22 +1,16 @@
 // src/middleware.rs
-
+use crate::models::JWTClaims;
 use axum::{
     http::{Request, StatusCode},
     middleware::Next,
     response::Response,
 };
-use serde::Deserialize;
 use jsonwebtoken::{decode, DecodingKey, Validation};
 
 use crate::config;
 
-#[derive(Debug, Deserialize)]
-pub struct JWTClaims {
-    sub: String,
-}
-
 pub async fn auth_middleware<B>(
-    req: Request<B>,
+    mut req: Request<B>,
     next: Next<B>,
 ) -> Result<Response, (StatusCode, String)> {
     let headers = req.headers();
@@ -36,7 +30,11 @@ pub async fn auth_middleware<B>(
                     &DecodingKey::from_secret(secret_key.as_bytes()),
                     &Validation::new(jsonwebtoken::Algorithm::HS256),
                 ) {
-                    Ok(_token_data) => Ok(next.run(req).await),
+                    Ok(token_data) => 
+                    {
+                        req.extensions_mut().insert(token_data.claims.sub);
+                        Ok(next.run(req).await)
+                    },
                     Err(_) => Err((StatusCode::UNAUTHORIZED, "Invalid token was provided".to_string())),
                 }
             } else {

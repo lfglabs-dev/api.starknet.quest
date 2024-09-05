@@ -6,12 +6,10 @@ mod endpoints;
 mod logger;
 mod models;
 mod middleware;
-mod router;
 
 use crate::utils::{add_leaderboard_table, run_boosts_raffle};
 use axum::{http::StatusCode, Router};
 use axum_auto_routes::route;
-// use middleware::auth_middleware;
 use mongodb::{bson::doc, options::ClientOptions, Client};
 use reqwest::Url;
 use serde_derive::Serialize;
@@ -84,24 +82,14 @@ async fn main() {
     add_leaderboard_table(&shared_state.db).await;
 
     let cors = CorsLayer::new().allow_headers(Any).allow_origin(Any);
-    
-    // Admin router with middleware
-    let admin_router = router::admin_router::router(shared_state.clone());
-
-    // Main router without middleware
-    let main_router = ROUTE_REGISTRY
+    let app = ROUTE_REGISTRY
         .lock()
         .unwrap()
         .clone()
         .into_iter()
         .fold(Router::new().with_state(shared_state.clone()), |acc, r| {
             acc.merge(r.to_router(shared_state.clone()))
-        });
-
-    // Combine the routers
-    let app = Router::new()
-        .merge(admin_router)
-        .merge(main_router)
+        })
         .layer(cors);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], conf.server.port));

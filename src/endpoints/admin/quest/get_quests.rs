@@ -2,24 +2,30 @@ use crate::{
     models::{AppState, QuestDocument},
     utils::get_error,
 };
+use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::State,
+    extract::{State, Extension},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
+use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::{doc, from_document};
 use std::sync::Arc;
 
+#[route(get, "/admin/quest/get_quests", auth_middleware)]
 pub async fn handler(
-    State(state): State<Arc<AppState>>,
+    State(state): State<Arc<AppState>>, 
+    Extension(sub): Extension<String> 
 ) -> impl IntoResponse {
     let mut pipeline = vec![];
-    pipeline.push(doc! {
-        "$match": doc! {
-            "issuer": "super_user"
-        }
-    });
+    if sub != "super_user" {
+        pipeline.push(doc! {
+            "$match": doc! {
+                "issuer":sub
+            }
+        });
+    }
     let collection = state.db.collection::<QuestDocument>("quests");
 
     match collection.aggregate(pipeline, None).await {
@@ -48,4 +54,3 @@ pub async fn handler(
         Err(_) => get_error("Error querying quests".to_string()),
     }
 }
-

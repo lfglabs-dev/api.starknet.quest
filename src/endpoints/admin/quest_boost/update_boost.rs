@@ -1,18 +1,20 @@
-use crate::models::BoostTable;
+use crate::models::{BoostTable, QuestDocument};
+use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
+use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::State,
+    extract::{Extension, State},
     http::StatusCode,
-    response::{IntoResponse, Json}
+    response::{IntoResponse, Json},
 };
+use axum_auto_routes::route;
 use mongodb::bson::{doc, Document};
 use mongodb::options::FindOneAndUpdateOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
 
-#[derive(Deserialize)]
-pub struct UpdateBoostQuery {
+pub_struct!(Deserialize; UpdateBoostQuery {
     id: i32,
     amount: Option<i32>,
     token: Option<String>,
@@ -22,21 +24,36 @@ pub struct UpdateBoostQuery {
     name: Option<String>,
     img_url: Option<String>,
     hidden: Option<bool>,
-}
+});
 
+#[route(post, "/admin/quest_boost/update_boost", auth_middleware)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    Json(body): Json<UpdateBoostQuery>,
+    Extension(sub): Extension<String>,
+    body: Json<UpdateBoostQuery>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<BoostTable>("boosts");
+    let questcollection = state.db.collection::<QuestDocument>("quests");
 
-    // Verify if the boost exists
-    let filter = doc! { "id": &body.id };
-    let existing_boost = collection.find_one(filter.clone(), None).await.unwrap();
+    let pipeline = doc! {
+            "id": &body.id,
+    };
 
-    if existing_boost.is_none() {
-        return get_error("Boost does not exist".to_string());
+    let res = &collection.find_one(pipeline, None).await.unwrap();
+    if res.is_none() {
+        return get_error("boost does not exist".to_string());
     }
+    let quest_id = res.as_ref().unwrap().quests[0];
+    let res = verify_quest_auth(sub, &questcollection, &(quest_id as i64)).await;
+
+    if !res {
+        return get_error("Error updating boost".to_string());
+    };
+
+    // filter to get existing boost
+    let filter = doc! {
+        "id": &body.id,
+    };
 
     let mut update_doc = Document::new();
 
@@ -65,15 +82,20 @@ pub async fn handler(
         update_doc.insert("hidden", hidden);
     }
 
-    let update = doc! { "$set": update_doc };
+    // update boost
+    let update = doc! {
+        "$set": update_doc
+    };
     let options = FindOneAndUpdateOptions::default();
-
-    match collection.find_one_and_update(filter, update, options).await {
+    return match collection
+        .find_one_and_update(filter, update, options)
+        .await
+    {
         Ok(_) => (
             StatusCode::OK,
-            Json(json!({"message": "Updated successfully"})),
+            Json(json!({"message": "updated successfully"})),
         )
             .into_response(),
-        Err(_e) => get_error("Error updating boost".to_string()),
-    }
+        Err(_e) => get_error("error updating boost".to_string()),
+    };
 }

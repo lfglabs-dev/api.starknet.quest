@@ -1,8 +1,14 @@
 use crate::models::QuestTaskDocument;
 use crate::{models::AppState, utils::get_error};
-use axum::extract::{Json, State};
-use axum::http::StatusCode;
-use axum::response::IntoResponse;
+use crate::middleware::auth::auth_middleware;
+use crate::utils::verify_task_auth;
+
+use axum::{
+    extract::{Extension, State},
+    http::StatusCode,
+    response::{IntoResponse, Json},
+};
+use axum_auto_routes::route;
 use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
@@ -10,29 +16,34 @@ use starknet::core::types::FieldElement;
 use std::str::FromStr;
 use std::sync::Arc;
 
-// Define the request body structure
-#[derive(Deserialize)]
-pub struct CreateBalance {
+pub_struct!(Deserialize; CreateBalance {
     id: i64,
     name: Option<String>,
     desc: Option<String>,
     contracts: Option<String>,
     href: Option<String>,
     cta: Option<String>,
-}
+});
 
 // Helper function to convert FieldElement to Bson
 fn field_element_to_bson(fe: &FieldElement) -> mongodb::bson::Bson {
     mongodb::bson::Bson::String(fe.to_string())
 }
 
-// Define the route handler
+#[route(post, "/admin/tasks/balance/update", auth_middleware)]
 pub async fn handler(
-    State(state): State<Arc<AppState>>, // Extract state using Extension
+    State(state): State<Arc<AppState>>,
+    Extension(sub): Extension<String>,
     Json(body): Json<CreateBalance>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
-    // Filter to get existing quest
+
+    let res = verify_task_auth(sub, &collection, &(body.id as i32)).await;
+    if !res {
+        return get_error("Error updating tasks".to_string());
+    }
+
+    // filter to get existing quest
     let filter = doc! {
         "id": &body.id,
     };
@@ -61,23 +72,18 @@ pub async fn handler(
         update_doc.insert("contracts", contracts_bson);
     }
 
-    // Update quest query
+    // update quest query
     let update = doc! {
         "$set": update_doc
     };
 
-    // Insert document into collection
-    match collection.find_one_and_update(filter, update, None).await {
+    // insert document to boost collection
+    return match collection.find_one_and_update(filter, update, None).await {
         Ok(_) => (
             StatusCode::OK,
             Json(json!({"message": "Task updated successfully"})).into_response(),
         )
             .into_response(),
-        Err(_) => get_error("Error updating tasks".to_string()),
-    }
+        Err(_e) => get_error("Error updating tasks".to_string()),
+    };
 }
-
-// Define the router for this module
-// pub fn update_balance_router() -> Router {
-//     Router::new()))
-// }

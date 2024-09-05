@@ -1,10 +1,13 @@
 use crate::models::QuestTaskDocument;
+use crate::utils::verify_task_auth;
 use crate::{models::AppState, utils::get_error};
+use crate::middleware::auth::auth_middleware;
 use axum::{
+    extract::{Extension, State},
     http::StatusCode,
     response::{IntoResponse, Json},
-    extract::State
 };
+use axum_auto_routes::route;
 use mongodb::bson::{doc, Document};
 use mongodb::options::FindOneAndUpdateOptions;
 use serde::Deserialize;
@@ -18,15 +21,26 @@ pub_struct!(Deserialize; UpdateTwitterFw {
     id: i32,
 });
 
+#[route(post, "/admin/tasks/twitter_fw/update", auth_middleware)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
+    Extension(sub): Extension<String>,
     body: Json<UpdateTwitterFw>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
 
-    let filter = doc! { "id": &body.id };
+    let res = verify_task_auth(sub, &collection, &body.id).await;
+    if !res {
+        return get_error("Error updating tasks".to_string());
+    }
+
+    // filter to get existing task
+    let filter = doc! {
+        "id": &body.id,
+    };
     let existing_task = &collection.find_one(filter.clone(), None).await.unwrap();
 
+    // create a task if it does not exist
     if existing_task.is_none() {
         return get_error("Task does not exist".to_string());
     }
@@ -47,7 +61,10 @@ pub async fn handler(
         update_doc.insert("href", "https://twitter.com/".to_string() + username);
     }
 
-    let update = doc! { "$set": update_doc };
+    // update boost
+    let update = doc! {
+        "$set": update_doc
+    };
     let options = FindOneAndUpdateOptions::default();
 
     return match collection

@@ -1,16 +1,19 @@
-use axum::response::IntoResponse;
-use crate::models::{AppState, QuestTaskDocument};
-use crate::utils::get_error;
+use crate::models::QuestTaskDocument;
+use crate::utils::verify_task_auth;
+use crate::{models::AppState, utils::get_error};
+use crate::middleware::auth::auth_middleware;
+use axum::{
+    extract::{State, Extension},
+    http::StatusCode,
+    response::{IntoResponse, Json},
+};
+use axum_auto_routes::route;
 use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
-use axum::extract::{Json, State};
-use axum::http::StatusCode;
 use std::sync::Arc;
 
-// Define the request body structure
-#[derive(Deserialize)]
-pub struct UpdateCustom {
+pub_struct!(Deserialize; CreateCustom {
     id: i64,
     name: Option<String>,
     desc: Option<String>,
@@ -19,16 +22,22 @@ pub struct UpdateCustom {
     verify_endpoint_type: Option<String>,
     verify_redirect: Option<String>,
     href: Option<String>,
-}
+});
 
-// Define the route handler
+#[route(post, "/admin/tasks/custom/update", auth_middleware)]
 pub async fn handler(
-    State(state): State<Arc<AppState>>, // Extract state using Extension
-    Json(body): Json<UpdateCustom>,
+    State(state): State<Arc<AppState>>,
+    Extension(sub): Extension<String>,
+    Json(body): Json<CreateCustom>,
 ) -> impl IntoResponse {
-   let collection = state.db.collection::<QuestTaskDocument>("tasks");
-
-    // Filter to get the existing quest
+    let collection = state.db.collection::<QuestTaskDocument>("tasks");
+    
+    let res = verify_task_auth(sub, &collection, &(body.id as i32)).await;
+    if !res {
+        return get_error("Error updating tasks".to_string());
+    }
+    
+    // filter to get existing quest
     let filter = doc! {
         "id": &body.id,
     };
@@ -57,18 +66,18 @@ pub async fn handler(
         update_doc.insert("verify_endpoint_type", verify_endpoint_type);
     }
 
-    // Update quest query
+    // update quest query
     let update = doc! {
         "$set": update_doc
     };
 
-    // Update document in the collection
-    match collection.find_one_and_update(filter, update, None).await {
+    // insert document to boost collection
+    return match collection.find_one_and_update(filter, update, None).await {
         Ok(_) => (
             StatusCode::OK,
             Json(json!({"message": "Task updated successfully"})).into_response(),
         )
             .into_response(),
-        Err(_) => get_error("Error updating tasks".to_string()),
-    }
+        Err(_e) => get_error("Error updating tasks".to_string()),
+    };
 }
