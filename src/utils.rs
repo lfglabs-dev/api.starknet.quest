@@ -43,34 +43,6 @@ macro_rules! pub_struct {
     }
 }
    
-macro_rules! check_authorization {
-    ($headers:expr,$secret_key:expr) => {
-        match $headers.get("Authorization") {
-            Some(auth_header) => {
-                let validation = Validation::new(Algorithm::HS256);
-                let token = auth_header
-                    .to_str()
-                    .unwrap()
-                    .to_string()
-                    .split(" ")
-                    .collect::<Vec<&str>>()[1]
-                    .to_string();
-
-                match decode::<JWTClaims>(
-                    &token,
-                    &DecodingKey::from_secret($secret_key),
-                    &validation,
-                ) {
-                    Ok(token_data) => token_data.claims.sub,
-                    Err(_e) => {
-                        return get_error("Invalid token".to_string());
-                    }
-                }
-            }
-            None => return get_error("missing auth header".to_string()),
-        }
-    };
-}
 
 pub async fn get_nft(
     quest_id: u32,
