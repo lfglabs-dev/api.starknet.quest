@@ -1,5 +1,6 @@
 use crate::models::NFTUri;
 use crate::{models::AppState, utils::get_error};
+use crate::middleware::auth::auth_middleware;
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -16,7 +17,7 @@ pub struct GetQuestsQuery {
     id: i64,
 }
 
-#[route(get, "/admin/nft_uri/get_nft_uri")]
+#[route(get, "/admin/nft_uri/get_nft_uri", auth_middleware)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,

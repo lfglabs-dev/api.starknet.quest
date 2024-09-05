@@ -5,6 +5,7 @@ mod config;
 mod endpoints;
 mod logger;
 mod models;
+mod middleware;
 
 use crate::utils::{add_leaderboard_table, run_boosts_raffle};
 use axum::{http::StatusCode, Router};

@@ -1,13 +1,12 @@
-use crate::models::{JWTClaims, QuestInsertDocument};
+use crate::models::QuestInsertDocument;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
+use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::State,
+    extract::{State, Extension},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::{doc, from_document};
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
@@ -29,15 +28,13 @@ pub_struct!(Deserialize; CreateQuestQuery {
     issuer: Option<String>,
 });
 
-#[route(post, "/admin/quest/create")]
+#[route(post, "/admin/quest/create", auth_middleware)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
-    body: Json<CreateQuestQuery>,
+    Extension(sub): Extension<String>,
+    Json(body): Json<CreateQuestQuery>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestInsertDocument>("quests");
-
     // Get the last id in increasing order
     let last_id_filter = doc! {};
     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
@@ -54,12 +51,12 @@ pub async fn handler(
         "level": 1,
     };
 
-    let issuer = match user == "super_user" {
+    let issuer = match sub == "super_user" {
         true => {
             let result_issuer = (&body.issuer).as_ref().unwrap();
             result_issuer
         }
-        false => &user,
+        false => &sub,
     };
 
     let mut new_document = doc! {

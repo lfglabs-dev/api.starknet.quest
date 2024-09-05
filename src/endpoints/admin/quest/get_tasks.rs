@@ -1,4 +1,5 @@
 use crate::{models::AppState, utils::get_error};
+use crate::middleware::auth::auth_middleware;
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -31,7 +32,7 @@ pub struct GetTasksQuery {
     quest_id: u32,
 }
 
-#[route(get, "/admin/quest/get_tasks")]
+#[route(get, "/admin/quest/get_tasks", auth_middleware)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetTasksQuery>,

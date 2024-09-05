@@ -1,13 +1,12 @@
-use crate::models::{JWTClaims, QuestDocument};
+use crate::models::QuestDocument;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
+use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::State,
+    extract::{State, Extension},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::{doc, Document};
 use serde::Deserialize;
 use serde_json::json;
@@ -29,13 +28,12 @@ pub_struct!(Deserialize; UpdateQuestQuery {
     issuer: Option<String>,
 });
 
-#[route(post, "/admin/quest/update")]
+#[route(post, "/admin/quest/update", auth_middleware)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
-    body: Json<UpdateQuestQuery>,
+    Extension(sub): Extension<String>,
+    Json(body): Json<UpdateQuestQuery>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestDocument>("quests");
 
     // filter to get existing quest
@@ -44,8 +42,8 @@ pub async fn handler(
     };
 
     // check if user is super_user
-    if user != "super_user" {
-        filter.insert("issuer", user);
+    if sub != "super_user" {
+        filter.insert("issuer", sub);
     }
 
     let existing_quest = &collection.find_one(filter.clone(), None).await.unwrap();

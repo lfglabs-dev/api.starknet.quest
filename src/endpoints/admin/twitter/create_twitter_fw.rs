@@ -1,14 +1,13 @@
-use crate::models::{JWTClaims, QuestDocument, QuestTaskDocument};
+use crate::models::{QuestDocument, QuestTaskDocument};
 use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
+use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::State,
+    extract::{Extension, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
@@ -22,13 +21,12 @@ pub_struct!(Deserialize; CreateTwitterFw {
     quest_id: i64,
 });
 
-#[route(post, "/admin/tasks/twitter_fw/create")]
+#[route(post, "/admin/tasks/twitter_fw/create", auth_middleware)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
+    Extension(sub): Extension<String>,
     body: Json<CreateTwitterFw>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
     // Get the last id in increasing order
     let last_id_filter = doc! {};
@@ -36,7 +34,7 @@ pub async fn handler(
     let last_doc = &collection.find_one(last_id_filter, options).await.unwrap();
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
-    let res = verify_quest_auth(user, &quests_collection, &body.quest_id).await;
+    let res = verify_quest_auth(sub, &quests_collection, &body.quest_id).await;
     if !res {
         return get_error("Error creating task".to_string());
     };

@@ -1,14 +1,13 @@
-use crate::models::{JWTClaims, QuestTaskDocument, QuizInsertDocument};
+use crate::models::{QuestTaskDocument, QuizInsertDocument};
 use crate::utils::verify_task_auth;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
+use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::State,
+    extract::{Extension, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::doc;
 use mongodb::bson::Document;
 use mongodb::options::FindOneAndUpdateOptions;
@@ -26,17 +25,16 @@ pub_struct!(Deserialize; UpdateQuiz {
     intro: Option<String>,
 });
 
-#[route(post, "/admin/tasks/quiz/update")]
+#[route(post, "/admin/tasks/quiz/update", auth_middleware)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
+    Extension(sub): Extension<String>,
     body: Json<UpdateQuiz>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
     let quiz_collection = state.db.collection::<QuizInsertDocument>("quizzes");
 
-    let res = verify_task_auth(user, &tasks_collection, &(body.id as i32)).await;
+    let res = verify_task_auth(sub, &tasks_collection, &(body.id as i32)).await;
     if !res {
         return get_error("Error updating tasks".to_string());
     }

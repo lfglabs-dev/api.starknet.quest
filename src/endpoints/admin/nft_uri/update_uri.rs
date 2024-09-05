@@ -1,13 +1,12 @@
-use crate::models::{JWTClaims, NFTUri};
+use crate::models::NFTUri;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
+use crate::middleware::auth::auth_middleware;
 use axum::{
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
@@ -20,13 +19,11 @@ pub_struct!(Deserialize; CreateCustom {
     image: Option<String>,
 });
 
-#[route(post, "/admin/nft_uri/update")]
+#[route(post, "/admin/nft_uri/update", auth_middleware)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
-    body: Json<CreateCustom>,
+    Json(body): Json<CreateCustom>,
 ) -> impl IntoResponse {
-    let _user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<NFTUri>("nft_uri");
 
     // filter to get existing quest

@@ -1,27 +1,28 @@
 use crate::{
-    models::{AppState, JWTClaims, QuestDocument},
+    models::{AppState, QuestDocument},
     utils::get_error,
 };
-use axum::http::HeaderMap;
+use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::State,
+    extract::{State, Extension},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
 use futures::StreamExt;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::{doc, from_document};
 use std::sync::Arc;
 
-#[route(get, "/admin/quest/get_quests")]
-pub async fn handler(State(state): State<Arc<AppState>>, headers: HeaderMap) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref());
+#[route(get, "/admin/quest/get_quests", auth_middleware)]
+pub async fn handler(
+    State(state): State<Arc<AppState>>, 
+    Extension(sub): Extension<String> 
+) -> impl IntoResponse {
     let mut pipeline = vec![];
-    if user != "super_user" {
+    if sub != "super_user" {
         pipeline.push(doc! {
             "$match": doc! {
-                "issuer":user
+                "issuer":sub
             }
         });
     }

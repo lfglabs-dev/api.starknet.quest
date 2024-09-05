@@ -1,14 +1,13 @@
-use crate::models::{JWTClaims, LoginDetails};
+use crate::models::LoginDetails;
 use crate::utils::calculate_hash;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
+use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::State,
+    extract::{Extension, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
@@ -19,15 +18,13 @@ pub_struct!(Deserialize; CreateCustom {
     password: String,
 });
 
-#[route(post, "/admin/user/create")]
+#[route(post, "/admin/user/create", auth_middleware)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
+    Extension(sub): Extension<String>,
     body: Json<CreateCustom>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
-
-    if user != "super_user" {
+    if sub != "super_user" {
         return get_error("Operation not allowed with your account".to_string());
     };
 

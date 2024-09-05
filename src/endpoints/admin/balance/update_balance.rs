@@ -1,14 +1,14 @@
-use crate::models::{JWTClaims, QuestTaskDocument};
-use crate::utils::verify_task_auth;
+use crate::models::QuestTaskDocument;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
+use crate::middleware::auth::auth_middleware;
+use crate::utils::verify_task_auth;
+
 use axum::{
-    extract::State,
+    extract::{Extension, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
@@ -30,16 +30,15 @@ fn field_element_to_bson(fe: &FieldElement) -> mongodb::bson::Bson {
     mongodb::bson::Bson::String(fe.to_string())
 }
 
-#[route(post, "/admin/tasks/balance/update")]
+#[route(post, "/admin/tasks/balance/update", auth_middleware)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
-    body: Json<CreateBalance>,
+    Extension(sub): Extension<String>,
+    Json(body): Json<CreateBalance>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
 
-    let res = verify_task_auth(user, &collection, &(body.id as i32)).await;
+    let res = verify_task_auth(sub, &collection, &(body.id as i32)).await;
     if !res {
         return get_error("Error updating tasks".to_string());
     }

@@ -1,14 +1,13 @@
-use crate::models::{JWTClaims, QuestDocument, QuestTaskDocument};
+use crate::models::{QuestDocument, QuestTaskDocument};
 use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
+use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::State,
+    extract::{Extension, State},
     http::StatusCode,
-    response::{IntoResponse, Json},
+    response::{IntoResponse, Json}
 };
 use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
@@ -26,13 +25,12 @@ pub_struct!(Deserialize; CreateBalance {
     cta: String,
 });
 
-#[route(post, "/admin/tasks/balance/create")]
+#[route(post, "/admin/tasks/balance/create", auth_middleware)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
-    body: Json<CreateBalance>,
+    Extension(sub): Extension<String>,
+    Json(body): Json<CreateBalance>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
     // Get the last id in increasing order
     let last_id_filter = doc! {};
@@ -41,7 +39,7 @@ pub async fn handler(
 
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
-    let res = verify_quest_auth(user, &quests_collection, &(body.quest_id as i64)).await;
+    let res = verify_quest_auth(sub, &quests_collection, &(body.quest_id as i64)).await;
     if !res {
         return get_error("Error creating task".to_string());
     };

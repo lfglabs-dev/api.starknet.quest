@@ -1,16 +1,15 @@
 use crate::models::{
-    JWTClaims, QuestDocument, QuestTaskDocument, QuizInsertDocument, QuizQuestionDocument,
+    QuestDocument, QuestTaskDocument, QuizInsertDocument, QuizQuestionDocument,
 };
 use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
-use axum::http::HeaderMap;
+use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::State,
+    extract::{Extension, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
@@ -24,13 +23,12 @@ pub_struct!(Deserialize; CreateQuizQuestion {
     correct_answers: Vec<i64>,
 });
 
-#[route(post, "/admin/tasks/quiz/question/create")]
+#[route(post, "/admin/tasks/quiz/question/create", auth_middleware)]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
+    Extension(sub): Extension<String>,
     body: Json<CreateQuizQuestion>,
 ) -> impl IntoResponse {
-    let user = check_authorization!(headers, &state.conf.auth.secret_key.as_ref()) as String;
     let quiz_collection = state.db.collection::<QuizInsertDocument>("quizzes");
     let quiz_questions_collection = state
         .db
@@ -49,7 +47,7 @@ pub async fn handler(
     // get the quest id
     let quest_id = res.as_ref().unwrap().id as i64;
 
-    let res = verify_quest_auth(user, &quests_collection, &quest_id).await;
+    let res = verify_quest_auth(sub, &quests_collection, &quest_id).await;
     if !res {
         return get_error("Error creating task".to_string());
     };

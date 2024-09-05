@@ -10,7 +10,7 @@ starknet = { git = "https://github.com/xJonathanLEI/starknet-rs", rev = "c974e5c
 starknet-id = { git = "https://github.com/starknet-id/starknet-id.rs.git", rev = "2b30c2453b96789a628c86d2edebb1023fa2e77d" }
 serde_derive = "1.0.183"
 env_logger = "0.10.0"
-axum_auto_routes = { git = "https://github.com/Th0rgal/axum_auto_routes.git", rev = "f9e1d2083e887cd264642359c4aa851938da6f09" }
+axum_auto_routes = { git = "https://github.com/Th0rgal/axum_auto_routes.git", rev = "4bcae49628a657ed4bdc1749dfd4f1221ffaffe7" }
 axum = "0.6.17"
 toml = "0.5.10"
 serde = { version = "1.0.152", features = ["derive"] }
