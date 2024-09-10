@@ -4,6 +4,7 @@ pub mod discord_fw_callback;
 pub mod ekubo;
 pub mod focustree;
 pub mod nostra;
+pub mod proscore;
 pub mod starknet;
 pub mod starknetid;
 pub mod uri;
