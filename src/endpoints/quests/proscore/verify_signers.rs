@@ -23,7 +23,7 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
-    let task_id = 134;
+    let task_id = 192;
     match state
         .provider
         .call(
@@ -44,7 +44,7 @@ pub async fn handler(
             Ok(false) => get_error("You have not enabled 2FA in your wallet".to_string()),
             Err(e) => get_error(format!("Error while parsing Braavos signers: {}", e)),
         },
-        Err(e) => get_error(format!("Error while fetching wallet guardians: {}", e)),
+        Err(e) => get_error(format!("Error while fetching wallet signers: {}", e)),
     }
 }
 
