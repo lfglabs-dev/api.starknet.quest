@@ -44,7 +44,7 @@ pub async fn handler(
             Ok(false) => get_error("You have not enabled 2FA in your wallet".to_string()),
             Err(e) => get_error(format!("Error while parsing Braavos signers: {}", e)),
         },
-        Err(e) => get_error(format!("Error while fetching wallet signers: {}", e)),
+        Err(_) => get_error("You must use a Braavos wallet to complete this task".to_string()),
     }
 }
 
