@@ -84,6 +84,7 @@ pub async fn handler(
             }
         },
         doc! { "$sort": { "sort_order": 1 } },
+        doc! { "$sort": { "overwrite_order": 1 } },
         doc! {
             "$project": {
                 "_id": 0,
