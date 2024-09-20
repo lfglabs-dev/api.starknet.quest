@@ -143,6 +143,7 @@ pub_struct!(Serialize; RewardResponse {
 
 pub_struct!(Deserialize; VerifyQuery {
     addr: FieldElement,
+    task_id: Option<u32>,
 });
 
 pub_struct!(Deserialize; VerifyNewQuery {

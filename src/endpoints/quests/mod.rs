@@ -1,3 +1,4 @@
+pub mod carmine;
 pub mod claimable;
 pub mod contract_uri;
 pub mod discord_fw_callback;
