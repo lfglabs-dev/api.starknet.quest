@@ -1,5 +1,3 @@
-use crate::config;
-use crate::logger::Logger;
 use crate::utils::to_hex;
 use crate::{
     models::{AppState, QuestDocument},
@@ -27,8 +25,7 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
-    let conf = config::load();
-    let logger = Logger::new(&conf.watchtower);
+    let logger = &state.logger;
     let address = to_hex(query.addr);
     let collection = state.db.collection::<QuestDocument>("boosts");
     let pipeline = [
