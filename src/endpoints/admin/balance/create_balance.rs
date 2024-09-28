@@ -74,6 +74,7 @@ pub async fn handler(
         contracts: Some(parsed_contracts),
         api_url: None,
         regex: None,
+        calls: None,
     };
 
     // insert document to boost collection

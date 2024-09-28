@@ -92,6 +92,7 @@ pub async fn handler(
         contracts: None,
         api_url: None,
         regex: None,
+        calls: None,
     };
 
     return match tasks_collection.insert_one(new_document, None).await {
