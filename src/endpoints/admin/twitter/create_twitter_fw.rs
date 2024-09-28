@@ -63,6 +63,8 @@ pub async fn handler(
         discord_guild_id: None,
         quiz_name: None,
         contracts: None,
+        api_url: None,
+        regex: None,
     };
 
     // insert document to boost collection
