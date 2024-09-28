@@ -10,6 +10,7 @@ pub mod starknet;
 pub mod starknetid;
 pub mod uri;
 pub mod verify_balance;
+pub mod verify_custom_api;
 pub mod verify_quiz;
 pub mod verify_twitter_fw;
 pub mod verify_twitter_rw;

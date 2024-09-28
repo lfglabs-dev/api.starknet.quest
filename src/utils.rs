@@ -42,7 +42,6 @@ macro_rules! pub_struct {
         }
     }
 }
-   
 
 pub async fn get_nft(
     quest_id: u32,
@@ -826,4 +825,18 @@ impl Clone for Box<dyn WithState> {
     fn clone(&self) -> Box<dyn WithState> {
         self.box_clone()
     }
+}
+
+pub fn parse_string(input: &str, address: FieldElement) -> String {
+    let mut result = input.to_string();
+
+    if input.contains("{addr_hex}") {
+        result = result.replace("{addr_hex}", to_hex(address).as_str());
+    }
+
+    if input.contains("{addr_dec}") {
+        result = result.replace("{addr_dec}", address.to_string().as_str());
+    }
+
+    result
 }
