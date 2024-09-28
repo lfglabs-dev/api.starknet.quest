@@ -17,4 +17,3 @@ pub mod leaderboard;
 pub mod quest_boost;
 pub mod quests;
 pub mod unique_page_visit;
-pub mod custom_api;
