@@ -90,6 +90,8 @@ pub async fn handler(
         discord_guild_id: None,
         verify_redirect: None,
         contracts: None,
+        api_url: None,
+        regex: None,
     };
 
     return match tasks_collection.insert_one(new_document, None).await {

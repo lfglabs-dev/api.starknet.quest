@@ -62,6 +62,8 @@ pub async fn handler(
         quiz_name: None,
         verify_redirect: None,
         contracts: None,
+        api_url: None,
+        regex: None,
     };
 
     // insert document to boost collection
