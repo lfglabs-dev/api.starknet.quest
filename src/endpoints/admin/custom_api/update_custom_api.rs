@@ -12,8 +12,6 @@ use axum_auto_routes::route;
 use mongodb::bson::doc;
 use serde::Deserialize;
 use serde_json::json;
-use starknet::core::types::FieldElement;
-use std::str::FromStr;
 use std::sync::Arc;
 
 pub_struct!(Deserialize; UpdateCustomAPI {
@@ -25,11 +23,6 @@ pub_struct!(Deserialize; UpdateCustomAPI {
     api_url: Option<String>,
     regex: Option<String>,
 });
-
-// Helper function to convert FieldElement to Bson
-fn field_element_to_bson(fe: &FieldElement) -> mongodb::bson::Bson {
-    mongodb::bson::Bson::String(fe.to_string())
-}
 
 #[route(post, "/admin/tasks/custom_api/update", auth_middleware)]
 pub async fn handler(

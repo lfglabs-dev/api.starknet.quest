@@ -12,8 +12,6 @@ use mongodb::bson::doc;
 use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
-use starknet::core::types::FieldElement;
-use std::str::FromStr;
 use std::sync::Arc;
 
 pub_struct!(Deserialize; CreateCustomAPI {
@@ -62,6 +60,7 @@ pub async fn handler(
         cta: body.cta.clone(),
         verify_endpoint: "quests/verify_custom_api".to_string(),
         verify_endpoint_type: "default".to_string(),
+        calls: None,
         task_type: Some("custom_api".to_string()),
         discord_guild_id: None,
         quiz_name: None,
