@@ -107,6 +107,14 @@ pub struct CompletedTaskDocument {
     timestamp: i64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Call {
+    pub contract: String,
+    pub call_data: Vec<String>,
+    pub entry_point: String,
+    pub regex: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct QuestTaskDocument {
     pub(crate) id: i32,
@@ -120,6 +128,7 @@ pub struct QuestTaskDocument {
     pub verify_endpoint_type: String,
     pub api_url: Option<String>,
     pub regex: Option<String>,
+    pub calls: Option<Vec<Call>>,
     #[serde(default)]
     pub verify_redirect: Option<String>,
     #[serde(default)]

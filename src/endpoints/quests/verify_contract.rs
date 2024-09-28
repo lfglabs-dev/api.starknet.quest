@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    models::{AppState, QuestTaskDocument, Call},
+    models::{AppState, QuestTaskDocument},
     utils::{get_error, CompletedTasksTrait},
 };
 use axum::{
@@ -33,12 +33,12 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let task_id = query.task_id;
     // Get task from db
-    let task_collection = state.db.collection("tasks");
-    let task: QuestTaskDocument = task_collection
-        .find_one(doc! {"id": task_id}, None)
-        .await
-        .unwrap()
-        .unwrap();
+    let task_collection = state.db.collection::<QuestTaskDocument>("tasks");
+    let task = match task_collection.find_one(doc! {"id": task_id}, None).await {
+        Ok(Some(task)) => task,
+        Ok(None) => return get_error("Task not found".to_string()),
+        Err(e) => return get_error(format!("Database error: {}", e)),
+    };
 
     if task.task_type != Some("contract".to_string()) {
         return get_error("Invalid task type.".to_string());
@@ -48,20 +48,31 @@ pub async fn handler(
     
     if let Some(calls) = task.calls {
         for call in calls {
-            let contract_address = FieldElement::from_hex_be(&call.contract).map_err(|e| get_error(format!("Invalid contract address: {}", e)))?;
+            let contract_address = match FieldElement::from_hex_be(&call.contract) {
+                Ok(address) => address,
+                Err(e) => return get_error(format!("Invalid contract address: {}", e)),
+            };
             
-            let calldata: Vec<FieldElement> = call.call_data
+            let calldata: Vec<FieldElement> = match call.call_data
                 .iter()
                 .map(|s| FieldElement::from_hex_be(s))
                 .collect::<Result<Vec<FieldElement>, _>>()
-                .map_err(|e| get_error(format!("Invalid calldata: {}", e)))?;
+            {
+                Ok(data) => data,
+                Err(e) => return get_error(format!("Invalid calldata: {}", e)),
+            };
+
+            let entry_point_selector = match FieldElement::from_hex_be(&call.entry_point) {
+                Ok(selector) => selector,
+                Err(e) => return get_error(format!("Invalid entry point: {}", e)),
+            };
 
             let call_result = state
                 .provider
                 .call(
                     FunctionCall {
                         contract_address,
-                        entry_point_selector: call.entry_point.into(),
+                        entry_point_selector,
                         calldata,
                     },
                     BlockId::Tag(BlockTag::Latest),
@@ -70,7 +81,10 @@ pub async fn handler(
 
             match call_result {
                 Ok(result) => {
-                    let regex = Regex::new(&call.regex).map_err(|e| get_error(format!("Invalid regex: {}", e)))?;
+                    let regex = match Regex::new(&call.regex) {
+                        Ok(re) => re,
+                        Err(e) => return get_error(format!("Invalid regex: {}", e)),
+                    };
                     let result_str = result.iter().map(|&r| r.to_string()).collect::<Vec<String>>().join(",");
                     
                     if !regex.is_match(&result_str) {
