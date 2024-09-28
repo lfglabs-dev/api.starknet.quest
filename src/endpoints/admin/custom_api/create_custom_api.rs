@@ -51,13 +51,6 @@ pub async fn handler(
         next_id = last_id + 1;
     }
 
-    // Build a vector of FieldElement from the comma separated contracts string
-    let parsed_contracts: Vec<FieldElement> = body
-        .contracts
-        .split(",")
-        .map(|x| FieldElement::from_str(&x).unwrap())
-        .collect();
-
     let new_document = QuestTaskDocument {
         name: body.name.clone(),
         desc: body.desc.clone(),
