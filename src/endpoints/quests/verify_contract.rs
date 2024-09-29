@@ -19,6 +19,7 @@ use starknet::{
     providers::Provider,
 };
 use regex::Regex;
+use crate::utils::parse_string;
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct VerifyContractQuery {
@@ -39,33 +40,39 @@ pub async fn handler(
         Ok(None) => return get_error("Task not found".to_string()),
         Err(e) => return get_error(format!("Database error: {}", e)),
     };
-
     if task.task_type != Some("contract".to_string()) {
         return get_error("Invalid task type.".to_string());
     }
 
     let addr = &query.addr;
-    
     if let Some(calls) = task.calls {
         for call in calls {
+
             let contract_address = match FieldElement::from_hex_be(&call.contract) {
                 Ok(address) => address,
                 Err(e) => return get_error(format!("Invalid contract address: {}", e)),
             };
-            
+
+
             let calldata: Vec<FieldElement> = match call.call_data
                 .iter()
-                .map(|s| FieldElement::from_hex_be(s))
+                .map(|s| {
+        
+                    let replaced_calldata = parse_string(s, FieldElement::from_hex_be(s).unwrap());
+                    FieldElement::from_hex_be(&replaced_calldata)
+                })
                 .collect::<Result<Vec<FieldElement>, _>>()
             {
                 Ok(data) => data,
                 Err(e) => return get_error(format!("Invalid calldata: {}", e)),
             };
 
+
             let entry_point_selector = match FieldElement::from_hex_be(&call.entry_point) {
                 Ok(selector) => selector,
                 Err(e) => return get_error(format!("Invalid entry point: {}", e)),
             };
+
 
             let call_result = state
                 .provider
@@ -79,6 +86,7 @@ pub async fn handler(
                 )
                 .await;
 
+
             match call_result {
                 Ok(result) => {
                     let regex = match Regex::new(&call.regex) {
@@ -86,7 +94,8 @@ pub async fn handler(
                         Err(e) => return get_error(format!("Invalid regex: {}", e)),
                     };
                     let result_str = result.iter().map(|&r| r.to_string()).collect::<Vec<String>>().join(",");
-                    
+
+        
                     if !regex.is_match(&result_str) {
                         return get_error("Contract call result does not match the expected pattern.".to_string());
                     }
