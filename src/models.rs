@@ -6,10 +6,12 @@ use starknet::{
     providers::{jsonrpc::HttpTransport, JsonRpcClient},
 };
 
+use std::{net::SocketAddr, sync::Mutex};
 use crate::endpoints::quests::uri::Attribute;
 use crate::{config::Config, logger::Logger};
 
 pub_struct!(;AppState {
+    last_task_id: Mutex<i64>,
     conf: Config,
     provider: JsonRpcClient<HttpTransport>,
     db: Database,
