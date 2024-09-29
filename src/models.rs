@@ -126,8 +126,6 @@ pub struct QuestTaskDocument {
     pub verify_endpoint: String,
     pub href: String,
     pub verify_endpoint_type: String,
-    pub api_url: Option<String>,
-    pub regex: Option<String>,
     pub calls: Option<Vec<Call>>,
     #[serde(default)]
     pub verify_redirect: Option<String>,
@@ -139,6 +137,8 @@ pub struct QuestTaskDocument {
     pub(crate) discord_guild_id: Option<String>,
     #[serde(default)]
     pub(crate) contracts: Option<Vec<FieldElement>>,
+    pub api_url: Option<String>,
+    pub regex: Option<String>,
 }
 
 pub_struct!(Serialize; Reward {
