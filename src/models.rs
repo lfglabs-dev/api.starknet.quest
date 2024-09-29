@@ -107,7 +107,7 @@ pub struct CompletedTaskDocument {
     timestamp: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Call {
     pub contract: String,
     pub call_data: Vec<String>,
