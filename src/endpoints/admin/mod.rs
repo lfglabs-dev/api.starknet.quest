@@ -11,3 +11,4 @@ pub mod quiz;
 pub mod twitter;
 pub mod user;
 pub mod custom_api;
+pub mod contract;
