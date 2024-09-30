@@ -33,6 +33,8 @@ use std::str::FromStr;
 use std::{fmt::Write, sync::Arc};
 use tokio::time::{sleep, Duration};
 
+use regex::Regex;
+
 #[macro_export]
 macro_rules! pub_struct {
     ($($derive:path),*; $name:ident {$($field:ident: $t:ty),* $(,)?}) => {
@@ -830,12 +832,17 @@ impl Clone for Box<dyn WithState> {
 pub fn parse_string(input: &str, address: FieldElement) -> String {
     let mut result = input.to_string();
 
-    if input.contains("{addr_hex}") {
-        result = result.replace("{addr_hex}", to_hex(address).as_str());
-    }
+    let hex_address = to_hex(address);
+    let dec_address = address.to_string();
 
-    if input.contains("{addr_dec}") {
-        result = result.replace("{addr_dec}", address.to_string().as_str());
+    let regex_patterns = vec![
+        (r"\{addr_hex\}", hex_address.as_str()), 
+        (r"\{addr_dec\}", dec_address.as_str()), 
+    ];
+    
+    for (pattern, replacement) in regex_patterns {
+        let re = Regex::new(pattern).unwrap();
+        result = re.replace_all(&result, replacement).to_string();
     }
 
     result

@@ -16,6 +16,7 @@ use serde_json::json;
 use regex::Regex;
 use reqwest::get;
 use starknet::core::types::FieldElement;
+use crate::utils::parse_string;
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct VerifyCustomApiQuery {
@@ -55,14 +56,17 @@ pub async fn handler(
     };
 
     // Call the specified API
-    let response = get(api_url).await;
+    let parsed_api_url = parse_string(api_url, FieldElement::from_str(&query.addr).unwrap());
+
+    let response = get(&parsed_api_url).await;
 
     match response {
         Ok(res) => {
             let res_text = res.text().await.unwrap();
             
             // Check response against the regex
-            let re = Regex::new(regex_str).unwrap();
+            let parsed_regex_str = parse_string(regex_str, FieldElement::from_str(&query.addr).unwrap());
+            let re = Regex::new(&parsed_regex_str).unwrap();
             if re.is_match(&res_text) {
                 // Mark the task as completed
                 match state.upsert_completed_task(FieldElement::from_str(&query.addr).unwrap(), task_id).await {
