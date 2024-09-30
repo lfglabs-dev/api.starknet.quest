@@ -47,17 +47,14 @@ pub async fn handler(
     let addr = &query.addr;
     if let Some(calls) = task.calls {
         for call in calls {
-
             let contract_address = match FieldElement::from_hex_be(&call.contract) {
                 Ok(address) => address,
                 Err(e) => return get_error(format!("Invalid contract address: {}", e)),
             };
 
-
             let calldata: Vec<FieldElement> = match call.call_data
                 .iter()
                 .map(|s| {
-        
                     let replaced_calldata = parse_string(s, FieldElement::from_hex_be(s).unwrap());
                     FieldElement::from_hex_be(&replaced_calldata)
                 })
@@ -67,12 +64,10 @@ pub async fn handler(
                 Err(e) => return get_error(format!("Invalid calldata: {}", e)),
             };
 
-
             let entry_point_selector = match FieldElement::from_hex_be(&call.entry_point) {
                 Ok(selector) => selector,
                 Err(e) => return get_error(format!("Invalid entry point: {}", e)),
             };
-
 
             let call_result = state
                 .provider
@@ -86,16 +81,15 @@ pub async fn handler(
                 )
                 .await;
 
-
             match call_result {
                 Ok(result) => {
-                    let regex = match Regex::new(&call.regex) {
+                    let regex_str = parse_string(&call.regex, FieldElement::from_hex_be(&call.contract).unwrap());
+                    let regex = match Regex::new(&regex_str) {
                         Ok(re) => re,
                         Err(e) => return get_error(format!("Invalid regex: {}", e)),
                     };
                     let result_str = result.iter().map(|&r| r.to_string()).collect::<Vec<String>>().join(",");
 
-        
                     if !regex.is_match(&result_str) {
                         return get_error("Contract call result does not match the expected pattern.".to_string());
                     }

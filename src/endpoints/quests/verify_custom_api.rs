@@ -65,7 +65,8 @@ pub async fn handler(
             let res_text = res.text().await.unwrap();
             
             // Check response against the regex
-            let re = Regex::new(regex_str).unwrap();
+            let parsed_regex_str = parse_string(regex_str, FieldElement::from_str(&query.addr).unwrap());
+            let re = Regex::new(&parsed_regex_str).unwrap();
             if re.is_match(&res_text) {
                 // Mark the task as completed
                 match state.upsert_completed_task(FieldElement::from_str(&query.addr).unwrap(), task_id).await {
