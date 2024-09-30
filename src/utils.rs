@@ -16,6 +16,7 @@ use mongodb::{
     bson::doc, options::UpdateOptions, results::UpdateResult, Collection, Cursor, Database,
     IndexModel,
 };
+use mongodb::options::FindOneOptions;
 use rand::distributions::{Distribution, Uniform};
 use serde_json::json;
 use starknet::signers::Signer;
@@ -839,4 +840,36 @@ pub fn parse_string(input: &str, address: FieldElement) -> String {
     }
 
     result
+}
+
+pub async fn get_next_task_id(
+    task_collection: &Collection<QuestTaskDocument>,
+    state: Arc<AppState>,   
+) -> i32 {
+    let mut state_last_id =state.last_task_id.lock().unwrap();
+
+    let last_id_filter = doc! {};
+     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
+    
+      let last_doc = task_collection.find_one(last_id_filter, options).await.unwrap();
+
+
+      let mut next_id: i32 = 1;
+
+    if let Some(doc) = last_doc {
+        let db_last_id = doc.id;
+        
+   
+        next_id = std::cmp::max(db_last_id as i32, (*state_last_id).try_into().unwrap())  + 1;
+    } else {
+       
+        // next_id = *state_last_id;
+        next_id = (*state_last_id as i32)+ 1;
+    }
+
+  
+    *state_last_id = next_id.try_into().unwrap();
+
+    
+    next_id.into()
 }
