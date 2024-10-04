@@ -1,9 +1,10 @@
-use crate::models::{NFTUri, QuestDocument};
+use crate::middleware::auth::auth_middleware;
+use crate::models::{NFTUri, QuestDocument, QuestTaskDocument};
+use crate::utils::get_next_task_id;
 use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
-use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::{State, Extension},
+    extract::{Extension, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
@@ -29,6 +30,7 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let collection = state.db.collection::<NFTUri>("nft_uri");
     let quests_collection = state.db.collection::<QuestDocument>("quests");
+    let insert_collection = state.db.collection::<QuestTaskDocument>("tasks");
 
     let res = verify_quest_auth(sub, &quests_collection, &(body.quest_id as i64)).await;
     if !res {
@@ -40,18 +42,16 @@ pub async fn handler(
     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
     let last_doc = &collection.find_one(last_id_filter, options).await.unwrap();
 
-    let mut next_id = 1;
-    if let Some(doc) = last_doc {
-        let last_id = doc.id;
-        next_id = last_id + 1;
-    }
+    let state_last_id = state.last_task_id.lock().await;
+
+    let next_id = get_next_task_id(&insert_collection, state_last_id.clone()).await;
 
     let new_document = NFTUri {
         name: body.name.clone(),
         description: body.desc.clone(),
         image: body.image.clone(),
         quest_id: body.quest_id.clone() as i64,
-        id: next_id,
+        id: next_id.into(),
         attributes: None,
     };
 

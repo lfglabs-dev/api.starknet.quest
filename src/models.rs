@@ -6,10 +6,10 @@ use starknet::{
     providers::{jsonrpc::HttpTransport, JsonRpcClient},
 };
 
-use tokio::sync::Mutex;
-use std::{net::SocketAddr};
 use crate::endpoints::quests::uri::Attribute;
 use crate::{config::Config, logger::Logger};
+use std::net::SocketAddr;
+use tokio::sync::Mutex;
 
 pub_struct!(;AppState {
     last_task_id: Mutex<i64>,

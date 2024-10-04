@@ -1,9 +1,10 @@
+use crate::middleware::auth::auth_middleware;
 use crate::models::{
-    QuestDocument, QuestTaskDocument, QuizInsertDocument, QuizQuestionDocument,
+    QuestDocument, QuestInsertDocument, QuestTaskDocument, QuizInsertDocument, QuizQuestionDocument,
 };
+use crate::utils::get_next_task_id;
 use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
-use crate::middleware::auth::auth_middleware;
 use axum::{
     extract::{Extension, State},
     http::StatusCode,
@@ -73,18 +74,18 @@ pub async fn handler(
         .await
         .unwrap();
 
-    let mut next_quiz_question_id = 1;
-    if let Some(doc) = last_quiz_question_doc {
-        let last_id = doc.id;
-        next_quiz_question_id = last_id + 1;
-    }
+   
+
+    let state_last_id = state.last_task_id.lock().await;
+
+    let next_quiz_question_id = get_next_task_id(&tasks_collection, state_last_id.clone()).await;
 
     let new_quiz_document = QuizQuestionDocument {
         quiz_id: body.quiz_id.clone(),
         question: body.question.clone(),
         options: body.options.clone(),
         correct_answers: body.correct_answers.clone(),
-        id: next_quiz_question_id,
+        id: next_quiz_question_id.into(),
         kind: "text_choice".to_string(),
         layout: "default".to_string(),
     };

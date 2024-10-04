@@ -1,9 +1,10 @@
+use crate::middleware::auth::auth_middleware;
 use crate::models::{QuestDocument, QuestTaskDocument};
+use crate::utils::get_next_task_id;
 use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
-use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::{State, Extension},
+    extract::{Extension, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
@@ -41,13 +42,16 @@ pub async fn handler(
     if !res {
         return get_error("Error creating task".to_string());
     };
-   
-    let mut next_id = 1;
-    if let Some(doc) = last_doc {
-        let last_id = doc.id;
-        next_id = last_id + 1;
-    }
 
+    // let mut next_id = 1;
+    // if let Some(doc) = last_doc {
+    //     let last_id = doc.id;
+    //     next_id = last_id + 1;
+    // }
+
+    let state_last_id = state.last_task_id.lock().await;
+
+    let next_id = get_next_task_id(&collection, state_last_id.clone()).await;
     let new_document = QuestTaskDocument {
         name: body.name.clone(),
         desc: body.desc.clone(),
