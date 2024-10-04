@@ -854,15 +854,11 @@ pub async fn get_next_task_id(
         .await
         .unwrap();
 
-    let mut next_id: i32 = 1;
-
     if let Some(doc) = last_doc {
         let db_last_id = doc.id;
 
-        next_id = std::cmp::max(db_last_id as i32, (last_task_id).try_into().unwrap()) + 1;
+        return std::cmp::max(db_last_id as i32, (last_task_id).try_into().unwrap()) + 1;
     } else {
-        next_id = (last_task_id as i32) + 1;
+        return (last_task_id as i32) + 1;
     }
-
-    next_id.into()
 }
