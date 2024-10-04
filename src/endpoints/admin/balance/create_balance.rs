@@ -52,8 +52,8 @@ pub async fn handler(
     //     next_id = last_id + 1;
     // }
 
-    let state_last_id =state.last_task_id.lock().unwrap();
-    // let next_id = get_next_task_id(*last_doc.clone(), state_last_id.clone()).await;
+    let state_last_id = state.last_task_id.lock().await; 
+    
     let next_id = get_next_task_id(&collection, state_last_id.clone()).await;
 
     // Build a vector of FieldElement from the comma separated contracts string

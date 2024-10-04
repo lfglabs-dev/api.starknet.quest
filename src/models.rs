@@ -6,7 +6,8 @@ use starknet::{
     providers::{jsonrpc::HttpTransport, JsonRpcClient},
 };
 
-use std::{net::SocketAddr, sync::Mutex};
+use tokio::sync::Mutex;
+use std::{net::SocketAddr};
 use crate::endpoints::quests::uri::Attribute;
 use crate::{config::Config, logger::Logger};
 

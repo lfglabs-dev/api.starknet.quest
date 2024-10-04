@@ -15,7 +15,8 @@ use reqwest::Url;
 use serde_derive::Serialize;
 use starknet::providers::{jsonrpc::HttpTransport, JsonRpcClient};
 use std::{borrow::Cow, sync::Arc};
-use std::{net::SocketAddr, sync::Mutex};
+use tokio::sync::Mutex;
+use std::{net::SocketAddr};
 use tower_http::cors::{Any, CorsLayer};
 use utils::WithState;
 
