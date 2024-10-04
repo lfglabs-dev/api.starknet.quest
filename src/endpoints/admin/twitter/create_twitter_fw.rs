@@ -1,7 +1,8 @@
+use crate::middleware::auth::auth_middleware;
 use crate::models::{QuestDocument, QuestTaskDocument};
+use crate::utils::get_next_task_id;
 use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
-use crate::middleware::auth::auth_middleware;
 use axum::{
     extract::{Extension, State},
     http::StatusCode,
@@ -9,7 +10,6 @@ use axum::{
 };
 use axum_auto_routes::route;
 use mongodb::bson::doc;
-use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
@@ -28,10 +28,7 @@ pub async fn handler(
     body: Json<CreateTwitterFw>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
-    // Get the last id in increasing order
-    let last_id_filter = doc! {};
-    let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
-    let last_doc = &collection.find_one(last_id_filter, options).await.unwrap();
+    
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
     let res = verify_quest_auth(sub, &quests_collection, &body.quest_id).await;
@@ -39,11 +36,9 @@ pub async fn handler(
         return get_error("Error creating task".to_string());
     };
 
-    let mut next_id = 1;
-    if let Some(doc) = last_doc {
-        let last_id = doc.id;
-        next_id = last_id + 1;
-    }
+    let state_last_id = state.last_task_id.lock().await;
+
+    let next_id = get_next_task_id(&collection, state_last_id.clone()).await;
 
     let new_document = QuestTaskDocument {
         name: body.name.clone(),

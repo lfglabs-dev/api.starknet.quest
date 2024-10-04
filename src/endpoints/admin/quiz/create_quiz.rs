@@ -1,9 +1,9 @@
+use crate::middleware::auth::auth_middleware;
 use crate::models::{QuestDocument, QuestTaskDocument, QuizInsertDocument};
 use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
-use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::{State, Extension},
+    extract::{Extension, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };

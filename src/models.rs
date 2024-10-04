@@ -8,8 +8,10 @@ use starknet::{
 
 use crate::endpoints::quests::uri::Attribute;
 use crate::{config::Config, logger::Logger};
+use tokio::sync::Mutex;
 
 pub_struct!(;AppState {
+    last_task_id: Mutex<i64>,
     conf: Config,
     provider: JsonRpcClient<HttpTransport>,
     db: Database,

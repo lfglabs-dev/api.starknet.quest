@@ -4,8 +4,8 @@ mod common;
 mod config;
 mod endpoints;
 mod logger;
-mod models;
 mod middleware;
+mod models;
 
 use crate::utils::{add_leaderboard_table, run_boosts_raffle};
 use axum::{http::StatusCode, Router};
@@ -14,8 +14,10 @@ use mongodb::{bson::doc, options::ClientOptions, Client};
 use reqwest::Url;
 use serde_derive::Serialize;
 use starknet::providers::{jsonrpc::HttpTransport, JsonRpcClient};
+use std::net::SocketAddr;
+use std::sync::Mutex;
 use std::{borrow::Cow, sync::Arc};
-use std::{net::SocketAddr, sync::Mutex};
+use tokio::sync;
 use tower_http::cors::{Any, CorsLayer};
 use utils::WithState;
 
@@ -52,6 +54,7 @@ async fn main() {
         .unwrap();
 
     let shared_state = Arc::new(models::AppState {
+        last_task_id: sync::Mutex::new(0),
         logger: logger.clone(),
         conf: conf.clone(),
         provider: JsonRpcClient::new(HttpTransport::new(

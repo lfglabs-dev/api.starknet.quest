@@ -1,15 +1,15 @@
+use crate::middleware::auth::auth_middleware;
 use crate::models::{QuestDocument, QuestTaskDocument};
+use crate::utils::get_next_task_id;
 use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
-use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::{State, Extension},
+    extract::{Extension, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
 use mongodb::bson::doc;
-use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
@@ -33,16 +33,10 @@ pub async fn handler(
     if !res {
         return get_error("Error creating task".to_string());
     };
-    // Get the last id in increasing order
-    let last_id_filter = doc! {};
-    let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
-    let last_doc = &collection.find_one(last_id_filter, options).await.unwrap();
 
-    let mut next_id = 1;
-    if let Some(doc) = last_doc {
-        let last_id = doc.id;
-        next_id = last_id + 1;
-    }
+    let state_last_id = state.last_task_id.lock().await;
+
+    let next_id = get_next_task_id(&collection, state_last_id.clone()).await;
 
     let new_document = QuestTaskDocument {
         name: body.name.clone(),
