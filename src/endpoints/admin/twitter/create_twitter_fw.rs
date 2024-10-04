@@ -32,15 +32,12 @@ pub async fn handler(
     // Get the last id in increasing order
     let last_id_filter = doc! {};
     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
-    let last_doc = &collection.find_one(last_id_filter, options).await.unwrap();
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
     let res = verify_quest_auth(sub, &quests_collection, &body.quest_id).await;
     if !res {
         return get_error("Error creating task".to_string());
     };
-
-  
 
     let state_last_id = state.last_task_id.lock().await;
 

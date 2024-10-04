@@ -32,7 +32,6 @@ use std::hash::{Hash, Hasher};
 use std::result::Result;
 use std::str::FromStr;
 use std::{fmt::Write, sync::Arc};
-use tokio::sync::Mutex;
 use tokio::time::{sleep, Duration};
 
 #[macro_export]
@@ -843,14 +842,10 @@ pub fn parse_string(input: &str, address: FieldElement) -> String {
     result
 }
 
-// QuestInsertDocument
 pub async fn get_next_task_id(
-    // last_doc: Option<QuestTaskDocument>,
     task_collection: &Collection<QuestTaskDocument>,
     last_task_id: i64,
 ) -> i32 {
-    // let mut state_last_id =state.last_task_id.lock().unwrap();
-
     let last_id_filter = doc! {};
     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
 
@@ -866,11 +861,8 @@ pub async fn get_next_task_id(
 
         next_id = std::cmp::max(db_last_id as i32, (last_task_id).try_into().unwrap()) + 1;
     } else {
-        // next_id = *state_last_id;
         next_id = (last_task_id as i32) + 1;
     }
-
-    // last_task_id = next_id.try_into().unwrap();
 
     next_id.into()
 }

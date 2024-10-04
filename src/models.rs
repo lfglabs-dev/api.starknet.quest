@@ -8,7 +8,6 @@ use starknet::{
 
 use crate::endpoints::quests::uri::Attribute;
 use crate::{config::Config, logger::Logger};
-use std::net::SocketAddr;
 use tokio::sync::Mutex;
 
 pub_struct!(;AppState {

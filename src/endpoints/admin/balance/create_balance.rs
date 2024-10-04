@@ -37,20 +37,12 @@ pub async fn handler(
     let last_id_filter = doc! {};
     let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
 
-    let last_doc = &collection.find_one(last_id_filter, options).await.unwrap();
-
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
     let res = verify_quest_auth(sub, &quests_collection, &(body.quest_id as i64)).await;
     if !res {
         return get_error("Error creating task".to_string());
     };
-
-    // let mut next_id = 1;
-    // if let Some(doc) = last_doc {
-    //     let last_id = doc.id;
-    //     next_id = last_id + 1;
-    // }
 
     let state_last_id = state.last_task_id.lock().await;
 
