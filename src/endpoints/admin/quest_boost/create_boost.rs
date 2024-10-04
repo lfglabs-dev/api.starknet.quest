@@ -43,9 +43,7 @@ pub async fn handler(
         return get_error("Error creating boost".to_string());
     };
 
-    // Get the last id in increasing order
-    let last_id_filter = doc! {};
-    let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
+
 
     let state_last_id = state.last_task_id.lock().await;
 

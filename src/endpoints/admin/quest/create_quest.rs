@@ -37,10 +37,7 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestInsertDocument>("quests");
     let insert_collection = state.db.collection::<QuestTaskDocument>("tasks");
-    // Get the last id in increasing order
-    let last_id_filter = doc! {};
-    let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
-
+   
     let state_last_id = state.last_task_id.lock().await;
 
     let next_id = get_next_task_id(&insert_collection, state_last_id.clone()).await;

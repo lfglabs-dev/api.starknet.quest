@@ -31,9 +31,6 @@ pub async fn handler(
     Json(body): Json<CreateContract>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
-    // Get the last id in increasing order
-    let last_id_filter = doc! {};
-    let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
 
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 

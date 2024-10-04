@@ -1,7 +1,5 @@
 use crate::middleware::auth::auth_middleware;
-use crate::models::{
-    QuestDocument, QuestInsertDocument, QuestTaskDocument, QuizInsertDocument, QuizQuestionDocument,
-};
+use crate::models::{QuestDocument, QuestTaskDocument, QuizInsertDocument, QuizQuestionDocument};
 use crate::utils::get_next_task_id;
 use crate::utils::verify_quest_auth;
 use crate::{models::AppState, utils::get_error};
@@ -73,8 +71,6 @@ pub async fn handler(
         .find_one(last_id_filter.clone(), options.clone())
         .await
         .unwrap();
-
-   
 
     let state_last_id = state.last_task_id.lock().await;
 

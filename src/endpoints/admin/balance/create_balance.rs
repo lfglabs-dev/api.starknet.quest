@@ -32,10 +32,7 @@ pub async fn handler(
     Extension(sub): Extension<String>,
     Json(body): Json<CreateBalance>,
 ) -> impl IntoResponse {
-    let collection = state.db.collection::<QuestTaskDocument>("tasks");
-    // Get the last id in increasing order
-    let last_id_filter = doc! {};
-    let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
+    let collection = state.db.collection::<QuestTaskDocument>("tasks");   
 
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
