@@ -10,7 +10,6 @@ use axum::{
 };
 use axum_auto_routes::route;
 use mongodb::bson::doc;
-use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use starknet::core::types::FieldElement;
@@ -32,7 +31,7 @@ pub async fn handler(
     Extension(sub): Extension<String>,
     Json(body): Json<CreateBalance>,
 ) -> impl IntoResponse {
-    let collection = state.db.collection::<QuestTaskDocument>("tasks");   
+    let collection = state.db.collection::<QuestTaskDocument>("tasks");
 
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 

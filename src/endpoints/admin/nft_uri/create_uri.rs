@@ -10,7 +10,6 @@ use axum::{
 };
 use axum_auto_routes::route;
 use mongodb::bson::doc;
-use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
@@ -36,7 +35,6 @@ pub async fn handler(
     if !res {
         return get_error("Error creating task".to_string());
     };
-
 
     let state_last_id = state.last_task_id.lock().await;
 

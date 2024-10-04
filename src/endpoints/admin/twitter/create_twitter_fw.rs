@@ -10,7 +10,6 @@ use axum::{
 };
 use axum_auto_routes::route;
 use mongodb::bson::doc;
-use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
@@ -29,9 +28,7 @@ pub async fn handler(
     body: Json<CreateTwitterFw>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
-    // Get the last id in increasing order
-    let last_id_filter = doc! {};
-    let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
+    
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
     let res = verify_quest_auth(sub, &quests_collection, &body.quest_id).await;

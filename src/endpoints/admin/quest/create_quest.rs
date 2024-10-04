@@ -9,7 +9,6 @@ use axum::{
 };
 use axum_auto_routes::route;
 use mongodb::bson::{doc, from_document};
-use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
@@ -37,7 +36,7 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestInsertDocument>("quests");
     let insert_collection = state.db.collection::<QuestTaskDocument>("tasks");
-   
+
     let state_last_id = state.last_task_id.lock().await;
 
     let next_id = get_next_task_id(&insert_collection, state_last_id.clone()).await;

@@ -10,7 +10,6 @@ use axum::{
 };
 use axum_auto_routes::route;
 use mongodb::bson::doc;
-use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
@@ -64,13 +63,6 @@ pub async fn handler(
         return get_error("quiz does not exist".to_string());
     }
 
-    // Get the last id in increasing order
-    let last_id_filter = doc! {};
-    let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
-    let last_quiz_question_doc = &quiz_questions_collection
-        .find_one(last_id_filter.clone(), options.clone())
-        .await
-        .unwrap();
 
     let state_last_id = state.last_task_id.lock().await;
 

@@ -10,7 +10,6 @@ use axum::{
 };
 use axum_auto_routes::route;
 use mongodb::bson::doc;
-use mongodb::options::FindOneOptions;
 use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
@@ -32,7 +31,6 @@ pub async fn handler(
     Json(body): Json<CreateCustomAPI>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
-   
 
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
