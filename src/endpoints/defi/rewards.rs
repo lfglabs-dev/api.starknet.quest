@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::{
-    models::{AppState, Call, EkuboRewards, NimboraRewards, NostraResponse, ZkLendReward},
+    models::{AppState, Call, Claim, EkuboRewards, NimboraRewards, NostraResponse, ZkLendReward},
     utils::get_error,
 };
 use starknet::core::types::FieldElement;
@@ -31,19 +31,27 @@ const NIMBORA_CLAIM_CONTRACT: &str =
     "0x07ed46700bd12bb1ee8a33a8594791003f9710a1ab18edd958aed86a8f82d3d1";
 const NOSTRA_CLAIM_CONTRACT: &str =
     "0x008faa2edc6833a6ad0625f1128d56cf471c3f9649ff2201d9ef49d7e9bb18de";
-    
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum RewardSource {
+    ZkLend,
+    Nostra,
+    Nimbora,
+    Ekubo,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct CommonReward {
     pub amount: String,
     pub proof: Vec<String>,
     pub recipient: Option<String>,
-    pub reward_id: Option<String>,
+    pub reward_id: Option<u64>,
     pub claim_contract: String,
     pub token_address: Option<String>,
     pub token_decimals: Option<u8>,
     pub token_name: Option<String>,
     pub token_symbol: Option<String>,
-    pub reward_source: String,
+    pub reward_source: RewardSource,
     pub claimed: bool,
 }
 
@@ -77,10 +85,10 @@ pub async fn get_defi_rewards(
     let ekubo_rewards = (fetch_ekubo_rewards(&client, addr).await).unwrap_or_default();
 
     // Create Call Data
-    let zklend_calls = create_calls(&zklend_rewards);
-    let nostra_calls = create_calls(&nostra_rewards);
-    let nimbora_calls = create_calls(&nimbora_rewards);
-    let ekubo_calls = create_calls(&ekubo_rewards);
+    let zklend_calls = create_calls(&zklend_rewards, addr);
+    let nostra_calls = create_calls(&nostra_rewards, addr);
+    let nimbora_calls = create_calls(&nimbora_rewards, addr);
+    let ekubo_calls = create_calls(&ekubo_rewards, addr);
 
     let response_data = json!({
         "rewards": {
@@ -114,13 +122,13 @@ async fn fetch_zklend_rewards(
             amount: reward.amount.value,
             proof: reward.proof,
             recipient: Some(reward.recipient),
-            reward_id: Some(reward.claim_id.to_string()),
+            reward_id: Some(reward.claim_id),
             claim_contract: reward.claim_contract,
             token_address: None,
             token_decimals: Some(reward.token.decimals),
             token_name: Some(reward.token.name),
             token_symbol: Some(reward.token.symbol),
-            reward_source: "ZkLend".to_string(),
+            reward_source: RewardSource::ZkLend,
             claimed: reward.claimed,
         })
         .collect();
@@ -157,7 +165,7 @@ async fn fetch_nostra_rewards(
             token_decimals: Some(STRK_DECIMALS),
             token_name: Some(STRK_NAME.to_string()),
             token_symbol: Some(STRK_NAME.to_string()),
-            reward_source: "Nostra".to_string(),
+            reward_source: RewardSource::Nostra,
             claimed: false,
         })
         .collect();
@@ -186,7 +194,7 @@ async fn fetch_nimbora_rewards(
         token_name: Some(STRK_NAME.to_string()),
         token_symbol: Some(STRK_NAME.to_string()),
         claim_contract: NIMBORA_CLAIM_CONTRACT.to_string(),
-        reward_source: "Nimbora".to_string(),
+        reward_source: RewardSource::Nimbora,
         claimed: false,
     };
 
@@ -210,31 +218,54 @@ async fn fetch_ekubo_rewards(
             amount: reward.claim.amount,
             proof: reward.proof,
             recipient: Some(reward.claim.claimee),
-            reward_id: Some(reward.claim.id.to_string()),
+            reward_id: Some(reward.claim.id),
             claim_contract: reward.contract_address,
             token_address: Some(STRK_TOKEN.to_string()),
             token_decimals: Some(STRK_DECIMALS),
             token_name: Some(STRK_NAME.to_string()),
             token_symbol: Some(STRK_NAME.to_string()),
-            reward_source: "Ekubo".to_string(),
+            reward_source: RewardSource::Ekubo,
             claimed: false,
         })
         .collect();
     Ok(rewards)
 }
 
-fn create_calls(rewards: &[CommonReward]) -> Vec<Call> {
+fn create_calls(rewards: &[CommonReward], addr: &str) -> Vec<Call> {
     rewards
         .iter()
         .filter(|reward| !reward.claimed)
         .map(|reward| {
+            let call_data: Vec<String> = match reward.reward_source {
+                RewardSource::Nimbora => vec![
+                    reward.amount.clone(),
+                    serde_json::to_string(&reward.proof).unwrap_or_default(),
+                ],
+                RewardSource::Nostra => vec![
+                    reward.amount.clone(),
+                    serde_json::to_string(&reward.proof).unwrap_or_default(),
+                ],
+                RewardSource::ZkLend => vec![
+                    serde_json::to_string(&vec![Claim{
+                        id: reward.reward_id.unwrap(),
+                        amount: reward.amount.clone(),
+                        claimee: addr.to_string()
+                    }]).unwrap_or_default(),
+                    serde_json::to_string(&reward.proof).unwrap_or_default(),
+                ],
+                RewardSource::Ekubo => vec![
+                    serde_json::to_string(&vec![Claim{
+                        id: reward.reward_id.unwrap(),
+                        amount: reward.amount.clone(),
+                        claimee: addr.to_string()
+                    }]).unwrap_or_default(),
+                    serde_json::to_string(&reward.proof).unwrap_or_default(),
+                ],
+            };
             Call {
                 entry_point: "claim".to_string(),
                 contract: reward.claim_contract.clone(),
-                call_data: vec![
-                    reward.amount.clone(),
-                    serde_json::to_string(&reward.proof).unwrap_or_default(), 
-                ],
+                call_data,
                 regex: "claim".to_string(),
             }
         })

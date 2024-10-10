@@ -395,7 +395,6 @@ pub struct Token {
     pub name: String,
     pub symbol: String,
 }
-
 // Nostra Reward Structs
 #[derive(Serialize, Deserialize)]
 pub struct NostraResponse {
@@ -411,7 +410,7 @@ pub struct NostraReward {
     pub proofs: Vec<String>,
     pub reward: String,
     pub reward_from: String,
-    pub reward_id: String,
+    pub reward_id: u64,
 }
 
 // Nimbora Reward Struct
