@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use axum::{
     extract::{Query, State},
@@ -11,24 +11,35 @@ use axum_auto_routes::route;
 
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
 
-use reqwest_retry::{RetryTransientMiddleware, policies::ExponentialBackoff};
+use reqwest_retry::{policies::ExponentialBackoff, RetryTransientMiddleware};
 use reqwest_tracing::TracingMiddleware;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::{
-    models::{AppState, ZkLendReward, NostraResponse, EkuboRewards, NimboraRewards, Call},
+    models::{AppState, Call, EkuboRewards, NimboraRewards, NostraResponse, ZkLendReward},
     utils::get_error,
 };
 use starknet::core::types::FieldElement;
 
 // Define constants for token and contract addresses
-const EKUBO_TOKEN: &str = "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d";
-const NIMBORA_CLAIM_CONTRACT: &str = "0x07ed46700bd12bb1ee8a33a8594791003f9710a1ab18edd958aed86a8f82d3d1";
-const NOSTRA_CLAIM_CONTRACT: &str = "0x008faa2edc6833a6ad0625f1128d56cf471c3f9649ff2201d9ef49d7e9bb18de";
+const STRK_TOKEN: &str = "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d";
+const STRK_DECIMALS: u8 = 18;
+const STRK_NAME: &str = "STRK";
+const NIMBORA_CLAIM_CONTRACT: &str =
+    "0x07ed46700bd12bb1ee8a33a8594791003f9710a1ab18edd958aed86a8f82d3d1";
+const NOSTRA_CLAIM_CONTRACT: &str =
+    "0x008faa2edc6833a6ad0625f1128d56cf471c3f9649ff2201d9ef49d7e9bb18de";
 
-// Define a struct to capture common reward data across all protocols
+#[derive(Serialize, Deserialize, Debug)]
+pub enum RewardSource {
+    ZkLend,
+    Nostra,
+    Nimbora,
+    Ekubo,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct CommonReward {
     pub amount: String,
@@ -37,9 +48,10 @@ pub struct CommonReward {
     pub reward_id: Option<String>,
     pub claim_contract: String,
     pub token_address: Option<String>,
-    pub token_name: Option<String>,
     pub token_decimals: Option<u8>,
-    pub reward_source: Option<String>,
+    pub token_name: Option<String>,
+    pub token_symbol: Option<String>,
+    pub reward_source: RewardSource,
     pub claimed: bool,
 }
 
@@ -58,7 +70,7 @@ pub async fn get_defi_rewards(
         return get_error("Invalid address format".to_string()).into_response();
     }
 
-        // Retry up to 3 times with increasing intervals between attempts.
+    // Retry up to 3 times with increasing intervals between attempts.
     let retry_policy = ExponentialBackoff::builder().build_with_max_retries(3);
     let client = ClientBuilder::new(reqwest::Client::new())
         // Trace HTTP requests. See the tracing crate to make use of these traces.
@@ -67,23 +79,10 @@ pub async fn get_defi_rewards(
         .with(RetryTransientMiddleware::new_with_policy(retry_policy))
         .build();
 
-    let zklend_rewards = match fetch_zklend_rewards(&client, addr).await {
-        Ok(rewards) => rewards,
-        Err(_) => vec![],
-    };
-    let nostra_rewards = match fetch_nostra_rewards(&client, addr).await {
-        Ok(rewards) => rewards,
-        Err(_) => vec![]
-    };
-    let nimbora_rewards = match fetch_nimbora_rewards(&client, addr).await {
-        Ok(rewards) => rewards,
-        Err(_) => vec![]
-    };
-
-    let ekubo_rewards = match fetch_ekubo_rewards(&client, addr).await {
-        Ok(rewards) => rewards,
-        Err(_) => vec![]
-    };
+    let zklend_rewards = (fetch_zklend_rewards(&client, addr).await).unwrap_or_default();
+    let nostra_rewards =(fetch_nostra_rewards(&client, addr).await).unwrap_or_default();
+    let nimbora_rewards =(fetch_nimbora_rewards(&client, addr).await).unwrap_or_default();
+    let ekubo_rewards = (fetch_ekubo_rewards(&client, addr).await).unwrap_or_default();
 
     // Create Call Data
     let zklend_calls = create_calls(&zklend_rewards, addr);
@@ -93,44 +92,54 @@ pub async fn get_defi_rewards(
 
     let response_data = json!({
         "rewards": {
-            "zklend_rewards": zklend_rewards,
-            "nostra_rewards": nostra_rewards,
-            "nimbora_rewards": nimbora_rewards,
-            "ekubo_rewards": ekubo_rewards
+            "zklend": zklend_rewards,
+            "nostra": nostra_rewards,
+            "nimbora": nimbora_rewards,
+            "ekubo": ekubo_rewards
         },
         "calls": {
-            "zklend_calls": zklend_calls,
-            "nostra_calls": nostra_calls,
-            "nimbora_calls": nimbora_calls,
-            "ekubo_calls": ekubo_calls
+            "zklend": zklend_calls,
+            "nostra": nostra_calls,
+            "nimbora": nimbora_calls,
+            "ekubo": ekubo_calls
         }
     });
 
     (StatusCode::OK, Json(response_data)).into_response()
 }
 
-
-async fn fetch_zklend_rewards(client: &ClientWithMiddleware, addr: &str) -> Result<Vec<CommonReward>, reqwest::Error> {
+async fn fetch_zklend_rewards(
+    client: &ClientWithMiddleware,
+    addr: &str,
+) -> Result<Vec<CommonReward>, reqwest::Error> {
     let zklend_url = format!("https://app.zklend.com/api/reward/all/{}", addr);
     let response = client.get(&zklend_url).send().await.unwrap();
-    let rewards = response.json::<Vec<ZkLendReward>>().await?
-        .into_iter().map(|reward| CommonReward {
+    let rewards = response
+        .json::<Vec<ZkLendReward>>()
+        .await?
+        .into_iter()
+        .map(|reward| CommonReward {
             amount: reward.amount.value,
             proof: reward.proof,
             recipient: Some(reward.recipient),
             reward_id: Some(reward.claim_id.to_string()),
             claim_contract: reward.claim_contract,
             token_address: None,
-            token_name: Some(reward.token.name),
             token_decimals: Some(reward.token.decimals),
-            reward_source: Some("ZkLend".to_string()),
-            claimed: reward.claimed
-        }).collect();
+            token_name: Some(reward.token.name),
+            token_symbol: Some(reward.token.symbol),
+            reward_source: RewardSource::ZkLend,
+            claimed: reward.claimed,
+        })
+        .collect();
     Ok(rewards)
 }
 
 // Fetch rewards from Nostra
-async fn fetch_nostra_rewards(client: &ClientWithMiddleware, addr: &str) -> Result<Vec<CommonReward>, reqwest::Error> {
+async fn fetch_nostra_rewards(
+    client: &ClientWithMiddleware,
+    addr: &str,
+) -> Result<Vec<CommonReward>, reqwest::Error> {
     let nostra_request_body = json!({
         "dataSource": "nostra-production",
         "database": "prod-a-nostra-db",
@@ -141,26 +150,37 @@ async fn fetch_nostra_rewards(client: &ClientWithMiddleware, addr: &str) -> Resu
         .json(&nostra_request_body)
         .send()
         .await.unwrap();
-    let rewards = response.json::<NostraResponse>().await?
-        .documents.into_iter().map(|doc| CommonReward {
+    let rewards = response
+        .json::<NostraResponse>()
+        .await?
+        .documents
+        .into_iter()
+        .map(|doc| CommonReward {
             amount: doc.reward,
             proof: doc.proofs,
             recipient: Some(doc.account),
             reward_id: Some(doc.reward_id),
             claim_contract: NOSTRA_CLAIM_CONTRACT.to_string(),
-            token_address: None,
-            token_name: None,
-            token_decimals: None,
-            reward_source: Some(doc.reward_from),
-            claimed: false
-        }).collect();
+            token_address: Some(STRK_TOKEN.to_string()),
+            token_decimals: Some(STRK_DECIMALS),
+            token_name: Some(STRK_NAME.to_string()),
+            token_symbol: Some(STRK_NAME.to_string()),
+            reward_source: RewardSource::Nostra,
+            claimed: false,
+        })
+        .collect();
     Ok(rewards)
 }
 
-
 // Fetch rewards from nimbora
-async fn fetch_nimbora_rewards(client: &ClientWithMiddleware, addr: &str) -> Result<Vec<CommonReward>, reqwest::Error> {
-    let nimbora_url = format!("https://strk-dist-backend.nimbora.io/get_calldata?address={}", addr);
+async fn fetch_nimbora_rewards(
+    client: &ClientWithMiddleware,
+    addr: &str,
+) -> Result<Vec<CommonReward>, reqwest::Error> {
+    let nimbora_url = format!(
+        "https://strk-dist-backend.nimbora.io/get_calldata?address={}",
+        addr
+    );
     let response = client.get(&nimbora_url).send().await.unwrap();
     let data = response.json::<NimboraRewards>().await?;
 
@@ -169,50 +189,75 @@ async fn fetch_nimbora_rewards(client: &ClientWithMiddleware, addr: &str) -> Res
         proof: data.proof,
         recipient: None,
         reward_id: None,
-        token_address: None,
-        token_name: None,
-        token_decimals: None,
+        token_address: Some(STRK_TOKEN.to_string()),
+        token_decimals: Some(STRK_DECIMALS),
+        token_name: Some(STRK_NAME.to_string()),
+        token_symbol: Some(STRK_NAME.to_string()),
         claim_contract: NIMBORA_CLAIM_CONTRACT.to_string(),
-        reward_source: Some("Nimbora".to_string()),
+        reward_source: RewardSource::Nimbora,
         claimed: false,
     };
 
     Ok(vec![reward])
 }
 
-
-async fn fetch_ekubo_rewards(client: &ClientWithMiddleware, addr: &str) -> Result<Vec<CommonReward>, reqwest::Error> {
-    let ekubo_url = format!("https://mainnetapi.ekubo.org/airdrops/{}?token={}", addr, EKUBO_TOKEN);
+async fn fetch_ekubo_rewards(
+    client: &ClientWithMiddleware,
+    addr: &str,
+) -> Result<Vec<CommonReward>, reqwest::Error> {
+    let ekubo_url = format!(
+        "https://mainnetapi.ekubo.org/airdrops/{}?token={}",
+        addr, STRK_TOKEN
+    );
     let response = client.get(&ekubo_url).send().await.unwrap();
-    let rewards = response.json::<Vec<EkuboRewards>>().await?
-        .into_iter().map(|reward| CommonReward {
+    let rewards = response
+        .json::<Vec<EkuboRewards>>()
+        .await?
+        .into_iter()
+        .map(|reward| CommonReward {
             amount: reward.claim.amount,
             proof: reward.proof,
             recipient: Some(reward.claim.claimee),
             reward_id: Some(reward.claim.id.to_string()),
             claim_contract: reward.contract_address,
-            token_name: None,
-            token_decimals: None,
-            token_address: Some(EKUBO_TOKEN.to_string()),
-            reward_source: Some("Ekubo".to_string()),
-            claimed: false
-        }).collect();
+            token_address: Some(STRK_TOKEN.to_string()),
+            token_decimals: Some(STRK_DECIMALS),
+            token_name: Some(STRK_NAME.to_string()),
+            token_symbol: Some(STRK_NAME.to_string()),
+            reward_source: RewardSource::Ekubo,
+            claimed: false,
+        })
+        .collect();
     Ok(rewards)
 }
 
-fn create_calls(rewards: &Vec<CommonReward>, addr: &str) -> Vec<Call> {
-    rewards.iter()
+fn create_calls(rewards: &[CommonReward], addr: &str) -> Vec<Call> {
+    rewards
+        .iter()
         .filter(|reward| !reward.claimed)
-        .map(|reward| Call {
-            entry_point: "claim".to_string(),
-            contract: reward.claim_contract.clone(),
-            call_data: vec![
-                reward.reward_id.clone().unwrap_or_default(),
-                addr.to_string(),
-                reward.amount.clone(),
-                serde_json::to_string(&reward.proof).unwrap_or_default(),
-            ],
-            regex: "claim".to_string(),
+        .map(|reward| {
+            let call_data: Vec<String> = match reward.reward_source {
+                RewardSource::Nimbora => vec![
+                    reward.amount.clone(),
+                    serde_json::to_string(&reward.proof).unwrap_or_default(),
+                ],
+                RewardSource::Nostra => vec![
+                    reward.amount.clone(),
+                    serde_json::to_string(&reward.proof).unwrap_or_default(),
+                ],
+                _ => vec![
+                    reward.reward_id.clone().unwrap_or_default(),
+                    addr.to_string(),
+                    reward.amount.clone(),
+                    serde_json::to_string(&reward.proof).unwrap_or_default(),
+                ],
+            };
+            Call {
+                entry_point: "claim".to_string(),
+                contract: reward.claim_contract.clone(),
+                call_data,
+                regex: "claim".to_string(),
+            }
         })
         .collect()
 }
