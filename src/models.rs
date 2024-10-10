@@ -367,3 +367,74 @@ pub_struct!(Deserialize; CreateBoostQuery {
     img_url: String,
     expiry: i64,
 });
+
+
+
+#[derive(Serialize, Deserialize)]
+pub struct ZkLendReward {
+    pub amount: Amount,
+    pub claim_contract: String,
+    pub claim_id: u64,
+    pub claimed: bool,
+    pub proof: Vec<String>,
+    pub recipient: String,
+    pub token: Token,
+    #[serde(rename = "type")]
+    pub response_type: String, // renaming to avoid keyword conflict
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Amount {
+    pub decimals: u8,
+    pub value: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Token {
+    pub decimals: u8,
+    pub name: String,
+    pub symbol: String,
+}
+
+// Nostra Reward Structs
+#[derive(Serialize, Deserialize)]
+pub struct NostraResponse {
+    pub documents: Vec<NostraReward>, // Array of reward documents
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct NostraReward {
+    #[serde(rename = "_id")]
+    pub id_internal: String,
+    pub id: String,
+    pub account: String,
+    pub proofs: Vec<String>,
+    pub reward: String,
+    pub reward_from: String,
+    pub reward_id: String,
+}
+
+// Nimbora Reward Struct
+#[derive(Serialize, Deserialize)]
+pub struct NimboraRewards {
+    pub amount: String,
+    pub proof: Vec<String>,
+}
+
+// Ekubo Reward Structs
+#[derive(Serialize, Deserialize)]
+pub struct EkuboRewards {
+    pub contract_address: String,
+    pub token: String,
+    pub start_date: String,
+    pub end_date: String,
+    pub claim: Claim,
+    pub proof: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Claim {
+    pub id: u64,
+    pub amount: String,
+    pub claimee: String,
+}
