@@ -31,15 +31,7 @@ const NIMBORA_CLAIM_CONTRACT: &str =
     "0x07ed46700bd12bb1ee8a33a8594791003f9710a1ab18edd958aed86a8f82d3d1";
 const NOSTRA_CLAIM_CONTRACT: &str =
     "0x008faa2edc6833a6ad0625f1128d56cf471c3f9649ff2201d9ef49d7e9bb18de";
-
-#[derive(Serialize, Deserialize, Debug)]
-pub enum RewardSource {
-    ZkLend,
-    Nostra,
-    Nimbora,
-    Ekubo,
-}
-
+    
 #[derive(Serialize, Deserialize)]
 pub struct CommonReward {
     pub amount: String,
@@ -51,7 +43,7 @@ pub struct CommonReward {
     pub token_decimals: Option<u8>,
     pub token_name: Option<String>,
     pub token_symbol: Option<String>,
-    pub reward_source: RewardSource,
+    pub reward_source: String,
     pub claimed: bool,
 }
 
@@ -85,10 +77,10 @@ pub async fn get_defi_rewards(
     let ekubo_rewards = (fetch_ekubo_rewards(&client, addr).await).unwrap_or_default();
 
     // Create Call Data
-    let zklend_calls = create_calls(&zklend_rewards, addr);
-    let nostra_calls = create_calls(&nostra_rewards, addr);
-    let nimbora_calls = create_calls(&nimbora_rewards, addr);
-    let ekubo_calls = create_calls(&ekubo_rewards, addr);
+    let zklend_calls = create_calls(&zklend_rewards);
+    let nostra_calls = create_calls(&nostra_rewards);
+    let nimbora_calls = create_calls(&nimbora_rewards);
+    let ekubo_calls = create_calls(&ekubo_rewards);
 
     let response_data = json!({
         "rewards": {
@@ -128,7 +120,7 @@ async fn fetch_zklend_rewards(
             token_decimals: Some(reward.token.decimals),
             token_name: Some(reward.token.name),
             token_symbol: Some(reward.token.symbol),
-            reward_source: RewardSource::ZkLend,
+            reward_source: "ZkLend".to_string(),
             claimed: reward.claimed,
         })
         .collect();
@@ -165,7 +157,7 @@ async fn fetch_nostra_rewards(
             token_decimals: Some(STRK_DECIMALS),
             token_name: Some(STRK_NAME.to_string()),
             token_symbol: Some(STRK_NAME.to_string()),
-            reward_source: RewardSource::Nostra,
+            reward_source: "Nostra".to_string(),
             claimed: false,
         })
         .collect();
@@ -194,7 +186,7 @@ async fn fetch_nimbora_rewards(
         token_name: Some(STRK_NAME.to_string()),
         token_symbol: Some(STRK_NAME.to_string()),
         claim_contract: NIMBORA_CLAIM_CONTRACT.to_string(),
-        reward_source: RewardSource::Nimbora,
+        reward_source: "Nimbora".to_string(),
         claimed: false,
     };
 
@@ -224,38 +216,25 @@ async fn fetch_ekubo_rewards(
             token_decimals: Some(STRK_DECIMALS),
             token_name: Some(STRK_NAME.to_string()),
             token_symbol: Some(STRK_NAME.to_string()),
-            reward_source: RewardSource::Ekubo,
+            reward_source: "Ekubo".to_string(),
             claimed: false,
         })
         .collect();
     Ok(rewards)
 }
 
-fn create_calls(rewards: &[CommonReward], addr: &str) -> Vec<Call> {
+fn create_calls(rewards: &[CommonReward]) -> Vec<Call> {
     rewards
         .iter()
         .filter(|reward| !reward.claimed)
         .map(|reward| {
-            let call_data: Vec<String> = match reward.reward_source {
-                RewardSource::Nimbora => vec![
-                    reward.amount.clone(),
-                    serde_json::to_string(&reward.proof).unwrap_or_default(),
-                ],
-                RewardSource::Nostra => vec![
-                    reward.amount.clone(),
-                    serde_json::to_string(&reward.proof).unwrap_or_default(),
-                ],
-                _ => vec![
-                    reward.reward_id.clone().unwrap_or_default(),
-                    addr.to_string(),
-                    reward.amount.clone(),
-                    serde_json::to_string(&reward.proof).unwrap_or_default(),
-                ],
-            };
             Call {
                 entry_point: "claim".to_string(),
                 contract: reward.claim_contract.clone(),
-                call_data,
+                call_data: vec![
+                    reward.amount.clone(),
+                    serde_json::to_string(&reward.proof).unwrap_or_default(), 
+                ],
                 regex: "claim".to_string(),
             }
         })
