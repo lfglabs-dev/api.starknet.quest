@@ -8,7 +8,12 @@ use axum::{
     Json,
 };
 use axum_auto_routes::route;
-use reqwest::Client;
+
+use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
+
+use reqwest_retry::{RetryTransientMiddleware, policies::ExponentialBackoff};
+use reqwest_tracing::TracingMiddleware;
+
 use serde::{Serialize, Deserialize};
 use serde_json::json;
 
@@ -53,7 +58,14 @@ pub async fn get_defi_rewards(
         return get_error("Invalid address format".to_string()).into_response();
     }
 
-    let client = Client::new();
+        // Retry up to 3 times with increasing intervals between attempts.
+    let retry_policy = ExponentialBackoff::builder().build_with_max_retries(3);
+    let client = ClientBuilder::new(reqwest::Client::new())
+        // Trace HTTP requests. See the tracing crate to make use of these traces.
+        .with(TracingMiddleware::default())
+        // Retry failed requests.
+        .with(RetryTransientMiddleware::new_with_policy(retry_policy))
+        .build();
 
     let zklend_rewards = match fetch_zklend_rewards(&client, addr).await {
         Ok(rewards) => rewards,
@@ -98,9 +110,9 @@ pub async fn get_defi_rewards(
 }
 
 
-async fn fetch_zklend_rewards(client: &Client, addr: &str) -> Result<Vec<CommonReward>, reqwest::Error> {
+async fn fetch_zklend_rewards(client: &ClientWithMiddleware, addr: &str) -> Result<Vec<CommonReward>, reqwest::Error> {
     let zklend_url = format!("https://app.zklend.com/api/reward/all/{}", addr);
-    let response = client.get(&zklend_url).send().await?;
+    let response = client.get(&zklend_url).send().await.unwrap();
     let rewards = response.json::<Vec<ZkLendReward>>().await?
         .into_iter().map(|reward| CommonReward {
             amount: reward.amount.value,
@@ -118,7 +130,7 @@ async fn fetch_zklend_rewards(client: &Client, addr: &str) -> Result<Vec<CommonR
 }
 
 // Fetch rewards from Nostra
-async fn fetch_nostra_rewards(client: &Client, addr: &str) -> Result<Vec<CommonReward>, reqwest::Error> {
+async fn fetch_nostra_rewards(client: &ClientWithMiddleware, addr: &str) -> Result<Vec<CommonReward>, reqwest::Error> {
     let nostra_request_body = json!({
         "dataSource": "nostra-production",
         "database": "prod-a-nostra-db",
@@ -128,7 +140,7 @@ async fn fetch_nostra_rewards(client: &Client, addr: &str) -> Result<Vec<CommonR
     let response = client.post("https://us-east-2.aws.data.mongodb-api.com/app/data-yqlpb/endpoint/data/v1/action/find")
         .json(&nostra_request_body)
         .send()
-        .await?;
+        .await.unwrap();
     let rewards = response.json::<NostraResponse>().await?
         .documents.into_iter().map(|doc| CommonReward {
             amount: doc.reward,
@@ -147,9 +159,9 @@ async fn fetch_nostra_rewards(client: &Client, addr: &str) -> Result<Vec<CommonR
 
 
 // Fetch rewards from nimbora
-async fn fetch_nimbora_rewards(client: &Client, addr: &str) -> Result<Vec<CommonReward>, reqwest::Error> {
+async fn fetch_nimbora_rewards(client: &ClientWithMiddleware, addr: &str) -> Result<Vec<CommonReward>, reqwest::Error> {
     let nimbora_url = format!("https://strk-dist-backend.nimbora.io/get_calldata?address={}", addr);
-    let response = client.get(&nimbora_url).send().await?;
+    let response = client.get(&nimbora_url).send().await.unwrap();
     let data = response.json::<NimboraRewards>().await?;
 
     let reward = CommonReward {
@@ -169,9 +181,9 @@ async fn fetch_nimbora_rewards(client: &Client, addr: &str) -> Result<Vec<Common
 }
 
 
-async fn fetch_ekubo_rewards(client: &Client, addr: &str) -> Result<Vec<CommonReward>, reqwest::Error> {
+async fn fetch_ekubo_rewards(client: &ClientWithMiddleware, addr: &str) -> Result<Vec<CommonReward>, reqwest::Error> {
     let ekubo_url = format!("https://mainnetapi.ekubo.org/airdrops/{}?token={}", addr, EKUBO_TOKEN);
-    let response = client.get(&ekubo_url).send().await?;
+    let response = client.get(&ekubo_url).send().await.unwrap();
     let rewards = response.json::<Vec<EkuboRewards>>().await?
         .into_iter().map(|reward| CommonReward {
             amount: reward.claim.amount,
