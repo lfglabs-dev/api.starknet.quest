@@ -4,7 +4,7 @@ use crate::{
         AppState, CommonReward, ContractCall, DefiReward, EkuboRewards, NimboraRewards,
         NostraResponse, RewardSource, ZkLendReward,
     },
-    utils::{get_error, to_hex, validate_starknet_address},
+    utils::to_hex,
 };
 use axum::{
     extract::{Query, State},
@@ -33,11 +33,6 @@ pub async fn get_defi_rewards(
     Query(query): Query<RewardQuery>,
 ) -> impl IntoResponse {
     let addr = to_hex(query.addr);
-
-    // Validate the address format
-    if let Err(err_msg) = validate_starknet_address(&addr) {
-        return get_error(err_msg).into_response();
-    }
 
     // Retry up to 3 times with increasing intervals between attempts.
     let retry_policy = ExponentialBackoff::builder().build_with_max_retries(3);

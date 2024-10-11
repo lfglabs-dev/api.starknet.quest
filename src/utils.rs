@@ -873,25 +873,3 @@ pub async fn get_next_task_id(
         return (last_task_id as i32) + 1;
     }
 }
-
-pub fn validate_starknet_address(address: &str) -> Result<(), String> {
-    let re = Regex::new(r"^(0x)?[0-9a-fA-F]{64}$").unwrap();
-    if !re.is_match(address) {
-        return Err("Invalid address format: incorrect hex length or characters.".to_string());
-    }
-
-    match FieldElement::from_hex_be(address) {
-        Ok(felt_address) => {
-            let mask_251 = FieldElement::from_hex_be(
-                "0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-            )
-            .unwrap();
-            if felt_address < mask_251 {
-                Ok(())
-            } else {
-                Err("Address is out of valid Starknet range [0, 2^251).".to_string())
-            }
-        }
-        Err(_) => Err("Failed to convert address to FieldElement.".to_string()),
-    }
-}

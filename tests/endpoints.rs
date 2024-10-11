@@ -6,7 +6,7 @@ pub mod tests {
         let endpoint = format!("http://0.0.0.0:8080/defi/rewards");
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
-        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
     }
 
     #[tokio::test]
@@ -15,7 +15,7 @@ pub mod tests {
         let endpoint = format!("http://0.0.0.0:8080/defi/rewards?addr={}", address);
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
-        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
     }
 
     #[tokio::test]
