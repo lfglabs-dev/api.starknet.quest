@@ -194,6 +194,21 @@ pub_struct!(Clone, Deserialize;  ProtocolStats {
     alt_protocols_api_endpoint: String,
 });
 
+pub_struct!(Clone, Deserialize;  Rewards {
+    nostra: Contract,
+    nimbora: Contract,
+});
+
+pub_struct!(Clone, Deserialize;  Token {
+    contract: FieldElement,
+    symbol: String,
+    decimals: i64
+});
+
+pub_struct!(Clone, Deserialize;  Tokens {
+    strk: Token,
+});
+
 pub_struct!(Clone, Deserialize;  Config {
     server: Server,
     database: Database,
@@ -212,6 +227,8 @@ pub_struct!(Clone, Deserialize;  Config {
     rango: Api,
     pyramid: ApiEndpoint,
     auth:AuthSetup,
+    rewards: Rewards,
+    tokens: Tokens
 });
 
 pub fn load() -> Config {

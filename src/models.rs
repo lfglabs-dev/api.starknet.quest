@@ -117,6 +117,14 @@ pub struct Call {
     pub regex: String,
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ContractCall {
+    pub contract: String,
+    pub call_data: Vec<String>,
+    pub entry_point: String,
+}
+
+
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct QuestTaskDocument {
     pub(crate) id: i32,
@@ -434,4 +442,29 @@ pub struct Claim {
     pub id: u64,
     pub amount: String,
     pub claimee: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum RewardSource {
+    ZkLend,
+    Nostra,
+    Nimbora,
+    Ekubo,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CommonReward {
+    pub amount: String,
+    pub proof: Vec<String>,
+    pub reward_id: Option<u64>,
+    pub claim_contract: String,
+    pub token_symbol: String,
+    pub reward_source: RewardSource,
+    pub claimed: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DefiReward {
+    pub amount: String,
+    pub token_symbol: String,
 }
