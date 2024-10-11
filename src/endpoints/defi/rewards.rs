@@ -37,9 +37,7 @@ pub async fn get_defi_rewards(
     // Retry up to 3 times with increasing intervals between attempts.
     let retry_policy = ExponentialBackoff::builder().build_with_max_retries(3);
     let client = ClientBuilder::new(reqwest::Client::new())
-        // Trace HTTP requests. See the tracing crate to make use of these traces.
         .with(TracingMiddleware::default())
-        // Retry failed requests.
         .with(RetryTransientMiddleware::new_with_policy(retry_policy))
         .build();
 
@@ -55,13 +53,17 @@ pub async fn get_defi_rewards(
     let nimbora_rewards = nimbora_rewards.unwrap_or_default();
     let ekubo_rewards = ekubo_rewards.unwrap_or_default();
 
-    let zklend_calls = create_calls(&zklend_rewards, &addr);
-    let nostra_calls = create_calls(&nostra_rewards, &addr);
-    let nimbora_calls = create_calls(&nimbora_rewards, &addr);
-    let ekubo_calls = create_calls(&ekubo_rewards, &addr);
+    let all_rewards = [
+        &zklend_rewards,
+        &nostra_rewards,
+        &nimbora_rewards,
+        &ekubo_rewards,
+    ];
 
-    let all_calls: Vec<ContractCall> =
-        [zklend_calls, nostra_calls, nimbora_calls, ekubo_calls].concat();
+    let all_calls: Vec<ContractCall> = all_rewards
+    .iter()
+    .flat_map(|rewards| create_calls(rewards, &addr))
+    .collect();
 
     let response_data = json!({
         "rewards": {
