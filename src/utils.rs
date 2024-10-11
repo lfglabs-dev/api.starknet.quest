@@ -837,10 +837,10 @@ pub fn parse_string(input: &str, address: FieldElement) -> String {
     let dec_address = address.to_string();
 
     let regex_patterns = vec![
-        (r"\{addr_hex\}", hex_address.as_str()), 
-        (r"\{addr_dec\}", dec_address.as_str()), 
+        (r"\{addr_hex\}", hex_address.as_str()),
+        (r"\{addr_dec\}", dec_address.as_str()),
     ];
-    
+
     for (pattern, replacement) in regex_patterns {
         let re = Regex::new(pattern).unwrap();
         result = re.replace_all(&result, replacement).to_string();
@@ -867,5 +867,27 @@ pub async fn get_next_task_id(
         return std::cmp::max(db_last_id as i32, (last_task_id).try_into().unwrap()) + 1;
     } else {
         return (last_task_id as i32) + 1;
+    }
+}
+
+pub fn validate_starknet_address(address: &str) -> Result<(), String> {
+    let re = Regex::new(r"^(0x)?[0-9a-fA-F]{64}$").unwrap();
+    if !re.is_match(address) {
+        return Err("Invalid address format: incorrect hex length or characters.".to_string());
+    }
+
+    match FieldElement::from_hex_be(address) {
+        Ok(felt_address) => {
+            let mask_251 = FieldElement::from_hex_be(
+                "0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+            )
+            .unwrap();
+            if felt_address < mask_251 {
+                Ok(())
+            } else {
+                Err("Address is out of valid Starknet range [0, 2^251).".to_string())
+            }
+        }
+        Err(_) => Err("Failed to convert address to FieldElement.".to_string()),
     }
 }

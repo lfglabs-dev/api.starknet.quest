@@ -1,7 +1,7 @@
-use std::collections::HashMap;
-use std::sync::Arc;
-use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
-
+use crate::{
+    models::{AppState, Call, Claim, EkuboRewards, NimboraRewards, NostraResponse, ZkLendReward},
+    utils::{get_error, validate_starknet_address},
+};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -9,20 +9,14 @@ use axum::{
     Json,
 };
 use axum_auto_routes::route;
-
+use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, USER_AGENT};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, Error};
-
 use reqwest_retry::{policies::ExponentialBackoff, RetryTransientMiddleware};
 use reqwest_tracing::TracingMiddleware;
-
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-
-use crate::{
-    models::{AppState, Call, Claim, EkuboRewards, NimboraRewards, NostraResponse, ZkLendReward},
-    utils::get_error,
-};
-use starknet::core::types::FieldElement;
+use std::collections::HashMap;
+use std::sync::Arc;
 
 // Define constants for token and contract addresses
 const STRK_TOKEN: &str = "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d";
@@ -67,8 +61,8 @@ pub async fn get_defi_rewards(
     };
 
     // Validate the address format
-    if FieldElement::from_hex_be(addr).is_err() {
-        return get_error("Invalid address format".to_string()).into_response();
+    if let Err(err_msg) = validate_starknet_address(addr) {
+        return get_error(err_msg).into_response();
     }
 
     // Retry up to 3 times with increasing intervals between attempts.
@@ -92,7 +86,7 @@ pub async fn get_defi_rewards(
     let nostra_rewards = nostra_rewards.unwrap_or_default();
     let nimbora_rewards = nimbora_rewards.unwrap_or_default();
     let ekubo_rewards = ekubo_rewards.unwrap_or_default();
-    
+
     // Create Call Data
     let zklend_calls = create_calls(&zklend_rewards, addr);
     let nostra_calls = create_calls(&nostra_rewards, addr);
@@ -122,9 +116,11 @@ async fn fetch_zklend_rewards(
     addr: &str,
 ) -> Result<Vec<CommonReward>, Error> {
     let zklend_url = format!("https://app.zklend.com/api/reward/all/{}", addr);
-    let response = client.get(&zklend_url)
+    let response = client
+        .get(&zklend_url)
         .headers(get_headers())
-        .send().await?;
+        .send()
+        .await?;
 
     match response.json::<Vec<ZkLendReward>>().await {
         Ok(result) => {
@@ -150,7 +146,7 @@ async fn fetch_zklend_rewards(
             eprintln!("Failed to deserialize zkLend response: {:?}", err);
             Err(Error::Reqwest(err))
         }
-    } 
+    }
 }
 
 // Fetch rewards from Nostra
@@ -207,9 +203,11 @@ async fn fetch_nimbora_rewards(
         addr
     );
 
-    let response = client.get(&nimbora_url)
+    let response = client
+        .get(&nimbora_url)
         .headers(get_headers())
-        .send().await?;
+        .send()
+        .await?;
 
     match response.json::<NimboraRewards>().await {
         Ok(result) => {
@@ -232,7 +230,7 @@ async fn fetch_nimbora_rewards(
             eprintln!("Failed to deserialize nimbora response: {:?}", err);
             Err(Error::Reqwest(err))
         }
-    }     
+    }
 }
 
 async fn fetch_ekubo_rewards(
@@ -243,9 +241,7 @@ async fn fetch_ekubo_rewards(
         "https://mainnet-api.ekubo.org/airdrops/{}?token={}",
         addr, STRK_TOKEN
     );
-    let response = client.get(&ekubo_url)
-        .headers(get_headers())
-        .send().await?;
+    let response = client.get(&ekubo_url).headers(get_headers()).send().await?;
 
     match response.json::<Vec<EkuboRewards>>().await {
         Ok(result) => {
@@ -271,7 +267,7 @@ async fn fetch_ekubo_rewards(
             eprintln!("Failed to deserialize ekubo response: {:?}", err);
             Err(Error::Reqwest(err))
         }
-    }  
+    }
 }
 
 fn create_calls(rewards: &[CommonReward], addr: &str) -> Vec<Call> {
@@ -289,19 +285,21 @@ fn create_calls(rewards: &[CommonReward], addr: &str) -> Vec<Call> {
                     serde_json::to_string(&reward.proof).unwrap_or_default(),
                 ],
                 RewardSource::ZkLend => vec![
-                    serde_json::to_string(&vec![Claim{
+                    serde_json::to_string(&vec![Claim {
                         id: reward.reward_id.unwrap(),
                         amount: reward.amount.clone(),
-                        claimee: addr.to_string()
-                    }]).unwrap_or_default(),
+                        claimee: addr.to_string(),
+                    }])
+                    .unwrap_or_default(),
                     serde_json::to_string(&reward.proof).unwrap_or_default(),
                 ],
                 RewardSource::Ekubo => vec![
-                    serde_json::to_string(&vec![Claim{
+                    serde_json::to_string(&vec![Claim {
                         id: reward.reward_id.unwrap(),
                         amount: reward.amount.clone(),
-                        claimee: addr.to_string()
-                    }]).unwrap_or_default(),
+                        claimee: addr.to_string(),
+                    }])
+                    .unwrap_or_default(),
                     serde_json::to_string(&reward.proof).unwrap_or_default(),
                 ],
             };
@@ -315,15 +313,14 @@ fn create_calls(rewards: &[CommonReward], addr: &str) -> Vec<Call> {
         .collect()
 }
 
-fn get_headers()-> HeaderMap {
+fn get_headers() -> HeaderMap {
     let mut headers = HeaderMap::new();
-    headers.insert(
-        ACCEPT,
-        HeaderValue::from_static("application/json"),
-    );
+    headers.insert(ACCEPT, HeaderValue::from_static("application/json"));
     headers.insert(
         USER_AGENT,
-        HeaderValue::from_static("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"),
+        HeaderValue::from_static(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0",
+        ),
     );
     headers
 }
