@@ -370,7 +370,7 @@ pub_struct!(Deserialize; CreateBoostQuery {
 
 
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ZkLendReward {
     pub amount: Amount,
     pub claim_contract: String,
@@ -383,45 +383,43 @@ pub struct ZkLendReward {
     pub response_type: String, // renaming to avoid keyword conflict
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Amount {
     pub decimals: u8,
     pub value: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Token {
     pub decimals: u8,
     pub name: String,
     pub symbol: String,
 }
 // Nostra Reward Structs
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct NostraResponse {
     pub documents: Vec<NostraReward>, // Array of reward documents
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct NostraReward {
     #[serde(rename = "_id")]
     pub id_internal: String,
     pub id: String,
     pub account: String,
     pub proofs: Vec<String>,
-    pub reward: String,
-    pub reward_from: String,
-    pub reward_id: u64,
+    pub reward: String
 }
 
 // Nimbora Reward Struct
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct NimboraRewards {
     pub amount: String,
     pub proof: Vec<String>,
 }
 
 // Ekubo Reward Structs
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct EkuboRewards {
     pub contract_address: String,
     pub token: String,
@@ -431,7 +429,7 @@ pub struct EkuboRewards {
     pub proof: Vec<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Claim {
     pub id: u64,
     pub amount: String,
