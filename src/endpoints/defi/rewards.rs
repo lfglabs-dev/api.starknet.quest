@@ -61,9 +61,9 @@ pub async fn get_defi_rewards(
     ];
 
     let all_calls: Vec<ContractCall> = all_rewards
-    .iter()
-    .flat_map(|rewards| create_calls(rewards, &addr))
-    .collect();
+        .iter()
+        .flat_map(|rewards| create_calls(rewards, &addr))
+        .collect();
 
     let response_data = json!({
         "rewards": {
@@ -236,7 +236,7 @@ async fn fetch_ekubo_rewards(
 fn create_calls(rewards: &[CommonReward], addr: &str) -> Vec<ContractCall> {
     rewards
         .iter()
-        // .filter(|reward| !reward.claimed)
+        .filter(|reward| !reward.claimed)
         .map(|reward| {
             let call_data: Vec<String> = match reward.reward_source {
                 RewardSource::ZkLend | RewardSource::Ekubo => {
