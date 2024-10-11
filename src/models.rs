@@ -124,7 +124,6 @@ pub struct ContractCall {
     pub entry_point: String,
 }
 
-
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct QuestTaskDocument {
     pub(crate) id: i32,
@@ -376,8 +375,6 @@ pub_struct!(Deserialize; CreateBoostQuery {
     expiry: i64,
 });
 
-
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ZkLendReward {
     pub amount: Amount,
@@ -394,7 +391,7 @@ pub struct ZkLendReward {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Amount {
     pub decimals: u8,
-    pub value: String,
+    pub value: FieldElement,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -416,13 +413,13 @@ pub struct NostraReward {
     pub id: String,
     pub account: String,
     pub proofs: Vec<String>,
-    pub reward: String
+    pub reward: FieldElement,
 }
 
 // Nimbora Reward Struct
 #[derive(Serialize, Deserialize, Debug)]
 pub struct NimboraRewards {
-    pub amount: String,
+    pub amount: FieldElement,
     pub proof: Vec<String>,
 }
 
@@ -440,7 +437,7 @@ pub struct EkuboRewards {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Claim {
     pub id: u64,
-    pub amount: String,
+    pub amount: FieldElement,
     pub claimee: String,
 }
 
@@ -454,7 +451,7 @@ pub enum RewardSource {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CommonReward {
-    pub amount: String,
+    pub amount: FieldElement,
     pub proof: Vec<String>,
     pub reward_id: Option<u64>,
     pub claim_contract: String,
@@ -465,6 +462,7 @@ pub struct CommonReward {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DefiReward {
-    pub amount: String,
+    pub amount: FieldElement,
     pub token_symbol: String,
+    pub claimed: bool,
 }
