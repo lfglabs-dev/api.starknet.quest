@@ -406,7 +406,14 @@ pub struct NostraResponse {
     pub documents: Vec<NostraReward>, // Array of reward documents
 }
 
+// Nostra Reward Structs
 #[derive(Serialize, Deserialize, Debug)]
+pub struct NostraPeriodsResponse {
+    pub documents: Vec<NostraRewardPeriods>, // Array of reward documents
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct NostraReward {
     #[serde(rename = "_id")]
     pub id_internal: String,
@@ -414,15 +421,17 @@ pub struct NostraReward {
     pub account: String,
     pub proofs: Vec<String>,
     pub reward: FieldElement,
+    pub reward_id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct NostraRewardPeriods {
     #[serde(rename = "_id")]
     pub id_internal: String,
     pub id: String,
-    pub defiSpringRewards: bool,
-    pub defiSpringRewardsDistributor: Option<FieldElement>,
+    pub defi_spring_rewards: bool, 
+    pub defi_spring_rewards_distributor: Option<FieldElement>, 
 }
 
 // Nimbora Reward Struct
