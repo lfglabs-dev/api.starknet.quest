@@ -416,6 +416,15 @@ pub struct NostraReward {
     pub reward: FieldElement,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct NostraRewardPeriods {
+    #[serde(rename = "_id")]
+    pub id_internal: String,
+    pub id: String,
+    pub defiSpringRewards: bool,
+    pub defiSpringRewardsDistributor: Option<FieldElement>,
+}
+
 // Nimbora Reward Struct
 #[derive(Serialize, Deserialize, Debug)]
 pub struct NimboraRewards {

@@ -195,7 +195,6 @@ pub_struct!(Clone, Deserialize;  ProtocolStats {
 });
 
 pub_struct!(Clone, Deserialize;  Rewards {
-    nostra: Contract,
     nimbora: Contract,
 });
 

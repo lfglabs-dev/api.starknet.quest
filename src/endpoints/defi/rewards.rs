@@ -2,7 +2,7 @@ use crate::{
     config::Config,
     models::{
         AppState, CommonReward, ContractCall, DefiReward, EkuboRewards, NimboraRewards,
-        NostraResponse, RewardSource, ZkLendReward,
+        NostraResponse, RewardSource, ZkLendReward, NostraRewardPeriods
     },
     utils::to_hex,
 };
@@ -112,49 +112,77 @@ async fn fetch_zklend_rewards(
     }
 }
 
-// Fetch rewards from Nostra
+
 async fn fetch_nostra_rewards(
     client: &ClientWithMiddleware,
     addr: &str,
     config: &Config,
 ) -> Result<Vec<CommonReward>, Error> {
-    let nostra_request_body = json!({
+    let url = "https://us-east-2.aws.data.mongodb-api.com/app/data-yqlpb/endpoint/data/v1/action/find";
+    let proof_request_body = json!({
         "dataSource": "nostra-production",
         "database": "prod-a-nostra-db",
         "collection": "rewardProofs",
         "filter": { "account": addr }
     });
-    let response = client.post("https://us-east-2.aws.data.mongodb-api.com/app/data-yqlpb/endpoint/data/v1/action/find")
-        .headers(get_headers())
-        .json(&nostra_request_body)
-        .send()
-        .await?;
 
-    let nostra_claim_contract = to_hex(config.rewards.nostra.contract);
-    let strk_symbol = config.tokens.strk.symbol.clone();
-    match response.json::<NostraResponse>().await {
-        Ok(result) => {
-            let rewards = result
-                .documents
-                .into_iter()
-                .map(|doc| CommonReward {
-                    amount: doc.reward,
-                    proof: doc.proofs,
-                    reward_id: None,
-                    claim_contract: nostra_claim_contract.clone(),
-                    token_symbol: strk_symbol.clone(),
-                    reward_source: RewardSource::Nostra,
-                    claimed: false,
-                })
-                .collect();
-            Ok(rewards)
-        }
+    let periods_request_body = json!({
+        "dataSource": "nostra-production",
+        "database": "prod-a-nostra-db",
+        "collection": "rewardPeriods"
+    });
+
+    let (periods_resp, rewards_resp) = tokio::try_join!(
+        client.post(url)
+            .headers(get_headers())
+            .json(&periods_request_body)
+            .send(),
+        client.post(url)
+            .headers(get_headers())
+            .json(&proof_request_body)
+            .send()
+    )?;
+
+    let reward_periods = match periods_resp.json::<Vec<NostraRewardPeriods>>().await {
+        Ok(result) => result,
         Err(err) => {
-            eprintln!("Failed to deserialize Nostra response: {:?}", err);
-            Err(Error::Reqwest(err))
+            eprintln!("Failed to deserialize Nostra periods response: {:?}", err);
+            vec![] 
         }
-    }
+    };
+    
+    let rewards = match rewards_resp.json::<NostraResponse>().await {
+        Ok(result) => result,
+        Err(err) => {
+            eprintln!("Failed to deserialize Nostra rewards response: {:?}", err);
+            return Err(Error::Reqwest(err));
+        }
+    };
+
+    let rewards = rewards
+        .documents
+        .into_iter()
+        .filter_map(|doc| {
+            reward_periods.iter()
+                .find(|period| period.id == doc.id  && period.defiSpringRewards)
+                .and_then(|period| period.defiSpringRewardsDistributor.as_ref())
+                .map(|distributor| {
+                    CommonReward {
+                        amount: doc.reward,
+                        proof: doc.proofs,
+                        reward_id: None,
+                        claim_contract: distributor.to_string(),
+                        token_symbol: config.tokens.strk.symbol.clone(),
+                        reward_source: RewardSource::Nostra,
+                        claimed: false,
+                    }
+                })
+        })
+        .collect();
+
+    Ok(rewards)
 }
+
 
 // Fetch rewards from nimbora
 async fn fetch_nimbora_rewards(
