@@ -2,7 +2,7 @@ use crate::{
     config::Config,
     models::{
         AppState, CommonReward, ContractCall, DefiReward, EkuboRewards, NimboraRewards,
-        NostraResponse, NostraPeriodsResponse, RewardSource, ZkLendReward,
+        NostraPeriodsResponse, NostraResponse, RewardSource, ZkLendReward,
     },
     utils::to_hex,
 };
@@ -150,9 +150,7 @@ async fn fetch_nostra_rewards(
         Ok(result) => result,
         Err(err) => {
             eprintln!("Failed to deserialize Nostra periods response: {:?}", err);
-            NostraPeriodsResponse{
-                documents: vec![]
-            }
+            NostraPeriodsResponse { documents: vec![] }
         }
     };
 
@@ -168,7 +166,8 @@ async fn fetch_nostra_rewards(
         .documents
         .into_iter()
         .filter_map(|doc| {
-            reward_periods.documents
+            reward_periods
+                .documents
                 .iter()
                 .find(|period| period.id == doc.reward_id && period.defi_spring_rewards)
                 .and_then(|period| period.defi_spring_rewards_distributor)
