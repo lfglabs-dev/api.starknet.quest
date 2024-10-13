@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::utils::parse_string;
 use crate::{
     models::{AppState, QuestTaskDocument},
     utils::{get_error, CompletedTasksTrait},
@@ -12,14 +13,13 @@ use axum::{
 };
 use axum_auto_routes::route;
 use mongodb::bson::doc;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use starknet::{
     core::types::{BlockId, BlockTag, FieldElement, FunctionCall},
     providers::Provider,
 };
-use regex::Regex;
-use crate::utils::parse_string;
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct VerifyContractQuery {
@@ -52,7 +52,8 @@ pub async fn handler(
                 Err(e) => return get_error(format!("Invalid contract address: {}", e)),
             };
 
-            let calldata: Vec<FieldElement> = match call.call_data
+            let calldata: Vec<FieldElement> = match call
+                .call_data
                 .iter()
                 .map(|s| {
                     let replaced_calldata = parse_string(s, FieldElement::from_hex_be(s).unwrap());
@@ -83,15 +84,24 @@ pub async fn handler(
 
             match call_result {
                 Ok(result) => {
-                    let regex_str = parse_string(&call.regex, FieldElement::from_hex_be(&call.contract).unwrap());
+                    let regex_str = parse_string(
+                        &call.regex,
+                        FieldElement::from_hex_be(&call.contract).unwrap(),
+                    );
                     let regex = match Regex::new(&regex_str) {
                         Ok(re) => re,
                         Err(e) => return get_error(format!("Invalid regex: {}", e)),
                     };
-                    let result_str = result.iter().map(|&r| r.to_string()).collect::<Vec<String>>().join(",");
+                    let result_str = result
+                        .iter()
+                        .map(|&r| r.to_string())
+                        .collect::<Vec<String>>()
+                        .join(",");
 
                     if !regex.is_match(&result_str) {
-                        return get_error("Contract call result does not match the expected pattern.".to_string());
+                        return get_error(
+                            "Contract call result does not match the expected pattern.".to_string(),
+                        );
                     }
                 }
                 Err(e) => return get_error(format!("Contract call failed: {}", e)),

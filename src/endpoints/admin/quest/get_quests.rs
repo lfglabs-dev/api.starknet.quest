@@ -1,10 +1,10 @@
+use crate::middleware::auth::auth_middleware;
 use crate::{
     models::{AppState, QuestDocument},
     utils::get_error,
 };
-use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::{State, Extension},
+    extract::{Extension, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
@@ -15,8 +15,8 @@ use std::sync::Arc;
 
 #[route(get, "/admin/quest/get_quests", auth_middleware)]
 pub async fn handler(
-    State(state): State<Arc<AppState>>, 
-    Extension(sub): Extension<String> 
+    State(state): State<Arc<AppState>>,
+    Extension(sub): Extension<String>,
 ) -> impl IntoResponse {
     let mut pipeline = vec![];
     if sub != "super_user" {

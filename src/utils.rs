@@ -837,10 +837,10 @@ pub fn parse_string(input: &str, address: FieldElement) -> String {
     let dec_address = address.to_string();
 
     let regex_patterns = vec![
-        (r"\{addr_hex\}", hex_address.as_str()), 
-        (r"\{addr_dec\}", dec_address.as_str()), 
+        (r"\{addr_hex\}", hex_address.as_str()),
+        (r"\{addr_dec\}", dec_address.as_str()),
     ];
-    
+
     for (pattern, replacement) in regex_patterns {
         let re = Regex::new(pattern).unwrap();
         result = re.replace_all(&result, replacement).to_string();

@@ -1,9 +1,9 @@
+use crate::middleware::auth::auth_middleware;
 use crate::models::QuestTaskDocument;
 use crate::utils::verify_task_auth;
 use crate::{models::AppState, utils::get_error};
-use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::{State, Extension},
+    extract::{Extension, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
@@ -31,12 +31,12 @@ pub async fn handler(
     Json(body): Json<CreateCustom>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
-    
+
     let res = verify_task_auth(sub, &collection, &(body.id as i32)).await;
     if !res {
         return get_error("Error updating tasks".to_string());
     }
-    
+
     // filter to get existing quest
     let filter = doc! {
         "id": &body.id,

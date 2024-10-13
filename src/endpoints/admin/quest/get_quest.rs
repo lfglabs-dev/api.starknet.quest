@@ -1,10 +1,10 @@
+use crate::middleware::auth::auth_middleware;
 use crate::{
     models::{AppState, QuestDocument},
     utils::get_error,
 };
-use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::{Query, State, Extension},
+    extract::{Extension, Query, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
@@ -23,7 +23,7 @@ pub struct GetQuestsQuery {
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetQuestsQuery>,
-    Extension(sub): Extension<String>
+    Extension(sub): Extension<String>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestDocument>("quests");
     let mut pipeline = vec![

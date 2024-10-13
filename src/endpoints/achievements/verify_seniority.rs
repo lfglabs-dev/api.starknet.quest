@@ -12,7 +12,7 @@ use axum::{
     Json,
 };
 use axum_auto_routes::route;
-use chrono::{Utc, DateTime};
+use chrono::{DateTime, Utc};
 use serde_json::json;
 use starknet::core::types::FieldElement;
 
@@ -33,7 +33,6 @@ pub async fn handler(
 
     match execute_has_deployed_time(state.clone(), &query.addr).await {
         Ok(timestamp) => {
-            
             let date_time = DateTime::from_timestamp(timestamp as i64, 0).unwrap();
             let current_time = Utc::now();
             let duration = current_time - date_time;
