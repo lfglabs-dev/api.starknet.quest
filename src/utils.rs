@@ -23,8 +23,9 @@ use starknet::signers::Signer;
 use starknet::{
     core::{
         crypto::{pedersen_hash, Signature},
-        types::FieldElement,
+        types::{BlockId, BlockTag, FieldElement, FunctionCall},
     },
+    providers::{Provider, ProviderError},
     signers::LocalWallet,
 };
 use std::collections::hash_map::DefaultHasher;
@@ -872,4 +873,23 @@ pub async fn get_next_task_id(
     } else {
         return (last_task_id as i32) + 1;
     }
+}
+
+pub async fn read_contract(
+    state: &AppState,
+    claim_contract: FieldElement,
+    selector: FieldElement,
+    calldata: Vec<FieldElement>,
+) -> Result<Vec<FieldElement>, ProviderError> {
+    state
+        .provider
+        .call(
+            FunctionCall {
+                contract_address: claim_contract,
+                entry_point_selector: selector,
+                calldata,
+            },
+            BlockId::Tag(BlockTag::Latest),
+        )
+        .await
 }

@@ -4,7 +4,7 @@ use crate::{
         AppState, CommonReward, ContractCall, DefiReward, EkuboRewards, NimboraRewards,
         NostraPeriodsResponse, NostraResponse, RewardSource, ZkLendReward,
     },
-    utils::to_hex,
+    utils::{read_contract, to_hex},
 };
 use axum::{
     extract::{Query, State},
@@ -19,8 +19,8 @@ use reqwest_retry::{policies::ExponentialBackoff, RetryTransientMiddleware};
 use reqwest_tracing::TracingMiddleware;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use starknet::core::types::FieldElement;
-use std::sync::Arc;
+use starknet::{core::types::FieldElement, macros::selector};
+use std::{sync::Arc, vec};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RewardQuery {
@@ -43,9 +43,9 @@ pub async fn get_defi_rewards(
 
     let (zklend_rewards, nostra_rewards, nimbora_rewards, ekubo_rewards) = tokio::join!(
         fetch_zklend_rewards(&client, &addr),
-        fetch_nostra_rewards(&client, &addr, &state.conf),
+        fetch_nostra_rewards(&client, &addr, &state),
         fetch_nimbora_rewards(&client, &addr, &state.conf),
-        fetch_ekubo_rewards(&client, &addr, &state.conf),
+        fetch_ekubo_rewards(&client, &addr, &state),
     );
 
     let zklend_rewards = zklend_rewards.unwrap_or_default();
@@ -115,7 +115,7 @@ async fn fetch_zklend_rewards(
 async fn fetch_nostra_rewards(
     client: &ClientWithMiddleware,
     addr: &str,
-    config: &Config,
+    state: &AppState,
 ) -> Result<Vec<CommonReward>, Error> {
     let url =
         "https://us-east-2.aws.data.mongodb-api.com/app/data-yqlpb/endpoint/data/v1/action/find";
@@ -154,36 +154,63 @@ async fn fetch_nostra_rewards(
         }
     };
 
-    let rewards = match rewards_resp.json::<NostraResponse>().await {
-        Ok(result) => result,
+    match rewards_resp.json::<NostraResponse>().await {
+        Ok(rewards) => {
+            let addr_field = FieldElement::from_hex_be(addr).unwrap();
+
+            let mut active_rewards = vec![];
+            let mut unmatched_found = false;
+
+            for doc in rewards.documents.into_iter().rev() {
+                if unmatched_found {
+                    break;
+                }
+
+                let matching_period = reward_periods
+                    .documents
+                    .iter()
+                    .find(|period| period.id == doc.reward_id && period.defi_spring_rewards);
+
+                if let Some(distributor) =
+                    matching_period.and_then(|period| period.defi_spring_rewards_distributor)
+                {
+                    match read_contract(
+                        &state,
+                        distributor,
+                        selector!("amount_already_claimed"),
+                        vec![addr_field],
+                    )
+                    .await
+                    {
+                        Ok(result) => {
+                            if result.get(0) == Some(&FieldElement::ZERO) {
+                                active_rewards.push(CommonReward {
+                                    amount: doc.reward,
+                                    proof: doc.proofs,
+                                    reward_id: None,
+                                    claim_contract: distributor,
+                                    token_symbol: state.conf.tokens.strk.symbol.clone(),
+                                    reward_source: RewardSource::Nostra,
+                                    claimed: false,
+                                });
+                            } else {
+                                unmatched_found = true;
+                            }
+                        }
+                        Err(err) => {
+                            eprintln!("Error checking claim status: {:?} in {:?}", err, distributor);
+                        }
+                    }
+                }
+            }
+            Ok(active_rewards)
+        }
+
         Err(err) => {
             eprintln!("Failed to deserialize Nostra rewards response: {:?}", err);
             return Err(Error::Reqwest(err));
         }
-    };
-
-    let rewards = rewards
-        .documents
-        .into_iter()
-        .filter_map(|doc| {
-            reward_periods
-                .documents
-                .iter()
-                .find(|period| period.id == doc.reward_id && period.defi_spring_rewards)
-                .and_then(|period| period.defi_spring_rewards_distributor)
-                .map(|distributor| CommonReward {
-                    amount: doc.reward,
-                    proof: doc.proofs,
-                    reward_id: None,
-                    claim_contract: to_hex(distributor),
-                    token_symbol: config.tokens.strk.symbol.clone(),
-                    reward_source: RewardSource::Nostra,
-                    claimed: false,
-                })
-        })
-        .collect();
-
-    Ok(rewards)
+    }
 }
 
 // Fetch rewards from nimbora
@@ -203,7 +230,6 @@ async fn fetch_nimbora_rewards(
         .send()
         .await?;
 
-    let nimbora_claim_contract = to_hex(config.rewards.nimbora.contract);
     let strk_symbol = config.tokens.strk.symbol.clone();
 
     match response.json::<NimboraRewards>().await {
@@ -213,7 +239,7 @@ async fn fetch_nimbora_rewards(
                 proof: result.proof,
                 reward_id: None,
                 token_symbol: strk_symbol.clone(),
-                claim_contract: nimbora_claim_contract.clone(),
+                claim_contract: config.rewards.nimbora.contract,
                 reward_source: RewardSource::Nimbora,
                 claimed: false,
             };
@@ -229,9 +255,9 @@ async fn fetch_nimbora_rewards(
 async fn fetch_ekubo_rewards(
     client: &ClientWithMiddleware,
     addr: &str,
-    config: &Config,
+    state: &AppState,
 ) -> Result<Vec<CommonReward>, Error> {
-    let strk_token = config.tokens.strk.clone();
+    let strk_token = state.conf.tokens.strk.clone();
     let ekubo_url = format!(
         "https://mainnet-api.ekubo.org/airdrops/{}?token={}",
         addr,
@@ -241,24 +267,48 @@ async fn fetch_ekubo_rewards(
     let response = client.get(&ekubo_url).headers(get_headers()).send().await?;
 
     match response.json::<Vec<EkuboRewards>>().await {
-        Ok(result) => {
-            let rewards = result
-                .into_iter()
-                .map(|reward| CommonReward {
-                    amount: reward.claim.amount,
-                    proof: reward.proof,
-                    reward_id: Some(reward.claim.id),
-                    claim_contract: reward.contract_address,
-                    token_symbol: strk_token.symbol.clone(),
-                    reward_source: RewardSource::Ekubo,
-                    claimed: false,
-                })
-                .collect();
-            Ok(rewards)
+        Ok(rewards) => {
+            let mut active_rewards = vec![];
+            let mut unmatched_found = false;
+            let strk_token = strk_token.clone();
+
+            for reward in rewards.into_iter().rev() {
+                if unmatched_found {
+                    break;
+                }
+                match read_contract(
+                    &state,
+                    reward.contract_address,
+                    selector!("is_claimed"),
+                    vec![FieldElement::from(reward.claim.id)],
+                )
+                .await
+                {
+                    Ok(result) => {
+                        if result.get(0) == Some(&FieldElement::ZERO) {
+                            active_rewards.push(CommonReward {
+                                amount: reward.claim.amount,
+                                proof: reward.proof,
+                                reward_id: Some(reward.claim.id),
+                                claim_contract: reward.contract_address,
+                                token_symbol: strk_token.symbol.clone(),
+                                reward_source: RewardSource::Ekubo,
+                                claimed: false,
+                            })
+                        } else {
+                            unmatched_found = true;
+                        }
+                    }
+                    Err(err) => {
+                        eprintln!("Error checking claim status: {:?} in {:?}", err, reward.contract_address);
+                    }
+                }
+            }
+            Ok(active_rewards)
         }
         Err(err) => {
-            eprintln!("Failed to deserialize ekubo response: {:?}", err);
-            Err(Error::Reqwest(err))
+            eprintln!("Failed to deserialize Nostra rewards response: {:?}", err);
+            return Err(Error::Reqwest(err));
         }
     }
 }
@@ -290,7 +340,7 @@ fn create_calls(rewards: &[CommonReward], addr: &str) -> Vec<ContractCall> {
             };
 
             ContractCall {
-                contract: reward.claim_contract.clone(),
+                contract: to_hex(reward.claim_contract),
                 call_data,
                 entry_point: "claim".to_string(),
             }

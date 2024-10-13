@@ -378,7 +378,7 @@ pub_struct!(Deserialize; CreateBoostQuery {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ZkLendReward {
     pub amount: Amount,
-    pub claim_contract: String,
+    pub claim_contract: FieldElement,
     pub claim_id: u64,
     pub claimed: bool,
     pub proof: Vec<String>,
@@ -430,8 +430,8 @@ pub struct NostraRewardPeriods {
     #[serde(rename = "_id")]
     pub id_internal: String,
     pub id: String,
-    pub defi_spring_rewards: bool, 
-    pub defi_spring_rewards_distributor: Option<FieldElement>, 
+    pub defi_spring_rewards: bool,
+    pub defi_spring_rewards_distributor: Option<FieldElement>,
 }
 
 // Nimbora Reward Struct
@@ -444,7 +444,7 @@ pub struct NimboraRewards {
 // Ekubo Reward Structs
 #[derive(Serialize, Deserialize, Debug)]
 pub struct EkuboRewards {
-    pub contract_address: String,
+    pub contract_address: FieldElement,
     pub token: String,
     pub start_date: String,
     pub end_date: String,
@@ -472,7 +472,7 @@ pub struct CommonReward {
     pub amount: FieldElement,
     pub proof: Vec<String>,
     pub reward_id: Option<u64>,
-    pub claim_contract: String,
+    pub claim_contract: FieldElement,
     pub token_symbol: String,
     pub reward_source: RewardSource,
     pub claimed: bool,
