@@ -119,9 +119,9 @@ pub struct Call {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ContractCall {
-    pub contract: String,
-    pub call_data: Vec<String>,
-    pub entry_point: String,
+    pub contractaddress: String,
+    pub calldata: Vec<String>,
+    pub entrypoint: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default)]

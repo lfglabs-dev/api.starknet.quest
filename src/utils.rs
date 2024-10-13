@@ -271,6 +271,16 @@ impl CompletedTasksTrait for AppState {
 
 pub fn to_hex(felt: FieldElement) -> String {
     let bytes = felt.to_bytes_be();
+    let mut result = String::with_capacity(bytes.len() * 2 + 2);
+    result.push_str("0x");
+    for byte in bytes {
+        write!(&mut result, "{:02x}", byte).unwrap();
+    }
+    result
+}
+
+pub fn to_hex_trimmed(felt: FieldElement) -> String {
+    let bytes = felt.to_bytes_be();
     let non_zero_index = bytes.iter().position(|&b| b != 0).unwrap_or(bytes.len());
     let mut result = String::from("0x");
     if non_zero_index == bytes.len() {

@@ -4,7 +4,7 @@ use crate::{
         AppState, CommonReward, ContractCall, DefiReward, EkuboRewards, NimboraRewards,
         NostraPeriodsResponse, NostraResponse, RewardSource, ZkLendReward,
     },
-    utils::{check_if_claimed, to_hex},
+    utils::{check_if_claimed, to_hex_trimmed},
 };
 use axum::{
     extract::{Query, State},
@@ -33,7 +33,7 @@ pub async fn get_defi_rewards(
     State(state): State<Arc<AppState>>,
     Query(query): Query<RewardQuery>,
 ) -> impl IntoResponse {
-    let addr = to_hex(query.addr);
+    let addr = to_hex_trimmed(query.addr);
 
     // Retry up to 3 times with increasing intervals between attempts.
     let retry_policy = ExponentialBackoff::builder().build_with_max_retries(3);
@@ -260,7 +260,7 @@ async fn fetch_ekubo_rewards(
     let ekubo_url = format!(
         "https://mainnet-api.ekubo.org/airdrops/{}?token={}",
         addr,
-        to_hex(strk_token.contract)
+        to_hex_trimmed(strk_token.contract)
     );
 
     let response = client.get(&ekubo_url).headers(get_headers()).send().await?;
@@ -312,21 +312,21 @@ fn create_calls(rewards: &[CommonReward], addr: &str) -> Vec<ContractCall> {
         .iter()
         .filter(|reward| !reward.claimed)
         .map(|reward| {
-            let call_data: Vec<String> = match reward.reward_source {
+            let calldata: Vec<String> = match reward.reward_source {
                 RewardSource::ZkLend | RewardSource::Ekubo => {
                     let mut data = vec![
-                        to_hex(FieldElement::from(reward.reward_id.unwrap())),
+                        to_hex_trimmed(FieldElement::from(reward.reward_id.unwrap())),
                         addr.to_string(),
-                        to_hex(reward.amount),
-                        to_hex(FieldElement::from(reward.proof.len())),
+                        to_hex_trimmed(reward.amount),
+                        to_hex_trimmed(FieldElement::from(reward.proof.len())),
                     ];
                     data.extend(reward.proof.clone());
                     data
                 }
                 RewardSource::Nimbora | RewardSource::Nostra => {
                     let mut data = vec![
-                        to_hex(reward.amount),
-                        to_hex(FieldElement::from(reward.proof.len())),
+                        to_hex_trimmed(reward.amount),
+                        to_hex_trimmed(FieldElement::from(reward.proof.len())),
                     ];
                     data.extend(reward.proof.clone());
                     data
@@ -334,9 +334,9 @@ fn create_calls(rewards: &[CommonReward], addr: &str) -> Vec<ContractCall> {
             };
 
             ContractCall {
-                contract: to_hex(reward.claim_contract),
-                call_data,
-                entry_point: "claim".to_string(),
+                contractaddress: to_hex_trimmed(reward.claim_contract),
+                calldata,
+                entrypoint: "claim".to_string(),
             }
         })
         .collect()
