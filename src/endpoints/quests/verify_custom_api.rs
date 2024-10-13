@@ -1,4 +1,4 @@
-use std::{sync::Arc, str::FromStr};
+use crate::utils::parse_string;
 use crate::{
     models::{AppState, QuestTaskDocument},
     utils::{get_error, CompletedTasksTrait},
@@ -11,12 +11,12 @@ use axum::{
 };
 use axum_auto_routes::route;
 use mongodb::bson::doc;
-use serde::{Deserialize, Serialize};
-use serde_json::json;
 use regex::Regex;
 use reqwest::get;
+use serde::{Deserialize, Serialize};
+use serde_json::json;
 use starknet::core::types::FieldElement;
-use crate::utils::parse_string;
+use std::{str::FromStr, sync::Arc};
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct VerifyCustomApiQuery {
@@ -63,18 +63,22 @@ pub async fn handler(
     match response {
         Ok(res) => {
             let res_text = res.text().await.unwrap();
-            
+
             // Check response against the regex
-            let parsed_regex_str = parse_string(regex_str, FieldElement::from_str(&query.addr).unwrap());
+            let parsed_regex_str =
+                parse_string(regex_str, FieldElement::from_str(&query.addr).unwrap());
             let re = Regex::new(&parsed_regex_str).unwrap();
             if re.is_match(&res_text) {
                 // Mark the task as completed
-                match state.upsert_completed_task(FieldElement::from_str(&query.addr).unwrap(), task_id).await {
+                match state
+                    .upsert_completed_task(FieldElement::from_str(&query.addr).unwrap(), task_id)
+                    .await
+                {
                     Ok(_) => (StatusCode::OK, Json(json!({"res": true}))).into_response(),
                     Err(e) => get_error(format!("{}", e)),
                 }
             } else {
-                get_error("Response did not match the required pattern.".to_string())
+                get_error("User not eligible.".to_string())
             }
         }
         Err(e) => get_error(format!("Failed to fetch API: {}", e)),
