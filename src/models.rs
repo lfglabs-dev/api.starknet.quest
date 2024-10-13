@@ -117,6 +117,13 @@ pub struct Call {
     pub regex: String,
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ContractCall {
+    pub contractaddress: String,
+    pub calldata: Vec<String>,
+    pub entrypoint: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct QuestTaskDocument {
     pub(crate) id: i32,
@@ -367,3 +374,112 @@ pub_struct!(Deserialize; CreateBoostQuery {
     img_url: String,
     expiry: i64,
 });
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ZkLendReward {
+    pub amount: Amount,
+    pub claim_contract: FieldElement,
+    pub claim_id: u64,
+    pub claimed: bool,
+    pub proof: Vec<String>,
+    pub recipient: String,
+    pub token: Token,
+    #[serde(rename = "type")]
+    pub response_type: String, // renaming to avoid keyword conflict
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Amount {
+    pub decimals: u8,
+    pub value: FieldElement,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Token {
+    pub decimals: u8,
+    pub name: String,
+    pub symbol: String,
+}
+// Nostra Reward Structs
+#[derive(Serialize, Deserialize, Debug)]
+pub struct NostraResponse {
+    pub documents: Vec<NostraReward>, // Array of reward documents
+}
+
+// Nostra Reward Structs
+#[derive(Serialize, Deserialize, Debug)]
+pub struct NostraPeriodsResponse {
+    pub documents: Vec<NostraRewardPeriods>, // Array of reward documents
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct NostraReward {
+    #[serde(rename = "_id")]
+    pub id_internal: String,
+    pub id: String,
+    pub account: String,
+    pub proofs: Vec<String>,
+    pub reward: FieldElement,
+    pub reward_id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct NostraRewardPeriods {
+    #[serde(rename = "_id")]
+    pub id_internal: String,
+    pub id: String,
+    pub defi_spring_rewards: bool,
+    pub defi_spring_rewards_distributor: Option<FieldElement>,
+}
+
+// Nimbora Reward Struct
+#[derive(Serialize, Deserialize, Debug)]
+pub struct NimboraRewards {
+    pub amount: FieldElement,
+    pub proof: Vec<String>,
+}
+
+// Ekubo Reward Structs
+#[derive(Serialize, Deserialize, Debug)]
+pub struct EkuboRewards {
+    pub contract_address: FieldElement,
+    pub token: String,
+    pub start_date: String,
+    pub end_date: String,
+    pub claim: Claim,
+    pub proof: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Claim {
+    pub id: u64,
+    pub amount: FieldElement,
+    pub claimee: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum RewardSource {
+    ZkLend,
+    Nostra,
+    Nimbora,
+    Ekubo,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CommonReward {
+    pub amount: FieldElement,
+    pub proof: Vec<String>,
+    pub reward_id: Option<u64>,
+    pub claim_contract: FieldElement,
+    pub token_symbol: String,
+    pub reward_source: RewardSource,
+    pub claimed: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DefiReward {
+    pub amount: FieldElement,
+    pub token_symbol: String,
+}

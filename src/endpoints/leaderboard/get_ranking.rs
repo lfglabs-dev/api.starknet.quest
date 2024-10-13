@@ -46,7 +46,7 @@ use chrono::Utc;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
 use mongodb::Collection;
-use reqwest::StatusCode;
+use axum::http::StatusCode;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 

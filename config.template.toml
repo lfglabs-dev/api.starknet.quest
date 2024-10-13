@@ -83,6 +83,16 @@ contract = "0xFFFFFFFFFFFF"
 [quests.sithswap_2]
 api_endpoint = "xxxxxxx"
 
+[rewards]
+[rewards.nimbora]
+contract = "0x07ed46700bd12bb1ee8a33a8594791003f9710a1ab18edd958aed86a8f82d3d1"
+
+[tokens]
+[tokens.strk]
+contract = "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d"
+symbol = "STRK"
+decimals = 18
+
 [twitter]
 oauth2_clientid = "xxxxxx"
 oauth2_secret = "xxxxxx"

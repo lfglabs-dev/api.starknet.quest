@@ -20,7 +20,7 @@ use axum::response::Response;
 use chrono::Utc;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
-use reqwest::StatusCode;
+use axum::http::StatusCode;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 

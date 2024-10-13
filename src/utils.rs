@@ -1,7 +1,6 @@
 use crate::logger::Logger;
 use crate::models::{
-    AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument,
-    QuestTaskDocument, UserExperience,
+    AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument, QuestTaskDocument, RewardSource, UserExperience
 };
 use async_trait::async_trait;
 use axum::{
@@ -23,8 +22,9 @@ use starknet::signers::Signer;
 use starknet::{
     core::{
         crypto::{pedersen_hash, Signature},
-        types::FieldElement,
+        types::{BlockId, BlockTag, FieldElement, FunctionCall},
     },
+    providers::{Provider, ProviderError},
     signers::LocalWallet,
 };
 use std::collections::hash_map::DefaultHasher;
@@ -275,6 +275,20 @@ pub fn to_hex(felt: FieldElement) -> String {
     result.push_str("0x");
     for byte in bytes {
         write!(&mut result, "{:02x}", byte).unwrap();
+    }
+    result
+}
+
+pub fn to_hex_trimmed(felt: FieldElement) -> String {
+    let bytes = felt.to_bytes_be();
+    let non_zero_index = bytes.iter().position(|&b| b != 0).unwrap_or(bytes.len());
+    let mut result = String::from("0x");
+    if non_zero_index == bytes.len() {
+        result.push('0');
+    } else {
+        for &byte in &bytes[non_zero_index..] {
+            write!(&mut result, "{:02x}", byte).unwrap();
+        }
     }
     result
 }
@@ -837,10 +851,10 @@ pub fn parse_string(input: &str, address: FieldElement) -> String {
     let dec_address = address.to_string();
 
     let regex_patterns = vec![
-        (r"\{addr_hex\}", hex_address.as_str()), 
-        (r"\{addr_dec\}", dec_address.as_str()), 
+        (r"\{addr_hex\}", hex_address.as_str()),
+        (r"\{addr_dec\}", dec_address.as_str()),
     ];
-    
+
     for (pattern, replacement) in regex_patterns {
         let re = Regex::new(pattern).unwrap();
         result = re.replace_all(&result, replacement).to_string();
@@ -867,5 +881,45 @@ pub async fn get_next_task_id(
         return std::cmp::max(db_last_id as i32, (last_task_id).try_into().unwrap()) + 1;
     } else {
         return (last_task_id as i32) + 1;
+    }
+}
+
+pub async fn read_contract(
+    state: &AppState,
+    contract: FieldElement,
+    selector: FieldElement,
+    calldata: Vec<FieldElement>,
+) -> Result<Vec<FieldElement>, ProviderError> {
+    state
+        .provider
+        .call(
+            FunctionCall {
+                contract_address: contract,
+                entry_point_selector: selector,
+                calldata,
+            },
+            BlockId::Tag(BlockTag::Pending),
+        )
+        .await
+}
+
+pub async fn check_if_claimed(
+    state: &AppState,
+    contract: FieldElement,
+    selector: FieldElement,
+    calldata: Vec<FieldElement>,
+    source: RewardSource
+) -> bool {
+    match read_contract(state, contract, selector, calldata).await {
+        Ok(result) => result.get(0) == Some(&FieldElement::ZERO),
+        Err(err) => {
+            eprintln!(
+                "Error checking {:?} claim status: {:?} in {}",
+                source,
+                err,
+                to_hex(contract)
+            );
+            false
+        }
     }
 }
