@@ -482,5 +482,4 @@ pub struct CommonReward {
 pub struct DefiReward {
     pub amount: FieldElement,
     pub token_symbol: String,
-    pub claimed: bool,
 }
