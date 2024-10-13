@@ -4,7 +4,7 @@ use crate::{
         AppState, CommonReward, ContractCall, DefiReward, EkuboRewards, NimboraRewards,
         NostraPeriodsResponse, NostraResponse, RewardSource, ZkLendReward,
     },
-    utils::{read_contract, to_hex},
+    utils::{check_if_claimed, to_hex},
 };
 use axum::{
     extract::{Query, State},
@@ -156,71 +156,60 @@ async fn fetch_nostra_rewards(
         }
     };
 
-    match rewards_resp.json::<NostraResponse>().await {
-        Ok(rewards) => {
-            let addr_field = FieldElement::from_hex_be(addr).unwrap();
-            let tasks: FuturesOrdered<_> = rewards
-                .documents
-                .into_iter()
-                .rev()
-                .map(|doc| {
-                    let addr_field = addr_field.clone();
-                    let token_symbol = state.conf.tokens.strk.symbol.clone();
-                    let matching_period = reward_periods
-                        .documents
-                        .iter()
-                        .find(|period| period.id == doc.reward_id && period.defi_spring_rewards);
-
-                    async move {
-                        if let Some(distributor) = matching_period
-                            .and_then(|period| period.defi_spring_rewards_distributor)
-                        {
-                            match read_contract(
-                                &state,
-                                distributor,
-                                selector!("amount_already_claimed"),
-                                vec![addr_field],
-                            )
-                            .await
-                            {
-                                Ok(result) => {
-                                    if result.get(0) == Some(&FieldElement::ZERO) {
-                                        Some(CommonReward {
-                                            amount: doc.reward,
-                                            proof: doc.proofs,
-                                            reward_id: None,
-                                            claim_contract: distributor,
-                                            token_symbol,
-                                            reward_source: RewardSource::Nostra,
-                                            claimed: false,
-                                        })
-                                    } else {
-                                        None
-                                    }
-                                }
-                                Err(err) => {
-                                    eprintln!(
-                                        "Error checking claim status: {:?} in {:?}",
-                                        err, distributor
-                                    );
-                                    None
-                                }
-                            }
-                        } else {
-                            None
-                        }
-                    }
-                })
-                .collect();
-            let active_rewards = tasks.filter_map(|res| async move { res }).collect().await;
-            Ok(active_rewards)
-        }
-
+    let rewards = match rewards_resp.json::<NostraResponse>().await {
+        Ok(result) => result,
         Err(err) => {
             eprintln!("Failed to deserialize Nostra rewards response: {:?}", err);
             return Err(Error::Reqwest(err));
         }
-    }
+    };
+
+    let addr_field = FieldElement::from_hex_be(addr).unwrap();
+    let tasks: FuturesOrdered<_> = rewards
+        .documents
+        .into_iter()
+        .rev()
+        .map(|doc| {
+            let addr_field = addr_field.clone();
+            let token_symbol = state.conf.tokens.strk.symbol.clone();
+            let matching_period = reward_periods
+                .documents
+                .iter()
+                .find(|period| period.id == doc.reward_id && period.defi_spring_rewards);
+
+            async move {
+                if let Some(distributor) =
+                    matching_period.and_then(|period| period.defi_spring_rewards_distributor)
+                {
+                    if check_if_claimed(
+                        state,
+                        distributor,
+                        selector!("amount_already_claimed"),
+                        vec![addr_field],
+                        RewardSource::Nostra
+                    )
+                    .await
+                    {
+                        Some(CommonReward {
+                            amount: doc.reward,
+                            proof: doc.proofs,
+                            reward_id: None,
+                            claim_contract: distributor,
+                            token_symbol,
+                            reward_source: RewardSource::Nostra,
+                            claimed: false,
+                        })
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            }
+        })
+        .collect();
+    let active_rewards = tasks.filter_map(|res| async move { res }).collect().await;
+    Ok(active_rewards)
 }
 
 // Fetch rewards from nimbora
@@ -276,53 +265,46 @@ async fn fetch_ekubo_rewards(
 
     let response = client.get(&ekubo_url).headers(get_headers()).send().await?;
 
-    match response.json::<Vec<EkuboRewards>>().await {
-        Ok(rewards) => {
-            let tasks: FuturesOrdered<_> = rewards
-                .into_iter()
-                .rev()
-                .map(|reward| {
-                    let strk_token = strk_token.clone();
-                    async move {
-                        match read_contract(
-                            &state,
-                            reward.contract_address,
-                            selector!("is_claimed"),
-                            vec![FieldElement::from(reward.claim.id)],
-                        )
-                        .await
-                        {
-                            Ok(result) => {
-                                if result.get(0) == Some(&FieldElement::ZERO) {
-                                    Some(CommonReward {
-                                        amount: reward.claim.amount,
-                                        proof: reward.proof,
-                                        reward_id: Some(reward.claim.id),
-                                        claim_contract: reward.contract_address,
-                                        token_symbol: strk_token.symbol,
-                                        reward_source: RewardSource::Ekubo,
-                                        claimed: false,
-                                    })
-                                } else {
-                                    None
-                                }
-                            }
-                            Err(err) => {
-                                eprintln!("Error checking claim status: {:?}", err);
-                                None
-                            }
-                        }
-                    }
-                })
-                .collect();
-            let active_rewards = tasks.filter_map(|res| async move { res }).collect().await;
-            Ok(active_rewards)
-        }
+    let rewards = match response.json::<Vec<EkuboRewards>>().await {
+        Ok(result) => result,
         Err(err) => {
-            eprintln!("Failed to deserialize Nostra rewards response: {:?}", err);
+            eprintln!("Failed to deserialize Ekubo rewards response: {:?}", err);
             return Err(Error::Reqwest(err));
         }
-    }
+    };
+
+    let tasks: FuturesOrdered<_> = rewards
+        .into_iter()
+        .rev()
+        .map(|reward| {
+            let strk_token = strk_token.clone();
+            async move {
+                if check_if_claimed(
+                    state,
+                    reward.contract_address,
+                    selector!("is_claimed"),
+                    vec![FieldElement::from(reward.claim.id)],
+                    RewardSource::Ekubo
+                )
+                .await
+                {
+                    Some(CommonReward {
+                        amount: reward.claim.amount,
+                        proof: reward.proof,
+                        reward_id: Some(reward.claim.id),
+                        claim_contract: reward.contract_address,
+                        token_symbol: strk_token.symbol,
+                        reward_source: RewardSource::Ekubo,
+                        claimed: false,
+                    })
+                } else {
+                    None
+                }
+            }
+        })
+        .collect();
+    let active_rewards = tasks.filter_map(|res| async move { res }).collect().await;
+    Ok(active_rewards)
 }
 
 fn create_calls(rewards: &[CommonReward], addr: &str) -> Vec<ContractCall> {
@@ -377,7 +359,7 @@ fn extract_rewards(common_rewards: &[CommonReward]) -> Vec<DefiReward> {
         .iter()
         .map(|reward| DefiReward {
             amount: reward.amount,
-            token_symbol: reward.token_symbol.clone()
+            token_symbol: reward.token_symbol.clone(),
         })
         .collect()
 }

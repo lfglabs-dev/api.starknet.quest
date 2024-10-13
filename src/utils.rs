@@ -1,7 +1,6 @@
 use crate::logger::Logger;
 use crate::models::{
-    AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument,
-    QuestTaskDocument, UserExperience,
+    AchievementDocument, AppState, BoostTable, CompletedTasks, LeaderboardTable, QuestDocument, QuestTaskDocument, RewardSource, UserExperience
 };
 use async_trait::async_trait;
 use axum::{
@@ -877,7 +876,7 @@ pub async fn get_next_task_id(
 
 pub async fn read_contract(
     state: &AppState,
-    claim_contract: FieldElement,
+    contract: FieldElement,
     selector: FieldElement,
     calldata: Vec<FieldElement>,
 ) -> Result<Vec<FieldElement>, ProviderError> {
@@ -885,11 +884,32 @@ pub async fn read_contract(
         .provider
         .call(
             FunctionCall {
-                contract_address: claim_contract,
+                contract_address: contract,
                 entry_point_selector: selector,
                 calldata,
             },
             BlockId::Tag(BlockTag::Pending),
         )
         .await
+}
+
+pub async fn check_if_claimed(
+    state: &AppState,
+    contract: FieldElement,
+    selector: FieldElement,
+    calldata: Vec<FieldElement>,
+    source: RewardSource
+) -> bool {
+    match read_contract(state, contract, selector, calldata).await {
+        Ok(result) => result.get(0) == Some(&FieldElement::ZERO),
+        Err(err) => {
+            eprintln!(
+                "Error checking {:?} claim status: {:?} in {}",
+                source,
+                err,
+                to_hex(contract)
+            );
+            false
+        }
+    }
 }
