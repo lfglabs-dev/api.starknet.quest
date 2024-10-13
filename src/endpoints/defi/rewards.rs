@@ -4,7 +4,7 @@ use crate::{
         AppState, CommonReward, ContractCall, DefiReward, EkuboRewards, NimboraRewards,
         NostraPeriodsResponse, NostraResponse, RewardSource, ZkLendReward,
     },
-    utils::{check_if_claimed, to_hex_trimmed},
+    utils::{check_if_claimed, to_hex_trimmed, to_hex},
 };
 use axum::{
     extract::{Query, State},
@@ -33,7 +33,7 @@ pub async fn get_defi_rewards(
     State(state): State<Arc<AppState>>,
     Query(query): Query<RewardQuery>,
 ) -> impl IntoResponse {
-    let addr = to_hex_trimmed(query.addr);
+    let addr = to_hex(query.addr);
 
     // Retry up to 3 times with increasing intervals between attempts.
     let retry_policy = ExponentialBackoff::builder().build_with_max_retries(3);
@@ -260,7 +260,7 @@ async fn fetch_ekubo_rewards(
     let ekubo_url = format!(
         "https://mainnet-api.ekubo.org/airdrops/{}?token={}",
         addr,
-        to_hex_trimmed(strk_token.contract)
+        to_hex(strk_token.contract)
     );
 
     let response = client.get(&ekubo_url).headers(get_headers()).send().await?;
@@ -334,7 +334,7 @@ fn create_calls(rewards: &[CommonReward], addr: &str) -> Vec<ContractCall> {
             };
 
             ContractCall {
-                contractaddress: to_hex_trimmed(reward.claim_contract),
+                contractaddress: to_hex(reward.claim_contract),
                 calldata,
                 entrypoint: "claim".to_string(),
             }
