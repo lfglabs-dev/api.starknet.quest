@@ -889,7 +889,7 @@ pub async fn read_contract(
                 entry_point_selector: selector,
                 calldata,
             },
-            BlockId::Tag(BlockTag::Latest),
+            BlockId::Tag(BlockTag::Pending),
         )
         .await
 }
