@@ -4,7 +4,7 @@ use axum::{extract::State, response::IntoResponse, Json};
 use axum_auto_routes::route;
 use futures::TryStreamExt;
 use mongodb::bson::{doc, Document};
-use reqwest::StatusCode;
+use axum::http::StatusCode;
 use std::sync::Arc;
 
 #[route(get, "/get_boosted_quests")]

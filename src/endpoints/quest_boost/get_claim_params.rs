@@ -9,7 +9,7 @@ use std::str::FromStr;
 
 use crate::utils::to_hex;
 use mongodb::bson::{doc, Bson, Document};
-use reqwest::StatusCode;
+use axum::http::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use starknet::core::crypto::ecdsa_sign;

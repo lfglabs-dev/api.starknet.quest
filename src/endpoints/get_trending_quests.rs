@@ -10,7 +10,7 @@ use axum::{
 use axum_auto_routes::route;
 use futures::StreamExt;
 use mongodb::bson::{doc, from_document};
-use reqwest::StatusCode;
+use axum::http::StatusCode;
 use serde::{Deserialize, Serialize};
 use starknet::core::types::FieldElement;
 use std::sync::Arc;

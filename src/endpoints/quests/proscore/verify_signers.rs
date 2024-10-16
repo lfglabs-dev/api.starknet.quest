@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    models::{AppState, VerifyQuery},
+    models::{AppState, QuestTaskDocument, VerifyQuery},
     utils::{get_error, CompletedTasksTrait},
 };
 use axum::{
@@ -11,6 +11,7 @@ use axum::{
     Json,
 };
 use axum_auto_routes::route;
+use mongodb::bson::doc;
 use serde_json::json;
 use starknet::{
     core::types::{BlockId, BlockTag, FieldElement, FunctionCall},
@@ -23,7 +24,17 @@ pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<VerifyQuery>,
 ) -> impl IntoResponse {
-    let task_id = 192;
+    let task_id = query.task_id.unwrap();
+    // Check the task verify_endpoint is quests/proscore/verify_signers
+    let tasks_collection = state.db.collection("tasks");
+    let task: QuestTaskDocument = tasks_collection
+        .find_one(doc! {"id": &task_id}, None)
+        .await
+        .unwrap()
+        .unwrap();
+    if task.verify_endpoint != "quests/proscore/verify_signers" {
+        return get_error("Invalid task".to_string());
+    }
     match state
         .provider
         .call(
