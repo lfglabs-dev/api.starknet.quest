@@ -16,6 +16,15 @@ async fn fetch_nimbora_data() -> Result<Value, reqwest::Error> {
     client.get(nimbora_endpoint).send().await?.json().await
 }
 
+fn get_nimbora_strategy_map() -> HashMap<String, String> {
+    let mut map = HashMap::new();
+    map.insert("angle".to_string(), "nstUSD".to_string());
+    map.insert("pendle-puffer-eth".to_string(), "nppETH".to_string());
+    map.insert("pendle-etherfi-eth".to_string(), "npeETH".to_string());
+    map.insert("spark".to_string(), "nsDAI".to_string());
+    map
+}
+
 #[route(get, "/discover/defi/get_alt_protocol_stats")]
 pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let endpoint = &state.conf.discover.alt_protocols_api_endpoint;
@@ -23,82 +32,57 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let request_builder = client.get(endpoint);
 
     let nimbora_data = fetch_nimbora_data().await;
+    let strategy_map = get_nimbora_strategy_map();
 
     let mut new_map = HashMap::new();
     match request_builder.send().await {
         Ok(response) => match response.json::<serde_json::Value>().await {
             Ok(json) => {
                 if let Value::Object(ref map) = &json {
-                    for key in map.keys() {
+                    for (protocol, value) in map {
                         let mut mini_map = HashMap::new();
-                        let value = &map.get(key).unwrap();
                         if let Value::Object(ref res) = value {
-                            for key in res.keys() {
-                                let arr_value = &res.get(key).unwrap().as_array();
-
-                                let len = &arr_value.unwrap().len();
-                                if len == &0 {
-                                    continue;
+                            for (key, arr_value) in res {
+                                if let Some(arr) = arr_value.as_array() {
+                                    if !arr.is_empty() {
+                                        mini_map.insert(key.clone(), arr.last().unwrap().clone());
+                                    }
                                 }
-                                let last = arr_value.unwrap().get(len - 1).unwrap();
-                                mini_map.insert(key.clone(), last.clone());
                             }
-                            new_map.insert(key.clone(), mini_map);
+                            new_map.insert(protocol.clone(), mini_map);
                         }
                     }
                 }
 
                 // Update APRs with Nimbora data if available
-                if let Ok(nimbora_value) = nimbora_data {
-                    if let Value::Array(nimbora_strategies) = nimbora_value {
-                        for (_protocol, strategies) in new_map.iter_mut() {
-                            let updated_strategies = strategies
-                                .iter()
-                                .map(|(strategy_name, strategy_data)| {
-                                    let mut updated_data = strategy_data.clone();
-                                    if let Some(nimbora_strategy) =
-                                        nimbora_strategies.iter().find(|s| {
-                                            s["name"]
-                                                .as_str()
-                                                .unwrap_or("")
-                                                .to_lowercase()
-                                                .contains(&strategy_name.to_lowercase())
-                                        })
-                                    {
-                                        println!(
-                                            "Matching Nimbora strategy found for {}",
-                                            strategy_name
-                                        );
-                                        if let (Some(base_apr), Some(incentives_apr)) = (
-                                            nimbora_strategy["aprBreakdown"]["base"].as_str(),
-                                            nimbora_strategy["aprBreakdown"]["incentives"].as_str(),
-                                        ) {
-                                            let base_apr: f64 = base_apr.parse().unwrap_or(0.0);
-                                            let incentives_apr: f64 =
-                                                incentives_apr.parse().unwrap_or(0.0);
-                                            let total_apr = base_apr + incentives_apr;
-
-                                            updated_data["apr"] = Value::Number(
-                                                serde_json::Number::from_f64(total_apr)
+                if let Ok(Value::Array(nimbora_strategies)) = nimbora_data {
+                    for (protocol, strategies) in new_map.iter_mut() {
+                        println!("Processing protocol: {}", protocol);
+                        for (strategy_name, strategy_data) in strategies.iter_mut() {
+                            if let Some(nimbora_symbol) = strategy_map.get(strategy_name) {
+                                // Only process and print for strategies that have a mapping
+                                if let Some(nimbora_strategy) = nimbora_strategies.iter().find(|s| {
+                                    s["symbol"].as_str().unwrap_or("") == nimbora_symbol
+                                }) {
+                                    if let Some(apr) = nimbora_strategy["apr"].as_str() {
+                                        if let Ok(apr_value) = apr.parse::<f64>() {
+                                            strategy_data["apr"] = Value::Number(
+                                                serde_json::Number::from_f64(apr_value)
                                                     .unwrap_or(serde_json::Number::from(0)),
                                             );
+                                            println!("  Updated APR for {} ({}) to {}", strategy_name, nimbora_symbol, apr);
+                                        } else {
+                                            println!("  Failed to parse APR value for {} ({})", strategy_name, nimbora_symbol);
                                         }
                                     } else {
-                                        println!(
-                                            "No matching Nimbora strategy found for {}",
-                                            strategy_name
-                                        );
+                                        println!("  No APR data found for {} ({})", strategy_name, nimbora_symbol);
                                     }
-                                    (strategy_name.clone(), updated_data)
-                                })
-                                .collect();
-                            *strategies = updated_strategies;
+                                }
+                            }
                         }
-                    } else {
-                        println!("Nimbora data is not in the expected format");
                     }
                 } else {
-                    println!("Failed to fetch Nimbora data");
+                    println!("Failed to fetch or parse Nimbora data");
                 }
 
                 return (StatusCode::OK, Json(new_map)).into_response();
