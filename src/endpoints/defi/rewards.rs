@@ -1,10 +1,9 @@
 use crate::{
-    config::Config,
     models::{
         AppState, CommonReward, ContractCall, DefiReward, EkuboRewards, NimboraRewards,
         NostraPeriodsResponse, NostraResponse, RewardSource, ZkLendReward,
     },
-    utils::{check_if_claimed, to_hex_trimmed, to_hex},
+    utils::{check_if_claimed, read_contract, to_hex, to_hex_trimmed},
 };
 use axum::{
     extract::{Query, State},
@@ -21,7 +20,7 @@ use reqwest_tracing::TracingMiddleware;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use starknet::{core::types::FieldElement, macros::selector};
-use std::{sync::Arc, vec};
+use std::{str::FromStr, sync::Arc, vec};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RewardQuery {
@@ -45,7 +44,7 @@ pub async fn get_defi_rewards(
     let (zklend_rewards, nostra_rewards, nimbora_rewards, ekubo_rewards) = tokio::join!(
         fetch_zklend_rewards(&client, &addr),
         fetch_nostra_rewards(&client, &addr, &state),
-        fetch_nimbora_rewards(&client, &addr, &state.conf),
+        fetch_nimbora_rewards(&client, &addr, &state),
         fetch_ekubo_rewards(&client, &addr, &state),
     );
 
@@ -186,7 +185,7 @@ async fn fetch_nostra_rewards(
                         distributor,
                         selector!("amount_already_claimed"),
                         vec![addr_field],
-                        RewardSource::Nostra
+                        RewardSource::Nostra,
                     )
                     .await
                     {
@@ -216,13 +215,13 @@ async fn fetch_nostra_rewards(
 async fn fetch_nimbora_rewards(
     client: &ClientWithMiddleware,
     addr: &str,
-    config: &Config,
+    state: &AppState,
 ) -> Result<Vec<CommonReward>, Error> {
+    let config = &state.conf;
     let nimbora_url = format!(
         "https://strk-dist-backend.nimbora.io/get_calldata?address={}",
         addr
     );
-
     let response = client
         .get(&nimbora_url)
         .headers(get_headers())
@@ -233,8 +232,20 @@ async fn fetch_nimbora_rewards(
 
     match response.json::<NimboraRewards>().await {
         Ok(result) => {
+            let amount = result.amount;
+            let claimed_amount = read_contract(
+                state,
+                config.rewards.nimbora.contract,
+                selector!("amount_already_claimed"),
+                vec![FieldElement::from_str(addr).unwrap()],
+            )
+            .await
+            .unwrap()[0];
+            if claimed_amount == amount {
+                return Ok(vec![]);
+            }
             let reward = CommonReward {
-                amount: result.amount,
+                amount: amount - claimed_amount,
                 proof: result.proof,
                 reward_id: None,
                 token_symbol: strk_symbol.clone(),
@@ -284,7 +295,7 @@ async fn fetch_ekubo_rewards(
                     reward.contract_address,
                     selector!("is_claimed"),
                     vec![FieldElement::from(reward.claim.id)],
-                    RewardSource::Ekubo
+                    RewardSource::Ekubo,
                 )
                 .await
                 {
