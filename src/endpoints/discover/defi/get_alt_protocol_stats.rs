@@ -59,13 +59,14 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                     for (_protocol, strategies) in new_map.iter_mut() {
                         for (strategy_name, strategy_data) in strategies.iter_mut() {
                             if let Some(nimbora_symbol) = strategy_map.get(strategy_name) {
-                                if let Some(nimbora_strategy) = nimbora_strategies.iter().find(|s| {
-                                    s["symbol"].as_str().unwrap_or("") == nimbora_symbol
-                                }) {
+                                if let Some(nimbora_strategy) = nimbora_strategies
+                                    .iter()
+                                    .find(|s| s["symbol"].as_str().unwrap_or("") == nimbora_symbol)
+                                {
                                     if let Some(apr) = nimbora_strategy["apr"].as_str() {
                                         if let Ok(apr_value) = apr.parse::<f64>() {
                                             strategy_data["apr"] = Value::Number(
-                                                serde_json::Number::from_f64(apr_value)
+                                                serde_json::Number::from_f64(apr_value / 100.0)
                                                     .unwrap_or(serde_json::Number::from(0)),
                                             );
                                         }
