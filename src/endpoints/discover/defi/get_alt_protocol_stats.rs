@@ -56,11 +56,9 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
 
                 // Update APRs with Nimbora data if available
                 if let Ok(Value::Array(nimbora_strategies)) = nimbora_data {
-                    for (protocol, strategies) in new_map.iter_mut() {
-                        println!("Processing protocol: {}", protocol);
+                    for (_protocol, strategies) in new_map.iter_mut() {
                         for (strategy_name, strategy_data) in strategies.iter_mut() {
                             if let Some(nimbora_symbol) = strategy_map.get(strategy_name) {
-                                // Only process and print for strategies that have a mapping
                                 if let Some(nimbora_strategy) = nimbora_strategies.iter().find(|s| {
                                     s["symbol"].as_str().unwrap_or("") == nimbora_symbol
                                 }) {
@@ -70,12 +68,7 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                                                 serde_json::Number::from_f64(apr_value)
                                                     .unwrap_or(serde_json::Number::from(0)),
                                             );
-                                            println!("  Updated APR for {} ({}) to {}", strategy_name, nimbora_symbol, apr);
-                                        } else {
-                                            println!("  Failed to parse APR value for {} ({})", strategy_name, nimbora_symbol);
                                         }
-                                    } else {
-                                        println!("  No APR data found for {} ({})", strategy_name, nimbora_symbol);
                                     }
                                 }
                             }
