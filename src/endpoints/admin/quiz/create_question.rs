@@ -63,7 +63,6 @@ pub async fn handler(
         return get_error("quiz does not exist".to_string());
     }
 
-
     let state_last_id = state.last_task_id.lock().await;
 
     let next_quiz_question_id = get_next_task_id(&tasks_collection, state_last_id.clone()).await;

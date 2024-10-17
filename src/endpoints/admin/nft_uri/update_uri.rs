@@ -1,6 +1,6 @@
+use crate::middleware::auth::auth_middleware;
 use crate::models::NFTUri;
 use crate::{models::AppState, utils::get_error};
-use crate::middleware::auth::auth_middleware;
 use axum::{
     extract::State,
     http::StatusCode,

@@ -1,9 +1,9 @@
+use crate::middleware::auth::auth_middleware;
 use crate::models::QuestTaskDocument;
 use crate::utils::verify_task_auth;
 use crate::{models::AppState, utils::get_error};
-use crate::middleware::auth::auth_middleware;
 use axum::{
-    extract::{State, Extension},
+    extract::{Extension, State},
     http::StatusCode,
     response::{IntoResponse, Json},
 };

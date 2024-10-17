@@ -1,7 +1,7 @@
+use crate::middleware::auth::auth_middleware;
 use crate::models::QuestTaskDocument;
 use crate::utils::verify_task_auth;
 use crate::{models::AppState, utils::get_error};
-use crate::middleware::auth::auth_middleware;
 use axum::{
     extract::{Extension, State},
     http::StatusCode,
@@ -25,7 +25,7 @@ pub_struct!(Deserialize; UpdateTwitterRw {
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Extension(sub): Extension<String>,
-   Json(body): Json<UpdateTwitterRw>,
+    Json(body): Json<UpdateTwitterRw>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
 

@@ -1,5 +1,7 @@
 pub mod balance;
+pub mod contract;
 pub mod custom;
+pub mod custom_api;
 pub mod delete_task;
 pub mod discord;
 pub mod domain;
@@ -10,5 +12,3 @@ pub mod quest_boost;
 pub mod quiz;
 pub mod twitter;
 pub mod user;
-pub mod custom_api;
-pub mod contract;

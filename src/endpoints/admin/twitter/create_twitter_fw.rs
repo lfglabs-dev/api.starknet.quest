@@ -28,7 +28,7 @@ pub async fn handler(
     body: Json<CreateTwitterFw>,
 ) -> impl IntoResponse {
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
-    
+
     let quests_collection = state.db.collection::<QuestDocument>("quests");
 
     let res = verify_quest_auth(sub, &quests_collection, &body.quest_id).await;

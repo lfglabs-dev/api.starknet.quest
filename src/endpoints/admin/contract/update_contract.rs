@@ -1,7 +1,7 @@
-use crate::models::{QuestTaskDocument, Call};
-use crate::{models::AppState, utils::get_error};
 use crate::middleware::auth::auth_middleware;
+use crate::models::{Call, QuestTaskDocument};
 use crate::utils::verify_task_auth;
+use crate::{models::AppState, utils::get_error};
 
 use axum::{
     extract::{Extension, State},
@@ -29,7 +29,6 @@ pub async fn handler(
     Extension(sub): Extension<String>,
     Json(body): Json<UpdateContract>,
 ) -> impl IntoResponse {
-
     let collection = state.db.collection::<QuestTaskDocument>("tasks");
 
     let res = verify_task_auth(sub, &collection, &(body.id as i32)).await;

@@ -15,7 +15,7 @@ pub async fn auth_middleware<B>(
 ) -> Result<Response, (StatusCode, String)> {
     let headers = req.headers();
     let conf = config::load();
-    let secret_key = &conf.auth.secret_key; 
+    let secret_key = &conf.auth.secret_key;
 
     let auth_header = headers
         .get(axum::http::header::AUTHORIZATION)
@@ -30,20 +30,31 @@ pub async fn auth_middleware<B>(
                     &DecodingKey::from_secret(secret_key.as_bytes()),
                     &Validation::new(jsonwebtoken::Algorithm::HS256),
                 ) {
-                    Ok(token_data) => 
-                    {
+                    Ok(token_data) => {
                         req.extensions_mut().insert(token_data.claims.sub);
                         Ok(next.run(req).await)
-                    },
-                    Err(_) => Err((StatusCode::UNAUTHORIZED, "Invalid token was provided".to_string())),
+                    }
+                    Err(_) => Err((
+                        StatusCode::UNAUTHORIZED,
+                        "Invalid token was provided".to_string(),
+                    )),
                 }
             } else {
-                Err((StatusCode::UNAUTHORIZED, "Missing token was provided".to_string()))
+                Err((
+                    StatusCode::UNAUTHORIZED,
+                    "Missing token was provided".to_string(),
+                ))
             }
         } else {
-            Err((StatusCode::UNAUTHORIZED, "Invalid Authorization header format".to_string()))
+            Err((
+                StatusCode::UNAUTHORIZED,
+                "Invalid Authorization header format".to_string(),
+            ))
         }
     } else {
-        Err((StatusCode::UNAUTHORIZED, "Missing Authorization header".to_string()))
+        Err((
+            StatusCode::UNAUTHORIZED,
+            "Missing Authorization header".to_string(),
+        ))
     }
 }

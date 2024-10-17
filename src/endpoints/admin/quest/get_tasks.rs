@@ -1,5 +1,5 @@
-use crate::{models::AppState, utils::get_error};
 use crate::middleware::auth::auth_middleware;
+use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
