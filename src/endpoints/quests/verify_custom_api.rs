@@ -78,7 +78,7 @@ pub async fn handler(
                     Err(e) => get_error(format!("{}", e)),
                 }
             } else {
-                get_error("Response did not match the required pattern.".to_string())
+                get_error("User not eligible.".to_string())
             }
         }
         Err(e) => get_error(format!("Failed to fetch API: {}", e)),
