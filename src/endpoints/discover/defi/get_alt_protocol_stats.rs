@@ -56,8 +56,11 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
 
                 // Update APRs with Nimbora data if available
                 if let Ok(Value::Array(nimbora_strategies)) = nimbora_data {
-                    for (_protocol, strategies) in new_map.iter_mut() {
-                        for (strategy_name, strategy_data) in strategies.iter_mut() {
+                    for (protocol, strategies) in new_map.iter_mut() {
+                        if protocol != "Nimbora" {
+                            continue;
+                        }
+                        for (strategy_name, _strategy_data) in strategies.clone().iter() {
                             if let Some(nimbora_symbol) = strategy_map.get(strategy_name) {
                                 if let Some(nimbora_strategy) = nimbora_strategies
                                     .iter()
@@ -65,13 +68,19 @@ pub async fn handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
                                 {
                                     if let Some(apr) = nimbora_strategy["apr"].as_str() {
                                         if let Ok(apr_value) = apr.parse::<f64>() {
-                                            strategy_data["apr"] = Value::Number(
-                                                serde_json::Number::from_f64(apr_value / 100.0)
-                                                    .unwrap_or(serde_json::Number::from(0)),
-                                            );
+                                            if let Some(strategy) =
+                                                strategies.get_mut(strategy_name)
+                                            {
+                                                strategy["apr"] = Value::Number(
+                                                    serde_json::Number::from_f64(apr_value / 100.0)
+                                                        .unwrap_or(serde_json::Number::from(0)),
+                                                );
+                                            }
                                         }
                                     }
                                 }
+                            } else {
+                                strategies.remove(strategy_name);
                             }
                         }
                     }
