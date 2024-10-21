@@ -470,6 +470,7 @@ pub enum RewardSource {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CommonReward {
     pub amount: FieldElement,
+    pub displayed_amount: FieldElement,
     pub proof: Vec<String>,
     pub reward_id: Option<u64>,
     pub claim_contract: FieldElement,

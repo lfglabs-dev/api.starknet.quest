@@ -96,6 +96,7 @@ async fn fetch_zklend_rewards(
                 .filter(|reward| !reward.claimed)
                 .map(|reward| CommonReward {
                     amount: reward.amount.value,
+                    displayed_amount: reward.amount.value,
                     proof: reward.proof,
                     reward_id: Some(reward.claim_id),
                     claim_contract: reward.claim_contract,
@@ -191,6 +192,7 @@ async fn fetch_nostra_rewards(
                     {
                         Some(CommonReward {
                             amount: doc.reward,
+                            displayed_amount: doc.reward,
                             proof: doc.proofs,
                             reward_id: None,
                             claim_contract: distributor,
@@ -245,7 +247,8 @@ async fn fetch_nimbora_rewards(
                 return Ok(vec![]);
             }
             let reward = CommonReward {
-                amount: amount - claimed_amount,
+                amount: amount,
+                displayed_amount: amount - claimed_amount,
                 proof: result.proof,
                 reward_id: None,
                 token_symbol: strk_symbol.clone(),
@@ -301,6 +304,7 @@ async fn fetch_ekubo_rewards(
                 {
                     Some(CommonReward {
                         amount: reward.claim.amount,
+                        displayed_amount: reward.claim.amount,
                         proof: reward.proof,
                         reward_id: Some(reward.claim.id),
                         claim_contract: reward.contract_address,
@@ -369,7 +373,7 @@ fn extract_rewards(common_rewards: &[CommonReward]) -> Vec<DefiReward> {
     common_rewards
         .iter()
         .map(|reward| DefiReward {
-            amount: reward.amount,
+            amount: reward.displayed_amount,
             token_symbol: reward.token_symbol.clone(),
         })
         .collect()
