@@ -83,7 +83,7 @@ pub async fn handler(
         cta: body.cta.clone(),
         quest_id: body.quest_id.clone(),
         id: next_id.clone(),
-        verify_endpoint: "/quests/verify_quiz".to_string(),
+        verify_endpoint: "quests/verify_quiz".to_string(),
         verify_endpoint_type: "quiz".to_string(),
         quiz_name: Some(next_quiz_id.clone() as i64),
         task_type: Some("quiz".to_string()),
