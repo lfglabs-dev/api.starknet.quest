@@ -35,7 +35,7 @@ pub async fn handler(
 ) -> impl IntoResponse {
     let collection = state.db.collection::<BoostTable>("boosts");
     let quests_collection = state.db.collection::<QuestDocument>("quests");
-    let insert_collection = state.db.collection::<QuestTaskDocument>("quests");
+    let insert_collection = state.db.collection::<QuestTaskDocument>("tasks");
 
     let res = verify_quest_auth(sub, &quests_collection, &(body.quest_id as i64)).await;
     if !res {
