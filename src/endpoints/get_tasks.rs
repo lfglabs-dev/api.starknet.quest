@@ -24,11 +24,6 @@ pub struct UserTask {
     desc: String,
     completed: bool,
     quiz_name: Option<i64>,
-    // Add the missing fields
-    calls: Option<Vec<String>>,
-    contracts: Option<Vec<String>>,
-    api_url: Option<String>,
-    regex: Option<String>,
 }
 
 #[derive(Deserialize)]
