@@ -24,11 +24,6 @@ pub struct UserTask {
     desc: String,
     completed: bool,
     quiz_name: Option<i64>,
-    // Add the missing fields
-    calls: Option<Vec<String>>,
-    contracts: Option<Vec<String>>,
-    api_url: Option<String>,
-    regex: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -116,10 +111,12 @@ pub async fn handler(
         Ok(mut cursor) => {
             let mut tasks: Vec<UserTask> = Vec::new();
             while let Some(result) = cursor.next().await {
-                match result {
+                match result.clone() {
                     Ok(document) => {
                         if let Ok(task) = from_document::<UserTask>(document) {
                             tasks.push(task);
+                        } else {
+                            println!("Failed to deserialize document: {:?}", result);
                         }
                     }
                     _ => continue,
