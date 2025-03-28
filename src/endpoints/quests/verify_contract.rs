@@ -56,7 +56,7 @@ pub async fn handler(
                 .call_data
                 .iter()
                 .map(|s| {
-                    let replaced_calldata = parse_string(s, FieldElement::from_hex_be(s).unwrap());
+                    let replaced_calldata = parse_string(s, query.addr);
                     FieldElement::from_hex_be(&replaced_calldata)
                 })
                 .collect::<Result<Vec<FieldElement>, _>>()
