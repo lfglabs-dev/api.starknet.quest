@@ -111,12 +111,10 @@ pub async fn handler(
         Ok(mut cursor) => {
             let mut tasks: Vec<UserTask> = Vec::new();
             while let Some(result) = cursor.next().await {
-                match result.clone() {
+                match result {
                     Ok(document) => {
                         if let Ok(task) = from_document::<UserTask>(document) {
                             tasks.push(task);
-                        } else {
-                            println!("Failed to deserialize document: {:?}", result);
                         }
                     }
                     _ => continue,
