@@ -385,7 +385,6 @@ async fn fetch_vesu_rewards(
             let call_data = match result.data.distributor_data.call_data {
                 Some(data) => data,
                 None => {
-                    logger.warning("Vesu response missing callData field");
                     return Ok(vec![]);
                 }
             };
