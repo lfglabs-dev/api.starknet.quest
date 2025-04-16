@@ -114,7 +114,7 @@ async fn fetch_zklend_rewards(
             Ok(rewards)
         }
         Err(err) => {
-            logger.warning(format!("Failed to deserialize zkLend response: {:?}", err));
+            logger.info(format!("Failed to deserialize zkLend response: {:?}", err));
             Err(Error::Reqwest(err))
         }
     }
@@ -158,7 +158,7 @@ async fn fetch_nostra_rewards(
     let reward_periods = match periods_resp.json::<NostraPeriodsResponse>().await {
         Ok(result) => result,
         Err(err) => {
-            logger.warning(format!(
+            logger.info(format!(
                 "Failed to deserialize Nostra periods response: {:?}",
                 err
             ));
@@ -169,7 +169,7 @@ async fn fetch_nostra_rewards(
     let rewards = match rewards_resp.json::<NostraResponse>().await {
         Ok(result) => result,
         Err(err) => {
-            logger.warning(format!(
+            logger.info(format!(
                 "Failed to deserialize Nostra rewards response: {:?}",
                 err
             ));
@@ -277,7 +277,7 @@ async fn fetch_nimbora_rewards(
             Ok(vec![reward])
         }
         Err(err) => {
-            logger.warning(format!("Failed to deserialize nimbora response: {:?}", err));
+            logger.info(format!("Failed to deserialize nimbora response: {:?}", err));
             Err(Error::Reqwest(err))
         }
     }
@@ -301,7 +301,7 @@ async fn fetch_ekubo_rewards(
     let rewards = match response.json::<Vec<EkuboRewards>>().await {
         Ok(result) => result,
         Err(err) => {
-            logger.warning(format!(
+            logger.info(format!(
                 "Failed to deserialize Ekubo rewards response: {:?}",
                 err
             ));
@@ -428,7 +428,7 @@ async fn fetch_vesu_rewards(
             Ok(vec![reward])
         }
         Err(err) => {
-            logger.warning(format!("Failed to deserialize vesu response: {:?}", err));
+            logger.info(format!("Failed to deserialize vesu response: {:?}", err));
             // Err(Error::Reqwest(err))
             Ok(vec![]) // Return empty vector instead of error
         }
