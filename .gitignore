@@ -93,3 +93,5 @@ rust-project.json
 .ionide
 
 rustfmt.toml
+
+images
