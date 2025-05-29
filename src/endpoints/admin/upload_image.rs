@@ -13,8 +13,8 @@ use std::{fs::create_dir_all, path::Path as FilePath};
 
 #[route(post, "/admin/images/upload/:image_name", auth_middleware)]
 pub async fn upload_image_handler(
-    State(state): State<Arc<AppState>>,
-    Extension(sub): Extension<String>, // Example if sub is needed for authorization
+    State(_state): State<Arc<AppState>>,
+    Extension(_sub): Extension<String>, // Example if sub is needed for authorization
     Path(image_name): Path<String>,
     mut multipart: Multipart,
 ) -> impl IntoResponse {
