@@ -910,7 +910,7 @@ pub async fn check_if_unclaimed(
     match read_contract(state, contract, selector, calldata).await {
         Ok(result) => result.get(0) == Some(&FieldElement::ZERO),
         Err(err) => {
-            logger.severe(format!(
+            logger.info(format!(
                 "Error checking {:?} claim status: {:?} in {}",
                 source,
                 err,
