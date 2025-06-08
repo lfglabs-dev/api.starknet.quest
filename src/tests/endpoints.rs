@@ -69,6 +69,60 @@ pub mod tests {
         let mut update_doc = doc! {};
         update_doc.insert("banner", bson_banner.clone());
         assert_eq!(update_doc.get("banner").unwrap(), &bson_banner);
-    }    
+    } 
+
+
+
+    // Unit tests for the CSV creation logic
+    #[tokio::test]
+    pub async fn test_csv_creation_logic() {
+        use crate::endpoints::admin::quest_boost::get_boost_winners_csv::create_csv_response;
+        
+        // Test with winners
+        let winners = Some(vec![
+            "0x1234567890abcdef".to_string(),
+            "0xfedcba0987654321".to_string(),
+        ]);
+        let boost_id = 123;
+        
+        let result = create_csv_response(&winners, boost_id).unwrap();
+        
+        let expected = "boost_id,winner_address,position\n\
+                       123,0x1234567890abcdef,1\n\
+                       123,0xfedcba0987654321,2\n";
+        
+        assert_eq!(result, expected);
+    }
+
+    #[tokio::test]
+    pub async fn test_csv_creation_no_winners() {
+        use crate::endpoints::admin::quest_boost::get_boost_winners_csv::create_csv_response;
+        
+        // Test with no winners
+        let winners = None;
+        let boost_id = 456;
+        
+        let result = create_csv_response(&winners, boost_id).unwrap();
+        
+        let expected = "boost_id,winner_address,position\n";
+        
+        assert_eq!(result, expected);
+    }
+
+    #[tokio::test]
+    pub async fn test_csv_creation_empty_winners() {
+        use crate::endpoints::admin::quest_boost::get_boost_winners_csv::create_csv_response;
+        
+        // Test with empty winners vector
+        let winners = Some(vec![]);
+        let boost_id = 789;
+        
+        let result = create_csv_response(&winners, boost_id).unwrap();
+        
+        let expected = "boost_id,winner_address,position\n";
+        
+        assert_eq!(result, expected);
+    }   
+   
 
 }
