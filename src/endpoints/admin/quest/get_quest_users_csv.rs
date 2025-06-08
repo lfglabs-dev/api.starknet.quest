@@ -1,21 +1,19 @@
-// src/endpoints/admin/quest/get_quest_users_csv.rs
 use crate::middleware::auth::auth_middleware;
 use crate::models::{AppState, CompletedTaskDocument, QuestDocument, QuestTaskDocument};
-use crate::utils::{get_error, to_hex, verify_quest_auth}; 
+use crate::utils::{get_error, to_hex, verify_quest_auth};
 use axum::{
     extract::{Extension, Query, State},
     http::{header, HeaderMap, HeaderValue, StatusCode},
     response::IntoResponse,
 };
 use axum_auto_routes::route;
-use csv::WriterBuilder; // import from csv crate
+use csv::WriterBuilder;
 use futures::TryStreamExt;
 use mongodb::bson::doc;
 use serde::Deserialize;
 use starknet::core::types::FieldElement;
 use std::collections::HashSet;
 use std::sync::Arc;
-
 
 pub_struct!(Deserialize; GetQuestUsersParams {
     quest_id: i64,
@@ -24,7 +22,7 @@ pub_struct!(Deserialize; GetQuestUsersParams {
 #[route(get, "/admin/quests/get_quest_users_csv", auth_middleware)]
 pub async fn get_quest_users_csv_handler(
     State(state): State<Arc<AppState>>,
-    Extension(_sub): Extension<String>, 
+    Extension(_sub): Extension<String>,
     Query(params): Query<GetQuestUsersParams>,
 ) -> impl IntoResponse {
     let tasks_collection = state.db.collection::<QuestTaskDocument>("tasks");
@@ -80,7 +78,9 @@ pub async fn get_quest_users_csv_handler(
 
             user_set
                 .into_iter()
-                .filter_map(|addr_dec_str| FieldElement::from_dec_str(&addr_dec_str).ok().map(to_hex))
+                .filter_map(|addr_dec_str| {
+                    FieldElement::from_dec_str(&addr_dec_str).ok().map(to_hex)
+                })
                 .collect()
         }
         Err(e) => return get_error(format!("Error processing completed tasks: {}", e)),
