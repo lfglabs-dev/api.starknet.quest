@@ -6,6 +6,8 @@ services:
     restart: always
     ports:
       - 8080:8080
+    volumes:
+      - images-data:/app/images
 
   nginx:
     image: valian/docker-nginx-auto-ssl
@@ -21,3 +23,4 @@ services:
 
 volumes:
   ssl_data:
+  images-data:
