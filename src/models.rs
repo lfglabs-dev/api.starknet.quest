@@ -11,6 +11,7 @@ use crate::{config::Config, logger::Logger};
 use tokio::sync::Mutex;
 
 pub_struct!(;AppState {
+    last_quest_id: Mutex<i64>,
     last_task_id: Mutex<i64>,
     last_question_id: Mutex<i64>,
     conf: Config,
@@ -19,12 +20,12 @@ pub_struct!(;AppState {
     logger: Logger,
 });
 
-pub_struct!(Debug, Serialize, Deserialize; NFTItem {
+pub_struct!(Debug, Serialize, Deserialize, Clone; NFTItem {
     img: String,
     level: u32,
 });
 
-pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
+pub_struct!(Debug, Serialize, Deserialize, Clone; QuestDocument {
     id: u32,
     name: String,
     desc: String,
@@ -50,7 +51,7 @@ pub_struct!(Debug, Serialize, Deserialize; QuestDocument {
     banner: Option<Banner>
 });
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Banner {
     pub tag: String,
     pub title: String,
@@ -108,6 +109,7 @@ pub_struct!(Serialize, Deserialize; NFTUri {
     attributes: Option<Attribute>
 });
 
+#[allow(dead_code)]
 pub_struct!(Deserialize; CompletedTasks {
     address: String,
     task_id: u32,
@@ -195,12 +197,14 @@ pub_struct!(Deserialize; EmailQuery {
     email: String,
 });
 
+#[allow(dead_code)]
 pub_struct!(Deserialize; VerifyQuizQuery {
     addr: FieldElement,
     quiz_name: i64,
     user_answers_list: Vec<Vec<usize>>,
 });
 
+#[allow(dead_code)]
 pub_struct!(Deserialize; VerifyBalanceQuery {
     addr: FieldElement,
     task_id: u32,
@@ -349,6 +353,7 @@ pub_struct!(Deserialize, Debug; DeployedTime {
     timestamp: u32,
 });
 
+#[allow(dead_code)]
 pub_struct!(Deserialize; VerifyAchievementBatchedQuery {
     addr: FieldElement,
     category_id: u32,
@@ -382,6 +387,7 @@ pub_struct!(Debug, Serialize, Deserialize; LoginDetails {
     code: String,
 });
 
+#[allow(dead_code)]
 pub_struct!(Deserialize; CreateBoostQuery {
     quest_id: i32,
     amount: i32,
@@ -534,6 +540,7 @@ pub struct DefiReward {
     pub token_symbol: String,
 }
 
+#[allow(dead_code)]
 pub_struct!(Deserialize; GetQuestParticipantsParams {
     quest_id: i64,
 });

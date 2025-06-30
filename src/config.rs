@@ -133,6 +133,7 @@ impl<'de> Deserialize<'de> for QuizQuestionType {
     }
 }
 
+#[allow(dead_code)]
 pub_struct!(Clone, Deserialize,Debug; QuizQuestion {
     kind: QuizQuestionType,
     layout: String,
@@ -143,6 +144,7 @@ pub_struct!(Clone, Deserialize,Debug; QuizQuestion {
     image_for_layout: Option<String>,
 });
 
+#[allow(dead_code)]
 pub_struct!(Clone, Deserialize,Debug; Quiz {
     name: String,
     desc: String,

@@ -1,6 +1,6 @@
 use crate::middleware::auth::auth_middleware;
-use crate::models::{QuestInsertDocument, QuestTaskDocument};
-use crate::utils::get_next_task_id;
+use crate::models::{QuestDocument, QuestInsertDocument};
+use crate::utils::get_next_quest_id;
 use crate::{models::AppState, utils::get_error};
 use axum::{
     extract::{Extension, State},
@@ -35,12 +35,12 @@ pub async fn handler(
     Extension(sub): Extension<String>,
     Json(body): Json<CreateQuestQuery>,
 ) -> impl IntoResponse {
-    let collection = state.db.collection::<QuestInsertDocument>("quests");
-    let insert_collection = state.db.collection::<QuestTaskDocument>("tasks");
+    let insert_collection = state.db.collection::<QuestInsertDocument>("quests");
+    let collection = state.db.collection::<QuestDocument>("quests");
 
-    let state_last_id = state.last_task_id.lock().await;
+    let state_last_id = state.last_quest_id.lock().await;
 
-    let next_id = get_next_task_id(&insert_collection, state_last_id.clone()).await;
+    let next_id = get_next_quest_id(&collection, state_last_id.clone()).await;
 
     let nft_reward = doc! {
         "img": body.img_card.clone().to_string(),
@@ -84,7 +84,7 @@ pub async fn handler(
     };
 
     // insert document to boost collection
-    return match collection
+    return match insert_collection
         .insert_one(
             from_document::<QuestInsertDocument>(new_document).unwrap(),
             None,
