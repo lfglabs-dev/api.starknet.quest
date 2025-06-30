@@ -839,6 +839,27 @@ pub fn parse_string(input: &str, address: FieldElement) -> String {
     result
 }
 
+pub async fn get_next_quest_id(
+    quest_collection: &Collection<QuestDocument>,
+    last_quest_id: i64,
+) -> i32 {
+    let last_id_filter = doc! {};
+    let options = FindOneOptions::builder().sort(doc! {"id": -1}).build();
+
+    let last_doc = quest_collection
+        .find_one(last_id_filter, options)
+        .await
+        .unwrap();
+
+    if let Some(doc) = last_doc {
+        let db_last_id = doc.id;
+
+        return std::cmp::max(db_last_id as i32, (last_quest_id).try_into().unwrap()) + 1;
+    } else {
+        return (last_quest_id as i32) + 1;
+    }
+}
+
 pub async fn get_next_task_id(
     task_collection: &Collection<QuestTaskDocument>,
     last_task_id: i64,

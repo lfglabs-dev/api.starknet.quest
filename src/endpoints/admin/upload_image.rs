@@ -1,20 +1,16 @@
 use crate::middleware::auth::auth_middleware;
-use crate::models::AppState;
 use crate::utils::get_error;
 use axum::{
-    extract::{Extension, Multipart, Path, State},
+    extract::{Multipart, Path},
     http::StatusCode,
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
 use serde_json::json;
-use std::sync::Arc;
 use std::{fs::create_dir_all, path::Path as FilePath};
 
 #[route(post, "/admin/images/upload/:image_name", auth_middleware)]
 pub async fn upload_image_handler(
-    State(_state): State<Arc<AppState>>,
-    Extension(_sub): Extension<String>, // Example if sub is needed for authorization
     Path(image_name): Path<String>,
     mut multipart: Multipart,
 ) -> impl IntoResponse {

@@ -11,6 +11,7 @@ use crate::{config::Config, logger::Logger};
 use tokio::sync::Mutex;
 
 pub_struct!(;AppState {
+    last_quest_id: Mutex<i64>,
     last_task_id: Mutex<i64>,
     last_question_id: Mutex<i64>,
     conf: Config,

@@ -6,6 +6,7 @@ pub mod discover;
 pub mod get_boosted_quests;
 pub mod get_completed_quests;
 pub mod get_deployed_time;
+pub mod get_image;
 pub mod get_quest;
 pub mod get_quest_category;
 pub mod get_quest_participants;
