@@ -1,7 +1,4 @@
-version: '3'
-
 services:
-
   quest_server:
     container_name: quest_server
     build: .
@@ -9,3 +6,8 @@ services:
     restart: always
     ports:
       - 8080:8080
+    volumes:
+      - images-data:/app/images
+
+volumes:
+  images-data:
