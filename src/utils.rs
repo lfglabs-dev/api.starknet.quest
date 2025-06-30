@@ -384,6 +384,7 @@ impl AchievementsTrait for AppState {
         result
     }
 
+    #[allow(dead_code)]
     async fn get_achievement(
         &self,
         achievement_id: u32,

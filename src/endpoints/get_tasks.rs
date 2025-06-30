@@ -10,8 +10,11 @@ use mongodb::bson::{doc, from_document, Document};
 use serde::{Deserialize, Serialize};
 use starknet::core::types::FieldElement;
 use std::sync::Arc;
+use dashmap::DashMap;
+use once_cell::sync::Lazy;
+use std::time::{Duration, Instant};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserTask {
     id: u32,
     quest_id: u32,
@@ -32,11 +35,29 @@ pub struct GetTasksQuery {
     addr: FieldElement,
 }
 
+// In-memory cache for endpoint results
+static GET_TASKS_CACHE: Lazy<DashMap<(u32, String), (Instant, Vec<UserTask>)>> = Lazy::new(DashMap::new);
+const GET_TASKS_CACHE_TTL: Duration = Duration::from_secs(60); // 1 minute cache
+
+// IMPORTANT: Ensure the following indexes exist in MongoDB for optimal performance:
+// db.tasks.createIndex({ quest_id: 1 })
+// db.completed_tasks.createIndex({ task_id: 1, address: 1 })
+// db.quests.createIndex({ id: 1 })
+// These indexes will significantly speed up the aggregation pipeline.
+
 #[route(get, "/get_tasks")]
 pub async fn handler(
     State(state): State<Arc<AppState>>,
     Query(query): Query<GetTasksQuery>,
 ) -> impl IntoResponse {
+    let cache_key = (query.quest_id, query.addr.to_string());
+    // Check cache first
+    if let Some((cached_at, cached_result)) = GET_TASKS_CACHE.get(&cache_key).map(|v| v.value().clone()) {
+        if cached_at.elapsed() < GET_TASKS_CACHE_TTL {
+            return (StatusCode::OK, Json(cached_result)).into_response();
+        }
+    }
+
     let pipeline = vec![
         doc! { "$match": { "quest_id": query.quest_id } },
         doc! {
@@ -120,12 +141,15 @@ pub async fn handler(
                     _ => continue,
                 }
             }
-            if tasks.is_empty() {
-                get_error("No tasks found for this quest_id".to_string())
-            } else {
-                (StatusCode::OK, Json(tasks)).into_response()
-            }
+            // Store in cache
+            GET_TASKS_CACHE.insert(cache_key, (Instant::now(), tasks.clone()));
+            (StatusCode::OK, Json(tasks)).into_response()
         }
         Err(_) => get_error("Error querying tasks".to_string()),
     }
 }
+
+// Pipeline optimization note:
+// - If the completed_tasks or tasks collections are very large, consider pre-aggregating stats in a background job.
+// - Use $project early in the pipeline to reduce memory usage if possible.
+// - If the pipeline is still slow, consider splitting into multiple smaller queries or using a reporting database.
