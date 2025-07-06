@@ -102,7 +102,7 @@ async fn fetch_zklend_rewards(
                     amount: reward.amount.value,
                     displayed_amount: reward.amount.value,
                     proof: reward.proof,
-                    reward_id: Some(reward.claim_id),
+                    reward_id: reward.claim_id,
                     claim_contract: reward.claim_contract,
                     token_symbol: reward.token.symbol,
                     reward_source: RewardSource::ZkLend,
@@ -228,7 +228,6 @@ async fn fetch_nostra_rewards(
     Ok(active_rewards)
 }
 
-// Fetch rewards from nimbora
 async fn fetch_nimbora_rewards(
     client: &ClientWithMiddleware,
     addr: &str,
@@ -336,8 +335,8 @@ async fn fetch_ekubo_rewards(
                         token_symbol: strk_token.symbol,
                         reward_source: RewardSource::Ekubo,
                         claimed: false,
-                        start_date: Some(reward.start_date),
-                        end_date: Some(reward.end_date),
+                        start_date: reward.start_date.and_then(|s| s.parse::<u64>().ok()),
+                        end_date: reward.end_date.and_then(|s| s.parse::<u64>().ok()),
                     })
                 } else {
                     None
@@ -429,7 +428,6 @@ async fn fetch_vesu_rewards(
         }
         Err(err) => {
             logger.info(format!("Failed to deserialize vesu response: {:?}", err));
-            // Err(Error::Reqwest(err))
             Ok(vec![]) // Return empty vector instead of error
         }
     }

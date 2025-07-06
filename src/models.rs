@@ -190,26 +190,10 @@ pub_struct!(Deserialize; VerifyNewQuery {
     task_id: u32,
 });
 
-pub_struct!(Deserialize; EmailQuery {
-    addr: FieldElement,
-    email: String,
-});
-
 pub_struct!(Deserialize; VerifyQuizQuery {
     addr: FieldElement,
     quiz_name: i64,
     user_answers_list: Vec<Vec<usize>>,
-});
-
-pub_struct!(Deserialize; VerifyBalanceQuery {
-    addr: FieldElement,
-    task_id: u32,
-});
-
-pub_struct!(Deserialize; UniquePageVisit {
-    viewer_ip: String,
-    viewed_page_id: String,
-    timestamp: i64,
 });
 
 pub_struct!(Deserialize; AchievementQuery {
@@ -397,13 +381,14 @@ pub_struct!(Deserialize; CreateBoostQuery {
 pub struct ZkLendReward {
     pub amount: Amount,
     pub claim_contract: FieldElement,
-    pub claim_id: u64,
+    #[serde(default)]
+    pub claim_id: Option<u64>,
     pub claimed: bool,
     pub proof: Vec<String>,
     pub recipient: String,
     pub token: Token,
     #[serde(rename = "type")]
-    pub response_type: String, // renaming to avoid keyword conflict
+    pub response_type: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -418,16 +403,15 @@ pub struct Token {
     pub name: String,
     pub symbol: String,
 }
-// Nostra Reward Structs
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct NostraResponse {
-    pub documents: Vec<NostraReward>, // Array of reward documents
+    pub documents: Vec<NostraReward>,
 }
 
-// Nostra Reward Structs
 #[derive(Serialize, Deserialize, Debug)]
 pub struct NostraPeriodsResponse {
-    pub documents: Vec<NostraRewardPeriods>, // Array of reward documents
+    pub documents: Vec<NostraRewardPeriods>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -452,20 +436,18 @@ pub struct NostraRewardPeriods {
     pub defi_spring_rewards_distributor: Option<FieldElement>,
 }
 
-// Nimbora Reward Struct
 #[derive(Serialize, Deserialize, Debug)]
 pub struct NimboraRewards {
     pub amount: FieldElement,
     pub proof: Vec<String>,
 }
 
-// Ekubo Reward Structs
 #[derive(Serialize, Deserialize, Debug)]
 pub struct EkuboRewards {
     pub contract_address: FieldElement,
     pub token: String,
-    pub start_date: String,
-    pub end_date: String,
+    pub start_date: Option<String>,
+    pub end_date: Option<String>,
     pub claim: Claim,
     pub proof: Vec<String>,
 }
@@ -524,8 +506,8 @@ pub struct CommonReward {
     pub token_symbol: String,
     pub reward_source: RewardSource,
     pub claimed: bool,
-    pub start_date: Option<String>,
-    pub end_date: Option<String>,
+    pub start_date: Option<u64>,
+    pub end_date: Option<u64>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
