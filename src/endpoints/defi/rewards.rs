@@ -102,7 +102,7 @@ async fn fetch_zklend_rewards(
                     amount: reward.amount.value,
                     displayed_amount: reward.amount.value,
                     proof: reward.proof,
-                    reward_id: Some(reward.claim_id),
+                    reward_id: reward.claim_id,
                     claim_contract: reward.claim_contract,
                     token_symbol: reward.token.symbol,
                     reward_source: RewardSource::ZkLend,
@@ -336,8 +336,8 @@ async fn fetch_ekubo_rewards(
                         token_symbol: strk_token.symbol,
                         reward_source: RewardSource::Ekubo,
                         claimed: false,
-                        start_date: Some(reward.start_date),
-                        end_date: Some(reward.end_date),
+                        start_date: reward.start_date,
+                        end_date: reward.end_date,
                     })
                 } else {
                     None

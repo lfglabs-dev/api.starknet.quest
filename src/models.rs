@@ -403,7 +403,8 @@ pub_struct!(Deserialize; CreateBoostQuery {
 pub struct ZkLendReward {
     pub amount: Amount,
     pub claim_contract: FieldElement,
-    pub claim_id: u64,
+    #[serde(default)]
+    pub claim_id: Option<u64>,
     pub claimed: bool,
     pub proof: Vec<String>,
     pub recipient: String,
@@ -466,12 +467,24 @@ pub struct NimboraRewards {
 }
 
 // Ekubo Reward Structs
+use serde::de::{self, Deserializer};
+
+fn string_or_null<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    Option::<String>::deserialize(deserializer)
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct EkuboRewards {
     pub contract_address: FieldElement,
-    pub token: String,
-    pub start_date: String,
-    pub end_date: String,
+    #[serde(default, deserialize_with = "string_or_null")]
+    pub token: Option<String>,
+    #[serde(default, deserialize_with = "string_or_null")]
+    pub start_date: Option<String>,
+    #[serde(default, deserialize_with = "string_or_null")]
+    pub end_date: Option<String>,
     pub claim: Claim,
     pub proof: Vec<String>,
 }
@@ -495,6 +508,7 @@ pub struct VesuData {
 pub struct VesuDistributorData {
     pub distributed_amount: String,
     pub claimed_amount: String,
+    #[serde(default)]
     pub call_data: Option<VesuCallData>,
 }
 
