@@ -6,12 +6,12 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
+use dashmap::DashMap;
 use futures::StreamExt;
 use mongodb::bson::doc;
+use once_cell::sync::Lazy;
 use serde::Deserialize;
 use std::sync::Arc;
-use dashmap::DashMap;
-use once_cell::sync::Lazy;
 use std::time::{Duration, Instant};
 
 #[derive(Deserialize)]
@@ -20,14 +20,9 @@ pub struct GetQuestsQuery {
 }
 
 // In-memory cache for endpoint results
-static QUEST_PARTICIPATION_CACHE: Lazy<DashMap<u32, (Instant, Vec<serde_json::Value>)>> = Lazy::new(DashMap::new);
+static QUEST_PARTICIPATION_CACHE: Lazy<DashMap<u32, (Instant, Vec<serde_json::Value>)>> =
+    Lazy::new(DashMap::new);
 const QUEST_PARTICIPATION_CACHE_TTL: Duration = Duration::from_secs(60); // 1 minute cache
-
-// IMPORTANT: Ensure the following indexes exist in MongoDB for optimal performance:
-// db.tasks.createIndex({ quest_id: 1 })
-// db.completed_tasks.createIndex({ task_id: 1, timestamp: 1 })
-// db.quests.createIndex({ id: 1 })
-// These indexes will significantly speed up the aggregation pipeline.
 
 #[route(get, "/analytics/get_quest_participation")]
 pub async fn handler(
@@ -35,21 +30,22 @@ pub async fn handler(
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
     // Check cache first
-    if let Some((cached_at, cached_result)) = QUEST_PARTICIPATION_CACHE.get(&query.id).map(|v| v.value().clone()) {
+    if let Some((cached_at, cached_result)) = QUEST_PARTICIPATION_CACHE
+        .get(&query.id)
+        .map(|v| v.value().clone())
+    {
         if cached_at.elapsed() < QUEST_PARTICIPATION_CACHE_TTL {
             return (StatusCode::OK, Json(cached_result)).into_response();
         }
     }
+
     let current_time = chrono::Utc::now().timestamp_millis();
+
     let quest_id = query.id;
-    let day_wise_distribution = vec![
+    let pipeline = vec![
+        doc! { "$match": { "quest_id": quest_id } },
         doc! {
-            "$match": doc! {
-                "quest_id": quest_id
-            }
-        },
-        doc! {
-            "$lookup": doc! {
+            "$lookup": {
                 "from": "quests",
                 "localField": "quest_id",
                 "foreignField": "id",
@@ -57,57 +53,36 @@ pub async fn handler(
             }
         },
         doc! {
-            "$set": doc! {
-                "expiry": doc! {
-                    "$arrayElemAt": [
-                        "$questDetails.expiry",
-                        0
-                    ]
-                }
+            "$set": {
+                "expiry": { "$arrayElemAt": ["$questDetails.expiry", 0] }
             }
         },
         doc! {
-            "$group": doc! {
-                "_id": doc! {
-                    "expiry": "$expiry"
-                },
-                "ids": doc! {
-                    "$push": "$id"
-                },
-                "otherDetails": doc! {
-                    "$push": "$$ROOT"
-                }
+            "$group": {
+                "_id": { "expiry": "$expiry" },
+                "ids": { "$push": "$id" },
+                "otherDetails": { "$push": "$$ROOT" }
             }
         },
         doc! {
-            "$lookup": doc! {
+            "$lookup": {
                 "from": "completed_tasks",
-                "let": doc! {
+                "let": {
                     "localIds": "$ids",
                     "expiry": "$_id.expiry"
                 },
                 "pipeline": [
-                    doc! {
-                        "$match": doc! {
-                            "$expr": doc! {
+                    {
+                        "$match": {
+                            "$expr": {
                                 "$and": [
-                                    doc! {
-                                        "$in": [
-                                            "$task_id",
-                                            "$$localIds"
+                                    { "$in": ["$task_id", "$$localIds"] },
+                                    {
+                                        "$lte": [
+                                            "$timestamp",
+                                            { "$ifNull": ["$$expiry", current_time] }
                                         ]
-                                    },
-                                   doc! {
-                                    "$lte": [
-                                        "$timestamp",
-                                        doc! {
-                                            "$ifNull": [
-                                                "$$expiry",
-                                                current_time
-                                            ]
-                                        }
-                                    ]
-                                }
+                                    }
                                 ]
                             }
                         }
@@ -116,67 +91,52 @@ pub async fn handler(
                 "as": "matching_documents"
             }
         },
+        doc! { "$unwind": "$matching_documents" },
         doc! {
-            "$unwind": "$matching_documents"
-        },
-        doc! {
-            "$group": doc! {
+            "$group": {
                 "_id": "$matching_documents.task_id",
-                "count": doc! {
-                    "$sum": 1
-                },
-                "details": doc! {
-                    "$first": "$otherDetails"
-                }
+                "count": { "$sum": 1 },
+                "details": { "$first": "$otherDetails" }
             }
         },
         doc! {
-            "$project": doc! {
+            "$project": {
                 "_id": 1,
                 "count": 1,
-                "otherDetails": doc! {
-                    "$filter": doc! {
+                "otherDetails": {
+                    "$filter": {
                         "input": "$details",
                         "as": "detail",
-                        "cond": doc! {
-                            "$eq": [
-                                "$$detail.id",
-                                "$_id"
-                            ]
-                        }
+                        "cond": { "$eq": [ "$$detail.id", "$_id" ] }
                     }
                 }
             }
         },
+        doc! { "$unwind": "$otherDetails" },
         doc! {
-            "$unwind": "$otherDetails"
-        },
-        doc! {
-            "$replaceRoot": doc! {
-                "newRoot": doc! {
+            "$replaceRoot": {
+                "newRoot": {
                     "$mergeObjects": [
                         "$matching_documents",
                         "$otherDetails",
-                        doc! {
-                            "count": "$count"
-                        }
+                        { "count": "$count" }
                     ]
                 }
             }
         },
         doc! {
-          "$project": doc! {
-              "otherDetails": 0,
-              "_id":0,
-              "verify_endpoint": 0,
-              "verify_endpoint_type": 0,
-              "verify_redirect":0,
-              "href": 0,
-              "cta": 0,
-              "id": 0,
-              "quest_id": 0,
-              "questDetails": 0,
-              "expiry":0
+            "$project": {
+                "otherDetails": 0,
+                "_id": 0,
+                "verify_endpoint": 0,
+                "verify_endpoint_type": 0,
+                "verify_redirect": 0,
+                "href": 0,
+                "cta": 0,
+                "id": 0,
+                "quest_id": 0,
+                "questDetails": 0,
+                "expiry": 0
             }
         },
     ];
@@ -184,27 +144,34 @@ pub async fn handler(
     match state
         .db
         .collection::<QuestTaskDocument>("tasks")
-        .aggregate(day_wise_distribution, None)
+        .aggregate(pipeline, None)
         .await
     {
         Ok(mut cursor) => {
             let mut task_activity = Vec::new();
             while let Some(result) = cursor.next().await {
                 match result {
-                    Ok(document) => {
-                        // Convert Document to serde_json::Value
-                        let value: serde_json::Value = match serde_json::to_value(&document) {
-                            Ok(val) => val,
-                            Err(_) => continue,
-                        };
-                        task_activity.push(value);
+                    Ok(document) => match serde_json::to_value(&document) {
+                        Ok(json) => task_activity.push(json),
+                        Err(e) => {
+                            state.logger.warning(format!(
+                                "[WARN] Quest ID {} - Skipping doc due to serialization error: {:?}",
+                                query.id, e
+                            ));
+                        }
+                    },
+                    Err(e) => {
+                        state.logger.warning(format!(
+                            "[WARN] Quest ID {} - Cursor read error: {:?}",
+                            query.id, e
+                        ));
                     }
-                    _ => continue,
                 }
             }
-            // Store in cache
+
             QUEST_PARTICIPATION_CACHE.insert(query.id, (Instant::now(), task_activity.clone()));
-            return (StatusCode::OK, Json(task_activity)).into_response();
+
+            (StatusCode::OK, Json(task_activity)).into_response()
         }
         Err(_) => get_error("Error querying tasks".to_string()),
     }
