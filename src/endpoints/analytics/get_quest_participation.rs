@@ -6,12 +6,12 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use axum_auto_routes::route;
+use dashmap::DashMap;
 use futures::StreamExt;
 use mongodb::bson::doc;
+use once_cell::sync::Lazy;
 use serde::Deserialize;
 use std::sync::Arc;
-use dashmap::DashMap;
-use once_cell::sync::Lazy;
 use std::time::{Duration, Instant};
 
 #[derive(Deserialize)]
@@ -30,23 +30,15 @@ pub async fn handler(
     Query(query): Query<GetQuestsQuery>,
 ) -> impl IntoResponse {
     // Check cache first
-    if let Some((cached_at, cached_result)) =
-        QUEST_PARTICIPATION_CACHE.get(&query.id).map(|v| v.value().clone())
+    if let Some((cached_at, cached_result)) = QUEST_PARTICIPATION_CACHE
+        .get(&query.id)
+        .map(|v| v.value().clone())
     {
         if cached_at.elapsed() < QUEST_PARTICIPATION_CACHE_TTL {
-            state.logger.info(format!(
-                "[Cache HIT] Quest ID {} - Returned from cache",
-                query.id
-            ));
             return (StatusCode::OK, Json(cached_result)).into_response();
         }
     }
 
-    state.logger.info(format!(
-        "[START] Quest ID {} - Starting aggregation",
-        query.id
-    ));
-    let full_timer = Instant::now();
     let current_time = chrono::Utc::now().timestamp_millis();
 
     let quest_id = query.id;
@@ -149,7 +141,6 @@ pub async fn handler(
         },
     ];
 
-    let aggregation_timer = Instant::now();
     match state
         .db
         .collection::<QuestTaskDocument>("tasks")
@@ -157,12 +148,6 @@ pub async fn handler(
         .await
     {
         Ok(mut cursor) => {
-            state.logger.info(format!(
-                "[INFO] Quest ID {} - Aggregation returned in {:?}",
-                query.id,
-                aggregation_timer.elapsed()
-            ));
-
             let mut task_activity = Vec::new();
             while let Some(result) = cursor.next().await {
                 match result {
@@ -186,20 +171,9 @@ pub async fn handler(
 
             QUEST_PARTICIPATION_CACHE.insert(query.id, (Instant::now(), task_activity.clone()));
 
-            state.logger.info(format!(
-                "[DONE] Quest ID {} - Total handler time: {:?}",
-                query.id,
-                full_timer.elapsed()
-            ));
             (StatusCode::OK, Json(task_activity)).into_response()
         }
-        Err(e) => {
-            state.logger.severe(format!(
-                "[ERROR] Quest ID {} - Aggregation failed: {}",
-                query.id, e
-            ));
-            get_error("Error querying tasks".to_string())
-        }
+        Err(_) => get_error("Error querying tasks".to_string()),
     }
 }
 // Pipeline optimization note:
